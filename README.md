@@ -1,6 +1,8 @@
 # porelo-forge-clients
 
-> **Early bird - work in progress.** Until release 1.0.0, its code and interfaces can change without notice.
+<img src="doc/images/crazy-chicken.svg" width="350" alt="Crazy chicken - just hatched">
+
+> **Crazy chicken - just hatched.** Interfaces, formats and even the purpose may change any day. Use it only to try ideas, never to build on.
 
 Small Java clients of the forges' and build servers' APIs, one module per forge or build server, published to Maven
 Central under `org.fuin.porelo`. They cover only what a code review and a build need - pull requests, reviews, review
