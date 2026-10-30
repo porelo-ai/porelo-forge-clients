@@ -7,7 +7,8 @@ against a Forgejo container on every build.
 **What must be true.** A caller reads and writes what a code review and a build need on Forgejo through the
 `forgejo` module, `org.fuin.porelo:porelo-forge-client-forgejo`: pull requests, reviews and their comments,
 suggestions, commit statuses and Actions runs, jobs and their logs, branches, webhooks, and the account and its
-organization membership - in Forgejo's own terms, knowing nothing of Porelo.
+organization membership - in Forgejo's own terms, knowing nothing of Porelo. Only Forgejo 17 is served; an
+older or newer major release is not promised to work.
 
 ## Why
 
@@ -66,11 +67,6 @@ file describes no webhook payloads.
   body read only up to a bound.
 - A redirect to another origin carries no token, seen in a test that fails when it does; an `HttpClient` that
   follows redirects itself is refused when the client is built.
-
-## Open questions
-
-- **Which Forgejo versions?** Recommendation: the current release, 17, and from then on each new major release
-  replaces it; an older server is not promised to work.
 
 ## To be checked
 
