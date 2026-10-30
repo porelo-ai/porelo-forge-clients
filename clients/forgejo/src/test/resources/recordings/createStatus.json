@@ -1,28 +1,28 @@
 {
-  "request_uri" : "/api/v1/repos/review-org/review-fixture/statuses/9892f0c08a7c6c9370ce3686b63b38686a597407",
+  "request_uri" : "/api/v1/repos/review-org/review-fixture/statuses/85a4ee9b4fc373c8b5638ee2082b4f46bfaaeba1",
   "status" : 201,
   "headers" : {
     "content-type" : [
       "application/json;charset=utf-8"
     ]
   },
-  "body" : "{\"id\":1,\"status\":\"success\",\"target_url\":\"https://example.org/build/1\",\"description\":\"Fixture passed\",\"url\":\"http://example.org/api/v1/repos/review-org/review-fixture/statuses/9892f0c08a7c6c9370ce3686b63b38686a597407\",\"context\":\"fixture/build\",\"creator\":{\"id\":1,\"login\":\"fixture-admin\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/79842509f91b83d21aebc8fcaa5a02fa\",\"html_url\":\"http://example.org/fixture-admin\",\"language\":\"\",\"is_admin\":false,\"last_login\":\"0001-01-01T00:00:00Z\",\"created\":\"2026-10-30T19:33:24Z\",\"restricted\":false,\"active\":false,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-admin\"},\"created_at\":\"2026-10-30T19:33:26Z\",\"updated_at\":\"2026-10-30T19:33:26Z\"}",
+  "body" : "{\"id\":1,\"status\":\"success\",\"target_url\":\"https://example.org/build/1\",\"description\":\"Fixture passed\",\"url\":\"http://example.org/api/v1/repos/review-org/review-fixture/statuses/85a4ee9b4fc373c8b5638ee2082b4f46bfaaeba1\",\"context\":\"fixture/build\",\"creator\":{\"id\":1,\"login\":\"fixture-admin\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/79842509f91b83d21aebc8fcaa5a02fa\",\"html_url\":\"http://example.org/fixture-admin\",\"language\":\"\",\"is_admin\":false,\"last_login\":\"0001-01-01T00:00:00Z\",\"created\":\"2026-10-30T19:55:06Z\",\"restricted\":false,\"active\":false,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-admin\"},\"created_at\":\"2026-10-30T19:55:07Z\",\"updated_at\":\"2026-10-30T19:55:07Z\"}",
   "exchanges" : [
     {
-      "request_uri" : "/api/v1/repos/review-org/review-fixture/statuses/9892f0c08a7c6c9370ce3686b63b38686a597407",
+      "request_uri" : "/api/v1/repos/review-org/review-fixture/statuses/85a4ee9b4fc373c8b5638ee2082b4f46bfaaeba1",
       "status" : 201,
       "headers" : {
         "content-type" : [
           "application/json;charset=utf-8"
         ]
       },
-      "body" : "{\"id\":1,\"status\":\"success\",\"target_url\":\"https://example.org/build/1\",\"description\":\"Fixture passed\",\"url\":\"http://example.org/api/v1/repos/review-org/review-fixture/statuses/9892f0c08a7c6c9370ce3686b63b38686a597407\",\"context\":\"fixture/build\",\"creator\":{\"id\":1,\"login\":\"fixture-admin\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/79842509f91b83d21aebc8fcaa5a02fa\",\"html_url\":\"http://example.org/fixture-admin\",\"language\":\"\",\"is_admin\":false,\"last_login\":\"0001-01-01T00:00:00Z\",\"created\":\"2026-10-30T19:33:24Z\",\"restricted\":false,\"active\":false,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-admin\"},\"created_at\":\"2026-10-30T19:33:26Z\",\"updated_at\":\"2026-10-30T19:33:26Z\"}"
+      "body" : "{\"id\":1,\"status\":\"success\",\"target_url\":\"https://example.org/build/1\",\"description\":\"Fixture passed\",\"url\":\"http://example.org/api/v1/repos/review-org/review-fixture/statuses/85a4ee9b4fc373c8b5638ee2082b4f46bfaaeba1\",\"context\":\"fixture/build\",\"creator\":{\"id\":1,\"login\":\"fixture-admin\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/79842509f91b83d21aebc8fcaa5a02fa\",\"html_url\":\"http://example.org/fixture-admin\",\"language\":\"\",\"is_admin\":false,\"last_login\":\"0001-01-01T00:00:00Z\",\"created\":\"2026-10-30T19:55:06Z\",\"restricted\":false,\"active\":false,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-admin\"},\"created_at\":\"2026-10-30T19:55:07Z\",\"updated_at\":\"2026-10-30T19:55:07Z\"}"
     }
   ],
   "context" : {
     "owner" : "review-org",
     "repo" : "review-fixture",
-    "sha" : "9892f0c08a7c6c9370ce3686b63b38686a597407",
+    "sha" : "85a4ee9b4fc373c8b5638ee2082b4f46bfaaeba1",
     "actionsSha" : "pending",
     "index" : 1,
     "review" : 1,
@@ -31,9 +31,9 @@
     "key" : 1
   },
   "request_body" : {
-    "context" : "fixture/build",
     "state" : "success",
-    "target_url" : "https://example.org/build/1",
-    "description" : "Fixture passed"
+    "context" : "fixture/build",
+    "description" : "Fixture passed",
+    "target_url" : "https://example.org/build/1"
   }
 }

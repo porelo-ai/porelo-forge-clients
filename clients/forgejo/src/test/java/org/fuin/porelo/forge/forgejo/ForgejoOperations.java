@@ -25,6 +25,7 @@ enum ForgejoOperations {
     user("GET"),
     organizations("GET"),
     keys("GET"),
+    plainKeys("GET"),
     addKey("POST"),
     ownKeys("GET"),
     deleteKey("DELETE"),
@@ -93,6 +94,7 @@ enum ForgejoOperations {
             case user -> client.user(token);
             case organizations -> client.organizations(token, 1, 50);
             case keys -> client.keys(token, ForgejoContainer.REVIEWER, 1, 50);
+            case plainKeys -> client.plainKeys(ForgejoContainer.REVIEWER);
             case addKey -> client.addKey(token, JSON.treeToValue(body, CreateKeyOption.class));
             case ownKeys -> client.ownKeys(token, 1, 50);
             case deleteKey -> {
@@ -129,6 +131,7 @@ enum ForgejoOperations {
             case user -> "/api/v1/user";
             case organizations -> "/api/v1/user/orgs";
             case keys -> "/api/v1/users/" + ForgejoContainer.REVIEWER + "/keys";
+            case plainKeys -> "/" + ForgejoContainer.REVIEWER + ".keys";
             case addKey, ownKeys -> "/api/v1/user/keys";
             case deleteKey -> "/api/v1/user/keys/" + c.key();
             case organizationPermissions ->

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -24,6 +25,7 @@ import org.jspecify.annotations.Nullable;
  * Synchronous Forgejo 17 API calls. The caller owns the transport and supplies a token per call.
  */
 public final class ForgejoClient {
+    private static final int MAX_PLAIN_KEYS_BYTES = 256 * 1024;
     private final URI base;
     private final HttpClient http;
     private final ObjectMapper json;
@@ -236,6 +238,56 @@ public final class ForgejoClient {
                 "users/" + segment(login) + "/keys?" + pageQuery(page, limit),
                 null,
                 listType(PublicKey.class));
+    }
+
+    /**
+     * Reads an account's public SSH keys without a token, as the lines of Forgejo's page {@code
+     * <login>.keys} beside the API, comments kept. A missing login is a {@link ForgejoException}
+     * with status 404; no failure reads as an empty list.
+     */
+    public List<String> plainKeys(String login) {
+        if (!base.getRawPath().endsWith("/api/v1/")) {
+            throw new IllegalStateException(
+                    "The API base must end in /api/v1/ to find the web root");
+        }
+        URI uri = base.resolve("../../" + segment(login) + ".keys");
+        HttpResponse<InputStream> response;
+        try {
+            response =
+                    http.send(
+                            HttpRequest.newBuilder(uri)
+                                    .timeout(Duration.ofSeconds(60))
+                                    .header("Accept", "text/plain")
+                                    .GET()
+                                    .build(),
+                            HttpResponse.BodyHandlers.ofInputStream());
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new ForgejoException(0, "Forgejo request interrupted");
+        } catch (IOException | IllegalArgumentException ex) {
+            throw new ForgejoException(0, "Forgejo request failed");
+        }
+        try (InputStream body = response.body()) {
+            if (response.statusCode() != 200) {
+                throw new ForgejoException(
+                        response.statusCode(), "Forgejo key page request failed");
+            }
+            String type = response.headers().firstValue("Content-Type").orElse("");
+            if (!type.toLowerCase(Locale.ROOT).startsWith("text/plain")) {
+                throw new ForgejoException(200, "Forgejo key page is not plain text");
+            }
+            byte[] bytes = body.readNBytes(MAX_PLAIN_KEYS_BYTES + 1);
+            if (bytes.length > MAX_PLAIN_KEYS_BYTES) {
+                throw new ForgejoException(200, "Forgejo key page exceeds its bound");
+            }
+            return new String(bytes, StandardCharsets.UTF_8)
+                    .lines()
+                    .map(String::strip)
+                    .filter(line -> !line.isEmpty())
+                    .toList();
+        } catch (IOException ex) {
+            throw new ForgejoException(0, "Forgejo key page could not be read");
+        }
     }
 
     /** Lists one page of the authenticated account's own SSH keys. */

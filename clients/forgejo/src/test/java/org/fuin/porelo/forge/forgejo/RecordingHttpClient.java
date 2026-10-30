@@ -9,6 +9,7 @@ import java.net.ProxySelector;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,10 +40,9 @@ final class RecordingHttpClient extends HttpClient {
     @Override
     public <T> HttpResponse<T> send(HttpRequest request, HttpResponse.BodyHandler<T> handler)
             throws IOException, InterruptedException {
-        HttpResponse<T> response = delegate.send(request, handler);
-        if (!(response.body() instanceof String body)) {
-            throw new IllegalArgumentException("The fixture transport captures only text bodies");
-        }
+        HttpResponse<String> response =
+                delegate.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        String body = response.body();
         ObjectNode recorded = json.createObjectNode();
         // Redirect queries may contain storage signatures that are unknown to the fixture.
         if (exchanges.isEmpty()) {
@@ -64,7 +64,8 @@ final class RecordingHttpClient extends HttpClient {
         recorded.set("headers", json.valueToTree(headers));
         recorded.put("body", body);
         exchanges.add(recorded);
-        return response;
+        return ReplayHttpClient.deliver(
+                request, response.statusCode(), response.headers(), body, handler);
     }
 
     /** Uses the caller’s transport configuration. */

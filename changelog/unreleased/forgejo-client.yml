@@ -1,2 +1,2 @@
-title: Add a Forgejo 17 client for pull requests, reviews, commit statuses, Actions runs, branches, webhooks, repositories, SSH keys, organization permissions and the account, with records generated from Forgejo's own API description.
+title: Add a Forgejo 17 client for pull requests, reviews, commit statuses, Actions runs, branches, webhooks, repositories, SSH keys and the plain key page, organization permissions and the account, with records generated from Forgejo's own API description.
 type: added

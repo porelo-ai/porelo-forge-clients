@@ -6,7 +6,7 @@
       "application/json;charset=utf-8"
     ]
   },
-  "body" : "{\"name\":\"feature\",\"commit\":{\"id\":\"9892f0c08a7c6c9370ce3686b63b38686a597407\",\"message\":\"Add live fixture\\n\",\"url\":\"http://example.org/review-org/review-fixture/commit/9892f0c08a7c6c9370ce3686b63b38686a597407\",\"author\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"committer\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"verification\":{\"verified\":false,\"reason\":\"gpg.error.not_signed_commit\",\"signature\":\"\",\"signer\":null,\"payload\":\"\"},\"timestamp\":\"2026-10-30T19:33:25Z\",\"added\":null,\"removed\":null,\"modified\":null},\"protected\":false,\"required_approvals\":0,\"enable_status_check\":false,\"status_check_contexts\":[],\"user_can_push\":true,\"user_can_merge\":true,\"effective_branch_protection_name\":\"\"}",
+  "body" : "{\"name\":\"feature\",\"commit\":{\"id\":\"85a4ee9b4fc373c8b5638ee2082b4f46bfaaeba1\",\"message\":\"Add live fixture\\n\",\"url\":\"http://example.org/review-org/review-fixture/commit/85a4ee9b4fc373c8b5638ee2082b4f46bfaaeba1\",\"author\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"committer\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"verification\":{\"verified\":false,\"reason\":\"gpg.error.not_signed_commit\",\"signature\":\"\",\"signer\":null,\"payload\":\"\"},\"timestamp\":\"2026-10-30T19:55:06Z\",\"added\":null,\"removed\":null,\"modified\":null},\"protected\":false,\"required_approvals\":0,\"enable_status_check\":false,\"status_check_contexts\":[],\"user_can_push\":true,\"user_can_merge\":true,\"effective_branch_protection_name\":\"\"}",
   "exchanges" : [
     {
       "request_uri" : "/api/v1/repos/review-org/review-fixture/branches/feature",
@@ -16,14 +16,14 @@
           "application/json;charset=utf-8"
         ]
       },
-      "body" : "{\"name\":\"feature\",\"commit\":{\"id\":\"9892f0c08a7c6c9370ce3686b63b38686a597407\",\"message\":\"Add live fixture\\n\",\"url\":\"http://example.org/review-org/review-fixture/commit/9892f0c08a7c6c9370ce3686b63b38686a597407\",\"author\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"committer\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"verification\":{\"verified\":false,\"reason\":\"gpg.error.not_signed_commit\",\"signature\":\"\",\"signer\":null,\"payload\":\"\"},\"timestamp\":\"2026-10-30T19:33:25Z\",\"added\":null,\"removed\":null,\"modified\":null},\"protected\":false,\"required_approvals\":0,\"enable_status_check\":false,\"status_check_contexts\":[],\"user_can_push\":true,\"user_can_merge\":true,\"effective_branch_protection_name\":\"\"}"
+      "body" : "{\"name\":\"feature\",\"commit\":{\"id\":\"85a4ee9b4fc373c8b5638ee2082b4f46bfaaeba1\",\"message\":\"Add live fixture\\n\",\"url\":\"http://example.org/review-org/review-fixture/commit/85a4ee9b4fc373c8b5638ee2082b4f46bfaaeba1\",\"author\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"committer\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"verification\":{\"verified\":false,\"reason\":\"gpg.error.not_signed_commit\",\"signature\":\"\",\"signer\":null,\"payload\":\"\"},\"timestamp\":\"2026-10-30T19:55:06Z\",\"added\":null,\"removed\":null,\"modified\":null},\"protected\":false,\"required_approvals\":0,\"enable_status_check\":false,\"status_check_contexts\":[],\"user_can_push\":true,\"user_can_merge\":true,\"effective_branch_protection_name\":\"\"}"
     }
   ],
   "context" : {
     "owner" : "review-org",
     "repo" : "review-fixture",
-    "sha" : "9892f0c08a7c6c9370ce3686b63b38686a597407",
-    "actionsSha" : "faf27d3ca426c87a281c22a15f84bff3ce89c9ef",
+    "sha" : "85a4ee9b4fc373c8b5638ee2082b4f46bfaaeba1",
+    "actionsSha" : "816e6da17392afa0f99897f3a0ae01a735971645",
     "index" : 1,
     "review" : 1,
     "run" : 1,

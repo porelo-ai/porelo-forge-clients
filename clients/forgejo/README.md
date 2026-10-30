@@ -18,8 +18,10 @@ List<PullRequest> open = forgejo.pulls(token, "owner", "repo", "open", 1, 50);
 - The base ends in `/api/v1/`. The caller owns the `HttpClient` and its certificate trust; one that follows
   redirects itself is refused, since the client sends the token only to the base's own scheme, host and port.
   A job log's redirect is followed by hand, at most five times, without the token to another origin.
-- Every call takes a token, passed with the call and never stored; Forgejo 17 asks for one even for an
-  account's public keys. `keys` lists an account's public SSH keys; `ownKeys`, `addKey` and `deleteKey` list, add
+- Every API call takes a token, passed with the call and never stored; Forgejo 17 asks for one even for an
+  account's public keys. `plainKeys(login)` is the one call without a token: it reads the page `<login>.keys`
+  at the web root beside the API, one key per line, and a missing login is a `ForgejoException` with status 404.
+  `keys` lists an account's public SSH keys; `ownKeys`, `addKey` and `deleteKey` list, add
   and delete the authenticated account's own, and a key Forgejo already has is refused with its status.
   `organizationPermissions` reads an account's permissions in an organization; Forgejo 17 leaves out `is_owner`
   for anyone but an owner, so it reads as null then. `repository` reads a repository, and `createRepository`

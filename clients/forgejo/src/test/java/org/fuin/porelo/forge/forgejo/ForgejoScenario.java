@@ -86,6 +86,16 @@ final class ForgejoScenario {
                             : fixture.adminToken();
             Object result = operation.invoke(client, token, context, body);
             requireUsefulResult(operation, result);
+            if (operation == ForgejoOperations.plainKeys) {
+                String seeded =
+                        String.join(
+                                " ",
+                                List.of(ForgejoContainer.REVIEWER_PUBLIC_KEY.split(" "))
+                                        .subList(0, 2));
+                assertThat((List<?>) result)
+                        .as("the key page lists the seeded key")
+                        .anySatisfy(line -> assertThat((String) line).startsWith(seeded));
+            }
             if (operation == ForgejoOperations.createPull) {
                 Long index = ((PullRequest) result).number();
                 if (index == null || index < 1) {

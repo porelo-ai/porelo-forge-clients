@@ -337,4 +337,41 @@ class ForgejoClientTest {
                 .as("a branch name is exactly one encoded path segment")
                 .isEqualTo("/api/v1/repos/owner/repo/branches/%2E%2E%2Ffeature%2Fa%3Fx%3D1");
     }
+
+    // Prevents a token from reaching the public key page, and a page from being read as JSON.
+    @Test
+    void thePlainKeyPageIsReadWithoutAToken() throws Exception {
+        var http = new ReplayHttpClient().recording("plainKeys");
+        assertThat(new ForgejoClient(BASE, http).plainKeys("fixture-reviewer"))
+                .as("the recorded page lists the seeded key")
+                .anySatisfy(line -> assertThat(line).startsWith("ssh-ed25519 "));
+        assertThat(http.requests.getFirst().uri().getRawPath())
+                .as("the key page sits at the web root, beside the API")
+                .isEqualTo("/fixture-reviewer.keys");
+        assertThat(http.requests.getFirst().headers().firstValue("Authorization"))
+                .as("the key page is read without a token")
+                .isEmpty();
+    }
+
+    // Prevents a missing login, or a broken page, from reading as an account without keys.
+    @Test
+    void aFailedKeyPageIsNeverAnEmptyList() {
+        for (int status : new int[] {404, 500}) {
+            var http = new ReplayHttpClient().answer(status, Map.of(), "Not found");
+            assertThatExceptionOfType(ForgejoException.class)
+                    .as("status %s is an error, not an empty key list", status)
+                    .isThrownBy(() -> new ForgejoClient(BASE, http).plainKeys("fixture-reviewer"))
+                    .satisfies(
+                            ex ->
+                                    assertThat(ex.status())
+                                            .as("the caller tells a missing login by its status")
+                                            .isEqualTo(status));
+        }
+        var html =
+                new ReplayHttpClient()
+                        .answer(200, Map.of("content-type", List.of("text/html")), "<html>");
+        assertThatExceptionOfType(ForgejoException.class)
+                .as("a page that is not plain text is refused")
+                .isThrownBy(() -> new ForgejoClient(BASE, html).plainKeys("fixture-reviewer"));
+    }
 }

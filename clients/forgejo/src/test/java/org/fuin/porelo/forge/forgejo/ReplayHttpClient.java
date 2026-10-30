@@ -70,10 +70,20 @@ final class ReplayHttpClient extends HttpClient {
         requests.add(request);
         Answer answer = answers.remove();
         HttpHeaders headers = HttpHeaders.of(answer.headers(), (key, value) -> true);
+        return deliver(request, answer.status(), headers, answer.body(), handler);
+    }
+
+    /** Delivers a text body through any BodyHandler, as a real transport does. */
+    static <T> HttpResponse<T> deliver(
+            HttpRequest request,
+            int status,
+            HttpHeaders headers,
+            String text,
+            HttpResponse.BodyHandler<T> handler) {
         HttpResponse.ResponseInfo info =
                 new HttpResponse.ResponseInfo() {
                     public int statusCode() {
-                        return answer.status();
+                        return status;
                     }
 
                     public HttpHeaders headers() {
@@ -95,8 +105,7 @@ final class ReplayHttpClient extends HttpClient {
                             subscriber.onNext(
                                     List.of(
                                             java.nio.ByteBuffer.wrap(
-                                                    answer.body()
-                                                            .getBytes(StandardCharsets.UTF_8))));
+                                                    text.getBytes(StandardCharsets.UTF_8))));
                             subscriber.onComplete();
                         }
                     }
@@ -108,7 +117,7 @@ final class ReplayHttpClient extends HttpClient {
         T body = subscriber.getBody().toCompletableFuture().join();
         return new HttpResponse<>() {
             public int statusCode() {
-                return answer.status();
+                return status;
             }
 
             public HttpRequest request() {
