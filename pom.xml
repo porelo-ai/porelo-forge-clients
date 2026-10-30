@@ -77,6 +77,7 @@
     <modules>
         <module>openapi-extract</module>
         <module>openapi-records</module>
+        <module>clients</module>
     </modules>
 
     <build>
@@ -136,6 +137,22 @@
         </pluginManagement>
 
         <plugins>
+
+            <plugin>
+                <groupId>dev.logchange</groupId>
+                <artifactId>logchange-maven-plugin</artifactId>
+                <version>${logchange-maven-plugin.version}</version>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>logchange-lint</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>lint</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

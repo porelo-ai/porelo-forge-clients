@@ -1,0 +1,25 @@
+{
+  "status" : 200,
+  "headers" : {
+    "content-type" : [ "application/json;charset=utf-8" ]
+  },
+  "body" : "{\"name\":\"feature\",\"commit\":{\"id\":\"54d4988674abac9fe4163b533cf329f25bb5b125\",\"message\":\"Add live fixture\\n\",\"url\":\"http://example.org/review-org/review-fixture/commit/54d4988674abac9fe4163b533cf329f25bb5b125\",\"author\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"committer\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"verification\":{\"verified\":false,\"reason\":\"gpg.error.not_signed_commit\",\"signature\":\"\",\"signer\":null,\"payload\":\"\"},\"timestamp\":\"2026-10-30T10:04:35Z\",\"added\":null,\"removed\":null,\"modified\":null},\"protected\":false,\"required_approvals\":0,\"enable_status_check\":false,\"status_check_contexts\":[],\"user_can_push\":true,\"user_can_merge\":true,\"effective_branch_protection_name\":\"\"}",
+  "exchanges" : [ {
+    "status" : 200,
+    "headers" : {
+      "content-type" : [ "application/json;charset=utf-8" ]
+    },
+    "body" : "{\"name\":\"feature\",\"commit\":{\"id\":\"54d4988674abac9fe4163b533cf329f25bb5b125\",\"message\":\"Add live fixture\\n\",\"url\":\"http://example.org/review-org/review-fixture/commit/54d4988674abac9fe4163b533cf329f25bb5b125\",\"author\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"committer\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"verification\":{\"verified\":false,\"reason\":\"gpg.error.not_signed_commit\",\"signature\":\"\",\"signer\":null,\"payload\":\"\"},\"timestamp\":\"2026-10-30T10:04:35Z\",\"added\":null,\"removed\":null,\"modified\":null},\"protected\":false,\"required_approvals\":0,\"enable_status_check\":false,\"status_check_contexts\":[],\"user_can_push\":true,\"user_can_merge\":true,\"effective_branch_protection_name\":\"\"}"
+  } ],
+  "context" : {
+    "owner" : "review-org",
+    "repo" : "review-fixture",
+    "sha" : "54d4988674abac9fe4163b533cf329f25bb5b125",
+    "actionsSha" : "803dc3ac6a461475801869a33693060e65f6fb78",
+    "index" : 1,
+    "review" : 1,
+    "run" : 1,
+    "job" : 1
+  },
+  "request_body" : null
+}

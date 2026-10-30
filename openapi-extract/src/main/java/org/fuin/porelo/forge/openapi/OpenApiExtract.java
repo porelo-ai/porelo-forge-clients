@@ -39,6 +39,7 @@ public final class OpenApiExtract {
                         arguments.one("--sha256"),
                         Path.of(arguments.one("--out")),
                         arguments.replacements(),
+                        arguments.additions(),
                         arguments.selection());
             } else {
                 service.check(Path.of(arguments.one("--extract")), arguments.selection());
@@ -71,6 +72,7 @@ public final class OpenApiExtract {
                                     "--sha256",
                                     "--out",
                                     "--replace",
+                                    "--add-property",
                                     "--operation",
                                     "--webhook")
                             : Set.of("--extract", "--operation", "--webhook");
@@ -87,7 +89,8 @@ public final class OpenApiExtract {
             }
             Arguments result = new Arguments(args[0], options);
             for (String option : allowed) {
-                if (!Set.of("--operation", "--webhook", "--replace").contains(option)) {
+                if (!Set.of("--operation", "--webhook", "--replace", "--add-property")
+                        .contains(option)) {
                     result.one(option);
                 }
             }
@@ -115,6 +118,24 @@ public final class OpenApiExtract {
             return new Selection(
                     new LinkedHashSet<>(options.getOrDefault("--operation", List.of())),
                     new LinkedHashSet<>(options.getOrDefault("--webhook", List.of())));
+        }
+
+        List<ExtractService.Addition> additions() {
+            List<ExtractService.Addition> additions = new ArrayList<>();
+            for (String addition : options.getOrDefault("--add-property", List.of())) {
+                int dot = addition.indexOf('.');
+                int separator = addition.indexOf('=');
+                if (dot < 1 || separator < dot + 2) {
+                    throw new IllegalArgumentException(
+                            "Addition must be <schema>.<property>=<JSON schema of the property>");
+                }
+                additions.add(
+                        new ExtractService.Addition(
+                                addition.substring(0, dot),
+                                addition.substring(dot + 1, separator),
+                                addition.substring(separator + 1)));
+            }
+            return additions;
         }
 
         List<ExtractService.Replacement> replacements() {

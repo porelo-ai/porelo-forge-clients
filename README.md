@@ -9,6 +9,7 @@ Central under `org.fuin.porelo`. They cover only what a code review and a build 
 comments and threads, suggestions, checks and build results, webhooks, the account and its membership - and are not
 complete clients of any API. They know nothing of Porelo: Porelo's adapters use them and translate what they return.
 
+- [clients](clients/README.md) - the published forge clients.
 - [openapi-extract](openapi-extract/README.md) - the command that keeps a client's extract of a forge's pinned
   OpenAPI description, built here and never published.
 - [openapi-records](openapi-records/README.md) - the check that the records every client generates compile under

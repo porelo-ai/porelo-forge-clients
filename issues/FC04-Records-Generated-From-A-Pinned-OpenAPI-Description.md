@@ -52,7 +52,9 @@ filtered to the operations the module lists, with nothing at run time but Jackso
     body before writing anything when its digest differs, replaces a
     template's placeholders (Forgejo's two strings), keeps the listed operations and webhooks and the components
     they reach, and drops the `discriminator` of a schema whose `oneOf` or `anyOf` only narrows its own properties,
-    since without its `oneOf` the generator would make it a class;
+    since without its `oneOf` the generator would make it a class; a property a forge sends but its description
+    lacks is added by name (`--add-property`), refused when the description already has it, and recorded in the
+    extract's `info`;
   - `check`, at every build, fails naming a listed operation missing from the extract, an operation in it not
     listed, and a component nothing listed reaches.
 - **Strict in the tests, lenient at run time:** every reader of a client module - its calls, GraphQL answers and

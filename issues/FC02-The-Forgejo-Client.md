@@ -30,11 +30,16 @@ file describes no webhook payloads.
 - **Files:** the root `pom.xml` and `clients/pom.xml` (made by whichever of the two clients comes first),
   `clients/forgejo/pom.xml` and its `README.md`, `clients/forgejo/src/main/openapi/` (the extract of Forgejo 17's
   file, `SOURCE` with the commit of tag `v17.0.1`, `363f3dc30beef902b187af5a5244ff7af44901e6`, and the digest, the
-  MIT notice), `org.fuin.porelo.forge.forgejo.ForgejoClient` (`HttpClient` and base URI given, refused if it follows
+  MIT notice; the one property Forgejo 17 sends but its file lacks, `User.username`, is added by the extract's
+  `--add-property`), `org.fuin.porelo.forge.forgejo.ForgejoClient` (`HttpClient` and base URI given, refused if it follows
   redirects itself; the token passed per call and sent only to the base's own origin; a job log's redirect, where
   the server answers with one, followed by hand),
-  `ForgejoWebhook` (checks `X-Forgejo-Signature`; its payload records written by hand from recorded deliveries of
-  the pull request, review, review comment and Actions run events), `ForgejoError`.
+  `ForgejoWebhook` (checks `X-Forgejo-Signature`; its payload records written by hand from recorded deliveries:
+  `pull_request`; `pull_request_approved`, `_rejected` and `_comment`, which carry the review as its type and
+  content; `action_run_success` and `_failure`, which carry the run, its prior status and an action, `recover`
+  for a success after a failure; Forgejo 17's `services/webhook/notifier.go` sends one payload for each group, of
+  which the first event is recorded),
+  `ForgejoException`, and `Strictness`.
 - **Recordings, as for every open-source forge:** the unit tests replay them alone, with no network; they are made
   from a container of `codeberg.org/forgejo/forgejo:17.0.1`, pinned by its index digest
   `sha256:fcd19ff4ebc85fb098a67e8e1d0d5a84d07dd6e8a23edcfdfd5b71a6178953be`. Its accounts are made for the recording;
@@ -42,14 +47,20 @@ file describes no webhook payloads.
   secret; a test fails on a delivery whose signature does not verify with it.
 - **Seeded, then checked live on every build:** an integration test (`ForgejoLiveIT`, failsafe) starts the container
   with podman on a free port of the loopback address and a volume of its own, both named with the run's id. It
-  creates the administrator inside the container with a random password and an access token printed once, which
-  it reads from the command's output into memory and never logs; no password or token is on a command line. It
+  creates the administrator inside the container with `forgejo admin user create --admin --random-password
+  --access-token`, which prints the token once; it reads it from the command's output into memory and never logs
+  it, and no password or token is on a command line. An Actions run without a runner stays `waiting` with no log,
+  so a Forgejo runner (`code.forgejo.org/forgejo/runner:13.2.0`, pinned by digest) shares the server's network
+  and is registered offline: the server reads a random secret from standard input
+  (`forgejo-cli actions register --secret-stdin`) and the runner gets it in its `.runner` file through standard
+  input, never a command line. A hook subscribes to Forgejo's event names, since `*` subscribes to none, and
+  delivers to the test's receiver on the host's loopback, which a podman container reaches as `10.0.2.2`. It
   seeds through the API - an organization, a repository with two branches, two users, a pull request with an
   approving review by the second user and a comment, a commit status, a hook, and an Actions run with its job - and
   runs every call in strict reading, failing when a call it checks answers an empty list. It removes the container
   and volume it made, after a failure and on an interrupt too, refuses to start over a container or volume of its
-  prefix left behind, and exits non-zero naming anything it could not remove. The Build runs it as its own step
-  after the unit tests.
+  prefix left behind, and exits non-zero naming anything it could not remove. It takes 7 s on a workstation, the
+  images already pulled. The Build runs it as its own step after the unit tests.
 - **Steps:** the module and its extract; the build calls the adapters use first; then pull requests and reviews;
   then statuses, hooks and the account.
 - **Red first:** `ForgejoClientTest` builds the client strict and calls `runs(owner, repo, sha)` against the
@@ -70,10 +81,5 @@ file describes no webhook payloads.
 
 ## To be checked
 
-- How long the live check takes on a GitHub runner, from start of the container to its removal, measured.
-- Whether an Actions run and its job can be seeded without a runner attached, or the live check needs a Forgejo
-  runner container beside it.
-- Which options of `forgejo admin user create` give a random password and an access token on its output in
-  Forgejo 17.
-- Which webhook events Forgejo 17 sends for pull requests, reviews, review comments and Actions runs, and their
-  names in the `X-Forgejo-Event` header.
+- How long the live check takes on a GitHub runner, from start of the containers to their removal, with podman
+  and the images pulled there; it takes 7 s on a workstation with the images present.

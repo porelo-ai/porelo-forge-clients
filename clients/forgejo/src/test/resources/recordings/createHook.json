@@ -1,0 +1,34 @@
+{
+  "status" : 201,
+  "headers" : {
+    "content-type" : [ "application/json;charset=utf-8" ]
+  },
+  "body" : "{\"id\":1,\"type\":\"forgejo\",\"branch_filter\":\"\",\"url\":\"http://example.org/delivery\",\"config\":{\"content_type\":\"json\",\"url\":\"http://example.org/delivery\"},\"events\":[\"pull_request\",\"pull_request_assign\",\"pull_request_label\",\"pull_request_milestone\",\"pull_request_comment\",\"pull_request_review_approved\",\"pull_request_review_rejected\",\"pull_request_review_comment\",\"pull_request_sync\",\"pull_request_review_request\",\"action_run_failure\",\"action_run_success\"],\"authorization_header\":\"[redacted]\",\"content_type\":\"json\",\"metadata\":null,\"active\":true,\"updated_at\":\"2026-10-30T10:04:36Z\",\"created_at\":\"2026-10-30T10:04:36Z\"}",
+  "exchanges" : [ {
+    "status" : 201,
+    "headers" : {
+      "content-type" : [ "application/json;charset=utf-8" ]
+    },
+    "body" : "{\"id\":1,\"type\":\"forgejo\",\"branch_filter\":\"\",\"url\":\"http://example.org/delivery\",\"config\":{\"content_type\":\"json\",\"url\":\"http://example.org/delivery\"},\"events\":[\"pull_request\",\"pull_request_assign\",\"pull_request_label\",\"pull_request_milestone\",\"pull_request_comment\",\"pull_request_review_approved\",\"pull_request_review_rejected\",\"pull_request_review_comment\",\"pull_request_sync\",\"pull_request_review_request\",\"action_run_failure\",\"action_run_success\"],\"authorization_header\":\"[redacted]\",\"content_type\":\"json\",\"metadata\":null,\"active\":true,\"updated_at\":\"2026-10-30T10:04:36Z\",\"created_at\":\"2026-10-30T10:04:36Z\"}"
+  } ],
+  "context" : {
+    "owner" : "review-org",
+    "repo" : "review-fixture",
+    "sha" : "54d4988674abac9fe4163b533cf329f25bb5b125",
+    "actionsSha" : "pending",
+    "index" : 1,
+    "review" : 1,
+    "run" : 1,
+    "job" : 1
+  },
+  "request_body" : {
+    "events" : [ "pull_request", "pull_request_review_approved", "pull_request_review_rejected", "pull_request_review_comment", "pull_request_comment", "action_run_success", "action_run_failure", "action_run_recover" ],
+    "type" : "forgejo",
+    "config" : {
+      "secret" : "public-fixture-key",
+      "url" : "http://example.org/delivery",
+      "content_type" : "json"
+    },
+    "active" : true
+  }
+}

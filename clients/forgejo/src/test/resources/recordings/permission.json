@@ -1,0 +1,25 @@
+{
+  "status" : 200,
+  "headers" : {
+    "content-type" : [ "application/json;charset=utf-8" ]
+  },
+  "body" : "{\"permission\":\"write\",\"role_name\":\"write\",\"user\":{\"id\":3,\"login\":\"fixture-reviewer\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/6fbfa47bd4bc15861d1647302c545637\",\"html_url\":\"http://example.org/fixture-reviewer\",\"language\":\"\",\"is_admin\":false,\"last_login\":\"0001-01-01T00:00:00Z\",\"created\":\"2026-10-30T10:04:35Z\",\"restricted\":false,\"active\":false,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-reviewer\"}}",
+  "exchanges" : [ {
+    "status" : 200,
+    "headers" : {
+      "content-type" : [ "application/json;charset=utf-8" ]
+    },
+    "body" : "{\"permission\":\"write\",\"role_name\":\"write\",\"user\":{\"id\":3,\"login\":\"fixture-reviewer\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/6fbfa47bd4bc15861d1647302c545637\",\"html_url\":\"http://example.org/fixture-reviewer\",\"language\":\"\",\"is_admin\":false,\"last_login\":\"0001-01-01T00:00:00Z\",\"created\":\"2026-10-30T10:04:35Z\",\"restricted\":false,\"active\":false,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-reviewer\"}}"
+  } ],
+  "context" : {
+    "owner" : "review-org",
+    "repo" : "review-fixture",
+    "sha" : "54d4988674abac9fe4163b533cf329f25bb5b125",
+    "actionsSha" : "803dc3ac6a461475801869a33693060e65f6fb78",
+    "index" : 1,
+    "review" : 1,
+    "run" : 1,
+    "job" : 1
+  },
+  "request_body" : null
+}

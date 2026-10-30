@@ -40,11 +40,18 @@ final class ExtractService {
         }
     }
 
+    /**
+     * A property a forge sends that its own description leaves out, added to the extract by name so
+     * the strict reading of the tests keeps refusing every other unknown field.
+     */
+    record Addition(String schema, String property, String json) {}
+
     void fetch(
             URI source,
             String expectedDigest,
             Path output,
             List<Replacement> replacements,
+            List<Addition> additions,
             Selection selection)
             throws IOException, InterruptedException {
         HttpsSource.validate(source);
@@ -68,10 +75,16 @@ final class ExtractService {
         }
         OpenApiDocument document = new OpenApiDocument(parse(text));
         ObjectNode extract = document.extract(selection);
+        add(extract, additions);
         ObjectNode info = requireObject(extract.path("info"), "info");
-        info.putObject("x-extracted-from")
-                .put("source", source.toString())
-                .put("sha256", expectedDigest.toLowerCase(Locale.ROOT));
+        ObjectNode origin =
+                info.putObject("x-extracted-from")
+                        .put("source", source.toString())
+                        .put("sha256", expectedDigest.toLowerCase(Locale.ROOT));
+        if (!additions.isEmpty()) {
+            var added = origin.putArray("added");
+            additions.forEach(addition -> added.add(addition.schema() + "." + addition.property()));
+        }
         DefaultIndenter indenter = new DefaultIndenter("  ", "\n");
         DefaultPrettyPrinter printer =
                 new DefaultPrettyPrinter()
@@ -82,6 +95,33 @@ final class ExtractService {
                                         .withObjectFieldValueSpacing(Separators.Spacing.AFTER));
         String json = mapper.writer(printer).writeValueAsString(extract) + "\n";
         write(output, json);
+    }
+
+    private void add(ObjectNode extract, List<Addition> additions) throws IOException {
+        List<String> problems = new java.util.ArrayList<>();
+        for (Addition addition : additions) {
+            JsonNode schema = extract.path("components").path("schemas").path(addition.schema());
+            if (schema.isMissingNode()) {
+                schema = extract.path("definitions").path(addition.schema());
+            }
+            if (!(schema.path("properties") instanceof ObjectNode properties)) {
+                problems.add("No schema with properties to add to: " + addition.schema());
+            } else if (properties.has(addition.property())) {
+                problems.add(
+                        "The description already has "
+                                + addition.schema()
+                                + "."
+                                + addition.property()
+                                + "; drop the addition");
+            } else {
+                properties.set(
+                        addition.property(),
+                        requireObject(mapper.readTree(addition.json()), "addition"));
+            }
+        }
+        if (!problems.isEmpty()) {
+            throw new Problems(problems);
+        }
     }
 
     void check(Path extract, Selection selection) throws IOException {

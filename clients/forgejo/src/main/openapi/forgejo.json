@@ -1,0 +1,3353 @@
+{
+  "consumes": [
+    "application/json",
+    "text/plain"
+  ],
+  "produces": [
+    "application/json",
+    "text/html"
+  ],
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "This documentation describes the Forgejo API.",
+    "title": "Forgejo API",
+    "license": {
+      "name": "This file is distributed under the MIT license for the purpose of interoperability",
+      "url": "http://opensource.org/licenses/MIT"
+    },
+    "version": "17.0.1",
+    "x-extracted-from": {
+      "source": "https://codeberg.org/forgejo/forgejo/raw/commit/363f3dc30beef902b187af5a5244ff7af44901e6/templates/swagger/v1_json.tmpl",
+      "sha256": "9e6e453e631793e47c01b2b1391274c3a78296aab8fd192d029484304ddd4bc9",
+      "added": [
+        "User.username"
+      ]
+    }
+  },
+  "basePath": "/api/v1",
+  "paths": {
+    "/repos/{owner}/{repo}/actions/jobs/{job_id}/logs": {
+      "get": {
+        "description": "Returns the plaintext log for the job. By default the log for the most recent attempt is returned (ActionRunJob.TaskID tracks the latest task). Pass `?attempt=N` to fetch the log for a specific historical attempt; the value matches the `attempt` field returned by the job listing endpoints. Pass `?step=N` to narrow to a single step (using the `number` field from `GET /actions/jobs/{job_id}`), `?q=` to substring-filter lines, and `?format=ndjson` for NDJSON output (one `{time, content}` object per line). When `q` or `format=ndjson` is set the response drops `Accept-Ranges` and does not support `Range:` since the total length isn't known until the scan finishes.\n",
+        "produces": [
+          "text/plain",
+          "application/x-ndjson"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "Download the plaintext logs of an action job",
+        "operationId": "repoGetActionJobLogs",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "ID of the workflow job",
+            "name": "job_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "1-based attempt number matching the value of `attempt` in the job listing; omit to fetch the latest attempt of the job",
+            "name": "attempt",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "Step number to filter to. Use the `number` field from `GET /repos/{owner}/{repo}/actions/jobs/{job_id}` — 0 is the \"Set up job\" entry, the last index is the \"Complete job\" entry, real steps are in between. Returns only that step's slice of the log. Range requests still work over the slice.\n",
+            "name": "step",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Substring filter applied to each line's content (the part after the timestamp prefix). Plain string match — regex is not supported. Setting `q` drops `Accept-Ranges` and disables `Range:` support; the full filtered body is always returned.\n",
+            "name": "q",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "Case-insensitive substring match (only meaningful when `q` is set).",
+            "name": "qi",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "text",
+              "ndjson"
+            ],
+            "type": "string",
+            "description": "Response shape. `text` (default) returns log content as plaintext lines. `ndjson` returns one `{\"time\":\"...\",\"content\":\"...\"}` object per emitted line, separated by `\\n` (content-type `application/x-ndjson`). `format=ndjson` drops `Accept-Ranges` and disables `Range:` support.\n",
+            "name": "format",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Plaintext log content (or NDJSON when `format=ndjson`)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "206": {
+            "description": "Partial log content (Range request; not returned when `q` or `format=ndjson` is set)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/actions/runs": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "List a repository's action runs",
+        "operationId": "ListActionRuns",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "page number of results to return (1-based)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "page size of results, default maximum page size is 50",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Returns workflow run triggered by the specified events. For example, `push`, `pull_request` or `workflow_dispatch`.",
+            "name": "event",
+            "in": "query"
+          },
+          {
+            "type": "array",
+            "items": {
+              "enum": [
+                "unknown",
+                "waiting",
+                "running",
+                "success",
+                "failure",
+                "cancelled",
+                "skipped",
+                "blocked"
+              ],
+              "type": "string"
+            },
+            "description": "Returns workflow runs with the check run status or conclusion that is specified. For example, a conclusion can be success or a status can be in_progress. Only Forgejo Actions can set a status of waiting, pending, or requested.\n",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "Returns the workflow run associated with the run number.\n",
+            "name": "run_number",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Only returns workflow runs that are associated with the specified head_sha.",
+            "name": "head_sha",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Only return workflow runs that involve the given Git reference, for example, `refs/heads/main`.",
+            "name": "ref",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Only return workflow runs that involve the given workflow ID.",
+            "name": "workflow_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/ActionRunList"
+          },
+          "400": {
+            "$ref": "#/responses/error"
+          },
+          "403": {
+            "$ref": "#/responses/forbidden"
+          }
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/actions/runs/{run_id}/jobs": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "List jobs of a workflow run",
+        "operationId": "ListActionRunJobs",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "ID of the workflow run",
+            "name": "run_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/ActionRunJobList"
+          },
+          "400": {
+            "$ref": "#/responses/error"
+          },
+          "403": {
+            "$ref": "#/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/branches/{branch}": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "Retrieve a specific branch from a repository, including its effective branch protection",
+        "operationId": "repoGetBranch",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "branch to get",
+            "name": "branch",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/Branch"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/collaborators/{collaborator}/permission": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "Get repository permissions for a user",
+        "operationId": "repoGetRepoPermissions",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "username of the collaborator",
+            "name": "collaborator",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/RepoCollaboratorPermission"
+          },
+          "403": {
+            "$ref": "#/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/hooks": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "List the hooks in a repository",
+        "operationId": "repoListHooks",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "page number of results to return (1-based)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "page size of results",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/HookList"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "Create a hook",
+        "operationId": "repoCreateHook",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateHookOption"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/responses/Hook"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/pulls": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "List a repo's pull requests. If a pull request is selected but fails to be retrieved for any reason, it will be a null value in the list of results.",
+        "operationId": "repoListPullRequests",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "open",
+              "closed",
+              "all"
+            ],
+            "type": "string",
+            "default": "open",
+            "description": "State of pull request",
+            "name": "state",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "oldest",
+              "recentupdate",
+              "recentclose",
+              "leastupdate",
+              "mostcomment",
+              "leastcomment",
+              "priority"
+            ],
+            "type": "string",
+            "description": "Type of sort",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "ID of the milestone",
+            "name": "milestone",
+            "in": "query"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "collectionFormat": "multi",
+            "description": "Label IDs",
+            "name": "labels",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by pull request author",
+            "name": "poster",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by base branch name",
+            "name": "base",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by head branch name",
+            "name": "head",
+            "in": "query"
+          },
+          {
+            "minimum": 1,
+            "type": "integer",
+            "default": 1,
+            "description": "Page number of results to return (1-based)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "minimum": 0,
+            "type": "integer",
+            "description": "Page size of results",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/PullRequestList"
+          },
+          "400": {
+            "$ref": "#/responses/error"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/responses/error"
+          }
+        }
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "Create a pull request",
+        "operationId": "repoCreatePullRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreatePullRequestOption"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/responses/PullRequest"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/responses/error"
+          },
+          "413": {
+            "$ref": "#/responses/quotaExceeded"
+          },
+          "422": {
+            "$ref": "#/responses/validationError"
+          },
+          "423": {
+            "$ref": "#/responses/repoArchivedError"
+          }
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/pulls/{index}": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "Get a pull request",
+        "operationId": "repoGetPullRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "index of the pull request to get",
+            "name": "index",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/PullRequest"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/pulls/{index}/reviews": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "List all reviews for a pull request",
+        "operationId": "repoListPullReviews",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "index of the pull request",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "page number of results to return (1-based)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "page size of results",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/PullReviewList"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      },
+      "post": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "Create a review to an pull request",
+        "operationId": "repoCreatePullReview",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "index of the pull request",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreatePullReviewOptions"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/PullReview"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          },
+          "422": {
+            "$ref": "#/responses/validationError"
+          }
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/pulls/{index}/reviews/{id}/comments": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "Get a specific review for a pull request",
+        "operationId": "repoGetPullReviewComments",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "index of the pull request",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "id of the review",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/PullReviewCommentList"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/pulls/{index}/reviews/{id}/dismissals": {
+      "post": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "Dismiss a review for a pull request",
+        "operationId": "repoDismissPullReview",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "index of the pull request",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "id of the review",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DismissPullReviewOptions"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/PullReview"
+          },
+          "403": {
+            "$ref": "#/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          },
+          "422": {
+            "$ref": "#/responses/validationError"
+          }
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/pulls/{index}/reviews/{id}/undismissals": {
+      "post": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "Cancel to dismiss a review for a pull request",
+        "operationId": "repoUnDismissPullReview",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "index of the pull request",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "id of the review",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/PullReview"
+          },
+          "403": {
+            "$ref": "#/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          },
+          "422": {
+            "$ref": "#/responses/validationError"
+          }
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/statuses/{sha}": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "Get a commit's statuses",
+        "operationId": "repoListStatuses",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "sha of the commit",
+            "name": "sha",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "oldest",
+              "recentupdate",
+              "leastupdate",
+              "leastindex",
+              "highestindex"
+            ],
+            "type": "string",
+            "description": "type of sort",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "pending",
+              "success",
+              "error",
+              "failure",
+              "warning"
+            ],
+            "type": "string",
+            "description": "type of state",
+            "name": "state",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "page number of results to return (1-based)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "page size of results",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/CommitStatusList"
+          },
+          "400": {
+            "$ref": "#/responses/error"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      },
+      "post": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "Create a commit status",
+        "operationId": "repoCreateStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "sha of the commit",
+            "name": "sha",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateStatusOption"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/responses/CommitStatus"
+          },
+          "400": {
+            "$ref": "#/responses/error"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      }
+    },
+    "/user": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "user"
+        ],
+        "summary": "Get the authenticated user",
+        "operationId": "userGetCurrent",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/User"
+          },
+          "401": {
+            "$ref": "#/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/responses/forbidden"
+          }
+        }
+      }
+    },
+    "/user/orgs": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "organization"
+        ],
+        "summary": "List the current user's organizations",
+        "operationId": "orgListCurrentUserOrgs",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "page number of results to return (1-based)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "page size of results",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/OrganizationListWithoutPagination"
+          },
+          "401": {
+            "$ref": "#/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "APIError": {
+      "description": "APIError is an api error with a message",
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "APIForbiddenError": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        }
+      },
+      "x-go-package": "forgejo.org/services/context"
+    },
+    "APINotFound": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Errors"
+        },
+        "message": {
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        }
+      },
+      "x-go-package": "forgejo.org/services/context"
+    },
+    "APIRepoArchivedError": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        }
+      },
+      "x-go-package": "forgejo.org/services/context"
+    },
+    "APIUnauthorizedError": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        }
+      },
+      "x-go-package": "forgejo.org/services/context"
+    },
+    "APIValidationError": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        }
+      },
+      "x-go-package": "forgejo.org/services/context"
+    },
+    "ActionRun": {
+      "description": "ActionRun represents an action run",
+      "type": "object",
+      "properties": {
+        "ScheduleID": {
+          "description": "the cron id for the schedule trigger",
+          "type": "integer",
+          "format": "int64"
+        },
+        "approved_by": {
+          "description": "who approved this action run",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ApprovedBy"
+        },
+        "commit_sha": {
+          "description": "the commit sha the action run ran on",
+          "type": "string",
+          "x-go-name": "CommitSHA"
+        },
+        "created": {
+          "description": "when the action run was created",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Created"
+        },
+        "duration": {
+          "$ref": "#/definitions/Duration"
+        },
+        "event": {
+          "description": "the webhook event that causes the workflow to run",
+          "type": "string",
+          "x-go-name": "Event"
+        },
+        "event_payload": {
+          "description": "the payload of the webhook event that causes the workflow to run",
+          "type": "string",
+          "x-go-name": "EventPayload"
+        },
+        "html_url": {
+          "description": "the url of this action run",
+          "type": "string",
+          "x-go-name": "HTMLURL"
+        },
+        "id": {
+          "description": "the action run id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "index_in_repo": {
+          "description": "a unique number for each run of a repository",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Index"
+        },
+        "is_fork_pull_request": {
+          "description": "If this is triggered by a PR from a forked repository or an untrusted user, we need to check if it is approved and limit permissions when running the workflow.",
+          "type": "boolean",
+          "x-go-name": "IsForkPullRequest"
+        },
+        "is_ref_deleted": {
+          "description": "has the commit/tag/… the action run ran on been deleted",
+          "type": "boolean",
+          "x-go-name": "IsRefDeleted"
+        },
+        "need_approval": {
+          "description": "may need approval if it's a fork pull request",
+          "type": "boolean",
+          "x-go-name": "NeedApproval"
+        },
+        "prettyref": {
+          "description": "the commit/tag/… the action run ran on",
+          "type": "string",
+          "x-go-name": "PrettyRef"
+        },
+        "repository": {
+          "$ref": "#/definitions/Repository"
+        },
+        "started": {
+          "description": "when the action run was started",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Started"
+        },
+        "status": {
+          "description": "the current status of this run",
+          "type": "string",
+          "x-go-name": "Status"
+        },
+        "stopped": {
+          "description": "when the action run was stopped",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Stopped"
+        },
+        "title": {
+          "description": "the action run's title",
+          "type": "string",
+          "x-go-name": "Title"
+        },
+        "trigger_event": {
+          "description": "the trigger event defined in the `on` configuration of the triggered workflow",
+          "type": "string",
+          "x-go-name": "TriggerEvent"
+        },
+        "trigger_user": {
+          "$ref": "#/definitions/User"
+        },
+        "updated": {
+          "description": "when the action run was last updated",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Updated"
+        },
+        "workflow_id": {
+          "description": "the name of workflow file",
+          "type": "string",
+          "x-go-name": "WorkflowID"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "ActionRunJob": {
+      "description": "ActionRunJob represents a job of a run",
+      "type": "object",
+      "properties": {
+        "attempt": {
+          "description": "How many times the job has been attempted including the current attempt.",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Attempt"
+        },
+        "handle": {
+          "description": "Opaque identifier that uniquely identifies a single attempt of a job.",
+          "type": "string",
+          "x-go-name": "Handle"
+        },
+        "html_url": {
+          "description": "HTMLURL is the URL where a user can view the job using their browser.",
+          "type": "string",
+          "x-go-name": "HTMLURL"
+        },
+        "id": {
+          "description": "Identifier of this job.",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "description": "the action run job name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "needs": {
+          "description": "the action run job needed ids",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Needs"
+        },
+        "owner_id": {
+          "description": "the owner id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "OwnerID"
+        },
+        "repo_id": {
+          "description": "the repository id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RepoID"
+        },
+        "run_id": {
+          "description": "Identifier of the workflow run this job belongs to.",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RunID"
+        },
+        "runs_on": {
+          "description": "the action run job labels to run on",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "RunsOn"
+        },
+        "status": {
+          "description": "the action run job status",
+          "type": "string",
+          "x-go-name": "Status"
+        },
+        "steps": {
+          "description": "the steps that make up this workflow job's execution, including the\n\"Set up job\" entry (number=0) and \"Complete job\" tail. Only populated by\nendpoints that return a single job (e.g. GET /repos/{owner}/{repo}/actions/jobs/{job_id}).",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ActionRunJobStep"
+          },
+          "x-go-name": "Steps"
+        },
+        "task_id": {
+          "description": "the action run job latest task id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TaskID"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "ActionRunJobStep": {
+      "description": "ActionRunJobStep is a step in a workflow job's execution. The slice on\nActionRunJob.Steps always includes a \"Set up job\" entry at number=0 and a\n\"Complete job\" entry as the last element; the entries in between are the\nworkflow's real steps in declaration order. The Number field is the value\naccepted by the job-logs endpoint's `?step=` filter.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "step name (workflow YAML `name:` for real steps; \"Set up job\" and\n\"Complete job\" for the head and tail respectively)",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "number": {
+          "description": "position in the job's step list. 0 is the \"Set up job\" entry; the last\nindex is the \"Complete job\" entry; real steps are numbered 1..N in\ndeclaration order.",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Number"
+        },
+        "started": {
+          "description": "when the step started",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Started"
+        },
+        "status": {
+          "description": "step status (success, failure, running, waiting, skipped, cancelled, ...)",
+          "type": "string",
+          "x-go-name": "Status"
+        },
+        "stopped": {
+          "description": "when the step stopped",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Stopped"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "Branch": {
+      "description": "Branch represents a repository branch",
+      "type": "object",
+      "properties": {
+        "commit": {
+          "$ref": "#/definitions/PayloadCommit"
+        },
+        "effective_branch_protection_name": {
+          "type": "string",
+          "x-go-name": "EffectiveBranchProtectionName"
+        },
+        "enable_status_check": {
+          "type": "boolean",
+          "x-go-name": "EnableStatusCheck"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "protected": {
+          "type": "boolean",
+          "x-go-name": "Protected"
+        },
+        "required_approvals": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RequiredApprovals"
+        },
+        "status_check_contexts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "StatusCheckContexts"
+        },
+        "user_can_merge": {
+          "type": "boolean",
+          "x-go-name": "UserCanMerge"
+        },
+        "user_can_push": {
+          "type": "boolean",
+          "x-go-name": "UserCanPush"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "CommitStatus": {
+      "description": "CommitStatus holds a single status of a single Commit",
+      "type": "object",
+      "properties": {
+        "context": {
+          "type": "string",
+          "x-go-name": "Context"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Created"
+        },
+        "creator": {
+          "$ref": "#/definitions/User"
+        },
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "status": {
+          "$ref": "#/definitions/CommitStatusState"
+        },
+        "target_url": {
+          "type": "string",
+          "x-go-name": "TargetURL"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Updated"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "CommitStatusState": {
+      "description": "CommitStatusState holds the state of a CommitStatus\nIt can be \"pending\", \"success\", \"error\", \"failure\", \"warning\", or \"skipped\"",
+      "type": "string",
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "CreateHookOption": {
+      "description": "CreateHookOption options when create a hook",
+      "type": "object",
+      "required": [
+        "type",
+        "config"
+      ],
+      "properties": {
+        "active": {
+          "type": "boolean",
+          "default": false,
+          "x-go-name": "Active"
+        },
+        "authorization_header": {
+          "type": "string",
+          "x-go-name": "AuthorizationHeader"
+        },
+        "branch_filter": {
+          "type": "string",
+          "x-go-name": "BranchFilter"
+        },
+        "config": {
+          "$ref": "#/definitions/CreateHookOptionConfig"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Events"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "forgejo",
+            "dingtalk",
+            "discord",
+            "gitea",
+            "gogs",
+            "msteams",
+            "slack",
+            "telegram",
+            "feishu",
+            "wechatwork",
+            "packagist"
+          ],
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "CreateHookOptionConfig": {
+      "description": "CreateHookOptionConfig has all config options in it\nrequired are \"content_type\" and \"url\" Required",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "CreatePullRequestOption": {
+      "description": "CreatePullRequestOption options when creating a pull request",
+      "type": "object",
+      "properties": {
+        "assignee": {
+          "type": "string",
+          "x-go-name": "Assignee"
+        },
+        "assignees": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Assignees"
+        },
+        "base": {
+          "type": "string",
+          "x-go-name": "Base"
+        },
+        "body": {
+          "type": "string",
+          "x-go-name": "Body"
+        },
+        "due_date": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Deadline"
+        },
+        "head": {
+          "type": "string",
+          "x-go-name": "Head"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "x-go-name": "Labels"
+        },
+        "milestone": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Milestone"
+        },
+        "title": {
+          "type": "string",
+          "x-go-name": "Title"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "CreatePullReviewComment": {
+      "description": "CreatePullReviewComment represent a review comment for creation api",
+      "type": "object",
+      "properties": {
+        "body": {
+          "type": "string",
+          "x-go-name": "Body"
+        },
+        "extra_lines_count": {
+          "description": "number of additional lines after the commented line (0 = single line comment)",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ExtraLinesCount"
+        },
+        "new_position": {
+          "description": "if comment to new file line or 0",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "NewLineNum"
+        },
+        "old_position": {
+          "description": "if comment to old file line or 0",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "OldLineNum"
+        },
+        "path": {
+          "description": "the tree path",
+          "type": "string",
+          "x-go-name": "Path"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "CreatePullReviewOptions": {
+      "description": "CreatePullReviewOptions are options to create a pull review",
+      "type": "object",
+      "properties": {
+        "body": {
+          "type": "string",
+          "x-go-name": "Body"
+        },
+        "comments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CreatePullReviewComment"
+          },
+          "x-go-name": "Comments"
+        },
+        "commit_id": {
+          "type": "string",
+          "x-go-name": "CommitID"
+        },
+        "event": {
+          "$ref": "#/definitions/ReviewStateType"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "CreateStatusOption": {
+      "description": "CreateStatusOption holds the information needed to create a new CommitStatus for a Commit",
+      "type": "object",
+      "properties": {
+        "context": {
+          "type": "string",
+          "x-go-name": "Context"
+        },
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "state": {
+          "$ref": "#/definitions/CommitStatusState"
+        },
+        "target_url": {
+          "type": "string",
+          "x-go-name": "TargetURL"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "DismissPullReviewOptions": {
+      "description": "DismissPullReviewOptions are options to dismiss a pull review",
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "priors": {
+          "type": "boolean",
+          "x-go-name": "Priors"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "Duration": {
+      "description": "A Duration represents the elapsed time between two instants\nas an int64 nanosecond count. The representation limits the\nlargest representable duration to approximately 290 years.",
+      "type": "integer",
+      "format": "int64",
+      "x-go-package": "time"
+    },
+    "ExternalTracker": {
+      "description": "ExternalTracker represents settings for external tracker",
+      "type": "object",
+      "properties": {
+        "external_tracker_format": {
+          "description": "External Issue Tracker URL Format. Use the placeholders {user}, {repo} and {index} for the username, repository name and issue index.",
+          "type": "string",
+          "x-go-name": "ExternalTrackerFormat"
+        },
+        "external_tracker_regexp_pattern": {
+          "description": "External Issue Tracker issue regular expression",
+          "type": "string",
+          "x-go-name": "ExternalTrackerRegexpPattern"
+        },
+        "external_tracker_style": {
+          "description": "External Issue Tracker Number Format, either `numeric`, `alphanumeric`, or `regexp`",
+          "type": "string",
+          "x-go-name": "ExternalTrackerStyle"
+        },
+        "external_tracker_url": {
+          "description": "URL of external issue tracker.",
+          "type": "string",
+          "x-go-name": "ExternalTrackerURL"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "ExternalWiki": {
+      "description": "ExternalWiki represents setting for external wiki",
+      "type": "object",
+      "properties": {
+        "external_wiki_url": {
+          "description": "URL of external wiki.",
+          "type": "string",
+          "x-go-name": "ExternalWikiURL"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "Hook": {
+      "description": "Hook a hook is a web hook when one repository changed",
+      "type": "object",
+      "properties": {
+        "active": {
+          "type": "boolean",
+          "x-go-name": "Active"
+        },
+        "authorization_header": {
+          "type": "string",
+          "x-go-name": "AuthorizationHeader"
+        },
+        "branch_filter": {
+          "type": "string",
+          "x-go-name": "BranchFilter"
+        },
+        "config": {
+          "description": "Deprecated: use Metadata instead",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-deprecated": true,
+          "x-go-name": "Config"
+        },
+        "content_type": {
+          "type": "string",
+          "x-go-name": "ContentType"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Created"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Events"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "metadata": {
+          "x-go-name": "Metadata"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Updated"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "InternalTracker": {
+      "description": "InternalTracker represents settings for internal tracker",
+      "type": "object",
+      "properties": {
+        "allow_only_contributors_to_track_time": {
+          "description": "Let only contributors track time (Built-in issue tracker)",
+          "type": "boolean",
+          "x-go-name": "AllowOnlyContributorsToTrackTime"
+        },
+        "enable_issue_dependencies": {
+          "description": "Enable dependencies for issues and pull requests (Built-in issue tracker)",
+          "type": "boolean",
+          "x-go-name": "EnableIssueDependencies"
+        },
+        "enable_time_tracker": {
+          "description": "Enable time tracking (Built-in issue tracker)",
+          "type": "boolean",
+          "x-go-name": "EnableTimeTracker"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "Label": {
+      "description": "Label a label to an issue or a pr",
+      "type": "object",
+      "properties": {
+        "color": {
+          "type": "string",
+          "x-go-name": "Color",
+          "example": "00aabb"
+        },
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "exclusive": {
+          "type": "boolean",
+          "x-go-name": "Exclusive",
+          "example": false
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "is_archived": {
+          "type": "boolean",
+          "x-go-name": "IsArchived",
+          "example": false
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "ListActionRunResponse": {
+      "description": "ListActionRunResponse return a list of ActionRun",
+      "type": "object",
+      "properties": {
+        "total_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TotalCount"
+        },
+        "workflow_runs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ActionRun"
+          },
+          "x-go-name": "Entries"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "Milestone": {
+      "description": "Milestone milestone is a collection of issues on one repository",
+      "type": "object",
+      "properties": {
+        "closed_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Closed"
+        },
+        "closed_issues": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ClosedIssues"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Created"
+        },
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "due_on": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Deadline"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "open_issues": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "OpenIssues"
+        },
+        "state": {
+          "$ref": "#/definitions/StateType"
+        },
+        "title": {
+          "type": "string",
+          "x-go-name": "Title"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Updated"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "Organization": {
+      "description": "Organization represents an organization",
+      "type": "object",
+      "properties": {
+        "avatar_url": {
+          "type": "string",
+          "x-go-name": "AvatarURL"
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Created"
+        },
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "full_name": {
+          "type": "string",
+          "x-go-name": "FullName"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "location": {
+          "type": "string",
+          "x-go-name": "Location"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "repo_admin_change_team_access": {
+          "type": "boolean",
+          "x-go-name": "RepoAdminChangeTeamAccess"
+        },
+        "username": {
+          "description": "deprecated",
+          "type": "string",
+          "x-go-name": "UserName"
+        },
+        "visibility": {
+          "type": "string",
+          "x-go-name": "Visibility"
+        },
+        "website": {
+          "type": "string",
+          "x-go-name": "Website"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "PRBranchInfo": {
+      "description": "PRBranchInfo information about a branch",
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "ref": {
+          "type": "string",
+          "x-go-name": "Ref"
+        },
+        "repo": {
+          "$ref": "#/definitions/Repository"
+        },
+        "repo_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RepoID"
+        },
+        "sha": {
+          "type": "string",
+          "x-go-name": "Sha"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "PayloadCommit": {
+      "description": "PayloadCommit represents a commit",
+      "type": "object",
+      "properties": {
+        "added": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Added"
+        },
+        "author": {
+          "$ref": "#/definitions/PayloadUser"
+        },
+        "committer": {
+          "$ref": "#/definitions/PayloadUser"
+        },
+        "id": {
+          "description": "sha1 hash of the commit",
+          "type": "string",
+          "x-go-name": "ID"
+        },
+        "message": {
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "modified": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Modified"
+        },
+        "removed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Removed"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Timestamp"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        },
+        "verification": {
+          "$ref": "#/definitions/PayloadCommitVerification"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "PayloadCommitVerification": {
+      "description": "PayloadCommitVerification represents the GPG verification of a commit",
+      "type": "object",
+      "properties": {
+        "payload": {
+          "type": "string",
+          "x-go-name": "Payload"
+        },
+        "reason": {
+          "type": "string",
+          "x-go-name": "Reason"
+        },
+        "signature": {
+          "type": "string",
+          "x-go-name": "Signature"
+        },
+        "signer": {
+          "$ref": "#/definitions/PayloadUser"
+        },
+        "verified": {
+          "type": "boolean",
+          "x-go-name": "Verified"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "PayloadUser": {
+      "description": "PayloadUser represents the author or committer of a commit",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "x-go-name": "Email"
+        },
+        "name": {
+          "description": "Full name of the commit author",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "username": {
+          "type": "string",
+          "x-go-name": "UserName"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "Permission": {
+      "description": "Permission represents a set of permissions",
+      "type": "object",
+      "properties": {
+        "admin": {
+          "type": "boolean",
+          "x-go-name": "Admin"
+        },
+        "pull": {
+          "type": "boolean",
+          "x-go-name": "Pull"
+        },
+        "push": {
+          "type": "boolean",
+          "x-go-name": "Push"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "PullRequest": {
+      "description": "PullRequest represents a pull request",
+      "type": "object",
+      "properties": {
+        "additions": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Additions"
+        },
+        "allow_maintainer_edit": {
+          "type": "boolean",
+          "x-go-name": "AllowMaintainerEdit"
+        },
+        "assignee": {
+          "$ref": "#/definitions/User"
+        },
+        "assignees": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/User"
+          },
+          "x-go-name": "Assignees"
+        },
+        "base": {
+          "$ref": "#/definitions/PRBranchInfo"
+        },
+        "body": {
+          "type": "string",
+          "x-go-name": "Body"
+        },
+        "changed_files": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ChangedFiles"
+        },
+        "closed_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Closed"
+        },
+        "comments": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Comments"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Created"
+        },
+        "deletions": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Deletions"
+        },
+        "diff_url": {
+          "type": "string",
+          "x-go-name": "DiffURL"
+        },
+        "draft": {
+          "type": "boolean",
+          "x-go-name": "Draft"
+        },
+        "due_date": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Deadline"
+        },
+        "flow": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Flow"
+        },
+        "head": {
+          "$ref": "#/definitions/PRBranchInfo"
+        },
+        "html_url": {
+          "type": "string",
+          "x-go-name": "HTMLURL"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "is_locked": {
+          "type": "boolean",
+          "x-go-name": "IsLocked"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Label"
+          },
+          "x-go-name": "Labels"
+        },
+        "merge_base": {
+          "type": "string",
+          "x-go-name": "MergeBase"
+        },
+        "merge_commit_sha": {
+          "type": "string",
+          "x-go-name": "MergedCommitID"
+        },
+        "mergeable": {
+          "type": "boolean",
+          "x-go-name": "Mergeable"
+        },
+        "merged": {
+          "type": "boolean",
+          "x-go-name": "HasMerged"
+        },
+        "merged_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Merged"
+        },
+        "merged_by": {
+          "$ref": "#/definitions/User"
+        },
+        "milestone": {
+          "$ref": "#/definitions/Milestone"
+        },
+        "number": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Index"
+        },
+        "patch_url": {
+          "type": "string",
+          "x-go-name": "PatchURL"
+        },
+        "pin_order": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "PinOrder"
+        },
+        "requested_reviewers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/User"
+          },
+          "x-go-name": "RequestedReviewers"
+        },
+        "requested_reviewers_teams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Team"
+          },
+          "x-go-name": "RequestedReviewersTeams"
+        },
+        "review_comments": {
+          "description": "number of review comments made on the diff of a PR review (not including comments on commits or issues in a PR)",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ReviewComments"
+        },
+        "state": {
+          "$ref": "#/definitions/StateType"
+        },
+        "title": {
+          "type": "string",
+          "x-go-name": "Title"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Updated"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "PullReview": {
+      "description": "PullReview represents a pull request review",
+      "type": "object",
+      "properties": {
+        "body": {
+          "type": "string",
+          "x-go-name": "Body"
+        },
+        "comments_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CodeCommentsCount"
+        },
+        "commit_id": {
+          "type": "string",
+          "x-go-name": "CommitID"
+        },
+        "dismissed": {
+          "type": "boolean",
+          "x-go-name": "Dismissed"
+        },
+        "html_url": {
+          "type": "string",
+          "x-go-name": "HTMLURL"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "official": {
+          "type": "boolean",
+          "x-go-name": "Official"
+        },
+        "pull_request_url": {
+          "type": "string",
+          "x-go-name": "HTMLPullURL"
+        },
+        "stale": {
+          "type": "boolean",
+          "x-go-name": "Stale"
+        },
+        "state": {
+          "$ref": "#/definitions/ReviewStateType"
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Submitted"
+        },
+        "team": {
+          "$ref": "#/definitions/Team"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Updated"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "PullReviewComment": {
+      "description": "PullReviewComment represents a comment on a pull request review",
+      "type": "object",
+      "properties": {
+        "body": {
+          "type": "string",
+          "x-go-name": "Body"
+        },
+        "commit_id": {
+          "type": "string",
+          "x-go-name": "CommitID"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Created"
+        },
+        "diff_hunk": {
+          "type": "string",
+          "x-go-name": "DiffHunk"
+        },
+        "extra_lines_count": {
+          "description": "number of additional lines after the commented line (0 = single line comment)",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ExtraLinesCount"
+        },
+        "html_url": {
+          "type": "string",
+          "x-go-name": "HTMLURL"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "original_commit_id": {
+          "type": "string",
+          "x-go-name": "OrigCommitID"
+        },
+        "original_position": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "OldLineNum"
+        },
+        "path": {
+          "type": "string",
+          "x-go-name": "Path"
+        },
+        "position": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "LineNum"
+        },
+        "pull_request_review_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ReviewID"
+        },
+        "pull_request_url": {
+          "type": "string",
+          "x-go-name": "HTMLPullURL"
+        },
+        "resolver": {
+          "$ref": "#/definitions/User"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Updated"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "RepoCollaboratorPermission": {
+      "description": "RepoCollaboratorPermission to get repository permission for a collaborator",
+      "type": "object",
+      "properties": {
+        "permission": {
+          "type": "string",
+          "x-go-name": "Permission"
+        },
+        "role_name": {
+          "type": "string",
+          "x-go-name": "RoleName"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "RepoTransfer": {
+      "description": "RepoTransfer represents a pending repo transfer",
+      "type": "object",
+      "properties": {
+        "doer": {
+          "$ref": "#/definitions/User"
+        },
+        "recipient": {
+          "$ref": "#/definitions/User"
+        },
+        "teams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Team"
+          },
+          "x-go-name": "Teams"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "Repository": {
+      "description": "Repository represents a repository",
+      "type": "object",
+      "properties": {
+        "allow_fast_forward_only_merge": {
+          "type": "boolean",
+          "x-go-name": "AllowFastForwardOnly"
+        },
+        "allow_merge_commits": {
+          "type": "boolean",
+          "x-go-name": "AllowMerge"
+        },
+        "allow_rebase": {
+          "type": "boolean",
+          "x-go-name": "AllowRebase"
+        },
+        "allow_rebase_explicit": {
+          "type": "boolean",
+          "x-go-name": "AllowRebaseMerge"
+        },
+        "allow_rebase_update": {
+          "type": "boolean",
+          "x-go-name": "AllowRebaseUpdate"
+        },
+        "allow_squash_merge": {
+          "type": "boolean",
+          "x-go-name": "AllowSquash"
+        },
+        "archived": {
+          "type": "boolean",
+          "x-go-name": "Archived"
+        },
+        "archived_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ArchivedAt"
+        },
+        "avatar_url": {
+          "type": "string",
+          "x-go-name": "AvatarURL"
+        },
+        "clone_url": {
+          "type": "string",
+          "x-go-name": "CloneURL"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Created"
+        },
+        "default_allow_maintainer_edit": {
+          "type": "boolean",
+          "x-go-name": "DefaultAllowMaintainerEdit"
+        },
+        "default_branch": {
+          "type": "string",
+          "x-go-name": "DefaultBranch"
+        },
+        "default_delete_branch_after_merge": {
+          "type": "boolean",
+          "x-go-name": "DefaultDeleteBranchAfterMerge"
+        },
+        "default_merge_style": {
+          "type": "string",
+          "x-go-name": "DefaultMergeStyle"
+        },
+        "default_update_style": {
+          "type": "string",
+          "x-go-name": "DefaultUpdateStyle"
+        },
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "empty": {
+          "type": "boolean",
+          "x-go-name": "Empty"
+        },
+        "external_tracker": {
+          "$ref": "#/definitions/ExternalTracker"
+        },
+        "external_wiki": {
+          "$ref": "#/definitions/ExternalWiki"
+        },
+        "fork": {
+          "type": "boolean",
+          "x-go-name": "Fork"
+        },
+        "forks_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Forks"
+        },
+        "full_name": {
+          "type": "string",
+          "x-go-name": "FullName"
+        },
+        "globally_editable_wiki": {
+          "type": "boolean",
+          "x-go-name": "GloballyEditableWiki"
+        },
+        "has_actions": {
+          "type": "boolean",
+          "x-go-name": "HasActions"
+        },
+        "has_issues": {
+          "type": "boolean",
+          "x-go-name": "HasIssues"
+        },
+        "has_packages": {
+          "type": "boolean",
+          "x-go-name": "HasPackages"
+        },
+        "has_projects": {
+          "type": "boolean",
+          "x-go-name": "HasProjects"
+        },
+        "has_pull_requests": {
+          "type": "boolean",
+          "x-go-name": "HasPullRequests"
+        },
+        "has_releases": {
+          "type": "boolean",
+          "x-go-name": "HasReleases"
+        },
+        "has_wiki": {
+          "description": "is the wiki enabled",
+          "type": "boolean",
+          "x-go-name": "HasWiki"
+        },
+        "has_wiki_contents": {
+          "description": "have wiki pages ever been created",
+          "type": "boolean",
+          "x-go-name": "HasWikiContents"
+        },
+        "html_url": {
+          "type": "string",
+          "x-go-name": "HTMLURL"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "ignore_whitespace_conflicts": {
+          "type": "boolean",
+          "x-go-name": "IgnoreWhitespaceConflicts"
+        },
+        "internal": {
+          "type": "boolean",
+          "x-go-name": "Internal"
+        },
+        "internal_tracker": {
+          "$ref": "#/definitions/InternalTracker"
+        },
+        "language": {
+          "type": "string",
+          "x-go-name": "Language"
+        },
+        "languages_url": {
+          "type": "string",
+          "x-go-name": "LanguagesURL"
+        },
+        "link": {
+          "type": "string",
+          "x-go-name": "Link"
+        },
+        "mirror": {
+          "type": "boolean",
+          "x-go-name": "Mirror"
+        },
+        "mirror_interval": {
+          "type": "string",
+          "x-go-name": "MirrorInterval"
+        },
+        "mirror_updated": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "MirrorUpdated"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "object_format_name": {
+          "description": "ObjectFormatName of the underlying git repository",
+          "type": "string",
+          "enum": [
+            "sha1",
+            "sha256"
+          ],
+          "x-go-name": "ObjectFormatName"
+        },
+        "open_issues_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "OpenIssues"
+        },
+        "open_pr_counter": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "OpenPulls"
+        },
+        "original_url": {
+          "type": "string",
+          "x-go-name": "OriginalURL"
+        },
+        "owner": {
+          "$ref": "#/definitions/User"
+        },
+        "parent": {
+          "$ref": "#/definitions/Repository"
+        },
+        "permissions": {
+          "$ref": "#/definitions/Permission"
+        },
+        "private": {
+          "type": "boolean",
+          "x-go-name": "Private"
+        },
+        "release_counter": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Releases"
+        },
+        "repo_transfer": {
+          "$ref": "#/definitions/RepoTransfer"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Size"
+        },
+        "ssh_url": {
+          "type": "string",
+          "x-go-name": "SSHURL"
+        },
+        "stars_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Stars"
+        },
+        "template": {
+          "type": "boolean",
+          "x-go-name": "Template"
+        },
+        "topics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Topics"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Updated"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        },
+        "watchers_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Watchers"
+        },
+        "website": {
+          "type": "string",
+          "x-go-name": "Website"
+        },
+        "wiki_branch": {
+          "type": "string",
+          "x-go-name": "WikiBranch"
+        },
+        "wiki_clone_url": {
+          "type": "string",
+          "x-go-name": "WikiCloneURL"
+        },
+        "wiki_ssh_url": {
+          "type": "string",
+          "x-go-name": "WikiSSHURL"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "ReviewStateType": {
+      "description": "ReviewStateType review state type",
+      "type": "string",
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "StateType": {
+      "description": "StateType issue state type",
+      "type": "string",
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "Team": {
+      "description": "Team represents a team in an organization",
+      "type": "object",
+      "properties": {
+        "can_create_org_repo": {
+          "type": "boolean",
+          "x-go-name": "CanCreateOrgRepo"
+        },
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "includes_all_repositories": {
+          "type": "boolean",
+          "x-go-name": "IncludesAllRepositories"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "organization": {
+          "$ref": "#/definitions/Organization"
+        },
+        "permission": {
+          "type": "string",
+          "enum": [
+            "none",
+            "read",
+            "write",
+            "admin",
+            "owner"
+          ],
+          "x-go-name": "Permission"
+        },
+        "units": {
+          "description": "\nDeprecated: This variable should be replaced by UnitsMap and will be dropped in later versions.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-deprecated": true,
+          "x-go-name": "Units",
+          "example": [
+            "repo.code",
+            "repo.issues",
+            "repo.ext_issues",
+            "repo.wiki",
+            "repo.pulls",
+            "repo.releases",
+            "repo.projects",
+            "repo.ext_wiki"
+          ]
+        },
+        "units_map": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-go-name": "UnitsMap",
+          "example": {
+            "repo.actions": "none",
+            "repo.code": "read",
+            "repo.ext_issues": "none",
+            "repo.ext_wiki": "none",
+            "repo.issues": "write",
+            "repo.packages": "none",
+            "repo.projects": "none",
+            "repo.pulls": "owner",
+            "repo.releases": "none",
+            "repo.wiki": "admin"
+          }
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "User": {
+      "description": "User represents a user",
+      "type": "object",
+      "properties": {
+        "active": {
+          "description": "Is user active",
+          "type": "boolean",
+          "x-go-name": "IsActive"
+        },
+        "avatar_url": {
+          "description": "URL to the user's avatar",
+          "type": "string",
+          "x-go-name": "AvatarURL"
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Created"
+        },
+        "description": {
+          "description": "the user's description",
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "x-go-name": "Email"
+        },
+        "followers_count": {
+          "description": "user counts",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Followers"
+        },
+        "following_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Following"
+        },
+        "full_name": {
+          "description": "the user's full name",
+          "type": "string",
+          "x-go-name": "FullName"
+        },
+        "html_url": {
+          "description": "URL to the user's profile page",
+          "type": "string",
+          "x-go-name": "HTMLURL"
+        },
+        "id": {
+          "description": "the user's id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "is_admin": {
+          "description": "Is the user an administrator",
+          "type": "boolean",
+          "x-go-name": "IsAdmin"
+        },
+        "language": {
+          "description": "User locale",
+          "type": "string",
+          "x-go-name": "Language"
+        },
+        "last_login": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "LastLogin"
+        },
+        "location": {
+          "description": "the user's location",
+          "type": "string",
+          "x-go-name": "Location"
+        },
+        "login": {
+          "description": "the user's username",
+          "type": "string",
+          "x-go-name": "UserName"
+        },
+        "login_name": {
+          "description": "the user's authentication sign-in name.",
+          "type": "string",
+          "default": "empty",
+          "x-go-name": "LoginName"
+        },
+        "prohibit_login": {
+          "description": "Is user login prohibited",
+          "type": "boolean",
+          "x-go-name": "ProhibitLogin"
+        },
+        "pronouns": {
+          "description": "the user's pronouns",
+          "type": "string",
+          "x-go-name": "Pronouns"
+        },
+        "restricted": {
+          "description": "Is user restricted",
+          "type": "boolean",
+          "x-go-name": "Restricted"
+        },
+        "source_id": {
+          "description": "The ID of the user's Authentication Source",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "SourceID"
+        },
+        "starred_repos_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "StarredRepos"
+        },
+        "visibility": {
+          "description": "User visibility level option: public, limited, private",
+          "type": "string",
+          "x-go-name": "Visibility"
+        },
+        "website": {
+          "description": "the user's website",
+          "type": "string",
+          "x-go-name": "Website"
+        },
+        "username": {
+          "type": "string",
+          "description": "the user's username, sent by Forgejo 17 but not in its description"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    }
+  },
+  "responses": {
+    "ActionRunJobList": {
+      "description": "ActionRunJobList",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/ActionRunJob"
+        }
+      }
+    },
+    "ActionRunList": {
+      "description": "ActionRunList",
+      "schema": {
+        "$ref": "#/definitions/ListActionRunResponse"
+      }
+    },
+    "Branch": {
+      "description": "Branch",
+      "schema": {
+        "$ref": "#/definitions/Branch"
+      }
+    },
+    "CommitStatus": {
+      "description": "CommitStatus",
+      "schema": {
+        "$ref": "#/definitions/CommitStatus"
+      }
+    },
+    "CommitStatusList": {
+      "description": "CommitStatusList",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/CommitStatus"
+        }
+      },
+      "headers": {
+        "X-Total-Count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The total number of commit statuses"
+        }
+      }
+    },
+    "Hook": {
+      "description": "Hook",
+      "schema": {
+        "$ref": "#/definitions/Hook"
+      }
+    },
+    "HookList": {
+      "description": "HookList",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/Hook"
+        }
+      },
+      "headers": {
+        "X-Total-Count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The total number of hooks"
+        }
+      }
+    },
+    "OrganizationListWithoutPagination": {
+      "description": "OrganizationListWithoutPagination - Organizations without pagination headers",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/Organization"
+        }
+      }
+    },
+    "PullRequest": {
+      "description": "PullRequest",
+      "schema": {
+        "$ref": "#/definitions/PullRequest"
+      }
+    },
+    "PullRequestList": {
+      "description": "PullRequestList",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/PullRequest"
+        }
+      }
+    },
+    "PullReview": {
+      "description": "PullReview",
+      "schema": {
+        "$ref": "#/definitions/PullReview"
+      }
+    },
+    "PullReviewCommentList": {
+      "description": "PullCommentList",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/PullReviewComment"
+        }
+      }
+    },
+    "PullReviewList": {
+      "description": "PullReviewList",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/PullReview"
+        }
+      },
+      "headers": {
+        "X-Total-Count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The total number of pull reviews"
+        }
+      }
+    },
+    "RepoCollaboratorPermission": {
+      "description": "RepoCollaboratorPermission",
+      "schema": {
+        "$ref": "#/definitions/RepoCollaboratorPermission"
+      }
+    },
+    "User": {
+      "description": "User",
+      "schema": {
+        "$ref": "#/definitions/User"
+      }
+    },
+    "error": {
+      "description": "APIError is error format response",
+      "schema": {
+        "$ref": "#/definitions/APIError"
+      }
+    },
+    "forbidden": {
+      "description": "APIForbiddenError is a forbidden error response",
+      "schema": {
+        "$ref": "#/definitions/APIForbiddenError"
+      }
+    },
+    "notFound": {
+      "description": "APINotFound is a not found error response",
+      "schema": {
+        "$ref": "#/definitions/APINotFound"
+      }
+    },
+    "quotaExceeded": {
+      "description": "QuotaExceeded",
+      "headers": {
+        "message": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "username": {
+          "type": "string"
+        }
+      }
+    },
+    "repoArchivedError": {
+      "description": "APIRepoArchivedError is an error that is raised when an archived repo should be modified",
+      "schema": {
+        "$ref": "#/definitions/APIRepoArchivedError"
+      }
+    },
+    "unauthorized": {
+      "description": "APIUnauthorizedError is a unauthorized error response",
+      "schema": {
+        "$ref": "#/definitions/APIUnauthorizedError"
+      }
+    },
+    "validationError": {
+      "description": "APIValidationError is error format response related to input validation",
+      "schema": {
+        "$ref": "#/definitions/APIValidationError"
+      }
+    }
+  },
+  "securityDefinitions": {
+    "AuthorizationHeaderToken": {
+      "description": "API tokens must be prepended with \"token\" followed by a space.",
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    },
+    "BasicAuth": {
+      "type": "basic"
+    },
+    "SudoHeader": {
+      "description": "Sudo API request as the user provided as the key. Admin privileges are required.",
+      "type": "apiKey",
+      "name": "Sudo",
+      "in": "header"
+    },
+    "SudoParam": {
+      "description": "Sudo API request as the user provided as the key. Admin privileges are required.",
+      "type": "apiKey",
+      "name": "sudo",
+      "in": "query"
+    },
+    "TOTPHeader": {
+      "description": "Must be used in combination with BasicAuth if two-factor authentication is enabled.",
+      "type": "apiKey",
+      "name": "X-FORGEJO-OTP",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "BasicAuth": [ ]
+    },
+    {
+      "AuthorizationHeaderToken": [ ]
+    },
+    {
+      "SudoParam": [ ]
+    },
+    {
+      "SudoHeader": [ ]
+    },
+    {
+      "TOTPHeader": [ ]
+    }
+  ]
+}

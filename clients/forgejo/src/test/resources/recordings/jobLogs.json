@@ -1,0 +1,25 @@
+{
+  "status" : 200,
+  "headers" : {
+    "content-type" : [ "text/plain; charset=utf-8" ]
+  },
+  "body" : "2026-10-30T10:04:38.2409077Z Runner 31323130-3837-3836-3235-613063313236 (version:v13.2.0) received task 1 of job build, triggered by event: push\n2026-10-30T10:04:38.2419641Z workflow prepared\n2026-10-30T10:04:38.2422634Z ⭐ Run Main echo fixture-complete\n2026-10-30T10:04:38.2435712Z fixture-complete\n2026-10-30T10:04:38.2437541Z \uD83C\uDFC1  Job succeeded\n",
+  "exchanges" : [ {
+    "status" : 200,
+    "headers" : {
+      "content-type" : [ "text/plain; charset=utf-8" ]
+    },
+    "body" : "2026-10-30T10:04:38.2409077Z Runner 31323130-3837-3836-3235-613063313236 (version:v13.2.0) received task 1 of job build, triggered by event: push\n2026-10-30T10:04:38.2419641Z workflow prepared\n2026-10-30T10:04:38.2422634Z ⭐ Run Main echo fixture-complete\n2026-10-30T10:04:38.2435712Z fixture-complete\n2026-10-30T10:04:38.2437541Z \uD83C\uDFC1  Job succeeded\n"
+  } ],
+  "context" : {
+    "owner" : "review-org",
+    "repo" : "review-fixture",
+    "sha" : "54d4988674abac9fe4163b533cf329f25bb5b125",
+    "actionsSha" : "803dc3ac6a461475801869a33693060e65f6fb78",
+    "index" : 1,
+    "review" : 1,
+    "run" : 1,
+    "job" : 1
+  },
+  "request_body" : null
+}

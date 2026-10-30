@@ -641,6 +641,51 @@ class OpenApiExtractTest {
         }
     }
 
+    // Prevents the strict reading from failing on a field the forge sends but its own description
+    // leaves out,
+    // without letting every other unknown field pass.
+    @Test
+    void anAddedPropertyIsWrittenIntoItsSchemaAndListedAsAdded() throws Exception {
+        Path output = directory.resolve("extract.json");
+        Result result =
+                fetch(
+                        fixture("swagger20.json"),
+                        output,
+                        "get /items",
+                        "--add-property",
+                        "Node.label={\"type\": \"string\"}");
+        assertThat(result).as("the addition names a reached schema").isEqualTo(new Result(0, ""));
+        JsonNode extract = mapper.readTree(output.toFile());
+
+        assertThat(extract.at("/definitions/Node/properties/label/type").asText())
+                .as("the added property is in its schema")
+                .isEqualTo("string");
+        assertThat(extract.at("/info/x-extracted-from/added/0").asText())
+                .as(
+                        "an addition is recorded beside the source, so a reader sees what is not the forge's own")
+                .isEqualTo("Node.label");
+    }
+
+    // Prevents an addition from silently replacing what the description itself says once the forge
+    // documents it.
+    @Test
+    void anAdditionOfAPropertyTheDescriptionHasStopsTheFetchNamingIt() throws Exception {
+        Path output = directory.resolve("extract.json");
+        Result result =
+                fetch(
+                        fixture("swagger20.json"),
+                        output,
+                        "get /items",
+                        "--add-property",
+                        "Node.next={\"type\": \"string\"}");
+
+        assertThat(result.status()).as("a redundant addition stops the fetch").isEqualTo(1);
+        assertThat(result.error())
+                .as("the problem names the property")
+                .contains("Node.next; drop the addition");
+        assertThat(Files.exists(output)).as("nothing is written").isFalse();
+    }
+
     private Result fetch(byte[] source, Path output, String operation, String... extra)
             throws Exception {
         return fetchWithDigest(source, output, digest(source), operation, extra);

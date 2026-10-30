@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.fuin.porelo</groupId>
+        <artifactId>porelo-forge-clients-clients</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>porelo-forge-client-forgejo</artifactId>
+    <name>Porelo Forgejo Client</name>
+    <description>Forgejo review and Actions API client</description>
+    <properties>
+        <skipPublishing>false</skipPublishing>
+        <openapi.extract>forgejo.json</openapi.extract>
+        <openapi.package>org.fuin.porelo.forge.forgejo.model</openapi.package>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>check-extract</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <executable>${java.home}/bin/java</executable>
+                            <executableDependency>
+                                <groupId>org.fuin.porelo</groupId>
+                                <artifactId>porelo-forge-client-openapi-extract</artifactId>
+                            </executableDependency>
+                            <includeProjectDependencies>false</includeProjectDependencies>
+                            <includePluginDependencies>true</includePluginDependencies>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>org.fuin.porelo.forge.openapi.OpenApiExtract</argument>
+                                <argument>check</argument>
+                                <argument>--extract</argument>
+                                <argument>${project.basedir}/src/main/openapi/forgejo.json</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/actions/jobs/{job_id}/logs</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/actions/runs</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/actions/runs/{run_id}/jobs</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/branches/{branch}</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/collaborators/{collaborator}/permission</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/hooks</argument>
+                                <argument>--operation</argument>
+                                <argument>post /repos/{owner}/{repo}/hooks</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/pulls</argument>
+                                <argument>--operation</argument>
+                                <argument>post /repos/{owner}/{repo}/pulls</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/pulls/{index}</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/pulls/{index}/reviews</argument>
+                                <argument>--operation</argument>
+                                <argument>post /repos/{owner}/{repo}/pulls/{index}/reviews</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/pulls/{index}/reviews/{id}/comments</argument>
+                                <argument>--operation</argument>
+                                <argument>post /repos/{owner}/{repo}/pulls/{index}/reviews/{id}/dismissals</argument>
+                                <argument>--operation</argument>
+                                <argument>post /repos/{owner}/{repo}/pulls/{index}/reviews/{id}/undismissals</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/statuses/{sha}</argument>
+                                <argument>--operation</argument>
+                                <argument>post /repos/{owner}/{repo}/statuses/{sha}</argument>
+                                <argument>--operation</argument>
+                                <argument>get /user</argument>
+                                <argument>--operation</argument>
+                                <argument>get /user/orgs</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>record-forgejo</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.fuin.porelo.forge.forgejo.ForgejoRecorder</mainClass>
+                            <classpathScope>test</classpathScope>
+                            <arguments>
+                                <argument>${project.basedir}/src/test/resources/recordings</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.fuin.porelo</groupId>
+                        <artifactId>porelo-forge-client-openapi-extract</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <profile>
+            <id>forgejo-live</id>
+            <activation>
+                <property>
+                    <name>forgejo.live</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
