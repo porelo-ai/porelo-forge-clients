@@ -49,6 +49,8 @@
     <properties>
         <!-- The command line 'exec:exec@machines' gives porelo-machines, such as 'jdk'. -->
         <machines.args></machines.args>
+        <!-- Merged useRecords is in no release yet; moved to the first release that has it. -->
+        <openapi-generator.version>7.27.0-20261030.081701-149</openapi-generator.version>
     </properties>
 
     <dependencyManagement>
@@ -72,7 +74,65 @@
         </dependencies>
     </dependencyManagement>
 
+    <modules>
+        <module>openapi-extract</module>
+    </modules>
+
     <build>
+
+        <pluginManagement>
+            <plugins>
+
+                <!-- Records from a client module's committed extract, models only. The snapshot pins the first build with
+                     useRecords; a release of these clients waits for the generator's release that has it. The
+                     overridden templates leave out Spring and Jakarta, check required fields and keep NullAway green;
+                     the normalizer drops a oneOf or anyOf that only narrows its schema's own properties. -->
+                <plugin>
+                    <groupId>org.openapitools</groupId>
+                    <artifactId>openapi-generator-maven-plugin</artifactId>
+                    <version>${openapi-generator.version}</version>
+                    <executions>
+                        <execution>
+                            <id>records</id>
+                            <goals>
+                                <goal>generate</goal>
+                            </goals>
+                            <configuration>
+                                <inputSpec>${project.basedir}/src/main/openapi/${openapi.extract}</inputSpec>
+                                <output>${project.build.directory}/generated-sources/openapi</output>
+                                <generatorName>spring</generatorName>
+                                <library>spring-boot</library>
+                                <templateDirectory>${maven.multiModuleProjectDirectory}/openapi-templates</templateDirectory>
+                                <modelPackage>${openapi.package}</modelPackage>
+                                <generateApis>false</generateApis>
+                                <generateModelTests>false</generateModelTests>
+                                <generateModelDocumentation>false</generateModelDocumentation>
+                                <supportingFilesToGenerate>package-info.java</supportingFilesToGenerate>
+                                <importMappings>
+                                    <!-- The generator imports Spring's DateTimeFormat for every date; the templates
+                                         drop the annotation, and this turns the import into a harmless duplicate. -->
+                                    <importMapping>DateTimeFormat=java.time.OffsetDateTime</importMapping>
+                                </importMappings>
+                                <openapiNormalizer>REMOVE_ANYOF_ONEOF_AND_KEEP_PROPERTIES_ONLY=true</openapiNormalizer>
+                                <configOptions>
+                                    <sourceFolder>src</sourceFolder>
+                                    <useRecords>true</useRecords>
+                                    <useJspecify>true</useJspecify>
+                                    <useSpringBoot3>true</useSpringBoot3>
+                                    <useJakartaEe>true</useJakartaEe>
+                                    <openApiNullable>false</openApiNullable>
+                                    <useBeanValidation>false</useBeanValidation>
+                                    <annotationLibrary>none</annotationLibrary>
+                                    <documentationProvider>none</documentationProvider>
+                                    <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                                </configOptions>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
 
         <plugins>
 

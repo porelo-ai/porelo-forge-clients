@@ -1,0 +1,56 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Records fixture",
+    "version": "1"
+  },
+  "paths": {
+    "/reactions": {
+      "get": {
+        "operationId": "reaction",
+        "responses": {
+          "200": {
+            "description": "A reaction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/reaction"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "reaction": {
+        "type": "object",
+        "required": ["id", "closed_at"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "closed_at": {
+            "type": ["string", "null"]
+          },
+          "title": {
+            "type": "string"
+          },
+          "+1": {
+            "type": "integer"
+          },
+          "-1": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string",
+            "enum": ["open", "closed"]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "openapi": "3.1.0",
+  "info": {"title": "Small API", "version": "1"},
+  "paths": {
+    "/items": {
+      "summary": "Items",
+      "parameters": [{"$ref": "#/components/parameters/Tenant"}],
+      "get": {"responses": {"200": {"description": "Unused", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Unused"}}}}}},
+      "post": {
+        "parameters": [{"$ref": "#/components/parameters/Limit"}],
+        "requestBody": {"$ref": "#/components/requestBodies/Create"},
+        "responses": {"200": {"$ref": "#/components/responses/Items"}}
+      }
+    },
+    "/unused": {"delete": {"responses": {"204": {"description": "Deleted"}}}}
+  },
+  "webhooks": {
+    "created": {"post": {"requestBody": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/Event"}}}}, "responses": {"200": {"description": "OK"}}}},
+    "ignored": {"post": {"responses": {"200": {"description": "OK"}}}}
+  },
+  "x-webhooks": {"legacy": {"$ref": "#/components/schemas/Unused"}},
+  "components": {
+    "schemas": {
+      "Envelope": {"type": "object", "properties": {"item": {"$ref": "#/components/schemas/Node"}}},
+      "Node": {"type": "object", "properties": {"next": {"$ref": "#/components/schemas/Node"}}},
+      "Context": {"type": "integer"},
+      "Tenant": {"type": "string"},
+      "Event": {"type": "object", "properties": {"node": {"$ref": "#/components/schemas/Node"}}},
+      "Narrow": {
+        "type": "object", "properties": {"kind": {"type": "string"}},
+        "discriminator": {"propertyName": "kind"},
+        "oneOf": [{"properties": {"kind": {"enum": ["a"]}}}, {"properties": {"kind": {"enum": ["b"]}}}]
+      },
+      "NarrowAny": {
+        "type": "object", "properties": {"kind": {"type": "string"}},
+        "discriminator": {"propertyName": "kind"},
+        "anyOf": [{"required": ["kind"]}]
+      },
+      "Union": {
+        "type": "object", "properties": {"kind": {"type": "string"}},
+        "discriminator": {"propertyName": "kind"},
+        "oneOf": [{"$ref": "#/components/schemas/Cat"}, {"$ref": "#/components/schemas/Dog"}]
+      },
+      "Cat": {"type": "object", "properties": {"kind": {"type": "string", "enum": ["cat"]}}},
+      "Dog": {"type": "object", "properties": {"kind": {"type": "string", "enum": ["dog"]}}},
+      "Unused": {"$ref": "#/components/schemas/Unused"}
+    },
+    "parameters": {
+      "Tenant": {"name": "tenant", "in": "query", "schema": {"$ref": "#/components/schemas/Tenant"}},
+      "Limit": {"name": "limit", "in": "query", "schema": {"$ref": "#/components/schemas/Context"}},
+      "Unused": {"name": "unused", "in": "query", "schema": {"type": "string"}}
+    },
+    "responses": {
+      "Items": {"description": "Items", "headers": {"Rate": {"$ref": "#/components/headers/Rate"}}, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Envelope"}, "examples": {"sample": {"$ref": "#/components/examples/Sample"}}}}},
+      "Unused": {"description": "Unused"}
+    },
+    "headers": {"Rate": {"schema": {"$ref": "#/components/schemas/Context"}}, "Unused": {"schema": {"type": "integer"}}},
+    "examples": {"Sample": {"value": {"item": {}}}, "Unused": {"value": {}}},
+    "requestBodies": {
+      "Create": {"content": {"application/json": {"schema": {"allOf": [{"$ref": "#/components/schemas/Narrow"}, {"$ref": "#/components/schemas/NarrowAny"}, {"$ref": "#/components/schemas/Union"}]}}}},
+      "Unused": {"content": {"application/json": {"schema": {"type": "object"}}}}
+    },
+    "securitySchemes": {"Unused": {"type": "http", "scheme": "bearer"}}
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "openapi": "3.0.3",
+  "info": {"title": "Pointers and precision", "version": "1"},
+  "paths": {
+    "/items": {"get": {"responses": {"200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/a~1b~0c%20d/properties/value"}}}}}}}
+  },
+  "components": {
+    "schemas": {
+      "a/b~c d": {
+        "type": "object",
+        "properties": {
+          "value": {"type": "number", "minimum": 0.12345678901234567890123456789},
+          "other": {"$ref": "#/components/schemas/Other"}
+        }
+      },
+      "Other": {"type": "string"},
+      "Unused": {"type": "string"}
+    }
+  }
+}

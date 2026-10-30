@@ -1,0 +1,32 @@
+{
+  "openapi": "3.1.0",
+  "info": {"title": "Literal data", "version": "1"},
+  "paths": {
+    "/items": {"get": {"responses": {"200": {"description": "OK", "content": {"application/json": {
+      "schema": {"$ref": "#/components/schemas/Payload"},
+      "examples": {"sample": {"$ref": "#/components/examples/Sample"}}
+    }}}}}}
+  },
+  "components": {
+    "schemas": {
+      "Payload": {
+        "type": "object",
+        "properties": {"$ref": {"type": "string"}, "node": {"$ref": "#/components/schemas/Node"}},
+        "example": {"$ref": "literal example"},
+        "examples": [{"$ref": "literal examples"}],
+        "default": {"$ref": "#/components/schemas/Unused"},
+        "const": {"$ref": "literal const"},
+        "enum": [{"$ref": "literal enum"}]
+      },
+      "Node": {"type": "string"},
+      "Unused": {"type": "string"}
+    },
+    "examples": {
+      "Sample": {"value": {"$ref": "literal value", "schema": {
+        "properties": {"kind": {"type": "string"}},
+        "discriminator": {"propertyName": "kind"},
+        "oneOf": [{"required": ["kind"]}]
+      }}}
+    }
+  }
+}

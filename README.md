@@ -9,7 +9,11 @@ Central under `org.fuin.porelo`. They cover only what a code review and a build 
 comments and threads, suggestions, checks and build results, webhooks, the account and its membership - and are not
 complete clients of any API. They know nothing of Porelo: Porelo's adapters use them and translate what they return.
 
-No module is here yet; `github` and `forgejo` come first.
+- [openapi-extract](openapi-extract/README.md) - the command that keeps a client's extract of a forge's pinned
+  OpenAPI description, built here and never published.
+
+The records of each client are generated at build time by openapi-generator, with the templates in
+`openapi-templates/` overriding its own. `github` and `forgejo` come first.
 
 ## Building
 

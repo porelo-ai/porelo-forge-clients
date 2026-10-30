@@ -1,0 +1,7 @@
+{
+  "swagger": "2.0",
+  "info": {"title": "Template", "version": "{{.SwaggerAppVer}}"},
+  "basePath": "{{.SwaggerAppSubUrl}}/api",
+  "paths": {"/items": {"get": {"responses": {"200": {"description": "OK"}}}}},
+  "definitions": {}
+}

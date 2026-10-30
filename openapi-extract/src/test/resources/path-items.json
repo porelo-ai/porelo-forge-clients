@@ -1,0 +1,17 @@
+{
+  "openapi": "3.1.0",
+  "info": {"title": "Reusable paths", "version": "1"},
+  "paths": {"/items": {"$ref": "#/components/pathItems/Alias"}},
+  "components": {
+    "pathItems": {
+      "Alias": {"$ref": "#/components/pathItems/Items"},
+      "Items": {
+        "parameters": [{"$ref": "#/components/parameters/Tenant"}],
+        "get": {"responses": {"200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Item"}}}}}},
+        "post": {"responses": {"200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Unused"}}}}}}
+      }
+    },
+    "parameters": {"Tenant": {"name": "tenant", "in": "query", "schema": {"$ref": "#/components/schemas/Tenant"}}},
+    "schemas": {"Item": {"type": "object"}, "Tenant": {"type": "string"}, "Unused": {"type": "string"}}
+  }
+}

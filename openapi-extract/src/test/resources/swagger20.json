@@ -1,0 +1,28 @@
+{
+  "swagger": "2.0",
+  "info": {"title": "Small API", "version": "1"},
+  "paths": {
+    "/items": {
+      "parameters": [{"$ref": "#/parameters/Tenant"}],
+      "get": {"parameters": [{"$ref": "#/parameters/Limit"}], "responses": {"200": {"$ref": "#/responses/Items"}}},
+      "post": {"responses": {"200": {"description": "Unused", "schema": {"$ref": "#/definitions/Unused"}}}}
+    },
+    "/unused": {"get": {"responses": {"200": {"description": "Unused"}}}}
+  },
+  "definitions": {
+    "Envelope": {"type": "object", "properties": {"node": {"$ref": "#/definitions/Node"}}},
+    "Node": {"type": "object", "properties": {"next": {"$ref": "#/definitions/Node"}}},
+    "Context": {"type": "integer"},
+    "Tenant": {"type": "string"},
+    "Unused": {"$ref": "#/definitions/Unused"}
+  },
+  "parameters": {
+    "Tenant": {"name": "tenant", "in": "body", "schema": {"$ref": "#/definitions/Tenant"}},
+    "Limit": {"name": "limit", "in": "body", "schema": {"$ref": "#/definitions/Context"}},
+    "Unused": {"name": "unused", "in": "query", "type": "string"}
+  },
+  "responses": {
+    "Items": {"description": "Items", "schema": {"$ref": "#/definitions/Envelope"}},
+    "Unused": {"description": "Unused"}
+  }
+}
