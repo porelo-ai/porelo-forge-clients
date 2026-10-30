@@ -1,6 +1,6 @@
 # FC03 — The Forge Calls Of The Adapters Move Here
 
-**Status:** Idea.
+**Status:** Idea; blocked by [FC01](README.md#fc01) and [FC02](README.md#fc02).
 
 **What must be true.** Every HTTP call that `porelo-adapters` makes to GitHub or Forgejo today is a call of the
 `github` or `forgejo` client here, with the same requests and the same handling of every answer, so the adapters keep
@@ -18,9 +18,8 @@ only the translation into Porelo's contracts.
 - **The transport:** a client takes a `java.net.http.HttpClient` from its caller, which builds it with the
   account's trusted certificate authorities (redirects never followed by the client itself, 15 s to connect). The
   request timeout (60 s), the window of a log's tail and the lower-casing of header names go with the clients.
-- **For `porelo-adapters`' artifacts:** its two readers keep their packages, paths and contract and carry the
-  client jars inside them; its HTTP helper shrinks to the certificate part. It builds against the clients'
-  published snapshot, so the clients publish before the adapters' change is pushed.
+- **Published:** the clients go to Maven Central as snapshots first, so the adapters can build against them; the
+  adapters' readers then carry the client jars inside their packages.
 
 ## Acceptance
 
