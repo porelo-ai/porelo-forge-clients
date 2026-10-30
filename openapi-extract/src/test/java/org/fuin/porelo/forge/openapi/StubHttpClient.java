@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -35,37 +36,51 @@ final class StubHttpClient extends HttpClient {
     boolean bodyClosed;
 
     StubHttpClient(int status, byte[] body) {
-        this(status, () -> new ByteArrayInputStream(body.clone()));
+        this(status, copy(body));
     }
 
     /** Answers with {@code length} zero bytes, generated as they are read rather than held. */
     StubHttpClient(int status, long length) {
-        this(
-                status,
-                () ->
-                        new InputStream() {
-                            private long left = length;
+        this(status, zeros(length));
+    }
 
-                            @Override
-                            public int read() {
-                                if (left == 0) {
-                                    return -1;
-                                }
-                                left--;
-                                return 0;
-                            }
+    private static Supplier<InputStream> copy(byte[] body) {
+        byte[] copy = body.clone();
+        return () -> new ByteArrayInputStream(copy);
+    }
 
-                            @Override
-                            public int read(byte[] buffer, int offset, int count) {
-                                if (left == 0) {
-                                    return -1;
-                                }
-                                int read = (int) Math.min(count, left);
-                                java.util.Arrays.fill(buffer, offset, offset + read, (byte) 0);
-                                left -= read;
-                                return read;
-                            }
-                        });
+    private static Supplier<InputStream> zeros(long length) {
+        if (length < 0) {
+            throw new IllegalArgumentException("A body cannot be shorter than nothing");
+        }
+        return () ->
+                new InputStream() {
+                    private long left = length;
+
+                    @Override
+                    public int read() {
+                        if (left == 0) {
+                            return -1;
+                        }
+                        left--;
+                        return 0;
+                    }
+
+                    @Override
+                    public int read(byte[] buffer, int offset, int count) {
+                        Objects.checkFromIndexSize(offset, count, buffer.length);
+                        if (count == 0) {
+                            return 0;
+                        }
+                        if (left == 0) {
+                            return -1;
+                        }
+                        int read = (int) Math.min(count, left);
+                        java.util.Arrays.fill(buffer, offset, offset + read, (byte) 0);
+                        left -= read;
+                        return read;
+                    }
+                };
     }
 
     private StubHttpClient(int status, Supplier<InputStream> body) {
