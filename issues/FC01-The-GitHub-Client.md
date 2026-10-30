@@ -14,7 +14,7 @@ account and its organization membership - in GitHub's own terms, knowing nothing
 - At run time the module needs only the JDK's `java.net.http.HttpClient`, Jackson and its own records; the build
   fails on a dependency on any Porelo artifact.
 - A token reaches the client from its caller for each call, never from a file, a log line or a message of an
-  exception.
+  exception; the client sends its requests through the `HttpClient` its caller passes.
 
 ## To be checked
 

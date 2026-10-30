@@ -6,6 +6,22 @@
 `github` or `forgejo` client here, with the same requests and the same handling of every answer, so the adapters keep
 only the translation into Porelo's contracts.
 
+## The shape
+
+- **What moves:** the forge calls of the GitHub and Forgejo readers and the decoding of their native answers - a
+  branch's head, the runs for a commit, their jobs with paging, the tail of a job's log, redirects followed by hand
+  (GitHub sends a log to a second host), opening a pull request on Forgejo, and the error answers by status and
+  text. A client returns native records: a run, a job, a log tail, a pull request's address.
+- **What stays in `porelo-adapters`:** everything that names Porelo - the reader's entry point, the target turned
+  into owner and name, the choice of jobs, the mapping onto Porelo's build types and the refusals with their codes,
+  and the contract suite every adapter passes.
+- **The transport:** a client takes a `java.net.http.HttpClient` from its caller, which builds it with the
+  account's trusted certificate authorities (redirects never followed by the client itself, 15 s to connect). The
+  request timeout (60 s), the window of a log's tail and the lower-casing of header names go with the clients.
+- **For `porelo-adapters`' artifacts:** its two readers keep their packages, paths and contract and carry the
+  client jars inside them; its HTTP helper shrinks to the certificate part. It builds against the clients'
+  published snapshot, so the clients publish before the adapters' change is pushed.
+
 ## Acceptance
 
 - For each call that moves, the answers the adapters' tests record today pass through the client here and yield
@@ -13,10 +29,9 @@ only the translation into Porelo's contracts.
 - Nothing of Porelo moves with the calls: no contract type, no SARIF, no Porelo artifact in any module's
   dependencies.
 
-## To be checked
+## Open questions
 
-- Which classes of `porelo-adapters` move, and which stay because they translate - asked of its agent.
-- Whether its HTTP helper (the account's trusted certificate authorities) moves, or the clients take an
-  `HttpClient` from their caller.
-- What the move changes for `porelo-adapters`' published artifacts, and in which order the two repositories build
-  and release it.
+- **License of what is linked into a native package.** The shared rules give `Apache-2.0` to a library linked into
+  a native executable shipped in a package, `LGPL-3.0-or-later` to a plain Java library. The clients are both: a
+  plain library on Maven Central, and linked into the adapters' native readers shipped as `.deb` and `.rpm`.
+  Recommendation: `Apache-2.0` for every module, since the readers are the first and main users.
