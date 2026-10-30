@@ -3,8 +3,8 @@
 **Status:** Analyzed; blocked by [FC02](README.md#fc02).
 **Size:** S - four calls added to the `forgejo` module and its tests; no existing call changes.
 
-**What must be true.** A caller reads a Forgejo user's public SSH keys without a token, whether a user owns an
-organization, reads a repository, and creates one in an organization, through the `forgejo` module, in Forgejo's own
+**What must be true.** A caller reads a Forgejo user's public SSH keys without a token, reads whether a user owns
+an organization, reads a repository, and creates one in an organization, through the `forgejo` module, in Forgejo's own
 terms.
 
 ## Plan
@@ -14,8 +14,9 @@ terms.
   to the `--operation` list in `clients/forgejo/pom.xml`; the extract `clients/forgejo/src/main/openapi/forgejo.json`
   is fetched again from the same pin, and `check` passes with the four.
 - **`ForgejoClient`:** `keys(login, page, limit)` takes no token and sends no `Authorization` header, paged as every
-  other list; `organizationPermissions(token, login, org)`, whose `is_owner` says whether the user owns the
-  organization; `repository(token, owner, repo)`; `createRepository(token, org, body)` with the generated
+  other list; `organizationPermissions(token, login, org)`, whose `is_owner` is true for an owner of the
+  organization and left out for anyone else, so an absent value reads as not an owner;
+  `repository(token, owner, repo)`; `createRepository(token, org, body)` with the generated
   `CreateRepoOption`. Each answer is read in the client's strictness, as every other call.
 - **The fixture:** `ForgejoContainer.seedAccountsAndRepository` gives one fixture user an SSH public key made for the
   test, so `keys` answers a non-empty list. `ForgejoScenario` creates the second repository under a fixed name in the

@@ -4,7 +4,7 @@
 **Size:** S - six calls added to the `github` module and its tests; no existing call changes.
 
 **What must be true.** A caller reads a GitHub user's public SSH authentication keys and SSH signing keys without a
-token, whether a user owns an organization, reads a repository, creates one in an organization, and reads a
+token, reads whether a user owns an organization, reads a repository, creates one in an organization, and reads a
 commit's statuses, through the `github` module, in GitHub's own terms.
 
 ## Plan
@@ -14,9 +14,10 @@ commit's statuses, through the `github` module, in GitHub's own terms.
   `GET /repos/{owner}/{repo}/commits/{ref}/status`, added to the module's operation list; the extract is cut
   again from the same pinned OpenAPI 3.1 file, and `check` passes with the six.
 - **`GitHubClient`:** `keys(login, page, perPage)` and `signingKeys(login, page, perPage)` take no token and send no
-  `Authorization` header; `membership(token, org, login)`, whose `role` is `admin` for an owner of the
-  organization; `repository(token, owner, repo)`, `createRepository(token, org, body)` and
-  `status(token, owner, repo, ref, page, perPage)`, the combined status with its list of statuses. Each answer is
+  `Authorization` header; `membership(token, org, login)`: an owner of the organization has `role` `admin` and
+  `state` `active`, since an invited owner who has not accepted is `pending`; `repository(token, owner, repo)`,
+  `createRepository(token, org, body)` and `status(token, owner, repo, ref, page, perPage)`, the combined status
+  with its list of statuses. Each answer is
   read in the client's strictness.
 - **What the test organization keeps for it:** the admin test user has one SSH authentication key and one SSH
   signing key made for the test, and the commit the live check reads carries one commit status, set once by hand.
