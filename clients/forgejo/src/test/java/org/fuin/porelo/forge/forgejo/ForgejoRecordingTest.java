@@ -47,7 +47,8 @@ class ForgejoRecordingTest {
                     switch (operation) {
                         case pulls -> "state=open&page=1&limit=50";
                         case runs -> "head_sha=" + context.actionsSha() + "&page=1&limit=50";
-                        case reviews, statuses, hooks, organizations -> "page=1&limit=50";
+                        case reviews, statuses, hooks, organizations, keys, ownKeys ->
+                                "page=1&limit=50";
                         default -> null;
                     };
             assertThat(transport.requests.getFirst().uri().getRawQuery())

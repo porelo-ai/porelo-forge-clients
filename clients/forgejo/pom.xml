@@ -79,6 +79,10 @@
                                 <argument>--extract</argument>
                                 <argument>${project.basedir}/src/main/openapi/forgejo.json</argument>
                                 <argument>--operation</argument>
+                                <argument>post /orgs/{org}/repos</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}</argument>
+                                <argument>--operation</argument>
                                 <argument>get /repos/{owner}/{repo}/actions/jobs/{job_id}/logs</argument>
                                 <argument>--operation</argument>
                                 <argument>get /repos/{owner}/{repo}/actions/runs</argument>
@@ -115,7 +119,17 @@
                                 <argument>--operation</argument>
                                 <argument>get /user</argument>
                                 <argument>--operation</argument>
+                                <argument>get /user/keys</argument>
+                                <argument>--operation</argument>
+                                <argument>post /user/keys</argument>
+                                <argument>--operation</argument>
+                                <argument>delete /user/keys/{id}</argument>
+                                <argument>--operation</argument>
                                 <argument>get /user/orgs</argument>
+                                <argument>--operation</argument>
+                                <argument>get /users/{username}/keys</argument>
+                                <argument>--operation</argument>
+                                <argument>get /users/{username}/orgs/{org}/permissions</argument>
                             </arguments>
                         </configuration>
                     </execution>

@@ -30,6 +30,8 @@ final class ForgejoContainer implements AutoCloseable {
     static final String REPO = "review-fixture";
     static final String ADMIN = "fixture-admin";
     static final String REVIEWER = "fixture-reviewer";
+    static final String REVIEWER_PUBLIC_KEY =
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAdTxLMf+cXzMTRZlQ9nf7cNS1Y8UNRaXmm+cgK7MibB forgejo-fixture";
     private static final String PREFIX = "forge-clients-it-";
     private static final SecureRandom RANDOM = new SecureRandom();
     private final String name = PREFIX + UUID.randomUUID();
@@ -222,6 +224,10 @@ final class ForgejoContainer implements AutoCloseable {
                         password,
                         "must_change_password",
                         false));
+        api(
+                "POST",
+                "admin/users/" + REVIEWER + "/keys",
+                Map.of("title", "Fixture key", "key", REVIEWER_PUBLIC_KEY));
         String basic =
                 Base64.getEncoder()
                         .encodeToString(

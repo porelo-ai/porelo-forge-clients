@@ -6,7 +6,7 @@
       "application/json;charset=utf-8"
     ]
   },
-  "body" : "[{\"id\":2,\"name\":\"review-org\",\"full_name\":\"Review fixture\",\"email\":\"\",\"avatar_url\":\"http://example.org/avatars/7974fbff3cef99e1c0e1187b3e59ddfc\",\"description\":\"\",\"website\":\"\",\"location\":\"\",\"visibility\":\"public\",\"repo_admin_change_team_access\":false,\"created\":\"2026-10-30T10:43:51Z\",\"username\":\"review-org\"}]",
+  "body" : "[{\"id\":2,\"name\":\"review-org\",\"full_name\":\"Review fixture\",\"email\":\"\",\"avatar_url\":\"http://example.org/avatars/7974fbff3cef99e1c0e1187b3e59ddfc\",\"description\":\"\",\"website\":\"\",\"location\":\"\",\"visibility\":\"public\",\"repo_admin_change_team_access\":false,\"created\":\"2026-10-30T19:33:24Z\",\"username\":\"review-org\"}]",
   "exchanges" : [
     {
       "request_uri" : "/api/v1/user/orgs?page=1&limit=50",
@@ -16,18 +16,19 @@
           "application/json;charset=utf-8"
         ]
       },
-      "body" : "[{\"id\":2,\"name\":\"review-org\",\"full_name\":\"Review fixture\",\"email\":\"\",\"avatar_url\":\"http://example.org/avatars/7974fbff3cef99e1c0e1187b3e59ddfc\",\"description\":\"\",\"website\":\"\",\"location\":\"\",\"visibility\":\"public\",\"repo_admin_change_team_access\":false,\"created\":\"2026-10-30T10:43:51Z\",\"username\":\"review-org\"}]"
+      "body" : "[{\"id\":2,\"name\":\"review-org\",\"full_name\":\"Review fixture\",\"email\":\"\",\"avatar_url\":\"http://example.org/avatars/7974fbff3cef99e1c0e1187b3e59ddfc\",\"description\":\"\",\"website\":\"\",\"location\":\"\",\"visibility\":\"public\",\"repo_admin_change_team_access\":false,\"created\":\"2026-10-30T19:33:24Z\",\"username\":\"review-org\"}]"
     }
   ],
   "context" : {
     "owner" : "review-org",
     "repo" : "review-fixture",
-    "sha" : "23d69b7b45ca62d27c55a6e99aef18cc965c2668",
-    "actionsSha" : "a2acecc62b81d3dff331c57b070750f8ffe2ae3b",
+    "sha" : "9892f0c08a7c6c9370ce3686b63b38686a597407",
+    "actionsSha" : "faf27d3ca426c87a281c22a15f84bff3ce89c9ef",
     "index" : 1,
     "review" : 1,
     "run" : 1,
-    "job" : 1
+    "job" : 1,
+    "key" : 1
   },
   "request_body" : null
 }

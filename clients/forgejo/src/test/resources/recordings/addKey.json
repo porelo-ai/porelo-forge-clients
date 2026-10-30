@@ -1,0 +1,37 @@
+{
+  "request_uri" : "/api/v1/user/keys",
+  "status" : 201,
+  "headers" : {
+    "content-type" : [
+      "application/json;charset=utf-8"
+    ]
+  },
+  "body" : "{\"id\":2,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK0/KIjf5jKU1F6jYSWxCNnQbmCGSfgPnYf0DlLinAJn forgejo-added\",\"url\":\"http://example.org/api/v1/user/keys/2\",\"title\":\"Added key\",\"fingerprint\":\"SHA256:q+OuRG+o9etMTjJucBNsnjk+dC76I46/Q7X3hafMe88\",\"created_at\":\"2026-10-30T19:33:28Z\",\"user\":{\"id\":1,\"login\":\"fixture-admin\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/79842509f91b83d21aebc8fcaa5a02fa\",\"html_url\":\"http://example.org/fixture-admin\",\"language\":\"\",\"is_admin\":true,\"last_login\":\"1970-01-01T00:00:00Z\",\"created\":\"2026-10-30T19:33:24Z\",\"restricted\":false,\"active\":true,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-admin\"},\"key_type\":\"user\",\"updated_at\":\"2026-10-30T19:33:28Z\",\"verified\":false}",
+  "exchanges" : [
+    {
+      "request_uri" : "/api/v1/user/keys",
+      "status" : 201,
+      "headers" : {
+        "content-type" : [
+          "application/json;charset=utf-8"
+        ]
+      },
+      "body" : "{\"id\":2,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK0/KIjf5jKU1F6jYSWxCNnQbmCGSfgPnYf0DlLinAJn forgejo-added\",\"url\":\"http://example.org/api/v1/user/keys/2\",\"title\":\"Added key\",\"fingerprint\":\"SHA256:q+OuRG+o9etMTjJucBNsnjk+dC76I46/Q7X3hafMe88\",\"created_at\":\"2026-10-30T19:33:28Z\",\"user\":{\"id\":1,\"login\":\"fixture-admin\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/79842509f91b83d21aebc8fcaa5a02fa\",\"html_url\":\"http://example.org/fixture-admin\",\"language\":\"\",\"is_admin\":true,\"last_login\":\"1970-01-01T00:00:00Z\",\"created\":\"2026-10-30T19:33:24Z\",\"restricted\":false,\"active\":true,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-admin\"},\"key_type\":\"user\",\"updated_at\":\"2026-10-30T19:33:28Z\",\"verified\":false}"
+    }
+  ],
+  "context" : {
+    "owner" : "review-org",
+    "repo" : "review-fixture",
+    "sha" : "9892f0c08a7c6c9370ce3686b63b38686a597407",
+    "actionsSha" : "faf27d3ca426c87a281c22a15f84bff3ce89c9ef",
+    "index" : 1,
+    "review" : 1,
+    "run" : 1,
+    "job" : 1,
+    "key" : 2
+  },
+  "request_body" : {
+    "key" : "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK0/KIjf5jKU1F6jYSWxCNnQbmCGSfgPnYf0DlLinAJn forgejo-added",
+    "title" : "Added key"
+  }
+}

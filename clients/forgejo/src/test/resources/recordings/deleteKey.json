@@ -1,0 +1,26 @@
+{
+  "request_uri" : "/api/v1/user/keys/2",
+  "status" : 204,
+  "headers" : { },
+  "body" : "",
+  "exchanges" : [
+    {
+      "request_uri" : "/api/v1/user/keys/2",
+      "status" : 204,
+      "headers" : { },
+      "body" : ""
+    }
+  ],
+  "context" : {
+    "owner" : "review-org",
+    "repo" : "review-fixture",
+    "sha" : "9892f0c08a7c6c9370ce3686b63b38686a597407",
+    "actionsSha" : "faf27d3ca426c87a281c22a15f84bff3ce89c9ef",
+    "index" : 1,
+    "review" : 1,
+    "run" : 1,
+    "job" : 1,
+    "key" : 2
+  },
+  "request_body" : null
+}

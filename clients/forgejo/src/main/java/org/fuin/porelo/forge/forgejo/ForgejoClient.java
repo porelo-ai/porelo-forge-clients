@@ -228,6 +228,65 @@ public final class ForgejoClient {
                 listType(Organization.class));
     }
 
+    /** Lists one page of an account's public SSH keys; Forgejo asks for a token for it too. */
+    public List<PublicKey> keys(String token, String login, int page, int limit) {
+        return call(
+                token,
+                "GET",
+                "users/" + segment(login) + "/keys?" + pageQuery(page, limit),
+                null,
+                listType(PublicKey.class));
+    }
+
+    /** Lists one page of the authenticated account's own SSH keys. */
+    public List<PublicKey> ownKeys(String token, int page, int limit) {
+        return call(
+                token,
+                "GET",
+                "user/keys?" + pageQuery(page, limit),
+                null,
+                listType(PublicKey.class));
+    }
+
+    /** Adds an SSH key to the authenticated account; a key Forgejo already has is refused. */
+    public PublicKey addKey(String token, CreateKeyOption body) {
+        Objects.requireNonNull(body, "body");
+        return call(token, "POST", "user/keys", body, json.constructType(PublicKey.class));
+    }
+
+    /** Deletes one of the authenticated account's own SSH keys. */
+    public void deleteKey(String token, long id) {
+        HttpResponse<String> response =
+                send(token, "DELETE", base.resolve("user/keys/" + positive(id)), null, true);
+        check(response, List.of(token));
+    }
+
+    /** Reads an account's permissions in an organization. */
+    public OrganizationPermissions organizationPermissions(String token, String login, String org) {
+        return call(
+                token,
+                "GET",
+                "users/" + segment(login) + "/orgs/" + segment(org) + "/permissions",
+                null,
+                json.constructType(OrganizationPermissions.class));
+    }
+
+    /** Creates a repository in an organization. */
+    public Repository createRepository(String token, String org, CreateRepoOption body) {
+        Objects.requireNonNull(body, "body");
+        return call(
+                token,
+                "POST",
+                "orgs/" + segment(org) + "/repos",
+                body,
+                json.constructType(Repository.class));
+    }
+
+    /** Reads a repository. */
+    public Repository repository(String token, String owner, String repo) {
+        return call(token, "GET", repo(owner, repo), null, json.constructType(Repository.class));
+    }
+
     /** Reads a collaborator’s repository permission. */
     public RepoCollaboratorPermission permission(
             String token, String owner, String repo, String collaborator) {

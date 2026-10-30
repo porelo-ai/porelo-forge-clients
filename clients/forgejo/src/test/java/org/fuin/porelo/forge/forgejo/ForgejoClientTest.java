@@ -15,6 +15,48 @@ class ForgejoClientTest {
     private static final URI BASE = URI.create("https://example.org/api/v1/");
     private static final String TOKEN = "synthetic-access-token";
 
+    // Prevents API drift from silently losing a public SSH key's identity.
+    @Test
+    void theStrictReadingRefusesARenamedKeyFieldByName() throws Exception {
+        var json = ForgejoJson.mapper(Strictness.STRICT);
+        String body;
+        try (var stream = getClass().getResourceAsStream("/recordings/keys.json")) {
+            assertThat(stream).as("the public key recording must exist").isNotNull();
+            body = json.readTree(stream).path("body").asText();
+        }
+        assertThat(body).as("the mutation must rename an existing key field").contains("\"key\"");
+        var http =
+                new ReplayHttpClient()
+                        .answer(200, Map.of(), body.replace("\"key\"", "\"renamed_key\""));
+        var client = new ForgejoClient(BASE, http, Strictness.STRICT);
+        assertThatExceptionOfType(ForgejoException.class)
+                .as("strict key reads must identify the renamed key field")
+                .isThrownBy(() -> client.keys("synthetic-access-token", "fixture-reviewer", 1, 50))
+                .withMessageContaining("renamed_key");
+    }
+
+    // Prevents omitted ownership from granting ownership or breaking permission reads.
+    @Test
+    void missingOrganizationOwnershipReadsAsNull() {
+        for (Strictness strictness : Strictness.values()) {
+            var http =
+                    new ReplayHttpClient()
+                            .answer(
+                                    200,
+                                    Map.of(),
+                                    "{\"can_read\":true,\"can_write\":false,\"can_create_repository\":false,\"is_admin\":false}");
+            var permissions =
+                    new ForgejoClient(BASE, http, strictness)
+                            .organizationPermissions(TOKEN, "fixture-reviewer", "review-org");
+            assertThat(permissions.canRead())
+                    .as("known permissions remain readable in %s", strictness)
+                    .isTrue();
+            assertThat(permissions.isOwner())
+                    .as("omitted ownership remains unknown in %s", strictness)
+                    .isNull();
+        }
+    }
+
     // Prevents a foreign redirect from restoring credentials by bouncing back to the API.
     @Test
     void authenticationStaysRemovedAfterLeavingTheOrigin() {
@@ -123,6 +165,7 @@ class ForgejoClientTest {
                         () -> client.createReview(TOKEN, "owner", "repo", 1, null),
                         () -> client.dismissReview(TOKEN, "owner", "repo", 1, 1, null),
                         () -> client.createStatus(TOKEN, "owner", "repo", "abc", null),
+                        () -> client.createRepository(TOKEN, "owner", null),
                         () -> client.createHook(TOKEN, "owner", "repo", null));
         for (Runnable call : calls) {
             assertThatExceptionOfType(NullPointerException.class)

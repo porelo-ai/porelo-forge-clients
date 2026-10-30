@@ -30,6 +30,87 @@
   },
   "basePath": "/api/v1",
   "paths": {
+    "/orgs/{org}/repos": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "organization"
+        ],
+        "summary": "Create a repository in an organization",
+        "operationId": "createOrgRepo",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "name of organization",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateRepoOption"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/responses/Repository"
+          },
+          "400": {
+            "$ref": "#/responses/error"
+          },
+          "403": {
+            "$ref": "#/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      }
+    },
+    "/repos/{owner}/{repo}": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "Get a repository",
+        "operationId": "repoGet",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/Repository"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      }
+    },
     "/repos/{owner}/{repo}/actions/jobs/{job_id}/logs": {
       "get": {
         "description": "Returns the plaintext log for the job. By default the log for the most recent attempt is returned (ActionRunJob.TaskID tracks the latest task). Pass `?attempt=N` to fetch the log for a specific historical attempt; the value matches the `attempt` field returned by the job listing endpoints. Pass `?step=N` to narrow to a single step (using the `number` field from `GET /actions/jobs/{job_id}`), `?q=` to substring-filter lines, and `?format=ndjson` for NDJSON output (one `{time, content}` object per line). When `q` or `format=ndjson` is set the response drops `Accept-Ranges` and does not support `Range:` since the total length isn't known until the scan finishes.\n",
@@ -1124,6 +1205,121 @@
         }
       }
     },
+    "/user/keys": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "user"
+        ],
+        "summary": "List the authenticated user's public keys",
+        "operationId": "userCurrentListKeys",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "fingerprint of the key",
+            "name": "fingerprint",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "page number of results to return (1-based)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "page size of results",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/PublicKeyList"
+          },
+          "401": {
+            "$ref": "#/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/responses/forbidden"
+          }
+        }
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "user"
+        ],
+        "summary": "Create a public key",
+        "operationId": "userCurrentPostKey",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateKeyOption"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/responses/PublicKey"
+          },
+          "401": {
+            "$ref": "#/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/responses/forbidden"
+          },
+          "422": {
+            "$ref": "#/responses/validationError"
+          }
+        }
+      }
+    },
+    "/user/keys/{id}": {
+      "delete": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "user"
+        ],
+        "summary": "Delete a public key",
+        "operationId": "userCurrentDeleteKey",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "id of key to delete",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "$ref": "#/responses/empty"
+          },
+          "401": {
+            "$ref": "#/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      }
+    },
     "/user/orgs": {
       "get": {
         "produces": [
@@ -1154,6 +1350,92 @@
           },
           "401": {
             "$ref": "#/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      }
+    },
+    "/users/{username}/keys": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "user"
+        ],
+        "summary": "List the given user's public keys",
+        "operationId": "userListKeys",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "username of user",
+            "name": "username",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "fingerprint of the key",
+            "name": "fingerprint",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "page number of results to return (1-based)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "page size of results",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/PublicKeyList"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      }
+    },
+    "/users/{username}/orgs/{org}/permissions": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "organization"
+        ],
+        "summary": "Get user permissions in organization",
+        "operationId": "orgGetUserPermissions",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "username of user",
+            "name": "username",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the organization",
+            "name": "org",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/OrganizationPermissions"
           },
           "403": {
             "$ref": "#/responses/forbidden"
@@ -1657,6 +1939,34 @@
       },
       "x-go-package": "forgejo.org/modules/structs"
     },
+    "CreateKeyOption": {
+      "description": "CreateKeyOption options when creating a key",
+      "type": "object",
+      "required": [
+        "title",
+        "key"
+      ],
+      "properties": {
+        "key": {
+          "description": "An armored SSH key to add",
+          "type": "string",
+          "uniqueItems": true,
+          "x-go-name": "Key"
+        },
+        "read_only": {
+          "description": "Describe if the key has only read access or read/write",
+          "type": "boolean",
+          "x-go-name": "ReadOnly"
+        },
+        "title": {
+          "description": "Title of the key to add",
+          "type": "string",
+          "uniqueItems": true,
+          "x-go-name": "Title"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
     "CreatePullRequestOption": {
       "description": "CreatePullRequestOption options when creating a pull request",
       "type": "object",
@@ -1764,6 +2074,87 @@
         },
         "event": {
           "$ref": "#/definitions/ReviewStateType"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "CreateRepoOption": {
+      "description": "CreateRepoOption options when creating repository",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "auto_init": {
+          "description": "Whether the repository should be auto-initialized?",
+          "type": "boolean",
+          "x-go-name": "AutoInit"
+        },
+        "default_branch": {
+          "description": "DefaultBranch of the repository (used when initializes and in template)",
+          "type": "string",
+          "x-go-name": "DefaultBranch"
+        },
+        "description": {
+          "description": "Description of the repository to create",
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "gitignores": {
+          "description": "Gitignores to use, separated by commas",
+          "type": "string",
+          "x-go-name": "Gitignores"
+        },
+        "issue_labels": {
+          "description": "Label-Set to use",
+          "type": "string",
+          "x-go-name": "IssueLabels"
+        },
+        "license": {
+          "description": "License to use",
+          "type": "string",
+          "x-go-name": "License"
+        },
+        "name": {
+          "description": "Name of the repository to create",
+          "type": "string",
+          "uniqueItems": true,
+          "x-go-name": "Name"
+        },
+        "object_format_name": {
+          "description": "ObjectFormatName of the underlying git repository",
+          "type": "string",
+          "enum": [
+            "sha1",
+            "sha256"
+          ],
+          "x-go-name": "ObjectFormatName"
+        },
+        "private": {
+          "description": "Whether the repository is private",
+          "type": "boolean",
+          "x-go-name": "Private"
+        },
+        "readme": {
+          "description": "Readme of the repository to create",
+          "type": "string",
+          "x-go-name": "Readme"
+        },
+        "template": {
+          "description": "Whether the repository is template",
+          "type": "boolean",
+          "x-go-name": "Template"
+        },
+        "trust_model": {
+          "description": "TrustModel of the repository",
+          "type": "string",
+          "enum": [
+            "default",
+            "collaborator",
+            "committer",
+            "collaboratorcommitter"
+          ],
+          "x-go-name": "TrustModel"
         }
       },
       "x-go-package": "forgejo.org/modules/structs"
@@ -2106,6 +2497,33 @@
       },
       "x-go-package": "forgejo.org/modules/structs"
     },
+    "OrganizationPermissions": {
+      "description": "OrganizationPermissions list different users permissions on an organization",
+      "type": "object",
+      "properties": {
+        "can_create_repository": {
+          "type": "boolean",
+          "x-go-name": "CanCreateRepository"
+        },
+        "can_read": {
+          "type": "boolean",
+          "x-go-name": "CanRead"
+        },
+        "can_write": {
+          "type": "boolean",
+          "x-go-name": "CanWrite"
+        },
+        "is_admin": {
+          "type": "boolean",
+          "x-go-name": "IsAdmin"
+        },
+        "is_owner": {
+          "type": "boolean",
+          "x-go-name": "IsOwner"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
     "PRBranchInfo": {
       "description": "PRBranchInfo information about a branch",
       "type": "object",
@@ -2250,6 +2668,59 @@
         "push": {
           "type": "boolean",
           "x-go-name": "Push"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "PublicKey": {
+      "description": "PublicKey publickey is a user key to push code to repository",
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Created"
+        },
+        "fingerprint": {
+          "type": "string",
+          "x-go-name": "Fingerprint"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "key": {
+          "type": "string",
+          "x-go-name": "Key"
+        },
+        "key_type": {
+          "type": "string",
+          "x-go-name": "KeyType"
+        },
+        "read_only": {
+          "type": "boolean",
+          "x-go-name": "ReadOnly"
+        },
+        "title": {
+          "type": "string",
+          "x-go-name": "Title"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Updated"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        },
+        "verified": {
+          "type": "boolean",
+          "x-go-name": "Verified"
         }
       },
       "x-go-package": "forgejo.org/modules/structs"
@@ -3194,6 +3665,27 @@
         }
       }
     },
+    "OrganizationPermissions": {
+      "description": "OrganizationPermissions",
+      "schema": {
+        "$ref": "#/definitions/OrganizationPermissions"
+      }
+    },
+    "PublicKey": {
+      "description": "PublicKey",
+      "schema": {
+        "$ref": "#/definitions/PublicKey"
+      }
+    },
+    "PublicKeyList": {
+      "description": "PublicKeyList",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/PublicKey"
+        }
+      }
+    },
     "PullRequest": {
       "description": "PullRequest",
       "schema": {
@@ -3246,11 +3738,20 @@
         "$ref": "#/definitions/RepoCollaboratorPermission"
       }
     },
+    "Repository": {
+      "description": "Repository",
+      "schema": {
+        "$ref": "#/definitions/Repository"
+      }
+    },
     "User": {
       "description": "User",
       "schema": {
         "$ref": "#/definitions/User"
       }
+    },
+    "empty": {
+      "description": "APIEmpty is an empty response"
     },
     "error": {
       "description": "APIError is error format response",

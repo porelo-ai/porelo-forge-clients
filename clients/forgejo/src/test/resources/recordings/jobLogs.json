@@ -6,7 +6,7 @@
       "text/plain; charset=utf-8"
     ]
   },
-  "body" : "2026-10-30T10:43:55.1018964Z Runner [redacted] (version:v13.2.0) received task 1 of job build, triggered by event: push\n2026-10-30T10:43:55.1040333Z workflow prepared\n2026-10-30T10:43:55.1043894Z ⭐ Run Main echo fixture-complete\n2026-10-30T10:43:55.1055561Z fixture-complete\n2026-10-30T10:43:55.1058170Z 🏁  Job succeeded\n",
+  "body" : "2026-10-30T19:33:28.1712346Z Runner [redacted] (version:v13.2.0) received task 1 of job build, triggered by event: push\n2026-10-30T19:33:28.1732356Z workflow prepared\n2026-10-30T19:33:28.1735606Z ⭐ Run Main echo fixture-complete\n2026-10-30T19:33:28.1747648Z fixture-complete\n2026-10-30T19:33:28.1749831Z 🏁  Job succeeded\n",
   "exchanges" : [
     {
       "request_uri" : "/api/v1/repos/review-org/review-fixture/actions/jobs/1/logs",
@@ -16,18 +16,19 @@
           "text/plain; charset=utf-8"
         ]
       },
-      "body" : "2026-10-30T10:43:55.1018964Z Runner [redacted] (version:v13.2.0) received task 1 of job build, triggered by event: push\n2026-10-30T10:43:55.1040333Z workflow prepared\n2026-10-30T10:43:55.1043894Z ⭐ Run Main echo fixture-complete\n2026-10-30T10:43:55.1055561Z fixture-complete\n2026-10-30T10:43:55.1058170Z 🏁  Job succeeded\n"
+      "body" : "2026-10-30T19:33:28.1712346Z Runner [redacted] (version:v13.2.0) received task 1 of job build, triggered by event: push\n2026-10-30T19:33:28.1732356Z workflow prepared\n2026-10-30T19:33:28.1735606Z ⭐ Run Main echo fixture-complete\n2026-10-30T19:33:28.1747648Z fixture-complete\n2026-10-30T19:33:28.1749831Z 🏁  Job succeeded\n"
     }
   ],
   "context" : {
     "owner" : "review-org",
     "repo" : "review-fixture",
-    "sha" : "23d69b7b45ca62d27c55a6e99aef18cc965c2668",
-    "actionsSha" : "a2acecc62b81d3dff331c57b070750f8ffe2ae3b",
+    "sha" : "9892f0c08a7c6c9370ce3686b63b38686a597407",
+    "actionsSha" : "faf27d3ca426c87a281c22a15f84bff3ce89c9ef",
     "index" : 1,
     "review" : 1,
     "run" : 1,
-    "job" : 1
+    "job" : 1,
+    "key" : 1
   },
   "request_body" : null
 }

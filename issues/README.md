@@ -9,13 +9,13 @@ is left out.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
+| <a id="fc05"></a>[FC05](FC05-Keys-And-Repositories-On-Forgejo.md) | S | [FC02](README.md#fc02) | A Forgejo user's public SSH keys read without a token, the signed-in user's own keys listed, added and deleted, whether a user owns an organization, a repository read and created in an organization |
 | <a id="fc04"></a>[FC04](FC04-Records-Generated-From-A-Pinned-OpenAPI-Description.md) | M | - | Records generated at build time by openapi-generator (a pinned snapshot until `useRecords` is released) from a pinned, filtered OpenAPI 3.1 or Swagger 2.0 description, with overridden templates; blocks [FC01](README.md#fc01) and [FC02](README.md#fc02) |
 
 ## Implementing
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="fc05"></a>[FC05](FC05-Keys-And-Repositories-On-Forgejo.md) | S | [FC02](README.md#fc02) | A Forgejo user's public SSH keys read without a token, the signed-in user's own keys listed, added and deleted, whether a user owns an organization, a repository read and created in an organization |
 | <a id="fc02"></a>[FC02](FC02-The-Forgejo-Client.md) | M | [FC04](README.md#fc04) | The `forgejo` module: 19 operations from Forgejo 17's MIT Swagger 2.0 description, its answers recorded from a real Forgejo |
 | <a id="fc01"></a>[FC01](FC01-The-GitHub-Client.md) | L | [FC04](README.md#fc04) | The `github` module: 18 REST operations from GitHub's MIT OpenAPI 3.1 description, review threads over GraphQL, no webhooks, tested against recorded answers |
 

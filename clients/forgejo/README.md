@@ -2,7 +2,8 @@
 
 `org.fuin.porelo:porelo-forge-client-forgejo` covers Forgejo 17 pull requests, reviews and their comments,
 review dismissal and undismissal, commit statuses, Actions runs, jobs and logs, branches, repository webhooks,
-the authenticated account, organizations and collaborator permissions. It uses the caller's JDK `HttpClient`,
+the authenticated account, organizations and collaborator permissions, an account's public SSH keys, the
+authenticated account's own SSH keys, an account's permissions in an organization, and repositories. It uses the caller's JDK `HttpClient`,
 Jackson and JSpecify, and knows nothing of Porelo contracts; its models are generated from the committed extract.
 
 ## Use
@@ -16,7 +17,11 @@ List<PullRequest> open = forgejo.pulls(token, "owner", "repo", "open", 1, 50);
 - The base ends in `/api/v1/`. The caller owns the `HttpClient` and its certificate trust; one that follows
   redirects itself is refused, since the client sends the token only to the base's own scheme, host and port.
   A job log's redirect is followed by hand, at most five times, without the token to another origin.
-- The token is passed with each call and never stored. List calls take a page and a limit, and the caller
+- Every call takes a token, passed with the call and never stored; Forgejo 17 asks for one even for an
+  account's public keys. `keys` lists an account's public SSH keys; `ownKeys`, `addKey` and `deleteKey` list, add
+  and delete the authenticated account's own, and a key Forgejo already has is refused with its status.
+  `organizationPermissions` reads an account's permissions in an organization, `repository` reads a repository,
+  and `createRepository` creates one in an organization. List calls take a page and a limit, and the caller
   advances the page.
 - Reading is lenient by default, ignoring fields Forgejo adds within its API version; `Strictness.STRICT` refuses
   them, as the tests do. In both, a required field may not be missing or null.

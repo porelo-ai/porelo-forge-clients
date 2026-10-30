@@ -11,11 +11,21 @@ import java.util.List;
 import java.util.Map;
 import org.fuin.porelo.forge.forgejo.ForgejoOperations.Context;
 import org.fuin.porelo.forge.forgejo.model.ListActionRunResponse;
+import org.fuin.porelo.forge.forgejo.model.OrganizationPermissions;
+import org.fuin.porelo.forge.forgejo.model.PublicKey;
 import org.fuin.porelo.forge.forgejo.model.PullRequest;
 import org.fuin.porelo.forge.forgejo.model.PullReview;
+import org.fuin.porelo.forge.forgejo.model.Repository;
 
 /** Drives all operations in dependency order in one isolated live environment. */
 final class ForgejoScenario {
+    /**
+     * A public key made only for this test, added and deleted again; its private half was
+     * discarded.
+     */
+    static final String ADDED_PUBLIC_KEY =
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK0/KIjf5jKU1F6jYSWxCNnQbmCGSfgPnYf0DlLinAJn forgejo-added";
+
     private final ForgejoContainer fixture;
     private final ObjectMapper json = ForgejoJson.mapper(Strictness.STRICT);
     private final RecordingHttpClient transport;
@@ -41,7 +51,15 @@ final class ForgejoScenario {
         }
         context =
                 new Context(
-                        ForgejoContainer.OWNER, ForgejoContainer.REPO, sha, "pending", 1, 1, 1, 1);
+                        ForgejoContainer.OWNER,
+                        ForgejoContainer.REPO,
+                        sha,
+                        "pending",
+                        1,
+                        1,
+                        1,
+                        1,
+                        1);
     }
 
     List<Capture> run() throws Exception {
@@ -58,7 +76,8 @@ final class ForgejoScenario {
                                 context.index(),
                                 context.review(),
                                 jobs.path("run").asLong(),
-                                jobs.path("job").asLong());
+                                jobs.path("job").asLong(),
+                                context.key());
             }
             JsonNode body = body(operation);
             String token =
@@ -81,7 +100,8 @@ final class ForgejoScenario {
                                 index,
                                 context.review(),
                                 context.run(),
-                                context.job());
+                                context.job(),
+                                context.key());
             } else if (operation == ForgejoOperations.createReview) {
                 Long id = ((PullReview) result).id();
                 if (id == null || id < 1) {
@@ -96,7 +116,24 @@ final class ForgejoScenario {
                                 context.index(),
                                 id,
                                 context.run(),
-                                context.job());
+                                context.job(),
+                                context.key());
+            } else if (operation == ForgejoOperations.addKey) {
+                Long id = ((PublicKey) result).id();
+                if (id == null || id < 1) {
+                    throw new IllegalStateException("Added key has no identity");
+                }
+                context =
+                        new Context(
+                                context.owner(),
+                                context.repo(),
+                                context.sha(),
+                                context.actionsSha(),
+                                context.index(),
+                                context.review(),
+                                context.run(),
+                                context.job(),
+                                id);
             }
             List<ObjectNode> exchanges = transport.take();
             assertThat(exchanges)
@@ -179,6 +216,8 @@ final class ForgejoScenario {
                                     "Fixture passed",
                                     "target_url",
                                     "https://example.org/build/1");
+                    case createRepository -> Map.of("name", ForgejoOperations.CREATED_REPO);
+                    case addKey -> Map.of("title", "Added key", "key", ADDED_PUBLIC_KEY);
                     default -> null;
                 });
     }
@@ -197,6 +236,14 @@ final class ForgejoScenario {
             assertThat(logs)
                     .as("the live job must execute and produce its expected output")
                     .contains("fixture-complete");
+        } else if (result instanceof OrganizationPermissions permissions) {
+            assertThat(permissions.isOwner())
+                    .as("the fixture administrator owns the seeded organization")
+                    .isTrue();
+        } else if (result instanceof Repository repository) {
+            assertThat(repository.name())
+                    .as("repository creation and lookup address the same fixture repository")
+                    .isEqualTo(ForgejoOperations.CREATED_REPO);
         }
     }
 

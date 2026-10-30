@@ -24,8 +24,16 @@ enum ForgejoOperations {
     hooks("GET"),
     user("GET"),
     organizations("GET"),
+    keys("GET"),
+    addKey("POST"),
+    ownKeys("GET"),
+    deleteKey("DELETE"),
+    organizationPermissions("GET"),
+    createRepository("POST"),
+    repository("GET"),
     permission("GET");
 
+    static final String CREATED_REPO = "created-repo";
     final String method;
     private static final ObjectMapper JSON = ForgejoJson.mapper(Strictness.STRICT);
 
@@ -84,6 +92,19 @@ enum ForgejoOperations {
             case hooks -> client.hooks(token, c.owner(), c.repo(), 1, 50);
             case user -> client.user(token);
             case organizations -> client.organizations(token, 1, 50);
+            case keys -> client.keys(token, ForgejoContainer.REVIEWER, 1, 50);
+            case addKey -> client.addKey(token, JSON.treeToValue(body, CreateKeyOption.class));
+            case ownKeys -> client.ownKeys(token, 1, 50);
+            case deleteKey -> {
+                client.deleteKey(token, c.key());
+                yield Boolean.TRUE;
+            }
+            case organizationPermissions ->
+                    client.organizationPermissions(token, ForgejoContainer.ADMIN, c.owner());
+            case createRepository ->
+                    client.createRepository(
+                            token, c.owner(), JSON.treeToValue(body, CreateRepoOption.class));
+            case repository -> client.repository(token, c.owner(), CREATED_REPO);
             case permission ->
                     client.permission(token, c.owner(), c.repo(), ForgejoContainer.REVIEWER);
         };
@@ -107,6 +128,17 @@ enum ForgejoOperations {
             case createHook, hooks -> repo + "/hooks";
             case user -> "/api/v1/user";
             case organizations -> "/api/v1/user/orgs";
+            case keys -> "/api/v1/users/" + ForgejoContainer.REVIEWER + "/keys";
+            case addKey, ownKeys -> "/api/v1/user/keys";
+            case deleteKey -> "/api/v1/user/keys/" + c.key();
+            case organizationPermissions ->
+                    "/api/v1/users/"
+                            + ForgejoContainer.ADMIN
+                            + "/orgs/"
+                            + c.owner()
+                            + "/permissions";
+            case createRepository -> "/api/v1/orgs/" + c.owner() + "/repos";
+            case repository -> "/api/v1/repos/" + c.owner() + "/" + CREATED_REPO;
             case permission -> repo + "/collaborators/" + ForgejoContainer.REVIEWER + "/permission";
         };
     }
@@ -119,5 +151,6 @@ enum ForgejoOperations {
             long index,
             long review,
             long run,
-            long job) {}
+            long job,
+            long key) {}
 }
