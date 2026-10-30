@@ -7,14 +7,14 @@
 module, `org.fuin.porelo:porelo-forge-client-github`: pull requests, reviews, review comments and threads (resolved
 only through GraphQL), suggestions, check runs and Actions runs, jobs and their logs, git refs, and the
 account and its organization membership - in GitHub's own terms, knowing nothing of Porelo. Only github.com is
-served, not GitHub Enterprise Server. Webhooks are not served: a caller reads what it needs by calling.
+served, not GitHub Enterprise Server.
 
 ## Why
 
 GitHub publishes its REST API as OpenAPI in `github/rest-api-description`, under the MIT license; the OpenAPI 3.1
-file of API version `2026-03-10` (`descriptions-next/api.github.com/`, 13.9 MB) has every path below. A review thread - its resolution, whether it is outdated - exists only in the GraphQL API
-(`PullRequest.reviewThreads`, `resolveReviewThread`, `unresolveReviewThread`), which GitHub publishes as a schema
-file but not as OpenAPI.
+file of API version `2026-03-10` (`descriptions-next/api.github.com/`, 13.9 MB) has every path below. A review
+thread - its resolution, whether it is outdated - exists only in the GraphQL API (`PullRequest.reviewThreads`,
+`resolveReviewThread`, `unresolveReviewThread`), which GitHub publishes as a schema file but not as OpenAPI.
 
 ## Plan
 
@@ -25,7 +25,8 @@ file but not as OpenAPI.
   `GET .../commits/{ref}/check-runs`, `POST .../check-runs`, `PATCH .../check-runs/{check_run_id}`,
   `GET .../actions/runs`, `GET .../actions/runs/{run_id}/jobs`, `GET .../actions/jobs/{job_id}/logs`,
   `GET .../git/ref/{ref}`, `GET /user`, `GET /user/memberships/orgs/{org}`,
-  `GET .../collaborators/{username}/permission`. No webhook and no hook operation.
+  `GET .../collaborators/{username}/permission`. No webhook and no hook operation: a caller reads what it needs
+  by calling.
 - **Files:** the root `pom.xml` (the module `clients`), `clients/pom.xml` (packaging pom, grouping the clients;
   made by whichever of the two clients comes first), `clients/github/pom.xml` and its `README.md`,
   `clients/github/src/main/openapi/` (the extract, the source's URL pinned by commit and its digest in its `info`; the
