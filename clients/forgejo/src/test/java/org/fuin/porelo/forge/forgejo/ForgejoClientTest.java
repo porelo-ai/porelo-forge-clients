@@ -413,13 +413,23 @@ class ForgejoClientTest {
         assertThatExceptionOfType(ForgejoException.class)
                 .as("one byte over the bound is refused")
                 .isThrownBy(() -> new ForgejoClient(BASE, overBound).plainKeys("fixture-reviewer"))
-                .withMessageContaining("bound");
+                .withMessageContaining("bound")
+                .satisfies(
+                        ex ->
+                                assertThat(ex.status())
+                                        .as("the cancelled reading keeps the page's status")
+                                        .isEqualTo(200));
         var xml =
                 new ReplayHttpClient()
                         .answer(200, Map.of("content-type", List.of("text/plain+xml")), SEEDED_KEY);
         assertThatExceptionOfType(ForgejoException.class)
                 .as("a media type that only starts like text/plain is refused")
                 .isThrownBy(() -> new ForgejoClient(BASE, xml).plainKeys("fixture-reviewer"))
-                .withMessageContaining("plain text");
+                .withMessageContaining("plain text")
+                .satisfies(
+                        ex ->
+                                assertThat(ex.status())
+                                        .as("the unread page keeps its status")
+                                        .isEqualTo(200));
     }
 }

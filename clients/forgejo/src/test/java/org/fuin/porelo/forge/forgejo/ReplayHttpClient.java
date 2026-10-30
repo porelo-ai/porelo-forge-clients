@@ -73,13 +73,63 @@ final class ReplayHttpClient extends HttpClient {
         return deliver(request, answer.status(), headers, answer.body(), handler);
     }
 
+    /**
+     * Hands a body over in small buffers, only as many as requested, re-entrantly safe; a cancel
+     * reports an error to the subscriber, as the JDK's HTTP/2 stream does.
+     */
+    static final class Chunks implements java.util.concurrent.Flow.Subscription {
+        static final int SIZE = 8 * 1024;
+        private final HttpResponse.BodySubscriber<?> subscriber;
+        private final byte[] body;
+        private int position;
+        private long demand;
+        private boolean draining;
+        private boolean done;
+        boolean cancelled;
+
+        Chunks(HttpResponse.BodySubscriber<?> subscriber, byte[] body) {
+            this.subscriber = subscriber;
+            this.body = body;
+        }
+
+        @Override
+        public void request(long count) {
+            demand += count;
+            if (draining) {
+                return;
+            }
+            draining = true;
+            while (!done && !cancelled && demand > 0 && position < body.length) {
+                int size = Math.min(SIZE, body.length - position);
+                var buffer = java.nio.ByteBuffer.wrap(body, position, size).slice();
+                position += size;
+                demand--;
+                subscriber.onNext(List.of(buffer));
+            }
+            if (!done && !cancelled && position == body.length) {
+                done = true;
+                subscriber.onComplete();
+            }
+            draining = false;
+        }
+
+        @Override
+        public void cancel() {
+            if (!done && !cancelled) {
+                cancelled = true;
+                subscriber.onError(new IOException("Stream cancelled"));
+            }
+        }
+    }
+
     /** Delivers a text body through any BodyHandler, as a real transport does. */
     static <T> HttpResponse<T> deliver(
             HttpRequest request,
             int status,
             HttpHeaders headers,
             String text,
-            HttpResponse.BodyHandler<T> handler) {
+            HttpResponse.BodyHandler<T> handler)
+            throws IOException {
         HttpResponse.ResponseInfo info =
                 new HttpResponse.ResponseInfo() {
                     public int statusCode() {
@@ -95,25 +145,12 @@ final class ReplayHttpClient extends HttpClient {
                     }
                 };
         var subscriber = handler.apply(info);
-        subscriber.onSubscribe(
-                new java.util.concurrent.Flow.Subscription() {
-                    private boolean sent;
-
-                    public void request(long count) {
-                        if (!sent) {
-                            sent = true;
-                            subscriber.onNext(
-                                    List.of(
-                                            java.nio.ByteBuffer.wrap(
-                                                    text.getBytes(StandardCharsets.UTF_8))));
-                            subscriber.onComplete();
-                        }
-                    }
-
-                    public void cancel() {
-                        sent = true;
-                    }
-                });
+        var subscription = new Chunks(subscriber, text.getBytes(StandardCharsets.UTF_8));
+        subscriber.onSubscribe(subscription);
+        if (subscription.cancelled) {
+            // As the JDK's HTTP/2 stream does, a cancelled body fails the whole exchange.
+            throw new IOException("Stream cancelled");
+        }
         T body = subscriber.getBody().toCompletableFuture().join();
         return new HttpResponse<>() {
             public int statusCode() {

@@ -4,12 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -17,6 +19,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Flow;
 import org.fuin.porelo.forge.forgejo.model.*;
 import org.jspecify.annotations.Nullable;
 
@@ -250,42 +255,30 @@ public final class ForgejoClient {
                     "The API base must end in /api/v1/ to find the web root");
         }
         URI uri = base.resolve("../../" + segment(login) + ".keys");
-        HttpResponse<byte[]> response;
+        KeyPage page = new KeyPage();
+        byte[] bytes;
         try {
             // The body is read inside send, so the request timeout covers it too.
-            response =
+            bytes =
                     http.send(
-                            HttpRequest.newBuilder(uri)
-                                    .timeout(Duration.ofSeconds(60))
-                                    .header("Accept", "text/plain")
-                                    .GET()
-                                    .build(),
-                            info ->
-                                    info.statusCode() == 200
-                                                    && isPlainText(
-                                                            info.headers()
-                                                                    .firstValue("Content-Type")
-                                                                    .orElse(""))
-                                            ? new BoundedBytes(MAX_PLAIN_KEYS_BYTES)
-                                            : HttpResponse.BodySubscribers.replacing(null));
+                                    HttpRequest.newBuilder(uri)
+                                            .timeout(Duration.ofSeconds(60))
+                                            .header("Accept", "text/plain")
+                                            .GET()
+                                            .build(),
+                                    page)
+                            .body();
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             throw new ForgejoException(0, "Forgejo request interrupted");
         } catch (IOException | IllegalArgumentException ex) {
-            if (ex instanceof java.io.InterruptedIOException) {
-                Thread.currentThread().interrupt();
-            }
-            throw new ForgejoException(0, "Forgejo request failed");
+            // A transport may fail the exchange once the page stops reading; its verdict stands.
+            ForgejoException verdict = page.verdict;
+            throw verdict != null ? verdict : new ForgejoException(0, "Forgejo request failed");
         }
-        if (response.statusCode() != 200) {
-            throw new ForgejoException(response.statusCode(), "Forgejo key page request failed");
-        }
-        byte @Nullable [] bytes = response.body();
-        if (bytes == null) {
-            throw new ForgejoException(200, "Forgejo key page is not plain text");
-        }
-        if (bytes.length > MAX_PLAIN_KEYS_BYTES) {
-            throw new ForgejoException(200, "Forgejo key page exceeds its bound");
+        ForgejoException verdict = page.verdict;
+        if (verdict != null) {
+            throw verdict;
         }
         return new String(bytes, StandardCharsets.UTF_8)
                 .lines()
@@ -301,47 +294,90 @@ public final class ForgejoClient {
                 .equalsIgnoreCase("text/plain");
     }
 
-    /** Collects at most one byte more than its bound, then stops reading. */
+    /**
+     * Reads a key page: a refused answer is not read at all, and a plain text one only up to one
+     * byte past its bound. Its verdict says why it stopped.
+     */
+    private static final class KeyPage implements HttpResponse.BodyHandler<byte[]> {
+        volatile @Nullable ForgejoException verdict;
+
+        @Override
+        public HttpResponse.BodySubscriber<byte[]> apply(HttpResponse.ResponseInfo info) {
+            if (info.statusCode() != 200) {
+                verdict =
+                        new ForgejoException(info.statusCode(), "Forgejo key page request failed");
+                return new BoundedBytes(0, this);
+            }
+            if (!isPlainText(info.headers().firstValue("Content-Type").orElse(""))) {
+                verdict = new ForgejoException(200, "Forgejo key page is not plain text");
+                return new BoundedBytes(0, this);
+            }
+            return new BoundedBytes(MAX_PLAIN_KEYS_BYTES, this);
+        }
+    }
+
+    /**
+     * Collects at most its bound, one buffer at a time. One byte more, or any byte when the page
+     * already has a verdict, stops the reading; a bound of zero for a refused page stops it at
+     * once.
+     */
     private static final class BoundedBytes implements HttpResponse.BodySubscriber<byte[]> {
         private final int bound;
-        private final java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
-        private final java.util.concurrent.CompletableFuture<byte[]> result =
-                new java.util.concurrent.CompletableFuture<>();
-        private java.util.concurrent.Flow.@Nullable Subscription subscription;
+        private final KeyPage page;
+        private final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        private final CompletableFuture<byte[]> result = new CompletableFuture<>();
+        private volatile Flow.@Nullable Subscription subscription;
 
-        BoundedBytes(int bound) {
+        BoundedBytes(int bound, KeyPage page) {
             this.bound = bound;
+            this.page = page;
         }
 
         @Override
-        public java.util.concurrent.CompletionStage<byte[]> getBody() {
+        public CompletionStage<byte[]> getBody() {
             return result;
         }
 
         @Override
-        public void onSubscribe(java.util.concurrent.Flow.Subscription subscription) {
+        public void onSubscribe(Flow.Subscription subscription) {
+            Objects.requireNonNull(subscription);
+            if (this.subscription != null || result.isDone()) {
+                subscription.cancel();
+                return;
+            }
             this.subscription = subscription;
-            subscription.request(Long.MAX_VALUE);
+            if (page.verdict != null) {
+                stop(subscription);
+            } else {
+                subscription.request(1);
+            }
         }
 
         @Override
-        public void onNext(List<java.nio.ByteBuffer> items) {
-            if (result.isDone()) {
+        public void onNext(List<ByteBuffer> items) {
+            Objects.requireNonNull(items);
+            Flow.Subscription current = subscription;
+            if (result.isDone() || current == null) {
                 return;
             }
-            for (java.nio.ByteBuffer item : items) {
+            for (ByteBuffer item : items) {
                 int take = Math.min(item.remaining(), bound + 1 - bytes.size());
                 byte[] chunk = new byte[take];
                 item.get(chunk);
                 bytes.writeBytes(chunk);
                 if (bytes.size() > bound) {
-                    if (subscription != null) {
-                        subscription.cancel();
-                    }
-                    result.complete(bytes.toByteArray());
+                    page.verdict = new ForgejoException(200, "Forgejo key page exceeds its bound");
+                    stop(current);
                     return;
                 }
             }
+            current.request(1);
+        }
+
+        /** Completes before cancelling, since a transport may fail the exchange on the cancel. */
+        private void stop(Flow.Subscription current) {
+            result.complete(new byte[0]);
+            current.cancel();
         }
 
         @Override
