@@ -22,4 +22,4 @@ is left out.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="fc04"></a>[FC04](FC04-Records-Generated-From-A-Pinned-OpenAPI-Description.md) | - | - | `codegen`: records generated at build time from a pinned, filtered OpenAPI 3.1 or Swagger 2.0 description, with Java and Jackson only; blocks [FC01](README.md#fc01) and [FC02](README.md#fc02) |
+| <a id="fc04"></a>[FC04](FC04-Records-Generated-From-A-Pinned-OpenAPI-Description.md) | - | - | Records generated at build time by openapi-generator (a pinned snapshot until `useRecords` is released) from a pinned, filtered OpenAPI 3.1 or Swagger 2.0 description, with overridden templates; blocks [FC01](README.md#fc01) and [FC02](README.md#fc02) |

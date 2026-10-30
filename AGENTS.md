@@ -484,8 +484,9 @@ adapters, in another repository, call them and translate what they return into P
 ## Work in this repository
 
 - **Issue prefix: `FC`.**
-- **`mvnw` is the one file that is not Java**: the Maven wrapper's script, as Maven generates it, since Maven
-  must be fetched before any Java of the build runs.
+- **Only two kinds of file are not Java**: `mvnw`, the Maven wrapper's script, as Maven generates it, since Maven
+  must be fetched before any Java of the build runs; and openapi-generator's templates that are overridden, each
+  a copy of the pinned generator's own with the change, since the generator reads nothing else.
 
 ## Skills
 
