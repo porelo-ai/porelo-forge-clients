@@ -26,15 +26,19 @@ final class HttpsSource {
     }
 
     static byte[] download(URI source) throws IOException, InterruptedException {
-        URI pinned = validate(source);
         try (HttpClient client = newClient()) {
-            HttpRequest request =
-                    HttpRequest.newBuilder(pinned).timeout(Duration.ofMinutes(2)).GET().build();
-            HttpResponse<InputStream> response =
-                    client.send(request, HttpResponse.BodyHandlers.ofInputStream());
-            try (InputStream body = response.body()) {
-                return bodyOf(pinned, response.statusCode(), body);
-            }
+            return download(source, client);
+        }
+    }
+
+    static byte[] download(URI source, HttpClient client) throws IOException, InterruptedException {
+        URI pinned = validate(source);
+        HttpRequest request =
+                HttpRequest.newBuilder(pinned).timeout(Duration.ofMinutes(2)).GET().build();
+        HttpResponse<InputStream> response =
+                client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+        try (InputStream body = response.body()) {
+            return bodyOf(pinned, response.statusCode(), body, MAX_BYTES);
         }
     }
 
@@ -51,11 +55,11 @@ final class HttpsSource {
     }
 
     /** The body of a successful answer, bounded; any other answer fails, naming the source. */
-    static byte[] bodyOf(URI source, int status, InputStream body) throws IOException {
+    static byte[] bodyOf(URI source, int status, InputStream body, int max) throws IOException {
         if (status != 200) {
             throw new IOException("Download of " + source + " returned HTTP " + status);
         }
-        return readBounded(body, MAX_BYTES);
+        return readBounded(body, max);
     }
 
     /** Reads at most {@code max} bytes, refusing a longer body instead of holding it in memory. */

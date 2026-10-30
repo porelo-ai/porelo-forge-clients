@@ -57,23 +57,61 @@ class HttpsSourceTest {
     // what was asked for.
     @Test
     void anAnswerOtherThanOkFailsNamingTheSourceAndStatus() {
+        StubHttpClient client = new StubHttpClient(404, new byte[] {1});
+
         assertThatExceptionOfType(IOException.class)
                 .as("a 404 answer is not a description")
+                .isThrownBy(() -> HttpsSource.download(SOURCE, client))
+                .withMessageContaining(SOURCE.toString())
+                .withMessageContaining("HTTP 404");
+        assertThat(client.bodyClosed).as("the refused answer's body is closed").isTrue();
+    }
+
+    // Prevents the description from being read from anywhere but the pinned source.
+    @Test
+    void anOkAnswerIsReadFromTheSourceAsSent() throws Exception {
+        byte[] body = {'{', '}'};
+        StubHttpClient client = new StubHttpClient(200, body);
+
+        assertThat(HttpsSource.download(SOURCE, client)).as("read as sent").isEqualTo(body);
+        assertThat(client.requested).as("only the source is asked").containsExactly(SOURCE);
+        assertThat(client.bodyClosed).as("the body is closed").isTrue();
+    }
+
+    // Prevents a source that is not HTTPS from being asked at all.
+    @Test
+    void aSourceThatIsNotHttpsIsRefusedBeforeAnyRequest() {
+        StubHttpClient client = new StubHttpClient(200, new byte[] {1});
+
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .as("a plain HTTP source is refused")
+                .isThrownBy(
+                        () ->
+                                HttpsSource.download(
+                                        URI.create("http://example.org/description.json"), client));
+        assertThat(client.requested).as("nothing was requested").isEmpty();
+    }
+
+    // Prevents a successful answer that streams without end from bypassing the bound.
+    @Test
+    void anOkAnswerLongerThanTheBoundIsRefused() {
+        assertThatExceptionOfType(IOException.class)
+                .as("a 200 answer of eleven bytes exceeds a bound of ten")
                 .isThrownBy(
                         () ->
                                 HttpsSource.bodyOf(
-                                        SOURCE, 404, new ByteArrayInputStream(new byte[] {1})))
-                .withMessageContaining(SOURCE.toString())
-                .withMessageContaining("HTTP 404");
+                                        SOURCE, 200, new ByteArrayInputStream(new byte[11]), 10))
+                .withMessageContaining("larger than 10 bytes");
     }
 
-    // Prevents a successful answer from bypassing the bound.
+    // Prevents the download from reading a body of any length before its digest is checked.
     @Test
-    void anOkAnswerIsReadBounded() throws IOException {
-        byte[] body = {'{', '}'};
+    void aDownloadLongerThanSixtyFourMegabytesIsRefused() {
+        StubHttpClient client = new StubHttpClient(200, new byte[HttpsSource.MAX_BYTES + 1]);
 
-        assertThat(HttpsSource.bodyOf(SOURCE, 200, new ByteArrayInputStream(body)))
-                .as("a 200 answer is read as sent")
-                .isEqualTo(body);
+        assertThatExceptionOfType(IOException.class)
+                .as("the download is bounded by MAX_BYTES")
+                .isThrownBy(() -> HttpsSource.download(SOURCE, client))
+                .withMessageContaining("larger than " + HttpsSource.MAX_BYTES + " bytes");
     }
 }

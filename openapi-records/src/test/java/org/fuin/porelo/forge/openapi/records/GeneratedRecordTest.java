@@ -24,7 +24,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 class GeneratedRecordTest {
     private static final String COMPLETE =
             """
-            {"id": 7, "closed_at": "2026-10-30", "title": "Fix", "+1": 3, "-1": 1, "state": "open", "conclusion": "success"}""";
+            {"id": 7, "closed_at": "2026-10-30", "title": "Fix", "+1": 3, "-1": 1, "state": "open", "conclusion": "success",
+             "status": "completed", "verdict": "approved"}""";
 
     private static final ObjectMapper STRICT =
             new ObjectMapper().enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
@@ -106,17 +107,31 @@ class GeneratedRecordTest {
     @ParameterizedTest
     @MethodSource("readings")
     void anOptionalFieldPassesWhenAbsentOrNull(ObjectMapper reading) throws Exception {
-        Reaction absent = reading.readValue("{\"id\": 7, \"closed_at\": null}", Reaction.class);
+        Reaction absent =
+                reading.readValue(
+                        """
+                        {"id": 7, "closed_at": null, "status": "queued", "verdict": null}""",
+                        Reaction.class);
         Reaction nulled =
                 reading.readValue(
                         """
                         {"id": 7, "closed_at": null, "title": null, "+1": null, "state": null,
-                         "conclusion": null}""",
+                         "conclusion": null, "status": "queued", "verdict": null}""",
                         Reaction.class);
 
         assertThat(absent)
                 .as("no optional field is required")
-                .isEqualTo(new Reaction(7L, null, null, null, null, null, null));
+                .isEqualTo(
+                        new Reaction(
+                                7L,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                Reaction.StatusEnum.QUEUED,
+                                null));
         assertThat(nulled)
                 .as("an optional field of any type reads as absent when a forge sends null")
                 .isEqualTo(absent);
@@ -135,8 +150,8 @@ class GeneratedRecordTest {
                 .withMessageContaining("'merged'");
     }
 
-    // Records what the generator does where the description lets an enum be null: an unknown value
-    // reads as null in both readings, so the strict one does not catch it.
+    // Prevents a caller from failing on a value a forge adds to an enum the description lets be
+    // null; that the strict reading does not catch it either is FC01's to decide.
     @ParameterizedTest
     @MethodSource("readings")
     void anUnknownValueOfAnEnumThatMayBeNullReadsAsNull(ObjectMapper reading) throws Exception {
@@ -162,7 +177,7 @@ class GeneratedRecordTest {
                                                         .isAnnotationPresent(Nullable.class)));
 
         assertThat(nullable)
-                .as("only id is required and may not be null")
+                .as("only id and status are required and may not be null")
                 .containsExactlyInAnyOrderEntriesOf(
                         Map.of(
                                 "id", false,
@@ -171,7 +186,43 @@ class GeneratedRecordTest {
                                 "plus1", true,
                                 "_1", true,
                                 "state", true,
-                                "conclusion", true));
+                                "conclusion", true,
+                                "status", false,
+                                "verdict", true));
+    }
+
+    // Prevents a caller from reading null from a required enum the description does not let be
+    // null.
+    @ParameterizedTest
+    @MethodSource("readings")
+    void aNullInARequiredEnumThatMayNotBeNullFailsByItsName(ObjectMapper reading) {
+        String json = COMPLETE.replace("\"completed\"", "null");
+
+        assertThatExceptionOfType(JsonProcessingException.class)
+                .as("the description does not let status be null")
+                .isThrownBy(() -> reading.readValue(json, Reaction.class))
+                .withMessageContaining("status may not be null");
+    }
+
+    // Prevents a forge's answer that the description allows, a required enum set to null, from
+    // failing to read, and its absence from passing.
+    @ParameterizedTest
+    @MethodSource("readings")
+    void aRequiredEnumThatMayBeNullPassesAsNullButNotWhenMissing(ObjectMapper reading)
+            throws Exception {
+        assertThat(
+                        reading.readValue(COMPLETE.replace("\"approved\"", "null"), Reaction.class)
+                                .verdict())
+                .as("verdict is required but its type allows null")
+                .isNull();
+        assertThatExceptionOfType(JsonProcessingException.class)
+                .as("being nullable does not make a required enum optional")
+                .isThrownBy(
+                        () ->
+                                reading.readValue(
+                                        COMPLETE.replace(", \"verdict\": \"approved\"", ""),
+                                        Reaction.class))
+                .withMessageContaining("'verdict'");
     }
 
     // Prevents NullAway from silently skipping the generated records, whose @Nullable only counts

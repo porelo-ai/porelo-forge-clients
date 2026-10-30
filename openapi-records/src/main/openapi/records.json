@@ -27,7 +27,7 @@
     "schemas": {
       "reaction": {
         "type": "object",
-        "required": ["id", "closed_at"],
+        "required": ["id", "closed_at", "status", "verdict"],
         "properties": {
           "id": {
             "type": "integer",
@@ -52,6 +52,14 @@
           "conclusion": {
             "type": ["string", "null"],
             "enum": ["success", "failure", null]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["queued", "completed"]
+          },
+          "verdict": {
+            "type": ["string", "null"],
+            "enum": ["approved", "rejected", null]
           }
         }
       }
