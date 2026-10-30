@@ -38,21 +38,27 @@ file but not as OpenAPI.
 - **Steps:** the module and its extract; the build calls (refs, runs, jobs, log tail) first, since the adapters
   move onto them; then pull requests and reviews; then GraphQL threads; then webhooks.
 - **Recordings, as for every cloud forge:** every build replays them alone, with no network and no credential,
-  from files in `src/test/resources/` through an `HttpClient` that answers from them. They are made in the test
-  organization the open question below names, by the module's recording test, which runs only by hand. It creates
-  what it records - a branch, a pull request with a review, comments and a reply, a check run, a hook - and deletes
-  or closes all of it after, a failure too, naming anything it could not remove. Before a recording is kept,
+  from files in `src/test/resources/` through an `HttpClient` that answers from them. They are made in a test
+  organization of the project's own (which one is the open question below), by the module's recording test, which
+  runs only by hand. It creates what it records under a prefix with the run's id - a branch, a pull request with
+  a review by the second test user, comments, a reply and a resolved thread, a check run, a hook, and an Actions run
+  dispatched from a two-step workflow kept in the test repository - and removes or closes all of it after, a
+  failure and an interrupt too; it refuses to start over leftovers of its prefix and exits non-zero naming anything
+  it could not remove. Before a recording is kept,
   accounts become fictional ones, addresses `example.org`, a signed URL loses its query, and a delivery is signed
   again with a test secret; a test fails on a recording that holds a token's shape, or a delivery whose signature
   does not verify with the test secret.
-- **Two credentials, since GitHub splits them:** a GitHub App's installation token for check runs, minted per run
-  from the secrets `GITHUB_LIVE_APP_ID` and `GITHUB_LIVE_APP_KEY`; a test user's fine-grained token,
-  `GITHUB_LIVE_USER_TOKEN`, for the account, its membership, pull requests, reviews and comments. Both reach the
-  run through the environment and are never written to a file.
+- **Three credentials, since GitHub splits them:** a GitHub App's installation token for check runs, minted per
+  run from the secrets `GITHUB_LIVE_APP_ID` and `GITHUB_LIVE_APP_KEY`; the fine-grained token of a test user who
+  administers the test repository, `GITHUB_LIVE_USER_TOKEN`, for everything else - refs, runs, jobs, logs, hooks,
+  pull requests, comments, the account and its membership; and a second test user's, `GITHUB_LIVE_REVIEWER_TOKEN`,
+  since nobody can approve their own pull request. All reach the run through the environment and are never
+  written to a file.
 - **Checked live on a schedule and by hand, never on a push:** a workflow `live.yml` (daily at an hour outside the
-  working day, and by `workflow_dispatch`) runs only the reading calls, in strict reading, against a pull request,
-  a run and a hook kept in the test repository for it, so it writes nothing; it fails naming the call and the field
-  that differ, and fails too when a call it checks answers an empty list. A difference is answered by refreshing:
+  working day, and by `workflow_dispatch`) runs the reading calls, in strict reading, against what the test
+  repository keeps for it - a pull request with an approving review, comments and a resolved thread, a check run, a
+  hook - and against an Actions run it dispatches from the kept workflow, its one write, since a run's log expires;
+  it fails naming the call and the field that differ, and fails too when a call it checks answers an empty list. A difference is answered by refreshing:
   the recording test is run by hand, its diff read and committed with the change it needs.
 - **Red first:** `GitHubClientTest` builds the client strict and calls `runs(owner, repo, sha)` against the
   replayed answer with one field renamed, which must fail naming that field; then a redirect to another origin must
@@ -77,8 +83,8 @@ file but not as OpenAPI.
   it means a second extract and recordings from a running server. Recommendation: github.com only for now.
 - **Which account and organization to record from?** Check runs and organization membership need a repository in
   an organization and, for check runs, a GitHub App installed there; the account calls need a user. Recommendation:
-  a test organization of the project's own, free, with one test repository, a GitHub App made only for it and a
-  test user as its member.
+  a test organization of the project's own, free, with one test repository, a GitHub App made only for it, and two
+  test users - one administering the repository, one to review.
 
 ## To be checked
 

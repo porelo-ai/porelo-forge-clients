@@ -12,8 +12,8 @@ operations the module lists, with nothing at build time but Java, Maven and Jack
   `exec-maven-plugin`: it reads OpenAPI 3.1 (`components/schemas`, `webhooks`) and Swagger 2.0 (`definitions`),
   keeps the listed operations and webhooks and the schemas they reach, and writes records with Jackson's
   `@JsonProperty` into `target/generated-sources`, in a `@NullMarked` package; a field is `@Nullable` exactly when the
-  description lets it be absent or null (OpenAPI 3.1's `type: [..., "null"]` and Swagger's `x-nullable` included), so
-  NullAway checks the code that reads them.
+  description lets it be absent or null (OpenAPI 3.1's `type: [..., "null"]`; Swagger 2.0 cannot say null, so there
+  every field is taken as one that may be null), so NullAway checks the code that reads them.
 - **The extract is committed, the full description is not:** a client module keeps the filtered extract in
   `src/main/openapi/`, with the source's commit, digest and license notice beside it; regenerating the extract from
   the pinned source is one command that refuses a download whose digest differs. A description kept as a template
