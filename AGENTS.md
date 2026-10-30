@@ -476,7 +476,8 @@ adapters, in another repository, call them and translate what they return into P
   generated at build time from a forge's published OpenAPI description, filtered to the paths used; the calls are
   written by hand.
 - **Every module is tested against its forge's recorded answers alone**, with no network and no Porelo running.
-- **Every module is published to Maven Central, under `LGPL-3.0-or-later`**, all modules in one release.
+- **Every module is published to Maven Central, under `LGPL-3.0-or-later`**, all modules in one release: the
+  clients are general Java libraries, so they stay LGPL even where a native package links them in.
 
 ## Work in this repository
 

@@ -29,9 +29,3 @@ only the translation into Porelo's contracts.
 - Nothing of Porelo moves with the calls: no contract type, no SARIF, no Porelo artifact in any module's
   dependencies.
 
-## Open questions
-
-- **License of what is linked into a native package.** The shared rules give `Apache-2.0` to a library linked into
-  a native executable shipped in a package, `LGPL-3.0-or-later` to a plain Java library. The clients are both: a
-  plain library on Maven Central, and linked into the adapters' native readers shipped as `.deb` and `.rpm`.
-  Recommendation: `Apache-2.0` for every module, since the readers are the first and main users.
