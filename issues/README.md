@@ -15,15 +15,15 @@ is left out.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
+| <a id="fc05"></a>[FC05](FC05-Keys-And-Repositories-On-Forgejo.md) | S | [FC02](README.md#fc02) | A Forgejo user's public SSH keys read without a token, the signed-in user's own keys listed, added and deleted, whether a user owns an organization, a repository read and created in an organization |
 | <a id="fc02"></a>[FC02](FC02-The-Forgejo-Client.md) | M | [FC04](README.md#fc04) | The `forgejo` module: 19 operations from Forgejo 17's MIT Swagger 2.0 description, its answers recorded from a real Forgejo |
 | <a id="fc01"></a>[FC01](FC01-The-GitHub-Client.md) | L | [FC04](README.md#fc04) | The `github` module: 18 REST operations from GitHub's MIT OpenAPI 3.1 description, review threads over GraphQL, no webhooks, tested against recorded answers |
 
-## Analyzed
+## Backlog
 
-| # | Size | Blocked by | Open questions | What it covers |
-|---|---|---|---|---|
-| <a id="fc05"></a>[FC05](FC05-Keys-And-Repositories-On-Forgejo.md) | S | [FC02](README.md#fc02) | 0 | A Forgejo user's public SSH keys read without a token, whether a user owns an organization, a repository read and created in an organization |
-| <a id="fc06"></a>[FC06](FC06-Keys-Repositories-And-Commit-Statuses-On-GitHub.md) | S | [FC01](README.md#fc01) | 0 | A GitHub user's public SSH authentication and signing keys read without a token, whether a user owns an organization, a repository read and created in an organization, a commit's combined status |
+| # | Size | Blocked by | What it covers |
+|---|---|---|---|
+| <a id="fc06"></a>[FC06](FC06-Keys-Repositories-And-Commit-Statuses-On-GitHub.md) | M | [FC01](README.md#fc01) | A GitHub user's public SSH authentication and signing keys read without a token, the signed-in user's own keys of both kinds listed, added and deleted, whether a user owns an organization, a repository read and created in an organization, a commit's combined status |
 
 ## Accepted
 

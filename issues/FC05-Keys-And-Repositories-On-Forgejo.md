@@ -1,41 +1,44 @@
 # FC05 — Keys And Repositories On Forgejo
 
-**Status:** Analyzed; blocked by [FC02](README.md#fc02).
-**Size:** S - four calls added to the `forgejo` module and its tests; no existing call changes.
+**Status:** Implementing (Estimated and Backlog by the operator, 2026-10-30, sprint 6m);
+blocked by [FC02](README.md#fc02).
+**Size:** S - seven calls added to the `forgejo` module and its tests; no existing call changes.
 
-**What must be true.** A caller reads a Forgejo user's public SSH keys without a token, reads whether a user owns
-an organization, reads a repository, and creates one in an organization, through the `forgejo` module, in Forgejo's own
-terms.
+**What must be true.** A caller reads a Forgejo user's public SSH keys without a token, lists, adds and deletes the
+signed-in user's own SSH keys, reads whether a user owns an organization, and reads and creates a repository, through
+the `forgejo` module, in Forgejo's own terms.
 
 ## Plan
 
-- **The operations:** `GET /users/{username}/keys`, `GET /users/{username}/orgs/{org}/permissions`,
-  `GET /repos/{owner}/{repo}` and `POST /orgs/{org}/repos`, added
-  to the `--operation` list in `clients/forgejo/pom.xml`; the extract `clients/forgejo/src/main/openapi/forgejo.json`
-  is fetched again from the same pin, and `check` passes with the four.
+- **The operations:** `GET /users/{username}/keys`, `GET`/`POST /user/keys`, `DELETE /user/keys/{id}`,
+  `GET /users/{username}/orgs/{org}/permissions`, `GET /repos/{owner}/{repo}` and `POST /orgs/{org}/repos`, added to the
+  `--operation` list in `clients/forgejo/pom.xml`; the extract `clients/forgejo/src/main/openapi/forgejo.json` is
+  fetched again from the same pin, and `check` passes with the seven.
 - **`ForgejoClient`:** `keys(login, page, limit)` takes no token and sends no `Authorization` header, paged as every
-  other list; `organizationPermissions(token, login, org)`, whose `is_owner` is true for an owner of the
-  organization and left out for anyone else, so an absent value reads as not an owner;
-  `repository(token, owner, repo)`; `createRepository(token, org, body)` with the generated
-  `CreateRepoOption`. Each answer is read in the client's strictness, as every other call.
+  other list; `ownKeys(token, page, limit)`, `addKey(token, body)` with the generated `CreateKeyOption`, and
+  `deleteKey(token, id)`, which reads no body from Forgejo's empty answer; a key Forgejo already has is refused by it as
+  an error with its status, and the caller finds it in `ownKeys`; `organizationPermissions(token, login, org)`, whose
+  `is_owner` is true for an owner of the organization and left out for anyone else, so an absent value reads as not an
+  owner; `repository(token, owner, repo)`; `createRepository(token, org, body)` with the generated `CreateRepoOption`.
+  Each answer is read in the client's strictness, as every other call.
 - **The fixture:** `ForgejoContainer.seedAccountsAndRepository` gives one fixture user an SSH public key made for the
   test, so `keys` answers a non-empty list. `ForgejoScenario` creates the second repository under a fixed name in the
-  fixture organization; the container is thrown away whole after every run, so nothing is deleted by a call, and
-  the recording stays the same from run to run.
-- **Recordings and live check:** `ForgejoScenario` and `ForgejoOperations` gain the four, recorded from the pinned
-  container as the others are; `ForgejoRecordingTest` checks `keys`'s query (`page`, `limit`). `ForgejoLiveIT` runs
-  them in strict reading.
-- **`clients/forgejo/README.md`:** names the four, and says that `keys` takes no token while every other call does.
+  fixture organization, and adds a second test key to the admin, lists it and deletes it; the container is thrown away
+  whole after every run, so the repository is not deleted by a call, and the recording stays the same from run to run.
+- **Recordings and live check:** `ForgejoScenario` and `ForgejoOperations` gain the seven, recorded from the pinned
+  container as the others are; `ForgejoRecordingTest` checks the queries of `keys` and `ownKeys` (`page`, `limit`).
+  `ForgejoLiveIT` runs them in strict reading.
+- **`clients/forgejo/README.md`:** names the seven, and says that `keys` takes no token while every other call does.
 - **Red first:** `ForgejoClientTest` calls `keys` against the replayed answer with one field renamed, which must fail
   naming it in the strict reading, and asserts that the request carried no `Authorization` header.
 
 ## Acceptance
 
-- The four calls are tested against Forgejo's recorded answers, with no network, and checked live against the
-  pinned container in strict reading.
+- The seven calls are tested against Forgejo's recorded answers, with no network, and checked live against the pinned
+  container in strict reading.
 - `keys` sends no token, seen in a test that fails when it does.
 
 ## To be checked
 
-- Whether Forgejo 17 answers `GET /users/{username}/keys` without a token when `REQUIRE_SIGNIN_VIEW` is off, and
-  what it answers when it is on.
+- Whether Forgejo 17 answers `GET /users/{username}/keys` without a token when `REQUIRE_SIGNIN_VIEW` is off, and what it
+  answers when it is on.
