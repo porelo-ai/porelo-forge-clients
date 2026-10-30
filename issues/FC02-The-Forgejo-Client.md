@@ -1,6 +1,6 @@
 # FC02 — The Forgejo Client
 
-**Status:** Analyzed; blocked by [FC04](README.md#fc04).
+**Status:** Implementing; blocked by [FC04](README.md#fc04).
 **Size:** M - one module of nineteen operations, records generated, its answers recorded from and checked live
 against a Forgejo container on every build.
 
