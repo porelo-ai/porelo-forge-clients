@@ -107,7 +107,7 @@ class HttpsSourceTest {
     // Prevents the download from reading a body of any length before its digest is checked.
     @Test
     void aDownloadLongerThanSixtyFourMegabytesIsRefused() {
-        StubHttpClient client = new StubHttpClient(200, new byte[HttpsSource.MAX_BYTES + 1]);
+        StubHttpClient client = new StubHttpClient(200, HttpsSource.MAX_BYTES + 1L);
 
         assertThatExceptionOfType(IOException.class)
                 .as("the download is bounded by MAX_BYTES")

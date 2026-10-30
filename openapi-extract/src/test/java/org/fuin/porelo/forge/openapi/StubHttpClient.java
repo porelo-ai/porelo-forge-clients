@@ -1,6 +1,7 @@
 package org.fuin.porelo.forge.openapi;
 
 import java.io.ByteArrayInputStream;
+import java.io.FilterInputStream;
 import java.io.InputStream;
 import java.net.Authenticator;
 import java.net.CookieHandler;
@@ -17,6 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.Supplier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSession;
@@ -28,13 +30,47 @@ import org.jspecify.annotations.Nullable;
  */
 final class StubHttpClient extends HttpClient {
     private final int status;
-    private final byte[] body;
+    private final Supplier<InputStream> body;
     final List<URI> requested = new ArrayList<>();
     boolean bodyClosed;
 
     StubHttpClient(int status, byte[] body) {
+        this(status, () -> new ByteArrayInputStream(body.clone()));
+    }
+
+    /** Answers with {@code length} zero bytes, generated as they are read rather than held. */
+    StubHttpClient(int status, long length) {
+        this(
+                status,
+                () ->
+                        new InputStream() {
+                            private long left = length;
+
+                            @Override
+                            public int read() {
+                                if (left == 0) {
+                                    return -1;
+                                }
+                                left--;
+                                return 0;
+                            }
+
+                            @Override
+                            public int read(byte[] buffer, int offset, int count) {
+                                if (left == 0) {
+                                    return -1;
+                                }
+                                int read = (int) Math.min(count, left);
+                                java.util.Arrays.fill(buffer, offset, offset + read, (byte) 0);
+                                left -= read;
+                                return read;
+                            }
+                        });
+    }
+
+    private StubHttpClient(int status, Supplier<InputStream> body) {
         this.status = status;
-        this.body = body.clone();
+        this.body = body;
     }
 
     @Override
@@ -42,7 +78,7 @@ final class StubHttpClient extends HttpClient {
     public <T> HttpResponse<T> send(HttpRequest request, HttpResponse.BodyHandler<T> handler) {
         requested.add(request.uri());
         InputStream stream =
-                new ByteArrayInputStream(body) {
+                new FilterInputStream(body.get()) {
                     @Override
                     public void close() {
                         bodyClosed = true;

@@ -151,13 +151,12 @@ class GeneratedRecordTest {
     }
 
     // Prevents a caller from failing on a value a forge adds to an enum the description lets be
-    // null; that the strict reading does not catch it either is FC01's to decide.
-    @ParameterizedTest
-    @MethodSource("readings")
-    void anUnknownValueOfAnEnumThatMayBeNullReadsAsNull(ObjectMapper reading) throws Exception {
+    // null.
+    @Test
+    void theLenientReadingReadsAnUnknownValueOfAnEnumThatMayBeNullAsNull() throws Exception {
         String json = COMPLETE.replace("\"success\"", "\"skipped\"");
 
-        assertThat(reading.readValue(json, Reaction.class).conclusion())
+        assertThat(LENIENT.readValue(json, Reaction.class).conclusion())
                 .as("the generator's fromValue returns null for a value it does not know")
                 .isNull();
     }

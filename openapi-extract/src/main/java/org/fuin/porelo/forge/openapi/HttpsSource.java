@@ -26,6 +26,7 @@ final class HttpsSource {
     }
 
     static byte[] download(URI source) throws IOException, InterruptedException {
+        validate(source);
         try (HttpClient client = newClient()) {
             return download(source, client);
         }
