@@ -16,12 +16,7 @@ is left out.
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="fc02"></a>[FC02](FC02-The-Forgejo-Client.md) | M | [FC04](README.md#fc04) | The `forgejo` module: 19 operations from Forgejo 17's MIT Swagger 2.0 description, its answers recorded from a real Forgejo |
-
-## Analyzed
-
-| # | Size | Blocked by | What it covers | Open questions |
-|---|---|---|---|---|
-| <a id="fc01"></a>[FC01](FC01-The-GitHub-Client.md) | L | [FC04](README.md#fc04) | The `github` module: 20 REST operations and the webhooks from GitHub's MIT OpenAPI 3.1 description, review threads over GraphQL, tested against recorded answers | 0 |
+| <a id="fc01"></a>[FC01](FC01-The-GitHub-Client.md) | L | [FC04](README.md#fc04) | The `github` module: 20 REST operations and the webhooks from GitHub's MIT OpenAPI 3.1 description, review threads over GraphQL, tested against recorded answers |
 
 ## Accepted
 

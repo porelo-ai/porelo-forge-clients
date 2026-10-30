@@ -1,6 +1,6 @@
 # FC01 — The GitHub Client
 
-**Status:** Analyzed; blocked by [FC04](README.md#fc04).
+**Status:** Implementing; blocked by [FC04](README.md#fc04).
 **Size:** L - one module, but twenty REST operations, GraphQL beside REST, webhooks and the recordings of all of them.
 
 **What must be true.** A caller reads and writes what a code review and a build need on GitHub through the `github`
