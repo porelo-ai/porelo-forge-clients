@@ -11,6 +11,8 @@ complete clients of any API. They know nothing of Porelo: Porelo's adapters use 
 
 - [openapi-extract](openapi-extract/README.md) - the command that keeps a client's extract of a forge's pinned
   OpenAPI description, built here and never published.
+- [openapi-records](openapi-records/README.md) - the check that the records every client generates compile under
+  NullAway and read JSON as the clients need, built here and never published.
 
 The records of each client are generated at build time by openapi-generator, with the templates in
 `openapi-templates/` overriding its own. `github` and `forgejo` come first.

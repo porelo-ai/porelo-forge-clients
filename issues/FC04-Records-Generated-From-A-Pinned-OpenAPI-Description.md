@@ -1,6 +1,6 @@
 # FC04 — Records Generated From A Pinned OpenAPI Description
 
-**Status:** Implementing.
+**Status:** Review.
 **Size:** M - the generator's configuration, its overridden templates and a small extract command, no client yet.
 
 **What must be true.** A client module gets one Java record per schema its operations use, generated at build time
@@ -28,19 +28,27 @@ filtered to the operations the module lists, with nothing at run time but Jackso
     mapped to `java.time.OffsetDateTime`, a harmless duplicate. Nothing of Spring or Jakarta is needed to compile.
   - `jackson_annotations.mustache` marks a required field `@JsonProperty(required = true)`, which Jackson enforces
     on a record's creator, and `record.mustache` adds a compact constructor that refuses null in a required field
-    the description does not let be null, naming the JSON field.
+    the description does not let be null, naming the JSON field, before any default the generator assigns: a
+    required field gets no default.
   - `enumClass.mustache`, `enumOuterClass.mustache`, `additionalProperties.mustache`, `oneof_interface.mustache`
     and the record's discriminator accessor say `@Nullable` where the generator's code returns null, so NullAway
     passes.
   - The normalizer `REMOVE_ANYOF_ONEOF_AND_KEEP_PROPERTIES_ONLY` drops a `oneOf` or `anyOf` that only narrows its
     schema's own properties (GitHub's `checks-create-request` and `checks-update-request`); a schema that keeps
-    `additionalProperties` stays a class (GitHub's `integration-permissions`), null-safe through the override.
+    `additionalProperties` stays a class (GitHub's `integration-permissions`, which has no required field).
+  - The overrides cover the shapes the two forges' extracts have. A shape they do not - a class with a required
+    field or a parent, a `byte[]` or qualified type behind an added `@Nullable`, a `oneOf` branch without its
+    discriminator - fails its client's compile under NullAway, naming the file, and is fixed then.
   - A test fails when the pinned generator's template differs from the one an override was copied from, naming
     it, so moving the pin re-copies each.
+- **`openapi-records`, a module never published,** generates records from a small fixture description with the
+  same configuration and compiles them as main code under NullAway with only `jackson-annotations` and `jspecify`;
+  its tests read JSON into them in both readings.
 - **The extract is committed, the full description is not:** a client module keeps the filtered extract in
   `src/main/openapi/`, the source's URL (pinned by commit) and digest in its `info`, the license notice in the
   module's `README.md`. The command, `openapi-extract`, a Java module never published, run by `exec-maven-plugin`:
-  - `fetch` downloads the pinned source, refuses it before writing anything when its digest differs, replaces a
+  - `fetch` downloads the pinned source from its own address, following no redirect and refusing a body over
+    64 MB, refuses it before writing anything when its digest differs, replaces a
     template's placeholders (Forgejo's two strings), keeps the listed operations and webhooks and the components
     they reach, and drops the `discriminator` of a schema whose `oneOf` or `anyOf` only narrows its own properties,
     since without its `oneOf` the generator would make it a class;
@@ -49,15 +57,15 @@ filtered to the operations the module lists, with nothing at run time but Jackso
 - **Strict in the tests, lenient at run time:** every reader of a client module - its calls, GraphQL answers and
   webhook deliveries alike - is built with a strictness, its caller's choice. By default a field it does not know
   is ignored, since a forge adds fields within one API version; the tests build it strict, refusing unknown
-  fields. In both, a required field may not be missing, and a field the description does not let be null may not
-  be null.
+  fields. In both, a required field may not be missing nor null unless the description lets it be null; an
+  optional field may be absent or null, since forges send null for optional fields their descriptions do not mark.
 
 ## Acceptance
 
 - In the strict reading, a recorded answer with a field the record does not know fails to read, naming the field;
-  the default reading passes it. In both, an answer that leaves out a required field, or sets to null a field the
-  description does not let be null, fails, naming it; a required field that may be null passes as null, an optional
-  one that may not passes when absent.
+  the default reading passes it. In both, an answer that leaves out a required field, or sets it to null when the
+  description does not let it be null, fails, naming it; a required field that may be null passes as null; an
+  optional field passes absent or null.
 - The generated code compiles with NullAway as an error and with only `jackson-annotations` and `jspecify` on the
   class path; a field is `@Nullable` exactly when the description lets it be absent or null.
 - A schema the listed operations do not reach is not generated; an operation listed but not in the description
@@ -67,6 +75,6 @@ filtered to the operations the module lists, with nothing at run time but Jackso
 
 ## To be checked
 
-- A value of an enum the record does not know fails to read in both readings, since the generator's `fromValue`
-  throws; whether the lenient reading must pass it, as a forge adds such values (GitHub's check conclusions) within
+- A value of an enum the record does not know fails to read in both readings when the enum may not be null, since
+  the generator's `fromValue` throws, and reads as null when it may; whether the lenient reading must pass it, as a forge adds such values (GitHub's check conclusions) within
   one API version, is decided with the first client that reads one.

@@ -76,6 +76,7 @@
 
     <modules>
         <module>openapi-extract</module>
+        <module>openapi-records</module>
     </modules>
 
     <build>

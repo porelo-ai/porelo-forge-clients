@@ -109,8 +109,12 @@ final class ExtractService {
     }
 
     private static void write(Path output, String json) throws IOException {
-        Path absolute = output.toAbsolutePath();
-        Path temporary = Files.createTempFile(absolute.getParent(), "openapi-extract-", ".json");
+        Path absolute = output.toAbsolutePath().normalize();
+        Path directory = absolute.getParent();
+        if (directory == null) {
+            throw new IOException("Output has no directory: " + output);
+        }
+        Path temporary = Files.createTempFile(directory, "openapi-extract-", ".json");
         try {
             Files.writeString(temporary, json, StandardCharsets.UTF_8);
             Files.move(
