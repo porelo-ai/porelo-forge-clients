@@ -166,6 +166,7 @@ class ForgejoClientTest {
                         () -> client.dismissReview(TOKEN, "owner", "repo", 1, 1, null),
                         () -> client.createStatus(TOKEN, "owner", "repo", "abc", null),
                         () -> client.createRepository(TOKEN, "owner", null),
+                        () -> client.addKey(TOKEN, null),
                         () -> client.createHook(TOKEN, "owner", "repo", null));
         for (Runnable call : calls) {
             assertThatExceptionOfType(NullPointerException.class)

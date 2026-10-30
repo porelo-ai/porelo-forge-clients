@@ -19,9 +19,9 @@ the `forgejo` module, in Forgejo's own terms.
   `ownKeys(token, page, limit)`, `addKey(token, body)` with the generated `CreateKeyOption`, and `deleteKey(token, id)`,
   which reads no body from Forgejo's empty answer; a key Forgejo already has is refused by it as an error with its
   status, and the caller finds it in `ownKeys`; `organizationPermissions(token, login, org)`, whose `is_owner` is true
-  for an owner of the organization and left out for anyone else, so an absent value reads as not an owner;
-  `repository(token, owner, repo)`; `createRepository(token, org, body)` with the generated `CreateRepoOption`. Each
-  answer is read in the client's strictness, as every other call.
+  for an owner of the organization and left out for anyone else, so an absent value reads as null, which the caller
+  takes as not an owner; `repository(token, owner, repo)`; `createRepository(token, org, body)` with the generated
+  `CreateRepoOption`. Each answer is read in the client's strictness, as every other call.
 - **The fixture:** `ForgejoContainer.seedAccountsAndRepository` gives one fixture user an SSH public key made for the
   test, so `keys` answers a non-empty list. `ForgejoScenario` creates the second repository under a fixed name in the
   fixture organization, and adds a second test key to the admin, lists it and deletes it; the container is thrown away
@@ -38,4 +38,4 @@ the `forgejo` module, in Forgejo's own terms.
 
 - The seven calls are tested against Forgejo's recorded answers, with no network, and checked live against the pinned
   container in strict reading.
-- An answer without `is_owner` reads as not an owner, seen in a test that fails when it does not.
+- An answer without `is_owner` reads as null in both readings, seen in a test that fails when it does not.

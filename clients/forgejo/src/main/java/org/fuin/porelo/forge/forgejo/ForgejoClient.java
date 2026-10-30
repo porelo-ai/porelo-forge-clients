@@ -261,7 +261,10 @@ public final class ForgejoClient {
         check(response, List.of(token));
     }
 
-    /** Reads an account's permissions in an organization. */
+    /**
+     * Reads an account's permissions in an organization. Forgejo 17 leaves out {@code is_owner} for
+     * anyone but an owner, so {@code isOwner()} is null then.
+     */
     public OrganizationPermissions organizationPermissions(String token, String login, String org) {
         return call(
                 token,
