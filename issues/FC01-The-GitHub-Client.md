@@ -27,16 +27,21 @@ file but not as OpenAPI.
   `GET .../git/ref/{ref}`, `GET`/`POST .../hooks`, `GET /user`, `GET /user/memberships/orgs/{org}`,
   `GET .../collaborators/{username}/permission`; and the webhooks for pull requests, reviews, review comments,
   review threads, check runs and workflow jobs.
-- **Files:** `clients/pom.xml` (packaging pom, grouping the clients), `clients/github/pom.xml`,
+- **Files:** the root `pom.xml` (the module `clients`), `clients/pom.xml` (packaging pom, grouping the clients;
+  made by whichever of the two clients comes first), `clients/github/pom.xml` and its `README.md`,
   `clients/github/src/main/openapi/` (the extract, `SOURCE` with commit and digest, the MIT notice),
   `org.fuin.porelo.forge.github.GitHubClient` (the REST calls, `HttpClient` and base URI given, the token passed
   per call), `GitHubGraphQl` (the thread queries and mutations as text, their records written by hand),
   `GitHubWebhook` (reads a delivery by its event name, checks `X-Hub-Signature-256`), `GitHubError` (status and
-  message of an error answer), redirects followed by hand, and only to the hosts GitHub names for a log.
+  message of an error answer), and a log's redirect followed by hand, without the token to any host but the API's.
 - **Steps:** the module and its extract; the build calls (refs, runs, jobs, log tail) first, since the adapters
   move onto them; then pull requests and reviews; then GraphQL threads; then webhooks.
-- **Red first:** `GitHubClientTest` reads the recorded answer of `GET .../actions/runs` with one field renamed and
-  must fail naming that field.
+- **Recordings:** made once from github.com through the module's own recording test, which runs only by hand with
+  a token in its environment, and replayed from files in `src/test/resources/` by an `HttpClient` that answers from
+  them; webhook deliveries recorded from a test repository's hook.
+- **Red first:** `GitHubClientTest` calls `runs(owner, repo, sha)` against the replayed answer with one field
+  renamed and must fail, in the strict reading, naming that field; then a redirect to another host must arrive there
+  without the `Authorization` header.
 
 ## Acceptance
 
@@ -46,14 +51,20 @@ file but not as OpenAPI.
   fails on a dependency on any Porelo artifact.
 - A token reaches the client from its caller for each call, never from a file, a log line or a message of an
   exception; the client sends its requests through the `HttpClient` its caller passes.
-- A webhook delivery whose signature does not match its secret is refused before its body is read.
+- A webhook delivery whose signature does not match its secret is refused before its JSON is parsed, its raw
+  body read only up to a bound.
+- A log's redirect to another host carries no token, seen in a test that fails when it does.
 
 ## Open questions
 
 - **GitHub Enterprise Server too, or github.com only?** Its descriptions are separate files per version; supporting
   it means a second extract and recordings from a running server. Recommendation: github.com only for now.
+- **Which account and organization to record from?** Check runs and organization membership need a repository in
+  an organization and, for check runs, a GitHub App installed there. Recommendation: a test repository in the
+  project's own organization, with a GitHub App made only for it.
 
 ## To be checked
 
+- Which hosts GitHub redirects a job's log to, read from recorded answers rather than assumed.
 - How a GraphQL answer is recorded and replayed as the REST ones are, and whether GitHub's schema file may be read
   to check the hand-written queries at build time.
