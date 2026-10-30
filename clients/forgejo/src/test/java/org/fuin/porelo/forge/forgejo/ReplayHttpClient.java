@@ -121,6 +121,9 @@ final class ReplayHttpClient extends HttpClient {
 
         @Override
         public void request(long count) {
+            if (done || cancelled) {
+                return;
+            }
             if (count <= 0) {
                 // A broken subscription contract is the subscriber's fault, not a cancel.
                 misuse = new IllegalArgumentException("Non-positive demand: " + count);
