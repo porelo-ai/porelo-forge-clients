@@ -1,6 +1,6 @@
 # FC07 — Plain Key Lists On Forgejo
 
-**Status:** Backlog (Estimated and Backlog by the operator, 2026-10-30, sprint 6m).
+**Status:** Implementing (Estimated and Backlog by the operator, 2026-10-30, sprint 6m).
 **Size:** XS - one call in `ForgejoClient` and its tests, outside the API and its extract.
 
 **What must be true.** A caller reads a Forgejo account's public SSH keys without a token, as the lines of Forgejo's

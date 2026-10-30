@@ -16,6 +16,7 @@ is left out.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
+| <a id="fc07"></a>[FC07](FC07-Plain-Key-Lists-On-Forgejo.md) | XS | - | A Forgejo account's public SSH keys read without a token from its `<login>.keys` page, a missing login told apart from other failures |
 | <a id="fc02"></a>[FC02](FC02-The-Forgejo-Client.md) | M | [FC04](README.md#fc04) | The `forgejo` module: 19 operations from Forgejo 17's MIT Swagger 2.0 description, its answers recorded from a real Forgejo |
 | <a id="fc01"></a>[FC01](FC01-The-GitHub-Client.md) | L | [FC04](README.md#fc04) | The `github` module: 18 REST operations from GitHub's MIT OpenAPI 3.1 description, review threads over GraphQL, no webhooks, tested against recorded answers |
 
@@ -23,7 +24,6 @@ is left out.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="fc07"></a>[FC07](FC07-Plain-Key-Lists-On-Forgejo.md) | XS | - | A Forgejo account's public SSH keys read without a token from its `<login>.keys` page, a missing login told apart from other failures |
 | <a id="fc06"></a>[FC06](FC06-Keys-Repositories-And-Commit-Statuses-On-GitHub.md) | M | [FC01](README.md#fc01) | A GitHub user's public SSH authentication and signing keys read without a token, the signed-in user's own keys of both kinds listed, added and deleted, whether a user owns an organization, a repository read and created in an organization, a commit's combined status |
 
 ## Accepted
