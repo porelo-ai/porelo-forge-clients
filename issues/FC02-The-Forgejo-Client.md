@@ -13,8 +13,9 @@ organization membership - in Forgejo's own terms, knowing nothing of Porelo.
 Forgejo serves its API as Swagger 2.0 (`templates/swagger/v1_json.tmpl` in its repository, `/swagger.v1.json` on a
 running server). The repository is GPL-3.0, but the file itself says it is distributed under the MIT license for
 interoperability. Forgejo 17's file has 331 paths; every one below is in it, the Actions runs, jobs and logs
-included. Forgejo has no API to resolve a review conversation; reviews can be dismissed and undismissed, which the
-client offers in its place. The file describes no webhook payloads.
+included. Forgejo has no API to resolve a review conversation. A review as a whole can be dismissed and
+undismissed, which withdraws its verdict, needs the repository's administration right, and is offered as that. The
+file describes no webhook payloads.
 
 ## Plan
 
@@ -26,16 +27,18 @@ client offers in its place. The file describes no webhook payloads.
   `GET`/`POST .../hooks`, `GET /user`, `GET /user/orgs`, `GET .../collaborators/{collaborator}/permission`.
 - **Files:** the root `pom.xml` and `clients/pom.xml` (made by whichever of the two clients comes first),
   `clients/forgejo/pom.xml` and its `README.md`, `clients/forgejo/src/main/openapi/` (the extract of Forgejo 17's
-  file, `SOURCE` with the commit of tag `v17.0.1`, `363f3dc`, and the digest, the MIT notice),
-  `org.fuin.porelo.forge.forgejo.ForgejoClient` (`HttpClient` and base URI given, the token passed per call),
+  file, `SOURCE` with the commit of tag `v17.0.1`, `363f3dc30beef902b187af5a5244ff7af44901e6`, and the digest, the
+  MIT notice), `org.fuin.porelo.forge.forgejo.ForgejoClient` (`HttpClient` and base URI given, refused if it follows
+  redirects itself; the token passed per call and sent only to the base's own origin),
   `ForgejoWebhook` (checks `X-Forgejo-Signature`; its payload records written by hand from recorded deliveries of
   the pull request, review, review comment and Actions run events), `ForgejoError`.
 - **Recordings:** made from a Forgejo 17 in podman on the local VM, by a script of the module's tests that starts
   it, creates what it records and removes it after, failure too.
+  Its accounts are made for the recording; its addresses become `example.org` before a recording is kept.
 - **Steps:** the module and its extract; the build calls the adapters use first; then pull requests and reviews;
   then statuses, hooks and the account.
-- **Red first:** `ForgejoClientTest` calls `runs(owner, repo, sha)` against the replayed answer with one field
-  renamed and must fail, in the strict reading, naming that field.
+- **Red first:** `ForgejoClientTest` builds the client strict and calls `runs(owner, repo, sha)` against the
+  replayed answer with one field renamed, which must fail naming that field.
 
 ## Acceptance
 
