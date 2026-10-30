@@ -92,9 +92,9 @@ final class ForgejoScenario {
                                 " ",
                                 List.of(ForgejoContainer.REVIEWER_PUBLIC_KEY.split(" "))
                                         .subList(0, 2));
-                assertThat((List<?>) result)
-                        .as("the key page lists the seeded key")
-                        .anySatisfy(line -> assertThat((String) line).startsWith(seeded));
+                assertThat((List<Object>) result)
+                        .as("the key page lists exactly the seeded key, without its comment")
+                        .containsExactly(seeded);
             }
             if (operation == ForgejoOperations.createPull) {
                 Long index = ((PullRequest) result).number();

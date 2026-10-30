@@ -13,6 +13,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 class ForgejoClientTest {
     private static final URI BASE = URI.create("https://example.org/api/v1/");
+    private static final String SEEDED_KEY =
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAdTxLMf+cXzMTRZlQ9nf7cNS1Y8UNRaXmm+cgK7MibB";
+    private static final int PLAIN_KEYS_BOUND = 256 * 1024;
     private static final String TOKEN = "synthetic-access-token";
 
     // Prevents API drift from silently losing a public SSH key's identity.
@@ -343,8 +346,8 @@ class ForgejoClientTest {
     void thePlainKeyPageIsReadWithoutAToken() throws Exception {
         var http = new ReplayHttpClient().recording("plainKeys");
         assertThat(new ForgejoClient(BASE, http).plainKeys("fixture-reviewer"))
-                .as("the recorded page lists the seeded key")
-                .anySatisfy(line -> assertThat(line).startsWith("ssh-ed25519 "));
+                .as("the recorded page lists exactly the seeded key, without its comment")
+                .containsExactly(SEEDED_KEY);
         assertThat(http.requests.getFirst().uri().getRawPath())
                 .as("the key page sits at the web root, beside the API")
                 .isEqualTo("/fixture-reviewer.keys");
@@ -373,5 +376,50 @@ class ForgejoClientTest {
         assertThatExceptionOfType(ForgejoException.class)
                 .as("a page that is not plain text is refused")
                 .isThrownBy(() -> new ForgejoClient(BASE, html).plainKeys("fixture-reviewer"));
+    }
+
+    // Prevents a key page from being looked up outside a sub-path deployment, or a login from
+    // changing the path.
+    @Test
+    void theKeyPageSitsBesideTheApiAndTheLoginStaysOneSegment() {
+        var http =
+                new ReplayHttpClient()
+                        .answer(200, Map.of("content-type", List.of("text/plain")), SEEDED_KEY);
+        new ForgejoClient(URI.create("https://example.org/forgejo/api/v1/"), http)
+                .plainKeys("a/../b");
+        assertThat(http.requests.getFirst().uri().getRawPath())
+                .as("the page is beside the API under the same sub-path, the login one segment")
+                .isEqualTo("/forgejo/a%2F%2E%2E%2Fb.keys");
+        var other = new ReplayHttpClient();
+        assertThatExceptionOfType(IllegalStateException.class)
+                .as("a base that is not the API's cannot locate the web root")
+                .isThrownBy(
+                        () ->
+                                new ForgejoClient(URI.create("https://example.org/api/"), other)
+                                        .plainKeys("fixture-reviewer"));
+        assertThat(other.requests).as("nothing is sent from such a base").isEmpty();
+    }
+
+    // Prevents an endless or oversized key page from exhausting memory, or another media type
+    // from being read as keys.
+    @Test
+    void theKeyPageIsBoundedAndMustBePlainText() {
+        var plain = Map.of("content-type", List.of("text/plain; charset=utf-8"));
+        var atBound = new ReplayHttpClient().answer(200, plain, "a".repeat(PLAIN_KEYS_BOUND));
+        assertThat(new ForgejoClient(BASE, atBound).plainKeys("fixture-reviewer"))
+                .as("a page of exactly the bound is read")
+                .containsExactly("a".repeat(PLAIN_KEYS_BOUND));
+        var overBound = new ReplayHttpClient().answer(200, plain, "a".repeat(PLAIN_KEYS_BOUND + 1));
+        assertThatExceptionOfType(ForgejoException.class)
+                .as("one byte over the bound is refused")
+                .isThrownBy(() -> new ForgejoClient(BASE, overBound).plainKeys("fixture-reviewer"))
+                .withMessageContaining("bound");
+        var xml =
+                new ReplayHttpClient()
+                        .answer(200, Map.of("content-type", List.of("text/plain+xml")), SEEDED_KEY);
+        assertThatExceptionOfType(ForgejoException.class)
+                .as("a media type that only starts like text/plain is refused")
+                .isThrownBy(() -> new ForgejoClient(BASE, xml).plainKeys("fixture-reviewer"))
+                .withMessageContaining("plain text");
     }
 }

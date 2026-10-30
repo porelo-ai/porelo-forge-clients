@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -242,8 +241,8 @@ public final class ForgejoClient {
 
     /**
      * Reads an account's public SSH keys without a token, as the lines of Forgejo's page {@code
-     * <login>.keys} beside the API, comments kept. A missing login is a {@link ForgejoException}
-     * with status 404; no failure reads as an empty list.
+     * <login>.keys} beside the API, which leaves out the keys' comments. A missing login is a
+     * {@link ForgejoException} with status 404; no failure reads as an empty list.
      */
     public List<String> plainKeys(String login) {
         if (!base.getRawPath().endsWith("/api/v1/")) {
@@ -251,8 +250,9 @@ public final class ForgejoClient {
                     "The API base must end in /api/v1/ to find the web root");
         }
         URI uri = base.resolve("../../" + segment(login) + ".keys");
-        HttpResponse<InputStream> response;
+        HttpResponse<byte[]> response;
         try {
+            // The body is read inside send, so the request timeout covers it too.
             response =
                     http.send(
                             HttpRequest.newBuilder(uri)
@@ -260,33 +260,98 @@ public final class ForgejoClient {
                                     .header("Accept", "text/plain")
                                     .GET()
                                     .build(),
-                            HttpResponse.BodyHandlers.ofInputStream());
+                            info ->
+                                    info.statusCode() == 200
+                                                    && isPlainText(
+                                                            info.headers()
+                                                                    .firstValue("Content-Type")
+                                                                    .orElse(""))
+                                            ? new BoundedBytes(MAX_PLAIN_KEYS_BYTES)
+                                            : HttpResponse.BodySubscribers.replacing(null));
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             throw new ForgejoException(0, "Forgejo request interrupted");
         } catch (IOException | IllegalArgumentException ex) {
+            if (ex instanceof java.io.InterruptedIOException) {
+                Thread.currentThread().interrupt();
+            }
             throw new ForgejoException(0, "Forgejo request failed");
         }
-        try (InputStream body = response.body()) {
-            if (response.statusCode() != 200) {
-                throw new ForgejoException(
-                        response.statusCode(), "Forgejo key page request failed");
+        if (response.statusCode() != 200) {
+            throw new ForgejoException(response.statusCode(), "Forgejo key page request failed");
+        }
+        byte @Nullable [] bytes = response.body();
+        if (bytes == null) {
+            throw new ForgejoException(200, "Forgejo key page is not plain text");
+        }
+        if (bytes.length > MAX_PLAIN_KEYS_BYTES) {
+            throw new ForgejoException(200, "Forgejo key page exceeds its bound");
+        }
+        return new String(bytes, StandardCharsets.UTF_8)
+                .lines()
+                .map(String::strip)
+                .filter(line -> !line.isEmpty())
+                .toList();
+    }
+
+    private static boolean isPlainText(String contentType) {
+        int semicolon = contentType.indexOf(';');
+        return (semicolon < 0 ? contentType : contentType.substring(0, semicolon))
+                .strip()
+                .equalsIgnoreCase("text/plain");
+    }
+
+    /** Collects at most one byte more than its bound, then stops reading. */
+    private static final class BoundedBytes implements HttpResponse.BodySubscriber<byte[]> {
+        private final int bound;
+        private final java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
+        private final java.util.concurrent.CompletableFuture<byte[]> result =
+                new java.util.concurrent.CompletableFuture<>();
+        private java.util.concurrent.Flow.@Nullable Subscription subscription;
+
+        BoundedBytes(int bound) {
+            this.bound = bound;
+        }
+
+        @Override
+        public java.util.concurrent.CompletionStage<byte[]> getBody() {
+            return result;
+        }
+
+        @Override
+        public void onSubscribe(java.util.concurrent.Flow.Subscription subscription) {
+            this.subscription = subscription;
+            subscription.request(Long.MAX_VALUE);
+        }
+
+        @Override
+        public void onNext(List<java.nio.ByteBuffer> items) {
+            if (result.isDone()) {
+                return;
             }
-            String type = response.headers().firstValue("Content-Type").orElse("");
-            if (!type.toLowerCase(Locale.ROOT).startsWith("text/plain")) {
-                throw new ForgejoException(200, "Forgejo key page is not plain text");
+            for (java.nio.ByteBuffer item : items) {
+                int take = Math.min(item.remaining(), bound + 1 - bytes.size());
+                byte[] chunk = new byte[take];
+                item.get(chunk);
+                bytes.writeBytes(chunk);
+                if (bytes.size() > bound) {
+                    if (subscription != null) {
+                        subscription.cancel();
+                    }
+                    result.complete(bytes.toByteArray());
+                    return;
+                }
             }
-            byte[] bytes = body.readNBytes(MAX_PLAIN_KEYS_BYTES + 1);
-            if (bytes.length > MAX_PLAIN_KEYS_BYTES) {
-                throw new ForgejoException(200, "Forgejo key page exceeds its bound");
-            }
-            return new String(bytes, StandardCharsets.UTF_8)
-                    .lines()
-                    .map(String::strip)
-                    .filter(line -> !line.isEmpty())
-                    .toList();
-        } catch (IOException ex) {
-            throw new ForgejoException(0, "Forgejo key page could not be read");
+        }
+
+        @Override
+        public void onError(Throwable error) {
+            result.completeExceptionally(error);
+        }
+
+        @Override
+        public void onComplete() {
+            result.complete(bytes.toByteArray());
         }
     }
 
