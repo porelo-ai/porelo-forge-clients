@@ -19,9 +19,10 @@ operations the module lists, with nothing at build time but Java, Maven and Jack
   the pinned source is one command that refuses a download whose digest differs. A description kept as a template
   (Forgejo's, whose only placeholders are two strings) is valid JSON as it is and is read so.
 - **Strict in the tests, lenient at run time:** every reader of a client module - its calls, GraphQL answers and
-  webhook deliveries alike - reads with the strictness its caller builds the module's client with. By
+  webhook deliveries alike - is built with a strictness, its caller's choice. By
   default a field it does not know is ignored, since a forge adds fields within one API version; the tests build it
-  strict, refusing unknown fields. A field missing or null where the description allows neither is refused in both.
+  strict, refusing unknown fields. In both, a required field may not be missing, and a field the description does
+  not let be null may not be null.
 - **Why not openapi-generator:** its Java generator writes classes with getters and setters, not records, adds
   `jackson-databind-nullable` at run time unless switched off, and is a 34 MB tool to download and pin; records from
   it need templates of their own anyway.
@@ -29,8 +30,9 @@ operations the module lists, with nothing at build time but Java, Maven and Jack
 ## Acceptance
 
 - In the strict reading, a recorded answer with a field the record does not know fails to read, naming the field;
-  the default reading passes it. An answer that leaves out, or sets to null, a field the description requires and
-  never lets be null fails in both, naming it.
+  the default reading passes it. In both, an answer that leaves out a required field, or sets to null a field the
+  description does not let be null, fails, naming it; a required field that may be null passes as null, an optional
+  one that may not passes when absent.
 - The generated code compiles with NullAway as an error; a field is `@Nullable` exactly when the description lets it
   be absent or null.
 - A schema the listed operations do not reach is not generated; an operation listed but not in the description

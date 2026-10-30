@@ -37,18 +37,23 @@ file but not as OpenAPI.
   follows redirects itself, and sends the token only to the API base's own origin - scheme, host and port.
 - **Steps:** the module and its extract; the build calls (refs, runs, jobs, log tail) first, since the adapters
   move onto them; then pull requests and reviews; then GraphQL threads; then webhooks.
-- **Recordings, as for every cloud forge:** every build replays them alone, with no network and no credential.
-  They are made from a test organization of the project's own through the module's recording test, which runs only
-  with a token in its environment, and replayed from files in `src/test/resources/` by an `HttpClient` that answers
-  from them; webhook deliveries recorded from a test repository's hook. Before a recording is kept, accounts become
-  fictional ones, addresses `example.org`, a signed URL loses its query, and a delivery is signed again with a test
-  secret; a test fails on a recording that holds a token's shape, or a delivery whose signature does not verify
-  with the test secret.
+- **Recordings, as for every cloud forge:** every build replays them alone, with no network and no credential,
+  from files in `src/test/resources/` through an `HttpClient` that answers from them. They are made in the test
+  organization the open question below names, by the module's recording test, which runs only by hand. It creates
+  what it records - a branch, a pull request with a review, comments and a reply, a check run, a hook - and deletes
+  or closes all of it after, a failure too, naming anything it could not remove. Before a recording is kept,
+  accounts become fictional ones, addresses `example.org`, a signed URL loses its query, and a delivery is signed
+  again with a test secret; a test fails on a recording that holds a token's shape, or a delivery whose signature
+  does not verify with the test secret.
+- **Two credentials, since GitHub splits them:** a GitHub App's installation token for check runs, minted per run
+  from the secrets `GITHUB_LIVE_APP_ID` and `GITHUB_LIVE_APP_KEY`; a test user's fine-grained token,
+  `GITHUB_LIVE_USER_TOKEN`, for the account, its membership, pull requests, reviews and comments. Both reach the
+  run through the environment and are never written to a file.
 - **Checked live on a schedule and by hand, never on a push:** a workflow `live.yml` (daily at an hour outside the
-  working day, and by `workflow_dispatch`) runs the same calls against the test organization in strict reading, with
-  the GitHub App's key and id as the secrets `GITHUB_LIVE_APP_KEY` and `GITHUB_LIVE_APP_ID`, an installation token
-  minted per run and never written to a file; it fails naming the call and the field that differ. A difference is
-  answered by refreshing: the recording test is run by hand, its diff read and committed with the change it needs.
+  working day, and by `workflow_dispatch`) runs only the reading calls, in strict reading, against a pull request,
+  a run and a hook kept in the test repository for it, so it writes nothing; it fails naming the call and the field
+  that differ, and fails too when a call it checks answers an empty list. A difference is answered by refreshing:
+  the recording test is run by hand, its diff read and committed with the change it needs.
 - **Red first:** `GitHubClientTest` builds the client strict and calls `runs(owner, repo, sha)` against the
   replayed answer with one field renamed, which must fail naming that field; then a redirect to another origin must
   arrive there without the `Authorization` header.
@@ -71,8 +76,9 @@ file but not as OpenAPI.
 - **GitHub Enterprise Server too, or github.com only?** Its descriptions are separate files per version; supporting
   it means a second extract and recordings from a running server. Recommendation: github.com only for now.
 - **Which account and organization to record from?** Check runs and organization membership need a repository in
-  an organization and, for check runs, a GitHub App installed there. Recommendation: a test repository in the
-  project's own organization, with a GitHub App made only for it.
+  an organization and, for check runs, a GitHub App installed there; the account calls need a user. Recommendation:
+  a test organization of the project's own, free, with one test repository, a GitHub App made only for it and a
+  test user as its member.
 
 ## To be checked
 
