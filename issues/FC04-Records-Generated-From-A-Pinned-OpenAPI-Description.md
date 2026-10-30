@@ -18,9 +18,10 @@ operations the module lists, with nothing at build time but Java, Maven and Jack
   `src/main/openapi/`, with the source's commit, digest and license notice beside it; regenerating the extract from
   the pinned source is one command that refuses a download whose digest differs. A description kept as a template
   (Forgejo's, whose only placeholders are two strings) is valid JSON as it is and is read so.
-- **Strict in the tests, lenient at run time:** a client reads with the strictness its caller builds it with. By
+- **Strict in the tests, lenient at run time:** every reader of a client module - its calls, GraphQL answers and
+  webhook deliveries alike - reads with the strictness its caller builds the module's client with. By
   default a field it does not know is ignored, since a forge adds fields within one API version; the tests build it
-  strict, refusing unknown fields. A required field that is missing is refused in both.
+  strict, refusing unknown fields. A field missing or null where the description allows neither is refused in both.
 - **Why not openapi-generator:** its Java generator writes classes with getters and setters, not records, adds
   `jackson-databind-nullable` at run time unless switched off, and is a 34 MB tool to download and pin; records from
   it need templates of their own anyway.
@@ -28,9 +29,10 @@ operations the module lists, with nothing at build time but Java, Maven and Jack
 ## Acceptance
 
 - In the strict reading, a recorded answer with a field the record does not know fails to read, naming the field;
-  the default reading passes it. An answer without a field the description requires fails in both, naming it.
-- The generated code compiles with NullAway as an error; a field the description lets be null is `@Nullable`, one it
-  requires and never lets be null is not.
+  the default reading passes it. An answer that leaves out, or sets to null, a field the description requires and
+  never lets be null fails in both, naming it.
+- The generated code compiles with NullAway as an error; a field is `@Nullable` exactly when the description lets it
+  be absent or null.
 - A schema the listed operations do not reach is not generated; an operation listed but not in the description
   stops the build, naming it.
 - A downloaded description whose digest differs from the pin is refused before anything is written.

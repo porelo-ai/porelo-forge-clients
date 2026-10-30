@@ -37,11 +37,18 @@ file but not as OpenAPI.
   follows redirects itself, and sends the token only to the API base's own origin - scheme, host and port.
 - **Steps:** the module and its extract; the build calls (refs, runs, jobs, log tail) first, since the adapters
   move onto them; then pull requests and reviews; then GraphQL threads; then webhooks.
-- **Recordings:** made once from github.com through the module's own recording test, which runs only by hand with
-  a token in its environment, and replayed from files in `src/test/resources/` by an `HttpClient` that answers from
-  them; webhook deliveries recorded from a test repository's hook. Before a recording is kept, accounts become
+- **Recordings, as for every cloud forge:** every build replays them alone, with no network and no credential.
+  They are made from a test organization of the project's own through the module's recording test, which runs only
+  with a token in its environment, and replayed from files in `src/test/resources/` by an `HttpClient` that answers
+  from them; webhook deliveries recorded from a test repository's hook. Before a recording is kept, accounts become
   fictional ones, addresses `example.org`, a signed URL loses its query, and a delivery is signed again with a test
-  secret; a test fails on a recording that still holds a token's or signature's shape.
+  secret; a test fails on a recording that holds a token's shape, or a delivery whose signature does not verify
+  with the test secret.
+- **Checked live on a schedule and by hand, never on a push:** a workflow `live.yml` (daily at an hour outside the
+  working day, and by `workflow_dispatch`) runs the same calls against the test organization in strict reading, with
+  the GitHub App's key and id as the secrets `GITHUB_LIVE_APP_KEY` and `GITHUB_LIVE_APP_ID`, an installation token
+  minted per run and never written to a file; it fails naming the call and the field that differ. A difference is
+  answered by refreshing: the recording test is run by hand, its diff read and committed with the change it needs.
 - **Red first:** `GitHubClientTest` builds the client strict and calls `runs(owner, repo, sha)` against the
   replayed answer with one field renamed, which must fail naming that field; then a redirect to another origin must
   arrive there without the `Authorization` header.

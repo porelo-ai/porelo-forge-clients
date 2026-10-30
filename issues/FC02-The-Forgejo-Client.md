@@ -1,7 +1,8 @@
 # FC02 — The Forgejo Client
 
 **Status:** Analyzed; blocked by [FC04](README.md#fc04).
-**Size:** M - one module of nineteen operations, records generated, its answers recorded from a real Forgejo.
+**Size:** M - one module of nineteen operations, records generated, its answers recorded from and checked live
+against a Forgejo container on every build.
 
 **What must be true.** A caller reads and writes what a code review and a build need on Forgejo through the
 `forgejo` module, `org.fuin.porelo:porelo-forge-client-forgejo`: pull requests, reviews and their comments,
@@ -29,12 +30,21 @@ file describes no webhook payloads.
   `clients/forgejo/pom.xml` and its `README.md`, `clients/forgejo/src/main/openapi/` (the extract of Forgejo 17's
   file, `SOURCE` with the commit of tag `v17.0.1`, `363f3dc30beef902b187af5a5244ff7af44901e6`, and the digest, the
   MIT notice), `org.fuin.porelo.forge.forgejo.ForgejoClient` (`HttpClient` and base URI given, refused if it follows
-  redirects itself; the token passed per call and sent only to the base's own origin),
+  redirects itself; the token passed per call and sent only to the base's own origin; a job log's redirect, where
+  the server answers with one, followed by hand),
   `ForgejoWebhook` (checks `X-Forgejo-Signature`; its payload records written by hand from recorded deliveries of
   the pull request, review, review comment and Actions run events), `ForgejoError`.
-- **Recordings:** made from a Forgejo 17 in podman on the local VM, by a script of the module's tests that starts
-  it, creates what it records and removes it after, failure too.
-  Its accounts are made for the recording; its addresses become `example.org` before a recording is kept.
+- **Recordings, as for every open-source forge:** every build replays them alone, with no network; they are made
+  from a container of `codeberg.org/forgejo/forgejo:17.0.1`, pinned by its index digest
+  `sha256:fcd19ff4ebc85fb098a67e8e1d0d5a84d07dd6e8a23edcfdfd5b71a6178953be`. Its accounts are made for the recording;
+  its addresses become `example.org` before a recording is kept, and a delivery is then signed again with a test
+  secret; a test fails on a delivery whose signature does not verify with it.
+- **Seeded, then checked live on every build:** an integration test (`ForgejoLiveIT`, failsafe) starts the container
+  with podman on a free local port and a throw-away volume, creates the administrator with `forgejo admin user
+  create` inside it, seeds through the API - an organization, a repository with two branches, a pull request with a
+  review and a comment, a commit status, a hook - and runs every call in strict reading; it removes the container and
+  volume it made, after a failure too, and refuses to start over a container of its name left behind. The Build
+  runs it as its own step after the unit tests.
 - **Steps:** the module and its extract; the build calls the adapters use first; then pull requests and reviews;
   then statuses, hooks and the account.
 - **Red first:** `ForgejoClientTest` builds the client strict and calls `runs(owner, repo, sha)` against the
@@ -50,6 +60,8 @@ file describes no webhook payloads.
   exception; a forge signed by a private certificate authority is reached with the `HttpClient` its caller passes.
 - A webhook delivery whose signature does not match its secret is refused before its JSON is parsed, its raw
   body read only up to a bound.
+- A redirect to another origin carries no token, seen in a test that fails when it does; an `HttpClient` that
+  follows redirects itself is refused when the client is built.
 
 ## Open questions
 
@@ -58,6 +70,8 @@ file describes no webhook payloads.
 
 ## To be checked
 
-- The image of Forgejo 17 to record from, pinned by version and digest.
+- How long the live check takes on a GitHub runner, from start of the container to its removal, measured.
+- Whether Actions runs and jobs can be seeded without a runner attached, or the live check needs a Forgejo runner
+  container beside it.
 - Which webhook events Forgejo 17 sends for pull requests, reviews, review comments and Actions runs, and their
   names in the `X-Forgejo-Event` header.
