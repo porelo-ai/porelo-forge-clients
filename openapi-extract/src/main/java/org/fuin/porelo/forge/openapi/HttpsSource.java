@@ -27,29 +27,35 @@ final class HttpsSource {
 
     static byte[] download(URI source) throws IOException, InterruptedException {
         URI pinned = validate(source);
-        // A dedicated client has no authenticator or cookie handler to supply credentials, and
-        // follows no redirect:
-        // a pinned source is read from its own address, so nothing is requested from a host the pin
-        // does not name.
-        try (HttpClient client =
-                HttpClient.newBuilder()
-                        .connectTimeout(Duration.ofSeconds(30))
-                        .followRedirects(HttpClient.Redirect.NEVER)
-                        .build()) {
+        try (HttpClient client = newClient()) {
             HttpRequest request =
                     HttpRequest.newBuilder(pinned).timeout(Duration.ofMinutes(2)).GET().build();
             HttpResponse<InputStream> response =
                     client.send(request, HttpResponse.BodyHandlers.ofInputStream());
             try (InputStream body = response.body()) {
-                if (response.statusCode() != 200) {
-                    throw new IOException(
-                            "Download returned HTTP "
-                                    + response.statusCode()
-                                    + "; a redirect is not followed");
-                }
-                return readBounded(body, MAX_BYTES);
+                return bodyOf(pinned, response.statusCode(), body);
             }
         }
+    }
+
+    /**
+     * A client that follows redirects, since any server may answer with one, but never from HTTPS
+     * to HTTP; it has no authenticator or cookie handler, so no credential reaches any host, and
+     * what it reads is used only once its digest matches the pin.
+     */
+    static HttpClient newClient() {
+        return HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(30))
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .build();
+    }
+
+    /** The body of a successful answer, bounded; any other answer fails, naming the source. */
+    static byte[] bodyOf(URI source, int status, InputStream body) throws IOException {
+        if (status != 200) {
+            throw new IOException("Download of " + source + " returned HTTP " + status);
+        }
+        return readBounded(body, MAX_BYTES);
     }
 
     /** Reads at most {@code max} bytes, refusing a longer body instead of holding it in memory. */

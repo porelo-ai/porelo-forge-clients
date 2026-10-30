@@ -48,6 +48,10 @@
           "state": {
             "type": "string",
             "enum": ["open", "closed"]
+          },
+          "conclusion": {
+            "type": ["string", "null"],
+            "enum": ["success", "failure", null]
           }
         }
       }

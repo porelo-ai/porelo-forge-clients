@@ -80,5 +80,8 @@ file but not as OpenAPI.
 
 ## To be checked
 
+- Whether the lenient reading must pass an enum value the record does not know, as GitHub adds such values (its
+  check conclusions) within one API version: the generated `fromValue` throws for one when the enum may not be
+  null, and reads it as null, in the strict reading too, when it may.
 - How a GraphQL answer is recorded and replayed as the REST ones are, and whether GitHub's schema file may be read
   to check the hand-written queries at build time.

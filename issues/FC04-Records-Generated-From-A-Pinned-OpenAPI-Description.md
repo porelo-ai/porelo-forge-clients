@@ -47,8 +47,9 @@ filtered to the operations the module lists, with nothing at run time but Jackso
 - **The extract is committed, the full description is not:** a client module keeps the filtered extract in
   `src/main/openapi/`, the source's URL (pinned by commit) and digest in its `info`, the license notice in the
   module's `README.md`. The command, `openapi-extract`, a Java module never published, run by `exec-maven-plugin`:
-  - `fetch` downloads the pinned source from its own address, following no redirect and refusing a body over
-    64 MB, refuses it before writing anything when its digest differs, replaces a
+  - `fetch` downloads the pinned source, following redirects but never from HTTPS to HTTP, sending no
+    credential, refusing an answer other than 200, naming the source, and a body over 64 MB; it refuses the
+    body before writing anything when its digest differs, replaces a
     template's placeholders (Forgejo's two strings), keeps the listed operations and webhooks and the components
     they reach, and drops the `discriminator` of a schema whose `oneOf` or `anyOf` only narrows its own properties,
     since without its `oneOf` the generator would make it a class;
@@ -66,15 +67,11 @@ filtered to the operations the module lists, with nothing at run time but Jackso
   the default reading passes it. In both, an answer that leaves out a required field, or sets it to null when the
   description does not let it be null, fails, naming it; a required field that may be null passes as null; an
   optional field passes absent or null.
+- An enum value the record does not know fails to read in both readings, naming it, when the description does not
+  let the enum be null; when it does, the generator's `fromValue` reads it as null in both.
 - The generated code compiles with NullAway as an error and with only `jackson-annotations` and `jspecify` on the
   class path; a field is `@Nullable` exactly when the description lets it be absent or null.
 - A schema the listed operations do not reach is not generated; an operation listed but not in the description
   stops the build, naming it.
 - A downloaded description whose digest differs from the pin is refused before anything is written.
 - A JSON name that is not a Java name gets one that compiles and reads it back: GitHub's `+1` and `-1`.
-
-## To be checked
-
-- A value of an enum the record does not know fails to read in both readings when the enum may not be null, since
-  the generator's `fromValue` throws, and reads as null when it may; whether the lenient reading must pass it, as a forge adds such values (GitHub's check conclusions) within
-  one API version, is decided with the first client that reads one.

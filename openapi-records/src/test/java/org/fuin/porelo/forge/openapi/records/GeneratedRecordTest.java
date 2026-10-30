@@ -1,8 +1,9 @@
 package org.fuin.porelo.forge.openapi.records;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.RecordComponent;
@@ -10,6 +11,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,7 +24,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 class GeneratedRecordTest {
     private static final String COMPLETE =
             """
-            {"id": 7, "closed_at": "2026-10-30", "title": "Fix", "+1": 3, "-1": 1, "state": "open"}""";
+            {"id": 7, "closed_at": "2026-10-30", "title": "Fix", "+1": 3, "-1": 1, "state": "open", "conclusion": "success"}""";
 
     private static final ObjectMapper STRICT =
             new ObjectMapper().enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
@@ -39,9 +41,10 @@ class GeneratedRecordTest {
     void theStrictReadingRefusesAFieldTheRecordDoesNotKnowByName() {
         String json = COMPLETE.replace("\"state\"", "\"added\": 1, \"state\"");
 
-        assertThatThrownBy(() -> STRICT.readValue(json, Reaction.class))
+        assertThatExceptionOfType(JsonProcessingException.class)
                 .as("a forge's new field must fail the tests, naming it")
-                .hasMessageContaining("\"added\"");
+                .isThrownBy(() -> STRICT.readValue(json, Reaction.class))
+                .withMessageContaining("\"added\"");
     }
 
     // Prevents a caller from breaking when a forge adds a field within one API version.
@@ -60,9 +63,10 @@ class GeneratedRecordTest {
     void aMissingRequiredFieldFailsByItsName(ObjectMapper reading) {
         String json = COMPLETE.replace("\"id\": 7, ", "");
 
-        assertThatThrownBy(() -> reading.readValue(json, Reaction.class))
+        assertThatExceptionOfType(JsonProcessingException.class)
                 .as("a required field may not be missing in either reading")
-                .hasMessageContaining("'id'");
+                .isThrownBy(() -> reading.readValue(json, Reaction.class))
+                .withMessageContaining("'id'");
     }
 
     // Prevents a caller from reading null where the record promises a value.
@@ -71,9 +75,10 @@ class GeneratedRecordTest {
     void aNullInARequiredFieldThatMayNotBeNullFailsByItsName(ObjectMapper reading) {
         String json = COMPLETE.replace("\"id\": 7", "\"id\": null");
 
-        assertThatThrownBy(() -> reading.readValue(json, Reaction.class))
+        assertThatExceptionOfType(JsonProcessingException.class)
                 .as("the description does not let id be null")
-                .hasMessageContaining("id may not be null");
+                .isThrownBy(() -> reading.readValue(json, Reaction.class))
+                .withMessageContaining("id may not be null");
     }
 
     // Prevents a forge's answer that the description allows from failing to read.
@@ -87,13 +92,14 @@ class GeneratedRecordTest {
                                 .closedAt())
                 .as("closed_at is required but its type allows null")
                 .isNull();
-        assertThatThrownBy(
+        assertThatExceptionOfType(JsonProcessingException.class)
+                .as("being nullable does not make a required field optional")
+                .isThrownBy(
                         () ->
                                 reading.readValue(
                                         COMPLETE.replace("\"closed_at\": \"2026-10-30\", ", ""),
                                         Reaction.class))
-                .as("being nullable does not make a required field optional")
-                .hasMessageContaining("'closed_at'");
+                .withMessageContaining("'closed_at'");
     }
 
     // Prevents a forge's answer that leaves out or nulls an optional field from failing to read.
@@ -103,11 +109,41 @@ class GeneratedRecordTest {
         Reaction absent = reading.readValue("{\"id\": 7, \"closed_at\": null}", Reaction.class);
         Reaction nulled =
                 reading.readValue(
-                        "{\"id\": 7, \"closed_at\": null, \"title\": null}", Reaction.class);
+                        """
+                        {"id": 7, "closed_at": null, "title": null, "+1": null, "state": null,
+                         "conclusion": null}""",
+                        Reaction.class);
 
-        assertThat(absent.title()).as("title is not required").isNull();
-        assertThat(nulled.title())
-                .as("an optional field reads as absent when a forge sends null")
+        assertThat(absent)
+                .as("no optional field is required")
+                .isEqualTo(new Reaction(7L, null, null, null, null, null, null));
+        assertThat(nulled)
+                .as("an optional field of any type reads as absent when a forge sends null")
+                .isEqualTo(absent);
+    }
+
+    // Prevents an enum value a forge adds from passing the tests unnoticed where the description
+    // does not let the enum be null.
+    @ParameterizedTest
+    @MethodSource("readings")
+    void anUnknownValueOfAnEnumThatMayNotBeNullFailsNamingIt(ObjectMapper reading) {
+        String json = COMPLETE.replace("\"open\"", "\"merged\"");
+
+        assertThatExceptionOfType(JsonProcessingException.class)
+                .as("the generator's fromValue throws for a value it does not know")
+                .isThrownBy(() -> reading.readValue(json, Reaction.class))
+                .withMessageContaining("'merged'");
+    }
+
+    // Records what the generator does where the description lets an enum be null: an unknown value
+    // reads as null in both readings, so the strict one does not catch it.
+    @ParameterizedTest
+    @MethodSource("readings")
+    void anUnknownValueOfAnEnumThatMayBeNullReadsAsNull(ObjectMapper reading) throws Exception {
+        String json = COMPLETE.replace("\"success\"", "\"skipped\"");
+
+        assertThat(reading.readValue(json, Reaction.class).conclusion())
+                .as("the generator's fromValue returns null for a value it does not know")
                 .isNull();
     }
 
@@ -134,7 +170,17 @@ class GeneratedRecordTest {
                                 "title", true,
                                 "plus1", true,
                                 "_1", true,
-                                "state", true));
+                                "state", true,
+                                "conclusion", true));
+    }
+
+    // Prevents NullAway from silently skipping the generated records, whose @Nullable only counts
+    // in a @NullMarked package.
+    @Test
+    void theGeneratedPackageIsNullMarked() {
+        assertThat(Reaction.class.getPackage().isAnnotationPresent(NullMarked.class))
+                .as("the generator's package-info.java marks the package")
+                .isTrue();
     }
 
     // Prevents GitHub's reactions from being lost or written back under names the forge does not
