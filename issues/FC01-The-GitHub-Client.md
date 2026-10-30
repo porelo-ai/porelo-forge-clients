@@ -1,6 +1,6 @@
 # FC01 — The GitHub Client
 
-**Status:** Idea.
+**Status:** Accepted.
 
 **What must be true.** A caller reads and writes what a code review and a build need on GitHub through the `github`
 module, `org.fuin.porelo:porelo-forge-client-github`: pull requests, reviews, review comments and threads (resolved

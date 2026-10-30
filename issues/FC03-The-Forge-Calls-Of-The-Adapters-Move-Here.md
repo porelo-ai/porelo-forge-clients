@@ -1,6 +1,6 @@
 # FC03 — The Forge Calls Of The Adapters Move Here
 
-**Status:** Idea; blocked by [FC01](README.md#fc01) and [FC02](README.md#fc02).
+**Status:** Accepted; blocked by [FC01](README.md#fc01) and [FC02](README.md#fc02).
 
 **What must be true.** The `github` and `forgejo` clients make every call to GitHub and Forgejo that Porelo's build
 adapters make today, with the same requests and the same handling of every answer, and are published as snapshots,

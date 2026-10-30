@@ -5,7 +5,7 @@ issue, and who sets which state, are in [AGENTS.md](../AGENTS.md). *Open questio
 waits on the operator: the items under an issue's own *Open questions*. Its prefix is `FC`. A group with nothing in it
 is left out.
 
-## Idea
+## Accepted
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
