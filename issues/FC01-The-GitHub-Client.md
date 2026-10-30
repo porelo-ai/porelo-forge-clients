@@ -50,9 +50,9 @@ file but not as OpenAPI.
   secret; a test fails on a recording that holds a token's shape, or a delivery whose signature does not verify with
   the test secret.
 - **Three credentials, since GitHub splits them:** a GitHub App's installation token for check runs, minted per
-  run from the secrets `GITHUB_LIVE_APP_ID` and `GITHUB_LIVE_APP_KEY`; the fine-grained token of a test user who
-  administers the test repository, `GITHUB_LIVE_USER_TOKEN`, for everything else - refs, runs, jobs, logs, hooks,
-  pull requests, comments, the account and its membership; and a second test user's, `GITHUB_LIVE_REVIEWER_TOKEN`,
+  run from the secrets `LIVE_GITHUB_APP_ID` and `LIVE_GITHUB_APP_KEY`; the fine-grained token of a test user who
+  administers the test repository, `LIVE_GITHUB_USER_TOKEN`, for everything else - refs, runs, jobs, logs, hooks,
+  pull requests, comments, the account and its membership; and a second test user's, `LIVE_GITHUB_REVIEWER_TOKEN`,
   since nobody can approve their own pull request. All reach the run through the environment and are never
   written to a file.
 - **Checked live on a schedule and by hand, never on a push:** a workflow `live.yml` (daily at an hour outside the
