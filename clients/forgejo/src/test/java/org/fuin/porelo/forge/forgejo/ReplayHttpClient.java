@@ -28,6 +28,7 @@ import java.util.function.IntConsumer;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSession;
+import org.jspecify.annotations.Nullable;
 
 /** Answers from memory or a recorded file without opening a socket. */
 final class ReplayHttpClient extends HttpClient {
@@ -111,6 +112,7 @@ final class ReplayHttpClient extends HttpClient {
         private boolean draining;
         private boolean done;
         boolean cancelled;
+        @Nullable IllegalArgumentException misuse;
 
         Chunks(HttpResponse.BodySubscriber<?> subscriber, byte[] body) {
             this.subscriber = subscriber;
@@ -120,7 +122,10 @@ final class ReplayHttpClient extends HttpClient {
         @Override
         public void request(long count) {
             if (count <= 0) {
-                cancel(new IllegalArgumentException("Non-positive demand: " + count));
+                // A broken subscription contract is the subscriber's fault, not a cancel.
+                misuse = new IllegalArgumentException("Non-positive demand: " + count);
+                done = true;
+                subscriber.onError(misuse);
                 return;
             }
             demand = demand + count < 0 ? Long.MAX_VALUE : demand + count;
@@ -144,13 +149,9 @@ final class ReplayHttpClient extends HttpClient {
 
         @Override
         public void cancel() {
-            cancel(new IOException("Stream cancelled"));
-        }
-
-        private void cancel(Throwable error) {
             if (!done && !cancelled) {
                 cancelled = true;
-                subscriber.onError(error);
+                subscriber.onError(new IOException("Stream cancelled"));
             }
         }
     }
@@ -193,6 +194,10 @@ final class ReplayHttpClient extends HttpClient {
         var subscription = new Chunks(subscriber, text.getBytes(StandardCharsets.UTF_8));
         subscriber.onSubscribe(subscription);
         delivered.accept(subscription.position);
+        if (subscription.misuse != null) {
+            throw new AssertionError(
+                    "The subscriber broke its demand contract", subscription.misuse);
+        }
         CompletableFuture<T> future = subscriber.getBody().toCompletableFuture();
         if (subscription.cancelled) {
             // Over HTTP/1.1 send waits for the body after a cancel, so a subscriber that has not

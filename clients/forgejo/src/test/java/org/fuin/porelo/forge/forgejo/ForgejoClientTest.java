@@ -428,6 +428,11 @@ class ForgejoClientTest {
         assertThat(new ForgejoClient(BASE, atBound).plainKeys("fixture-reviewer"))
                 .as("a page of exactly the bound is read")
                 .containsExactly("a".repeat(PLAIN_KEYS_BOUND));
+        var oneOver = new ReplayHttpClient().answer(200, plain, "a".repeat(PLAIN_KEYS_BOUND + 1));
+        assertThatExceptionOfType(ForgejoException.class)
+                .as("one byte over the bound is refused")
+                .isThrownBy(() -> new ForgejoClient(BASE, oneOver).plainKeys("fixture-reviewer"))
+                .withMessageContaining("bound");
         var overBound =
                 new ReplayHttpClient()
                         .answer(
@@ -435,7 +440,7 @@ class ForgejoClientTest {
                                 plain,
                                 "a".repeat(PLAIN_KEYS_BOUND + 3 * ReplayHttpClient.Chunks.SIZE));
         assertThatExceptionOfType(ForgejoException.class)
-                .as("one byte over the bound is refused")
+                .as("a page several buffers over the bound is refused")
                 .isThrownBy(() -> new ForgejoClient(BASE, overBound).plainKeys("fixture-reviewer"))
                 .withMessageContaining("bound")
                 .satisfies(
