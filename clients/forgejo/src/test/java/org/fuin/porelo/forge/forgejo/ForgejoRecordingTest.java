@@ -57,6 +57,9 @@ class ForgejoRecordingTest {
                     .as("%s was recorded with the request the live run sent", operation)
                     .isTrue();
             URI recordedUri = URI.create(recording.path("request_uri").asText());
+            assertThat(transport.requests.getFirst().uri().getRawPath())
+                    .as("%s addresses what the live run addressed", operation)
+                    .isEqualTo(recordedUri.getRawPath());
             assertThat(transport.requests.getFirst().uri().getRawQuery())
                     .as("%s sends the exact query captured during the live run", operation)
                     .isEqualTo(recordedUri.getRawQuery());

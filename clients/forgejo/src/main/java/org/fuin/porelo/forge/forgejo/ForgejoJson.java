@@ -1,9 +1,12 @@
 package org.fuin.porelo.forge.forgejo;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidNullException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.List;
@@ -14,8 +17,11 @@ final class ForgejoJson {
 
     static ObjectMapper mapper(Strictness strictness) {
         Objects.requireNonNull(strictness);
-        return new ObjectMapper()
-                .registerModule(new JavaTimeModule())
+        ObjectMapper mapper = new ObjectMapper();
+        // A null inside a list or map, at any depth, would reach a caller the records promise it
+        // never does.
+        mapper.setDefaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.FAIL));
+        return mapper.registerModule(new JavaTimeModule())
                 .configure(
                         DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
                         strictness == Strictness.STRICT)
@@ -32,10 +38,9 @@ final class ForgejoJson {
             if (result == null) {
                 throw new ForgejoException(0, "Expected a JSON value");
             }
-            if (result instanceof List<?> values && values.stream().anyMatch(Objects::isNull)) {
-                throw new ForgejoException(0, "Expected non-null JSON list elements");
-            }
             return result;
+        } catch (InvalidNullException ex) {
+            throw new ForgejoException(0, "Expected non-null JSON list elements and map values");
         } catch (UnrecognizedPropertyException ex) {
             throw new ForgejoException(
                     0, safe("Unknown JSON field: " + ex.getPropertyName(), credentials));

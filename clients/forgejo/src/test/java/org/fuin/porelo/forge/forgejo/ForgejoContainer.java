@@ -43,13 +43,14 @@ final class ForgejoContainer implements AutoCloseable {
     private final List<String> secrets = new ArrayList<>();
     private final Thread shutdown = new Thread(this::cleanupOnShutdown, "forgejo-fixture-cleanup");
     private final byte[] webhookSecret = randomSecret().getBytes(StandardCharsets.UTF_8);
-    private WebhookReceiver receiver;
+    // Written while the fixture starts and read by the shutdown hook on another thread.
+    private volatile WebhookReceiver receiver;
     private URI base;
     private String adminToken;
     private String reviewerToken;
-    private boolean serverOwned;
-    private boolean volumeOwned;
-    private boolean runnerOwned;
+    private volatile boolean serverOwned;
+    private volatile boolean volumeOwned;
+    private volatile boolean runnerOwned;
     private boolean closed;
 
     static ForgejoContainer start() throws IOException {

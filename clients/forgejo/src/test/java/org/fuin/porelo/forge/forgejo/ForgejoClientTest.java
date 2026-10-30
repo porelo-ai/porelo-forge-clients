@@ -91,6 +91,27 @@ class ForgejoClientTest {
         }
     }
 
+    // Prevents a null nested in a record's list from reaching a caller the records promise it never
+    // does.
+    @Test
+    void nullElementsNestedInARecordAreRefusedInEitherReading() {
+        for (Strictness strictness : Strictness.values()) {
+            var http =
+                    new ReplayHttpClient()
+                            .answer(
+                                    200,
+                                    Map.of(),
+                                    "{\"total_count\": 1, \"workflow_runs\": [null]}");
+            assertThatExceptionOfType(ForgejoException.class)
+                    .as("a null run inside the run list violates its contract in %s", strictness)
+                    .isThrownBy(
+                            () ->
+                                    new ForgejoClient(BASE, http, strictness)
+                                            .runs(TOKEN, "owner", "repo", "abc", 1, 10))
+                    .withMessageContaining("non-null");
+        }
+    }
+
     // Prevents accidental empty mutation requests when a required body is missing.
     @Test
     void nullRequestBodiesFailBeforeAnyIo() {
