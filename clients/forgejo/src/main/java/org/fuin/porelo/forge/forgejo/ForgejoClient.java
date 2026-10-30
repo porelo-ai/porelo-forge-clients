@@ -312,6 +312,8 @@ public final class ForgejoClient {
                 verdict = new ForgejoException(200, "Forgejo key page is not plain text");
                 return new BoundedBytes(0, this);
             }
+            // A transport that retries may call again; only this answer's verdict counts.
+            verdict = null;
             return new BoundedBytes(MAX_PLAIN_KEYS_BYTES, this);
         }
     }

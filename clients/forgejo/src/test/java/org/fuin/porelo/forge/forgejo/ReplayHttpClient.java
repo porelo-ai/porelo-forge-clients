@@ -11,6 +11,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayDeque;
@@ -20,7 +21,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Flow;
+import java.util.function.IntConsumer;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSession;
@@ -29,7 +33,14 @@ import javax.net.ssl.SSLSession;
 final class ReplayHttpClient extends HttpClient {
     private final Queue<Answer> answers = new ArrayDeque<>();
     final List<HttpRequest> requests = new ArrayList<>();
+
+    /** The body bytes each answer handed to its subscriber. */
+    final List<Integer> delivered = new ArrayList<>();
+
     Redirect redirects = Redirect.NEVER;
+
+    /** Answers each request twice through the same handler, as a retrying transport does. */
+    boolean retrying;
 
     ReplayHttpClient answer(int status, Map<String, List<String>> headers, String body) {
         answers.add(new Answer(status, headers, body));
@@ -68,16 +79,30 @@ final class ReplayHttpClient extends HttpClient {
     public <T> HttpResponse<T> send(HttpRequest request, HttpResponse.BodyHandler<T> handler)
             throws IOException {
         requests.add(request);
+        if (retrying) {
+            Answer first = answers.remove();
+            try {
+                deliver(
+                        request,
+                        first.status(),
+                        HttpHeaders.of(first.headers(), (key, value) -> true),
+                        first.body(),
+                        handler,
+                        delivered::add);
+            } catch (IOException ex) {
+                // The retrying transport tries again.
+            }
+        }
         Answer answer = answers.remove();
         HttpHeaders headers = HttpHeaders.of(answer.headers(), (key, value) -> true);
-        return deliver(request, answer.status(), headers, answer.body(), handler);
+        return deliver(request, answer.status(), headers, answer.body(), handler, delivered::add);
     }
 
     /**
      * Hands a body over in small buffers, only as many as requested, re-entrantly safe; a cancel
      * reports an error to the subscriber, as the JDK's HTTP/2 stream does.
      */
-    static final class Chunks implements java.util.concurrent.Flow.Subscription {
+    static final class Chunks implements Flow.Subscription {
         static final int SIZE = 8 * 1024;
         private final HttpResponse.BodySubscriber<?> subscriber;
         private final byte[] body;
@@ -94,14 +119,18 @@ final class ReplayHttpClient extends HttpClient {
 
         @Override
         public void request(long count) {
-            demand += count;
+            if (count <= 0) {
+                cancel(new IllegalArgumentException("Non-positive demand: " + count));
+                return;
+            }
+            demand = demand + count < 0 ? Long.MAX_VALUE : demand + count;
             if (draining) {
                 return;
             }
             draining = true;
             while (!done && !cancelled && demand > 0 && position < body.length) {
                 int size = Math.min(SIZE, body.length - position);
-                var buffer = java.nio.ByteBuffer.wrap(body, position, size).slice();
+                var buffer = ByteBuffer.wrap(body, position, size).slice();
                 position += size;
                 demand--;
                 subscriber.onNext(List.of(buffer));
@@ -115,9 +144,13 @@ final class ReplayHttpClient extends HttpClient {
 
         @Override
         public void cancel() {
+            cancel(new IOException("Stream cancelled"));
+        }
+
+        private void cancel(Throwable error) {
             if (!done && !cancelled) {
                 cancelled = true;
-                subscriber.onError(new IOException("Stream cancelled"));
+                subscriber.onError(error);
             }
         }
     }
@@ -129,6 +162,18 @@ final class ReplayHttpClient extends HttpClient {
             HttpHeaders headers,
             String text,
             HttpResponse.BodyHandler<T> handler)
+            throws IOException {
+        return deliver(request, status, headers, text, handler, bytes -> {});
+    }
+
+    /** Delivers a text body and reports how many of its bytes the subscriber was handed. */
+    static <T> HttpResponse<T> deliver(
+            HttpRequest request,
+            int status,
+            HttpHeaders headers,
+            String text,
+            HttpResponse.BodyHandler<T> handler,
+            IntConsumer delivered)
             throws IOException {
         HttpResponse.ResponseInfo info =
                 new HttpResponse.ResponseInfo() {
@@ -147,11 +192,26 @@ final class ReplayHttpClient extends HttpClient {
         var subscriber = handler.apply(info);
         var subscription = new Chunks(subscriber, text.getBytes(StandardCharsets.UTF_8));
         subscriber.onSubscribe(subscription);
+        delivered.accept(subscription.position);
+        CompletableFuture<T> future = subscriber.getBody().toCompletableFuture();
         if (subscription.cancelled) {
-            // As the JDK's HTTP/2 stream does, a cancelled body fails the whole exchange.
+            // Over HTTP/1.1 send waits for the body after a cancel, so a subscriber that has not
+            // completed its body first would hang there.
+            if (!future.isDone() || future.isCompletedExceptionally()) {
+                throw new AssertionError("The subscriber cancelled without completing its body");
+            }
+            // Over HTTP/2 a cancelled body fails the whole exchange.
             throw new IOException("Stream cancelled");
         }
-        T body = subscriber.getBody().toCompletableFuture().join();
+        T body;
+        try {
+            body = future.join();
+        } catch (CompletionException ex) {
+            if (ex.getCause() instanceof IOException cause) {
+                throw cause;
+            }
+            throw ex;
+        }
         return new HttpResponse<>() {
             public int statusCode() {
                 return status;

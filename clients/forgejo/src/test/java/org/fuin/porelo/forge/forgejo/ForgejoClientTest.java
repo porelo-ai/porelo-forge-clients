@@ -369,6 +369,9 @@ class ForgejoClientTest {
                                     assertThat(ex.status())
                                             .as("the caller tells a missing login by its status")
                                             .isEqualTo(status));
+            assertThat(http.delivered)
+                    .as("the body of status %s is not read", status)
+                    .containsExactly(0);
         }
         var html =
                 new ReplayHttpClient()
@@ -376,6 +379,22 @@ class ForgejoClientTest {
         assertThatExceptionOfType(ForgejoException.class)
                 .as("a page that is not plain text is refused")
                 .isThrownBy(() -> new ForgejoClient(BASE, html).plainKeys("fixture-reviewer"));
+        assertThat(html.delivered)
+                .as("a page that is not plain text is not read")
+                .containsExactly(0);
+    }
+
+    // Prevents an earlier answer's verdict from refusing the page a retrying transport got next.
+    @Test
+    void aRetriedKeyPageIsJudgedByItsLastAnswer() {
+        var http =
+                new ReplayHttpClient()
+                        .answer(503, Map.of(), "busy")
+                        .answer(200, Map.of("content-type", List.of("text/plain")), SEEDED_KEY);
+        http.retrying = true;
+        assertThat(new ForgejoClient(BASE, http).plainKeys("fixture-reviewer"))
+                .as("the retried answer is read")
+                .containsExactly(SEEDED_KEY);
     }
 
     // Prevents a key page from being looked up outside a sub-path deployment, or a login from
@@ -409,7 +428,12 @@ class ForgejoClientTest {
         assertThat(new ForgejoClient(BASE, atBound).plainKeys("fixture-reviewer"))
                 .as("a page of exactly the bound is read")
                 .containsExactly("a".repeat(PLAIN_KEYS_BOUND));
-        var overBound = new ReplayHttpClient().answer(200, plain, "a".repeat(PLAIN_KEYS_BOUND + 1));
+        var overBound =
+                new ReplayHttpClient()
+                        .answer(
+                                200,
+                                plain,
+                                "a".repeat(PLAIN_KEYS_BOUND + 3 * ReplayHttpClient.Chunks.SIZE));
         assertThatExceptionOfType(ForgejoException.class)
                 .as("one byte over the bound is refused")
                 .isThrownBy(() -> new ForgejoClient(BASE, overBound).plainKeys("fixture-reviewer"))
@@ -419,6 +443,9 @@ class ForgejoClientTest {
                                 assertThat(ex.status())
                                         .as("the cancelled reading keeps the page's status")
                                         .isEqualTo(200));
+        assertThat(overBound.delivered.getFirst())
+                .as("the reading stops at the buffer that crosses the bound")
+                .isLessThanOrEqualTo(PLAIN_KEYS_BOUND + ReplayHttpClient.Chunks.SIZE);
         var xml =
                 new ReplayHttpClient()
                         .answer(200, Map.of("content-type", List.of("text/plain+xml")), SEEDED_KEY);
@@ -431,5 +458,6 @@ class ForgejoClientTest {
                                 assertThat(ex.status())
                                         .as("the unread page keeps its status")
                                         .isEqualTo(200));
+        assertThat(xml.delivered).as("the refused page is not read").containsExactly(0);
     }
 }
