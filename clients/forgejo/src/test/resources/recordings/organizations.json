@@ -1,21 +1,29 @@
 {
+  "request_uri" : "/api/v1/user/orgs?page=1&limit=50",
   "status" : 200,
   "headers" : {
-    "content-type" : [ "application/json;charset=utf-8" ]
+    "content-type" : [
+      "application/json;charset=utf-8"
+    ]
   },
-  "body" : "[{\"id\":2,\"name\":\"review-org\",\"full_name\":\"Review fixture\",\"email\":\"\",\"avatar_url\":\"http://example.org/avatars/7974fbff3cef99e1c0e1187b3e59ddfc\",\"description\":\"\",\"website\":\"\",\"location\":\"\",\"visibility\":\"public\",\"repo_admin_change_team_access\":false,\"created\":\"2026-10-30T10:04:35Z\",\"username\":\"review-org\"}]",
-  "exchanges" : [ {
-    "status" : 200,
-    "headers" : {
-      "content-type" : [ "application/json;charset=utf-8" ]
-    },
-    "body" : "[{\"id\":2,\"name\":\"review-org\",\"full_name\":\"Review fixture\",\"email\":\"\",\"avatar_url\":\"http://example.org/avatars/7974fbff3cef99e1c0e1187b3e59ddfc\",\"description\":\"\",\"website\":\"\",\"location\":\"\",\"visibility\":\"public\",\"repo_admin_change_team_access\":false,\"created\":\"2026-10-30T10:04:35Z\",\"username\":\"review-org\"}]"
-  } ],
+  "body" : "[{\"id\":2,\"name\":\"review-org\",\"full_name\":\"Review fixture\",\"email\":\"\",\"avatar_url\":\"http://example.org/avatars/7974fbff3cef99e1c0e1187b3e59ddfc\",\"description\":\"\",\"website\":\"\",\"location\":\"\",\"visibility\":\"public\",\"repo_admin_change_team_access\":false,\"created\":\"2026-10-30T10:43:51Z\",\"username\":\"review-org\"}]",
+  "exchanges" : [
+    {
+      "request_uri" : "/api/v1/user/orgs?page=1&limit=50",
+      "status" : 200,
+      "headers" : {
+        "content-type" : [
+          "application/json;charset=utf-8"
+        ]
+      },
+      "body" : "[{\"id\":2,\"name\":\"review-org\",\"full_name\":\"Review fixture\",\"email\":\"\",\"avatar_url\":\"http://example.org/avatars/7974fbff3cef99e1c0e1187b3e59ddfc\",\"description\":\"\",\"website\":\"\",\"location\":\"\",\"visibility\":\"public\",\"repo_admin_change_team_access\":false,\"created\":\"2026-10-30T10:43:51Z\",\"username\":\"review-org\"}]"
+    }
+  ],
   "context" : {
     "owner" : "review-org",
     "repo" : "review-fixture",
-    "sha" : "54d4988674abac9fe4163b533cf329f25bb5b125",
-    "actionsSha" : "803dc3ac6a461475801869a33693060e65f6fb78",
+    "sha" : "23d69b7b45ca62d27c55a6e99aef18cc965c2668",
+    "actionsSha" : "a2acecc62b81d3dff331c57b070750f8ffe2ae3b",
     "index" : 1,
     "review" : 1,
     "run" : 1,

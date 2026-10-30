@@ -61,6 +61,7 @@ public final class ForgejoClient {
     /** Creates a pull request. */
     public PullRequest createPull(
             String token, String owner, String repo, CreatePullRequestOption body) {
+        Objects.requireNonNull(body, "body");
         return call(
                 token,
                 "POST",
@@ -93,6 +94,7 @@ public final class ForgejoClient {
     /** Creates a review with its optional inline comments. */
     public PullReview createReview(
             String token, String owner, String repo, long index, CreatePullReviewOptions body) {
+        Objects.requireNonNull(body, "body");
         return call(
                 token,
                 "POST",
@@ -120,6 +122,7 @@ public final class ForgejoClient {
             long index,
             long id,
             DismissPullReviewOptions body) {
+        Objects.requireNonNull(body, "body");
         return call(
                 token,
                 "POST",
@@ -153,6 +156,7 @@ public final class ForgejoClient {
     /** Creates a commit status. */
     public CommitStatus createStatus(
             String token, String owner, String repo, String sha, CreateStatusOption body) {
+        Objects.requireNonNull(body, "body");
         return call(
                 token,
                 "POST",
@@ -204,6 +208,7 @@ public final class ForgejoClient {
 
     /** Creates a repository webhook. */
     public Hook createHook(String token, String owner, String repo, CreateHookOption body) {
+        Objects.requireNonNull(body, "body");
         return call(
                 token, "POST", repo(owner, repo) + "/hooks", body, json.constructType(Hook.class));
     }
@@ -239,8 +244,9 @@ public final class ForgejoClient {
      */
     public String jobLogs(String token, String owner, String repo, long jobId) {
         URI uri = base.resolve(repo(owner, repo) + "/actions/jobs/" + positive(jobId) + "/logs");
+        boolean authenticate = true;
         for (int redirects = 0; redirects <= 5; redirects++) {
-            HttpResponse<String> response = send(token, "GET", uri, null);
+            HttpResponse<String> response = send(token, "GET", uri, null, authenticate);
             if (List.of(301, 302, 303, 307, 308).contains(response.statusCode())) {
                 if (redirects == 5) {
                     throw new ForgejoException(response.statusCode(), "Too many log redirects");
@@ -254,6 +260,7 @@ public final class ForgejoClient {
                                                         response.statusCode(),
                                                         "Log redirect has no Location"));
                 try {
+                    URI previous = uri;
                     uri = uri.resolve(location);
                     validateUri(uri);
                     // A server that echoes the token into a foreign address, raw or
@@ -266,10 +273,11 @@ public final class ForgejoClient {
                         throw new IllegalArgumentException();
                     }
                     if (uri.getRawFragment() != null
-                            || (base.getScheme().equalsIgnoreCase("https")
+                            || (previous.getScheme().equalsIgnoreCase("https")
                                     && !uri.getScheme().equalsIgnoreCase("https"))) {
                         throw new IllegalArgumentException();
                     }
+                    authenticate = authenticate && sameOrigin(base, uri);
                 } catch (IllegalArgumentException ex) {
                     throw new ForgejoException(response.statusCode(), "Invalid log redirect URI");
                 }
@@ -283,7 +291,7 @@ public final class ForgejoClient {
 
     private <T> T call(
             String token, String method, String path, @Nullable Object body, JavaType type) {
-        HttpResponse<String> response = send(token, method, base.resolve(path), body);
+        HttpResponse<String> response = send(token, method, base.resolve(path), body, true);
         List<String> credentials = new ArrayList<>();
         credentials.add(token);
         if (body != null) {
@@ -294,7 +302,8 @@ public final class ForgejoClient {
         return ForgejoJson.read(json, response.body(), type, credentials);
     }
 
-    private HttpResponse<String> send(String token, String method, URI uri, @Nullable Object body) {
+    private HttpResponse<String> send(
+            String token, String method, URI uri, @Nullable Object body, boolean authenticate) {
         if (token.isBlank() || token.chars().anyMatch(c -> c < 33 || c > 126)) {
             throw new IllegalArgumentException("Invalid access token");
         }
@@ -303,7 +312,7 @@ public final class ForgejoClient {
                     HttpRequest.newBuilder(uri)
                             .timeout(Duration.ofSeconds(60))
                             .header("Accept", "application/json");
-            if (sameOrigin(base, uri)) {
+            if (authenticate && sameOrigin(base, uri)) {
                 request.header("Authorization", "token " + token);
             }
             if (body != null) {
@@ -394,8 +403,9 @@ public final class ForgejoClient {
     }
 
     private static String segment(String value) {
-        if (value.isBlank()) {
-            throw new IllegalArgumentException("An API path or query value must not be blank");
+        if (value.isBlank() || value.equals(".") || value.equals("..")) {
+            throw new IllegalArgumentException(
+                    "An API path or query value must not be blank or a dot segment");
         }
         return URLEncoder.encode(value, StandardCharsets.UTF_8)
                 .replace("+", "%20")

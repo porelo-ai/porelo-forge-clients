@@ -39,7 +39,7 @@ List<PullRequest> open = forgejo.pulls(token, "owner", "repo", "open", 1, 50);
 
   ```
   --replace '{{AppVer | JSEscape}}=17.0.1' --replace '{{AppSubUrl | JSEscape}}='
-  --add-property 'User.username={"type": "string", "description": "the user's username, sent by Forgejo 17 but not in its description"}'
+  --add-property 'User.username={"type": "string", "description": "the user'"'"'s username, sent by Forgejo 17 but not in its description"}'
   ```
 
 ## OpenAPI description license

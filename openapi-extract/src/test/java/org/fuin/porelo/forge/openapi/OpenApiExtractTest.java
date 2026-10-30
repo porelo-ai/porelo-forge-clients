@@ -686,6 +686,46 @@ class OpenApiExtractTest {
         assertThat(Files.exists(output)).as("nothing is written").isFalse();
     }
 
+    // Prevents invalid additions from replacing a working extract with broken generated contracts.
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "Node",
+                "Node.label",
+                ".label={}",
+                "Node.={}",
+                " .label={}",
+                "Node. ={}",
+                "Missing.label={}",
+                "Node.label={\"$ref\":\"#/definitions/Missing\"}",
+                "Node.label={\"$ref\":\"#/definitions/Unused\"}",
+                "Node.label={\"$ref\":\"https://example.org/schema.json\"}"
+            })
+    void invalidAdditionsFailWithoutWriting(String addition) throws Exception {
+        Path output = directory.resolve("extract.json");
+        byte[] original = "existing extract\n".getBytes(StandardCharsets.UTF_8);
+        Files.write(output, original);
+        Result result =
+                fetch(fixture("swagger20.json"), output, "get /items", "--add-property", addition);
+        assertThat(result.status()).as("invalid addition %s fails fetch", addition).isEqualTo(1);
+        assertThat(result.error()).as("the invalid addition has a diagnostic").isNotBlank();
+        assertThat(Files.readAllBytes(output))
+                .as("validation completes before replacing an extract")
+                .isEqualTo(original);
+        Files.delete(output);
+        assertThat(
+                        fetch(
+                                        fixture("swagger20.json"),
+                                        output,
+                                        "get /items",
+                                        "--add-property",
+                                        addition)
+                                .status())
+                .as("the same addition also fails for a new output")
+                .isEqualTo(1);
+        assertThat(output).as("a failed addition creates no output").doesNotExist();
+    }
+
     private Result fetch(byte[] source, Path output, String operation, String... extra)
             throws Exception {
         return fetchWithDigest(source, output, digest(source), operation, extra);

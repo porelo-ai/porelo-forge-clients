@@ -1,21 +1,29 @@
 {
+  "request_uri" : "/api/v1/repos/review-org/review-fixture/actions/jobs/1/logs",
   "status" : 200,
   "headers" : {
-    "content-type" : [ "text/plain; charset=utf-8" ]
+    "content-type" : [
+      "text/plain; charset=utf-8"
+    ]
   },
-  "body" : "2026-10-30T10:04:38.2409077Z Runner 31323130-3837-3836-3235-613063313236 (version:v13.2.0) received task 1 of job build, triggered by event: push\n2026-10-30T10:04:38.2419641Z workflow prepared\n2026-10-30T10:04:38.2422634Z ⭐ Run Main echo fixture-complete\n2026-10-30T10:04:38.2435712Z fixture-complete\n2026-10-30T10:04:38.2437541Z \uD83C\uDFC1  Job succeeded\n",
-  "exchanges" : [ {
-    "status" : 200,
-    "headers" : {
-      "content-type" : [ "text/plain; charset=utf-8" ]
-    },
-    "body" : "2026-10-30T10:04:38.2409077Z Runner 31323130-3837-3836-3235-613063313236 (version:v13.2.0) received task 1 of job build, triggered by event: push\n2026-10-30T10:04:38.2419641Z workflow prepared\n2026-10-30T10:04:38.2422634Z ⭐ Run Main echo fixture-complete\n2026-10-30T10:04:38.2435712Z fixture-complete\n2026-10-30T10:04:38.2437541Z \uD83C\uDFC1  Job succeeded\n"
-  } ],
+  "body" : "2026-10-30T10:43:55.1018964Z Runner [redacted] (version:v13.2.0) received task 1 of job build, triggered by event: push\n2026-10-30T10:43:55.1040333Z workflow prepared\n2026-10-30T10:43:55.1043894Z ⭐ Run Main echo fixture-complete\n2026-10-30T10:43:55.1055561Z fixture-complete\n2026-10-30T10:43:55.1058170Z 🏁  Job succeeded\n",
+  "exchanges" : [
+    {
+      "request_uri" : "/api/v1/repos/review-org/review-fixture/actions/jobs/1/logs",
+      "status" : 200,
+      "headers" : {
+        "content-type" : [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body" : "2026-10-30T10:43:55.1018964Z Runner [redacted] (version:v13.2.0) received task 1 of job build, triggered by event: push\n2026-10-30T10:43:55.1040333Z workflow prepared\n2026-10-30T10:43:55.1043894Z ⭐ Run Main echo fixture-complete\n2026-10-30T10:43:55.1055561Z fixture-complete\n2026-10-30T10:43:55.1058170Z 🏁  Job succeeded\n"
+    }
+  ],
   "context" : {
     "owner" : "review-org",
     "repo" : "review-fixture",
-    "sha" : "54d4988674abac9fe4163b533cf329f25bb5b125",
-    "actionsSha" : "803dc3ac6a461475801869a33693060e65f6fb78",
+    "sha" : "23d69b7b45ca62d27c55a6e99aef18cc965c2668",
+    "actionsSha" : "a2acecc62b81d3dff331c57b070750f8ffe2ae3b",
     "index" : 1,
     "review" : 1,
     "run" : 1,

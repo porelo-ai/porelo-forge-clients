@@ -1,7 +1,7 @@
 package org.fuin.porelo.forge.forgejo;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -13,9 +13,89 @@ class ForgejoWebhookTest {
     private static final String PULL =
             "{\"action\":\"opened\",\"number\":1,\"pull_request\":{\"id\":7}}";
 
+    // Prevents caller errors from consuming a delivery before required metadata is validated.
+    @Test
+    void nullArgumentsFailBeforeReadingTheBody() {
+        var reader = new ForgejoWebhook(512);
+        var input = stream(PULL);
+        java.util.List<Runnable> calls =
+                java.util.List.of(
+                        () -> reader.read(null, signature(PULL), "pull_request", SECRET),
+                        () -> reader.read(input, null, "pull_request", SECRET),
+                        () -> reader.read(input, signature(PULL), null, SECRET),
+                        () -> reader.read(input, signature(PULL), "pull_request", null));
+        for (Runnable call : calls) {
+            assertThatExceptionOfType(NullPointerException.class)
+                    .as("all read arguments are required before I/O")
+                    .isThrownBy(call::run);
+        }
+        assertThat(input.available())
+                .as("invalid calls leave the delivery unread")
+                .isEqualTo(PULL.length());
+    }
+
+    // Prevents authenticated deliveries from being routed to the wrong payload contract.
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.CsvSource({
+        "pull_request, PullRequestEvent, opened",
+        "pull_request_approved, ReviewEvent, pull_request_review_approved",
+        "pull_request_rejected, ReviewEvent, pull_request_review_rejected",
+        "pull_request_comment, ReviewEvent, pull_request_review_comment",
+        "action_run_success, ActionsRunEvent, success",
+        "action_run_failure, ActionsRunEvent, failure"
+    })
+    void everySupportedEventRoutesToItsPayload(String event, String type, String action) {
+        String body =
+                event.startsWith("action_run_")
+                        ? "{\"action\":\"" + action + "\",\"run\":{\"id\":7}}"
+                        : event.equals("pull_request")
+                                ? PULL
+                                : PULL.substring(0, PULL.length() - 1)
+                                        + ",\"review\":{\"type\":\""
+                                        + action
+                                        + "\"}}";
+        var payload =
+                new ForgejoWebhook(512, Strictness.STRICT)
+                        .read(stream(body), signature(body), event, SECRET);
+        Class<? extends ForgejoWebhook.Payload> expected =
+                switch (type) {
+                    case "PullRequestEvent" -> ForgejoWebhook.PullRequestEvent.class;
+                    case "ReviewEvent" -> ForgejoWebhook.ReviewEvent.class;
+                    case "ActionsRunEvent" -> ForgejoWebhook.ActionsRunEvent.class;
+                    default -> throw new AssertionError(type);
+                };
+        assertThat(payload).as("%s selects its documented payload", event).isInstanceOf(expected);
+        if (payload instanceof ForgejoWebhook.ReviewEvent review) {
+            assertThat(review.review().type())
+                    .as("the review verdict survives routing")
+                    .isEqualTo(action);
+        } else if (payload instanceof ForgejoWebhook.ActionsRunEvent run) {
+            assertThat(run.run().id()).as("the Actions delivery identifies its run").isEqualTo(7L);
+        }
+    }
+
+    // Prevents authenticated but unsupported events from triggering work under another schema.
+    @Test
+    void anUnknownSignedEventIsRefused() {
+        assertThatExceptionOfType(ForgejoException.class)
+                .as("authentication alone does not authorize an unknown event contract")
+                .isThrownBy(
+                        () ->
+                                new ForgejoWebhook(512)
+                                        .read(
+                                                stream(PULL),
+                                                signature(PULL),
+                                                "unknown_event",
+                                                SECRET))
+                .withMessage("Unsupported webhook event");
+    }
+
+    // Prevents unauthenticated input from reaching payload parsing.
     @Test
     void anInvalidSignatureIsRefusedBeforeMalformedJsonIsParsed() {
-        assertThatThrownBy(
+        assertThatExceptionOfType(ForgejoException.class)
+                .as("untrusted input must never reach payload parsing")
+                .isThrownBy(
                         () ->
                                 new ForgejoWebhook(256)
                                         .read(
@@ -23,25 +103,26 @@ class ForgejoWebhookTest {
                                                 "00".repeat(32),
                                                 "pull_request",
                                                 SECRET))
-                .as("untrusted input must never reach payload parsing")
-                .isInstanceOf(ForgejoException.class)
-                .hasMessage("Invalid webhook signature");
+                .withMessage("Invalid webhook signature");
     }
 
+    // Prevents unbounded webhook input from exhausting receiver memory.
     @Test
     void aBodyAboveTheBoundIsRefusedAfterReadingOnlyOneExtraByte() {
         var input = stream("x".repeat(100));
-        assertThatThrownBy(
+        assertThatExceptionOfType(ForgejoException.class)
+                .as("a sender cannot make the receiver allocate or read an unlimited body")
+                .isThrownBy(
                         () ->
                                 new ForgejoWebhook(10)
                                         .read(input, "00".repeat(32), "pull_request", SECRET))
-                .as("a sender cannot make the receiver allocate or read an unlimited body")
-                .hasMessageContaining("byte limit");
+                .withMessageContaining("byte limit");
         assertThat(input.available())
                 .as("at most the bound plus one byte is consumed")
                 .isEqualTo(89);
     }
 
+    // Prevents altered raw deliveries from passing signature verification.
     @Test
     void aValidSignatureAuthenticatesTheExactRawBytes() {
         var payload =
@@ -57,7 +138,9 @@ class ForgejoWebhookTest {
         assertThat(((ForgejoWebhook.PullRequestEvent) payload).pullRequest().id())
                 .as("the delivery identifies the changed review")
                 .isEqualTo(7L);
-        assertThatThrownBy(
+        assertThatExceptionOfType(ForgejoException.class)
+                .as("even whitespace is signed before any JSON normalization")
+                .isThrownBy(
                         () ->
                                 new ForgejoWebhook(512)
                                         .read(
@@ -65,14 +148,16 @@ class ForgejoWebhookTest {
                                                 signature(PULL),
                                                 "pull_request",
                                                 SECRET))
-                .as("even whitespace is signed before any JSON normalization")
-                .hasMessage("Invalid webhook signature");
+                .withMessage("Invalid webhook signature");
     }
 
+    // Prevents strict verification from overlooking changes in delivery envelopes.
     @Test
     void strictWebhooksRefuseUnknownFieldsWhileLenientWebhooksAcceptThem() {
         String body = PULL.replace("\"action\"", "\"future\":true,\"action\"");
-        assertThatThrownBy(
+        assertThatExceptionOfType(ForgejoException.class)
+                .as("strict deliveries detect changes to the envelope")
+                .isThrownBy(
                         () ->
                                 new ForgejoWebhook(512, Strictness.STRICT)
                                         .read(
@@ -80,8 +165,7 @@ class ForgejoWebhookTest {
                                                 signature(body),
                                                 "pull_request",
                                                 SECRET))
-                .as("strict deliveries detect changes to the envelope")
-                .hasMessageContaining("future");
+                .withMessageContaining("future");
         assertThat(
                         new ForgejoWebhook(512)
                                 .read(stream(body), signature(body), "pull_request", SECRET))
@@ -89,6 +173,7 @@ class ForgejoWebhookTest {
                 .isInstanceOf(ForgejoWebhook.PullRequestEvent.class);
     }
 
+    // Prevents unidentified deliveries from triggering review work.
     @Test
     void missingOrNullReviewIdentityIsRefusedInEitherReading() {
         for (Strictness mode : Strictness.values()) {
@@ -97,16 +182,16 @@ class ForgejoWebhookTest {
                         "{\"action\":\"opened\",\"number\":1}",
                         "{\"action\":\"opened\",\"number\":1,\"pull_request\":null}"
                     }) {
-                assertThatThrownBy(
+                assertThatExceptionOfType(ForgejoException.class)
+                        .as("an authenticated but unidentified delivery cannot trigger review work")
+                        .isThrownBy(
                                 () ->
                                         new ForgejoWebhook(512, mode)
                                                 .read(
                                                         stream(body),
                                                         signature(body),
                                                         "pull_request",
-                                                        SECRET))
-                        .as("an authenticated but unidentified delivery cannot trigger review work")
-                        .isInstanceOf(ForgejoException.class);
+                                                        SECRET));
             }
         }
     }

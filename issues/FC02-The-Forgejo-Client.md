@@ -28,12 +28,14 @@ file describes no webhook payloads.
   `GET .../actions/runs/{run_id}/jobs`, `GET .../actions/jobs/{job_id}/logs`, `GET .../branches/{branch}`,
   `GET`/`POST .../hooks`, `GET /user`, `GET /user/orgs`, `GET .../collaborators/{collaborator}/permission`.
 - **Files:** the root `pom.xml` and `clients/pom.xml` (made by whichever of the two clients comes first),
-  `clients/forgejo/pom.xml` and its `README.md`, `clients/forgejo/src/main/openapi/` (the extract of Forgejo 17's
-  file, `SOURCE` with the commit of tag `v17.0.1`, `363f3dc30beef902b187af5a5244ff7af44901e6`, and the digest, the
-  MIT notice; the one property Forgejo 17 sends but its file lacks, `User.username`, is added by the extract's
-  `--add-property`), `org.fuin.porelo.forge.forgejo.ForgejoClient` (`HttpClient` and base URI given, refused if it follows
-  redirects itself; the token passed per call and sent only to the base's own origin; a job log's redirect, where
-  the server answers with one, followed by hand),
+  `clients/forgejo/pom.xml` and its `README.md`, `clients/forgejo/src/main/openapi/forgejo.json` (the extract of
+  Forgejo 17's file, its `info` naming the source at the commit of tag `v17.0.1`,
+  `363f3dc30beef902b187af5a5244ff7af44901e6`, and the digest; the MIT notice in the module's `README.md`;
+  the one property Forgejo 17 sends but its file lacks, `User.username`, is added by the extract's
+  `--add-property`), `org.fuin.porelo.forge.forgejo.ForgejoClient` (`HttpClient` and base URI given, refused if it
+  follows redirects itself; the token passed per call and sent only to the base's own origin; a job log's
+  redirect, where the server answers with one, followed by hand, without the token once the chain has left the
+  base's origin and never from HTTPS to HTTP),
   `ForgejoWebhook` (checks `X-Forgejo-Signature`; its payload records written by hand from recorded deliveries:
   `pull_request`; `pull_request_approved`, `_rejected` and `_comment`, which carry the review as its type and
   content; `action_run_success` and `_failure`, which carry the run, its prior status and an action, `recover`

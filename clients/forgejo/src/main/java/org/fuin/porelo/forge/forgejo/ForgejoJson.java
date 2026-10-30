@@ -32,6 +32,9 @@ final class ForgejoJson {
             if (result == null) {
                 throw new ForgejoException(0, "Expected a JSON value");
             }
+            if (result instanceof List<?> values && values.stream().anyMatch(Objects::isNull)) {
+                throw new ForgejoException(0, "Expected non-null JSON list elements");
+            }
             return result;
         } catch (UnrecognizedPropertyException ex) {
             throw new ForgejoException(

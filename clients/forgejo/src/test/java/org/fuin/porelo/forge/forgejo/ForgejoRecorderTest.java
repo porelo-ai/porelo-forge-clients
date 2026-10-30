@@ -1,7 +1,7 @@
 package org.fuin.porelo.forge.forgejo;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.file.Path;
@@ -12,6 +12,26 @@ import org.junit.jupiter.api.io.TempDir;
 class ForgejoRecorderTest {
     @TempDir Path directory;
 
+    // Prevents live verification from accepting unmodeled fields that strict replay would refuse.
+    @Test
+    void liveDeliveryVerificationIsStrict() {
+        var deliveries =
+                List.of(
+                        new WebhookReceiver.Delivery(
+                                "pull_request",
+                                "{\"action\":\"opened\",\"number\":1,\"pull_request\":{},\"future\":true}"),
+                        new WebhookReceiver.Delivery(
+                                "pull_request_approved",
+                                "{\"action\":\"reviewed\",\"number\":1,\"pull_request\":{},\"review\":{\"type\":\"pull_request_review_approved\"}}"),
+                        new WebhookReceiver.Delivery(
+                                "action_run_success", "{\"action\":\"success\",\"run\":{}}"));
+        assertThatExceptionOfType(ForgejoException.class)
+                .as("live verification must expose API drift before re-recording")
+                .isThrownBy(() -> ForgejoRecorder.verifyDeliveries(deliveries))
+                .withMessageContaining("future");
+    }
+
+    // Prevents stale captures from concealing API changes after recording again.
     @Test
     void recordingAgainReplacesTheDeliveryThatReplayWillRead() throws Exception {
         var scrubber = new RecordingScrubber(List.of());
@@ -31,9 +51,13 @@ class ForgejoRecorderTest {
                 .isEqualTo(2);
     }
 
+    // Prevents private malformed delivery bytes from leaking in diagnostics.
     @Test
     void malformedLiveDeliveryCannotExposeRawInputInADiagnostic() {
-        assertThatThrownBy(
+        assertThatExceptionOfType(IllegalStateException.class)
+                .as(
+                        "a parser exception must never copy an unsanitized live delivery into logs or causes")
+                .isThrownBy(
                         () ->
                                 ForgejoRecorder.writeDeliveries(
                                         directory,
@@ -43,9 +67,7 @@ class ForgejoRecorderTest {
                                                         "syntheticPrivateMalformedData")),
                                         new RecordingScrubber(
                                                 List.of("syntheticPrivateMalformedData"))))
-                .as(
-                        "a parser exception must never copy an unsanitized live delivery into logs or causes")
-                .hasMessageNotContaining("syntheticPrivateMalformedData")
-                .hasNoCause();
+                .withMessageNotContaining("syntheticPrivateMalformedData")
+                .withNoCause();
     }
 }

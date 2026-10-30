@@ -9,6 +9,7 @@ import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 
 class NullMarkedTest {
+    // Prevents new main packages from bypassing NullAway checks.
     @Test
     void everyMainCodePackageHasACheckedNullContract() throws Exception {
         Path root =

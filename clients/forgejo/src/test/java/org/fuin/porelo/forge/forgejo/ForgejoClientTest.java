@@ -1,7 +1,7 @@
 package org.fuin.porelo.forge.forgejo;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -15,6 +15,103 @@ class ForgejoClientTest {
     private static final URI BASE = URI.create("https://example.org/api/v1/");
     private static final String TOKEN = "synthetic-access-token";
 
+    // Prevents a foreign redirect from restoring credentials by bouncing back to the API.
+    @Test
+    void authenticationStaysRemovedAfterLeavingTheOrigin() {
+        var http =
+                new ReplayHttpClient()
+                        .answer(
+                                302,
+                                Map.of("Location", List.of("https://other.example.org/log")),
+                                "")
+                        .answer(
+                                302,
+                                Map.of("Location", List.of(BASE.resolve("logs").toString())),
+                                "")
+                        .answer(200, Map.of(), "done");
+        assertThat(new ForgejoClient(BASE, http).jobLogs(TOKEN, "owner", "repo", 1))
+                .as("a return to the API still delivers the log")
+                .isEqualTo("done");
+        assertThat(http.requests).as("the complete redirect chain was followed").hasSize(3);
+        assertThat(http.requests.getFirst().headers().firstValue("Authorization"))
+                .as("the initial API request is authenticated")
+                .contains("token " + TOKEN);
+        for (var request : http.requests.subList(1, 3)) {
+            assertThat(request.headers().firstValue("Authorization"))
+                    .as("credentials remain stripped after the first foreign hop")
+                    .isEmpty();
+        }
+    }
+
+    // Prevents cleartext log disclosure after an HTTP base redirects through HTTPS.
+    @Test
+    void aLogRedirectCannotDowngradeThePreviousHop() {
+        var http =
+                new ReplayHttpClient()
+                        .answer(
+                                302,
+                                Map.of("Location", List.of("https://other.example.org/log")),
+                                "")
+                        .answer(302, Map.of("Location", List.of("http://example.org/log")), "")
+                        .answer(200, Map.of(), "private log");
+        assertThatExceptionOfType(ForgejoException.class)
+                .as("every HTTPS hop establishes a transport security floor")
+                .isThrownBy(
+                        () ->
+                                new ForgejoClient(URI.create("http://example.org/api/v1/"), http)
+                                        .jobLogs(TOKEN, "owner", "repo", 1));
+        assertThat(http.requests).as("the cleartext destination is never contacted").hasSize(2);
+    }
+
+    // Prevents dot segments from addressing a parent resource after server URL normalization.
+    @ParameterizedTest
+    @ValueSource(strings = {".", ".."})
+    void dotSegmentsAreRefusedBeforeSending(String segment) {
+        var http = new ReplayHttpClient().answer(200, Map.of(), "{}");
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .as("a dot segment cannot identify a branch")
+                .isThrownBy(
+                        () ->
+                                new ForgejoClient(BASE, http)
+                                        .branch(TOKEN, "owner", "repo", segment));
+        assertThat(http.requests).as("invalid paths cause no I/O").isEmpty();
+    }
+
+    // Prevents malformed list answers from leaking nulls into callers with a non-null contract.
+    @Test
+    void nullListElementsAreRefusedInEitherReading() {
+        for (Strictness strictness : Strictness.values()) {
+            var http = new ReplayHttpClient().answer(200, Map.of(), "[null]");
+            assertThatExceptionOfType(ForgejoException.class)
+                    .as("null account entries violate the list contract in %s", strictness)
+                    .isThrownBy(
+                            () ->
+                                    new ForgejoClient(BASE, http, strictness)
+                                            .organizations(TOKEN, 1, 10));
+        }
+    }
+
+    // Prevents accidental empty mutation requests when a required body is missing.
+    @Test
+    void nullRequestBodiesFailBeforeAnyIo() {
+        var http = new ReplayHttpClient();
+        var client = new ForgejoClient(BASE, http);
+        List<Runnable> calls =
+                List.of(
+                        () -> client.createPull(TOKEN, "owner", "repo", null),
+                        () -> client.createReview(TOKEN, "owner", "repo", 1, null),
+                        () -> client.dismissReview(TOKEN, "owner", "repo", 1, 1, null),
+                        () -> client.createStatus(TOKEN, "owner", "repo", "abc", null),
+                        () -> client.createHook(TOKEN, "owner", "repo", null));
+        for (Runnable call : calls) {
+            assertThatExceptionOfType(NullPointerException.class)
+                    .as("a missing mutation body is a caller error")
+                    .isThrownBy(call::run);
+        }
+        assertThat(http.requests).as("body validation happens before transport use").isEmpty();
+    }
+
+    // Prevents API drift from silently dropping the identity of a build.
     @Test
     void theStrictReadingRefusesARenamedRunFieldByName() {
         ReplayHttpClient http =
@@ -24,13 +121,14 @@ class ForgejoClientTest {
                                 Map.of(),
                                 "{\"total_count\":1,\"workflow_runs\":[{\"renamed_commit_sha\":\"abc\"}]}");
         var client = new ForgejoClient(BASE, http, Strictness.STRICT);
-        assertThatThrownBy(() -> client.runs(TOKEN, "owner", "repo", "abc", 1, 10))
+        assertThatExceptionOfType(ForgejoException.class)
                 .as(
                         "API drift must fail by the renamed field rather than silently losing build identity")
-                .isInstanceOf(ForgejoException.class)
-                .hasMessageContaining("renamed_commit_sha");
+                .isThrownBy(() -> client.runs(TOKEN, "owner", "repo", "abc", 1, 10))
+                .withMessageContaining("renamed_commit_sha");
     }
 
+    // Prevents compatible API additions from breaking reads or losing timestamps.
     @Test
     void theDefaultReadingToleratesAdditionalFieldsAndReadsDates() {
         var http =
@@ -48,6 +146,7 @@ class ForgejoClientTest {
                 .isNotNull();
     }
 
+    // Prevents access tokens from leaking across redirect origins.
     @ParameterizedTest
     @ValueSource(
             strings = {
@@ -67,13 +166,12 @@ class ForgejoClientTest {
         assertThat(http.requests.getFirst().headers().firstValue("Authorization"))
                 .as("the origin request needs authentication")
                 .contains("token " + TOKEN);
-        {
-            assertThat(http.requests.getLast().headers().firstValue("Authorization"))
-                    .as("the access token belongs only to the API origin")
-                    .isEmpty();
-        }
+        assertThat(http.requests.getLast().headers().firstValue("Authorization"))
+                .as("the access token belongs only to the API origin")
+                .isEmpty();
     }
 
+    // Prevents credentials from escaping in reflected redirect URLs.
     @Test
     void aRedirectCannotPutTheAccessTokenIntoAForeignUrl() {
         var http =
@@ -85,16 +183,17 @@ class ForgejoClientTest {
                                         List.of("https://other.example.org/log?access=" + TOKEN)),
                                 "")
                         .answer(200, Map.of(), "done");
-        assertThatThrownBy(() -> new ForgejoClient(BASE, http).jobLogs(TOKEN, "owner", "repo", 1))
+        assertThatExceptionOfType(ForgejoException.class)
                 .as(
                         "stripping headers is insufficient when a redirect reflects the access token in its URL")
-                .isInstanceOf(ForgejoException.class)
-                .hasMessageNotContaining(TOKEN);
+                .isThrownBy(() -> new ForgejoClient(BASE, http).jobLogs(TOKEN, "owner", "repo", 1))
+                .withMessageNotContaining(TOKEN);
         assertThat(http.requests)
                 .as("no request may carry the token in a URL to another origin")
                 .hasSize(1);
     }
 
+    // Prevents signing keys from leaking through API diagnostics.
     @Test
     void aReflectedWebhookSecretIsRemovedFromAnApiError() throws Exception {
         String hookSecret = "synthetic-hook-key";
@@ -111,16 +210,18 @@ class ForgejoClientTest {
                                 400,
                                 Map.of(),
                                 "{\"message\":\"Invalid secret " + hookSecret + "\"}");
-        assertThatThrownBy(
+        assertThatExceptionOfType(ForgejoException.class)
+                .as(
+                        "API diagnostics must not copy a webhook signing key from the request into an exception")
+                .isThrownBy(
                         () ->
                                 new ForgejoClient(BASE, http)
                                         .createHook(TOKEN, "owner", "repo", body))
-                .as(
-                        "API diagnostics must not copy a webhook signing key from the request into an exception")
-                .hasMessageNotContaining(hookSecret)
-                .hasNoCause();
+                .withMessageNotContaining(hookSecret)
+                .withNoCause();
     }
 
+    // Prevents private log downloads from failing on authenticated same-origin redirects.
     @Test
     void aSameOriginLogRedirectKeepsAuthentication() {
         var http =
@@ -133,33 +234,36 @@ class ForgejoClientTest {
                 .contains("token " + TOKEN);
     }
 
+    // Prevents automatic redirects from bypassing credential isolation.
     @Test
     void anAutomaticRedirectFollowingTransportIsRefused() {
         var http = new ReplayHttpClient();
         http.redirects = HttpClient.Redirect.ALWAYS;
-        assertThatThrownBy(() -> new ForgejoClient(BASE, http))
+        assertThatExceptionOfType(IllegalArgumentException.class)
                 .as("automatic redirects bypass the token boundary")
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Redirect.NEVER");
+                .isThrownBy(() -> new ForgejoClient(BASE, http))
+                .withMessageContaining("Redirect.NEVER");
     }
 
+    // Prevents permission errors from hiding their status or leaking credentials.
     @Test
     void anErrorRetainsItsStatusAndRedactsReflectedCredentials() {
         var http =
                 new ReplayHttpClient()
                         .answer(403, Map.of(), "{\"message\":\"refused " + TOKEN + "\"}");
-        try {
-            new ForgejoClient(BASE, http).user(TOKEN);
-            org.junit.jupiter.api.Assertions.fail("expected a refusal");
-        } catch (ForgejoException ex) {
-            assertThat(ex.status()).as("callers distinguish permission errors").isEqualTo(403);
-            assertThat(ex)
-                    .as("a reflected token must not enter exception messages or causes")
-                    .hasMessage("refused [redacted]")
-                    .hasNoCause();
-        }
+        assertThatExceptionOfType(ForgejoException.class)
+                .as("a reflected token must not enter exception messages or causes")
+                .isThrownBy(() -> new ForgejoClient(BASE, http).user(TOKEN))
+                .withMessage("refused [redacted]")
+                .withNoCause()
+                .satisfies(
+                        ex ->
+                                assertThat(ex.status())
+                                        .as("callers distinguish permission errors")
+                                        .isEqualTo(403));
     }
 
+    // Prevents branch input from changing the addressed resource.
     @Test
     void branchNamesCannotChangeTheRequestOriginOrPathStructure() {
         var http = new ReplayHttpClient().answer(200, Map.of(), "{}");

@@ -9,6 +9,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class ForgejoWebhookRecordingTest {
+    // Prevents scrubbing or routing errors from invalidating recorded webhook contracts.
     @ParameterizedTest(name = "{0} verifies and reads its recorded delivery")
     @ValueSource(strings = {"pull_request", "pull_request_approved", "action_run_success"})
     void recordedDeliveriesAreSignedAfterScrubbingAndReadStrictly(String event) throws Exception {
@@ -33,10 +34,29 @@ class ForgejoWebhookRecordingTest {
                                     recording.path("signature").asText(),
                                     event,
                                     RecordingScrubber.TEST_SECRET.getBytes(StandardCharsets.UTF_8));
-            assertThat(payload)
-                    .as(
-                            "the recording remains authenticated after address and credential scrubbing")
-                    .isNotNull();
+            switch (event) {
+                case "pull_request" ->
+                        assertThat(payload)
+                                .as("a pull request delivery selects its recorded contract")
+                                .isInstanceOf(ForgejoWebhook.PullRequestEvent.class);
+                case "pull_request_approved" -> {
+                    assertThat(payload)
+                            .as("an approval selects the review contract")
+                            .isInstanceOf(ForgejoWebhook.ReviewEvent.class);
+                    assertThat(((ForgejoWebhook.ReviewEvent) payload).review().type())
+                            .as("the recorded approval carries its verdict")
+                            .isEqualTo("pull_request_review_approved");
+                }
+                case "action_run_success" -> {
+                    assertThat(payload)
+                            .as("an Actions delivery selects the run contract")
+                            .isInstanceOf(ForgejoWebhook.ActionsRunEvent.class);
+                    assertThat(((ForgejoWebhook.ActionsRunEvent) payload).run())
+                            .as("the recorded Actions delivery identifies its run")
+                            .isNotNull();
+                }
+                default -> throw new AssertionError(event);
+            }
         }
     }
 }

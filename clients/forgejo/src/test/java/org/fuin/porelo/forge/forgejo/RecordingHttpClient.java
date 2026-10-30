@@ -44,6 +44,15 @@ final class RecordingHttpClient extends HttpClient {
             throw new IllegalArgumentException("The fixture transport captures only text bodies");
         }
         ObjectNode recorded = json.createObjectNode();
+        // Redirect queries may contain storage signatures that are unknown to the fixture.
+        if (exchanges.isEmpty()) {
+            recorded.put(
+                    "request_uri",
+                    request.uri().getRawPath()
+                            + (request.uri().getRawQuery() == null
+                                    ? ""
+                                    : "?" + request.uri().getRawQuery()));
+        }
         recorded.put("status", response.statusCode());
         Map<String, List<String>> headers = new java.util.LinkedHashMap<>();
         for (String name : List.of("content-type", "location")) {

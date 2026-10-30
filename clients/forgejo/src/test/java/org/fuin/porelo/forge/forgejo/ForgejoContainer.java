@@ -79,11 +79,11 @@ final class ForgejoContainer implements AutoCloseable {
         Runtime.getRuntime().addShutdownHook(shutdown);
         secrets.add(new String(webhookSecret, StandardCharsets.UTF_8));
         receiver = new WebhookReceiver(webhookSecret);
+        volumeOwned = true;
         String volume = Podman.run("Create fixture volume", "", "volume", "create", name).strip();
         if (!volume.equals(name)) {
             throw new IllegalStateException("Volume creation returned an unexpected name");
         }
-        volumeOwned = true;
         serverOwned = true;
         Podman.run(
                 "Start Forgejo",
@@ -287,6 +287,7 @@ final class ForgejoContainer implements AutoCloseable {
                         + hex.substring(16, 20)
                         + "-"
                         + hex.substring(20);
+        secrets.add(uuid);
         var identity =
                 json.createObjectNode()
                         .put("id", 0)
@@ -320,7 +321,7 @@ final class ForgejoContainer implements AutoCloseable {
                 runner,
                 "/bin/sh",
                 "-ec",
-                "mkdir -p /tmp/fixture && cat > /tmp/fixture/.runner.part && mv /tmp/fixture/.runner.part"
+                "umask 077; mkdir -p /tmp/fixture && cat > /tmp/fixture/.runner.part && mv /tmp/fixture/.runner.part"
                         + " /tmp/fixture/.runner");
     }
 
@@ -458,7 +459,7 @@ final class ForgejoContainer implements AutoCloseable {
 
     private static String randomSecret() {
         byte[] value = new byte[32];
-        new SecureRandom().nextBytes(value);
+        RANDOM.nextBytes(value);
         return HexFormat.of().formatHex(value);
     }
 
@@ -497,7 +498,7 @@ final class ForgejoContainer implements AutoCloseable {
             remove(failed, name, "rm", "-f", name);
         }
         if (volumeOwned) {
-            remove(failed, name, "volume", "rm", name);
+            remove(failed, name, "volume", "rm", "-f", name);
         }
         if (receiver != null) {
             receiver.close();
@@ -512,7 +513,11 @@ final class ForgejoContainer implements AutoCloseable {
         }
         closed = true;
         if (Thread.currentThread() != shutdown) {
-            Runtime.getRuntime().removeShutdownHook(shutdown);
+            try {
+                Runtime.getRuntime().removeShutdownHook(shutdown);
+            } catch (IllegalStateException ex) {
+                // Shutdown has started, so the registered hook can no longer be removed.
+            }
         }
     }
 

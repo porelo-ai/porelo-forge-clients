@@ -44,7 +44,14 @@ final class ExtractService {
      * A property a forge sends that its own description leaves out, added to the extract by name so
      * the strict reading of the tests keeps refusing every other unknown field.
      */
-    record Addition(String schema, String property, String json) {}
+    record Addition(String schema, String property, String json) {
+        Addition {
+            if (schema.isBlank() || property.isBlank()) {
+                throw new IllegalArgumentException(
+                        "Addition schema and property names must not be blank");
+            }
+        }
+    }
 
     void fetch(
             URI source,
@@ -76,6 +83,7 @@ final class ExtractService {
         OpenApiDocument document = new OpenApiDocument(parse(text));
         ObjectNode extract = document.extract(selection);
         add(extract, additions);
+        new OpenApiDocument(extract).check(selection);
         ObjectNode info = requireObject(extract.path("info"), "info");
         ObjectNode origin =
                 info.putObject("x-extracted-from")

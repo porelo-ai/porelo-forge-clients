@@ -103,6 +103,7 @@ final class ForgejoScenario {
                     .as("each operation must actually exchange a response")
                     .isNotEmpty();
             ObjectNode recording = exchanges.getLast().deepCopy();
+            recording.set("request_uri", exchanges.getFirst().path("request_uri"));
             recording.set("exchanges", json.valueToTree(exchanges));
             recording.set("context", json.valueToTree(context));
             recording.set("request_body", body);

@@ -24,7 +24,11 @@ final class RecordingScrubber {
                     "authorization_header",
                     "registration_token");
     private static final Pattern URL = Pattern.compile("https?://[^\\s\"'<>\\\\]+");
-    private final ObjectMapper json = new ObjectMapper();
+    private final ObjectMapper json =
+            new ObjectMapper()
+                    .enable(
+                            com.fasterxml.jackson.databind.DeserializationFeature
+                                    .FAIL_ON_TRAILING_TOKENS);
     private final List<String> secrets;
 
     RecordingScrubber(List<String> secrets) {
@@ -68,8 +72,7 @@ final class RecordingScrubber {
                 try {
                     return TextNode.valueOf(json.writeValueAsString(scrub(json.readTree(value))));
                 } catch (java.io.IOException ex) {
-                    throw new IllegalStateException(
-                            "A structured recording body could not be scrubbed");
+                    // Plain log output may start with JSON punctuation.
                 }
             }
             return TextNode.valueOf(scrubText(value));

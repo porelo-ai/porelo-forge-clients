@@ -39,10 +39,13 @@ public final class ForgejoWebhook {
 
     /**
      * Reads at most limit plus one bytes, checks the hexadecimal X-Forgejo-Signature, then reads
-     * X-Forgejo-Event. The caller owns the input stream. Event names are provisional until
-     * recorded.
+     * X-Forgejo-Event using the recorded event names. The caller owns the input stream.
      */
     public Payload read(InputStream body, String signature, String event, byte[] secret) {
+        Objects.requireNonNull(body, "body");
+        Objects.requireNonNull(signature, "signature");
+        Objects.requireNonNull(event, "event");
+        Objects.requireNonNull(secret, "secret");
         byte[] raw;
         try {
             raw = body.readNBytes(maximumBytes + 1);

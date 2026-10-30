@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 /** Live-only recording entry point. It persists scrubbed responses and re-signed deliveries. */
 public final class ForgejoRecorder {
-    private static final Set<String> PROVISIONAL_EVENTS =
+    private static final Set<String> RECORDED_EVENTS =
             Set.of("pull_request", "pull_request_approved", "action_run_success");
     private static final ObjectMapper JSON = new ObjectMapper();
 
@@ -92,7 +92,7 @@ public final class ForgejoRecorder {
             if (deliveries.stream()
                     .map(WebhookReceiver.Delivery::event)
                     .collect(Collectors.toSet())
-                    .containsAll(PROVISIONAL_EVENTS)) {
+                    .containsAll(RECORDED_EVENTS)) {
                 return deliveries;
             }
             ForgejoContainer.pause();
@@ -105,11 +105,11 @@ public final class ForgejoRecorder {
                 deliveries.stream()
                         .map(WebhookReceiver.Delivery::event)
                         .collect(Collectors.toSet());
-        Set<String> missing = new java.util.TreeSet<>(PROVISIONAL_EVENTS);
+        Set<String> missing = new java.util.TreeSet<>(RECORDED_EVENTS);
         missing.removeAll(events);
         if (!missing.isEmpty()) {
             throw new IllegalStateException(
-                    "Provisional webhook names need confirmation; missing "
+                    "Missing recorded webhook events "
                             + missing
                             + ", received "
                             + events.stream()
@@ -117,9 +117,9 @@ public final class ForgejoRecorder {
                                     .sorted()
                                     .toList());
         }
-        ForgejoWebhook reader = new ForgejoWebhook(WebhookReceiver.LIMIT, Strictness.LENIENT);
+        ForgejoWebhook reader = new ForgejoWebhook(WebhookReceiver.LIMIT, Strictness.STRICT);
         for (var delivery : deliveries) {
-            if (PROVISIONAL_EVENTS.contains(delivery.event())) {
+            if (RECORDED_EVENTS.contains(delivery.event())) {
                 byte[] bytes = delivery.body().getBytes(StandardCharsets.UTF_8);
                 byte[] key = RecordingScrubber.TEST_SECRET.getBytes(StandardCharsets.UTF_8);
                 reader.read(
@@ -135,7 +135,15 @@ public final class ForgejoRecorder {
             throws Exception {
         Path temporary = Files.createTempFile(path.getParent(), "scrubbed-", ".json");
         try {
-            JSON.writerWithDefaultPrettyPrinter().writeValue(temporary.toFile(), value);
+            var indenter = new com.fasterxml.jackson.core.util.DefaultIndenter("  ", "\n");
+            var printer =
+                    new com.fasterxml.jackson.core.util.DefaultPrettyPrinter()
+                            .withObjectIndenter(indenter)
+                            .withArrayIndenter(indenter);
+            Files.writeString(
+                    temporary,
+                    JSON.writer(printer).writeValueAsString(value) + "\n",
+                    StandardCharsets.UTF_8);
             Files.move(
                     temporary,
                     path,

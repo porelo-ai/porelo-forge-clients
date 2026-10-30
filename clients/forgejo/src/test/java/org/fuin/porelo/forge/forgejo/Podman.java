@@ -15,7 +15,7 @@ final class Podman {
     private Podman() {}
 
     static List<String> command(String... arguments) {
-        if (arguments.length > 0 && arguments[0].equals("run")) {
+        if (arguments.length > 0 && (arguments[0].equals("run") || arguments[0].equals("create"))) {
             List<String> drivers =
                     java.util.Arrays.stream(arguments)
                             .filter(value -> value.startsWith("--log-driver"))

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 /** Live checks are enabled only by the forgejo.live Maven property. */
 class ForgejoLiveIT {
+    // Prevents empty fixtures and live API drift from passing acceptance checks.
     @Test
     void everyOperationReadsASeededForgejoStrictly() throws Exception {
         try (ForgejoContainer fixture = ForgejoContainer.start()) {
