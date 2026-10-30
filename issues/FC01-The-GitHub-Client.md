@@ -6,7 +6,8 @@
 **What must be true.** A caller reads and writes what a code review and a build need on GitHub through the `github`
 module, `org.fuin.porelo:porelo-forge-client-github`: pull requests, reviews, review comments and threads (resolved
 only through GraphQL), suggestions, check runs and Actions runs, jobs and their logs, git refs, webhooks, and the
-account and its organization membership - in GitHub's own terms, knowing nothing of Porelo.
+account and its organization membership - in GitHub's own terms, knowing nothing of Porelo. Only github.com is
+served, not GitHub Enterprise Server.
 
 ## Why
 
@@ -37,17 +38,17 @@ file but not as OpenAPI.
   follows redirects itself, and sends the token only to the API base's own origin - scheme, host and port.
 - **Steps:** the module and its extract; the build calls (refs, runs, jobs, log tail) first, since the adapters
   move onto them; then pull requests and reviews; then GraphQL threads; then webhooks.
-- **Recordings, as for every cloud forge:** every build replays them alone, with no network and no credential,
-  from files in `src/test/resources/` through an `HttpClient` that answers from them. They are made in a test
-  organization of the project's own (which one is the open question below), by the module's recording test, which
-  runs only by hand. It creates what it records under a prefix with the run's id - a branch, a pull request with
-  a review by the second test user, comments, a reply and a resolved thread, a check run, a hook, and an Actions run
-  dispatched from a two-step workflow kept in the test repository - and removes or closes all of it after, a
-  failure and an interrupt too; it refuses to start over leftovers of its prefix and exits non-zero naming anything
-  it could not remove. Before a recording is kept,
-  accounts become fictional ones, addresses `example.org`, a signed URL loses its query, and a delivery is signed
-  again with a test secret; a test fails on a recording that holds a token's shape, or a delivery whose signature
-  does not verify with the test secret.
+- **Recordings, as for every cloud forge:** every build replays them alone, with no network and no credential, from
+  files in `src/test/resources/` through an `HttpClient` that answers from them. They are made in a test
+  organization of its own, separate from the project's, with one test repository and a GitHub App made only for it,
+  by the module's recording test, which runs only by hand. It creates what it records under a prefix with the run's
+  id - a branch, a pull request with a review by the second test user, comments, a reply and a resolved thread, a
+  check run, a hook, and an Actions run dispatched from a two-step workflow kept in the test repository - and
+  removes or closes all of it after, a failure and an interrupt too; it refuses to start over leftovers of its
+  prefix and exits non-zero naming anything it could not remove. Before a recording is kept, accounts become
+  fictional ones, addresses `example.org`, a signed URL loses its query, and a delivery is signed again with a test
+  secret; a test fails on a recording that holds a token's shape, or a delivery whose signature does not verify with
+  the test secret.
 - **Three credentials, since GitHub splits them:** a GitHub App's installation token for check runs, minted per
   run from the secrets `GITHUB_LIVE_APP_ID` and `GITHUB_LIVE_APP_KEY`; the fine-grained token of a test user who
   administers the test repository, `GITHUB_LIVE_USER_TOKEN`, for everything else - refs, runs, jobs, logs, hooks,
@@ -76,15 +77,6 @@ file but not as OpenAPI.
   body read only up to a bound.
 - A log's redirect to another origin carries no token, seen in a test that fails when it does; an `HttpClient`
   that follows redirects itself is refused when the client is built.
-
-## Open questions
-
-- **GitHub Enterprise Server too, or github.com only?** Its descriptions are separate files per version; supporting
-  it means a second extract and recordings from a running server. Recommendation: github.com only for now.
-- **Which account and organization to record from?** Check runs and organization membership need a repository in
-  an organization and, for check runs, a GitHub App installed there; the account calls need a user. Recommendation:
-  a test organization of the project's own, free, with one test repository, a GitHub App made only for it, and two
-  test users - one administering the repository, one to review.
 
 ## To be checked
 
