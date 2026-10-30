@@ -11,4 +11,4 @@ is left out.
 |---|---|---|---|
 | <a id="fc01"></a>[FC01](FC01-The-GitHub-Client.md) | - | - | The `github` module: pull requests, reviews, threads over GraphQL, suggestions, checks, Actions runs and logs, refs, webhooks, the account and its membership, tested against recorded answers |
 | <a id="fc02"></a>[FC02](FC02-The-Forgejo-Client.md) | - | - | The `forgejo` module: the same for Forgejo, its answers recorded from a real Forgejo |
-| <a id="fc03"></a>[FC03](FC03-The-Forge-Calls-Of-The-Adapters-Move-Here.md) | - | [FC01](README.md#fc01), [FC02](README.md#fc02) | Every HTTP call `porelo-adapters` makes to GitHub and Forgejo becomes a call of the clients here, with the same requests and answers |
+| <a id="fc03"></a>[FC03](FC03-The-Forge-Calls-Of-The-Adapters-Move-Here.md) | - | [FC01](README.md#fc01), [FC02](README.md#fc02) | The clients make every call Porelo's build adapters make to GitHub and Forgejo today, with the same requests and answers, published as snapshots |

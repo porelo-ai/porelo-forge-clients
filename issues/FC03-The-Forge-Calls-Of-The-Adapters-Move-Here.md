@@ -2,29 +2,25 @@
 
 **Status:** Idea; blocked by [FC01](README.md#fc01) and [FC02](README.md#fc02).
 
-**What must be true.** Every HTTP call that `porelo-adapters` makes to GitHub or Forgejo today is a call of the
-`github` or `forgejo` client here, with the same requests and the same handling of every answer, so the adapters keep
-only the translation into Porelo's contracts.
+**What must be true.** The `github` and `forgejo` clients make every call to GitHub and Forgejo that Porelo's build
+adapters make today, with the same requests and the same handling of every answer, and are published as snapshots,
+so a caller can drop its own HTTP calls and keep only the translation into its own types.
 
 ## The shape
 
-- **What moves:** the forge calls of the GitHub and Forgejo readers and the decoding of their native answers - a
-  branch's head, the runs for a commit, their jobs with paging, the tail of a job's log, redirects followed by hand
-  (GitHub sends a log to a second host), opening a pull request on Forgejo, and the error answers by status and
-  text. A client returns native records: a run, a job, a log tail, a pull request's address.
-- **What stays in `porelo-adapters`:** everything that names Porelo - the reader's entry point, the target turned
-  into owner and name, the choice of jobs, the mapping onto Porelo's build types and the refusals with their codes,
-  and the contract suite every adapter passes.
-- **The transport:** a client takes a `java.net.http.HttpClient` from its caller, which builds it with the
-  account's trusted certificate authorities (redirects never followed by the client itself, 15 s to connect). The
-  request timeout (60 s), the window of a log's tail and the lower-casing of header names go with the clients.
-- **Published:** the clients go to Maven Central as snapshots first, so the adapters can build against them; the
-  adapters' readers then carry the client jars inside their packages.
+- **The calls:** a branch's head, the runs for a commit, their jobs with paging, the tail of a job's log, redirects
+  followed by hand (GitHub sends a log to a second host), opening a pull request on Forgejo, and the error answers by
+  status and text. A client returns native records: a run, a job, a log tail, a pull request's address.
+- **What stays with the caller:** everything that names Porelo - its entry points, its build types, the choice of
+  jobs and the refusals with their codes.
+- **The transport:** a client takes a `java.net.http.HttpClient` from its caller, which builds it with the trusted
+  certificate authorities it knows (redirects never followed by the client itself, 15 s to connect). The request
+  timeout (60 s), the window of a log's tail and the lower-casing of header names belong to the clients.
 
 ## Acceptance
 
-- For each call that moves, the answers the adapters' tests record today pass through the client here and yield
+- For each of these calls, the answers `porelo-adapters`' tests record today pass through the client here and yield
   the same fields; a changed answer makes a test here fail by the field that changed.
-- Nothing of Porelo moves with the calls: no contract type, no SARIF, no Porelo artifact in any module's
+- Every push to `main` publishes the clients as a snapshot, the version read back from the snapshot repository.
+- Nothing of Porelo comes with the calls: no contract type, no SARIF, no Porelo artifact in any module's
   dependencies.
-
