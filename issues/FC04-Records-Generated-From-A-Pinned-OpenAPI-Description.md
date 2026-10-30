@@ -1,6 +1,7 @@
 # FC04 — Records Generated From A Pinned OpenAPI Description
 
-**Status:** Idea.
+**Status:** Implementing.
+**Size:** M - the generator's configuration, its overridden templates and a small extract command, no client yet.
 
 **What must be true.** A client module gets one Java record per schema its operations use, generated at build time
 by openapi-generator from a forge's OpenAPI description that is pinned by its source commit and SHA-256 digest and

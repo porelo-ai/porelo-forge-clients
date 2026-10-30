@@ -5,6 +5,12 @@ issue, and who sets which state, are in [AGENTS.md](../AGENTS.md). *Open questio
 waits on the operator: the items under an issue's own *Open questions*. Its prefix is `FC`. A group with nothing in it
 is left out.
 
+## Implementing
+
+| # | Size | Blocked by | What it covers |
+|---|---|---|---|
+| <a id="fc04"></a>[FC04](FC04-Records-Generated-From-A-Pinned-OpenAPI-Description.md) | M | - | Records generated at build time by openapi-generator (a pinned snapshot until `useRecords` is released) from a pinned, filtered OpenAPI 3.1 or Swagger 2.0 description, with overridden templates; blocks [FC01](README.md#fc01) and [FC02](README.md#fc02) |
+
 ## Analyzed
 
 | # | Size | Blocked by | What it covers | Open questions |
@@ -17,9 +23,3 @@ is left out.
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="fc03"></a>[FC03](FC03-The-Forge-Calls-Of-The-Adapters-Move-Here.md) | - | [FC01](README.md#fc01), [FC02](README.md#fc02) | The clients make every call Porelo's build adapters make to GitHub and Forgejo today, with the same requests and answers, published as snapshots |
-
-## Idea
-
-| # | Size | Blocked by | What it covers |
-|---|---|---|---|
-| <a id="fc04"></a>[FC04](FC04-Records-Generated-From-A-Pinned-OpenAPI-Description.md) | - | - | Records generated at build time by openapi-generator (a pinned snapshot until `useRecords` is released) from a pinned, filtered OpenAPI 3.1 or Swagger 2.0 description, with overridden templates; blocks [FC01](README.md#fc01) and [FC02](README.md#fc02) |
