@@ -29,6 +29,8 @@ is left out.
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="fc03"></a>[FC03](FC03-The-Forge-Calls-Of-The-Adapters-Move-Here.md) | - | [FC01](README.md#fc01), [FC02](README.md#fc02) | The clients make every call Porelo's build adapters make to GitHub and Forgejo today, with the same requests and answers, published as snapshots |
+| <a id="fc08"></a>[FC08](FC08-Comments-Threads-And-Versions-Through-The-Clients.md) | - | [FC01](README.md#fc01), [FC02](README.md#fc02) | A pull request's general comments read since a time, written, edited and deleted on both forges, GitHub review comments edited and deleted, one GitHub thread with its state read by its id, Forgejo's version, and what Forgejo's API cannot do stated |
+| <a id="fc09"></a>[FC09](FC09-Rate-Limits-And-Bounds-Of-The-Clients-Answers.md) | - | [FC01](README.md#fc01), [FC02](README.md#fc02) | A rate limit told from a refusal with the delay to wait, the end of a paged list known, and every answer read up to a bound, on both forges |
 
 ## Finished
 
