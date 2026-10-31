@@ -1,6 +1,6 @@
 # FC11 — A Pull Request's Commits On Forgejo
 
-**Status:** Idea; blocked by [FC02](README.md#fc02).
+**Status:** Accepted (by the operator, through Agent Coordinator, 2026-10-31); blocked by [FC02](README.md#fc02).
 
 **What must be true.** A caller that writes a code review on Forgejo reads a pull request's commits page by page, and
 for each commit its revision, the author's and the committer's account as Forgejo links them (a stable ID, or none

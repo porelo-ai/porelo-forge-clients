@@ -1,6 +1,6 @@
 # FC10 — A Pull Request's Commits On GitHub
 
-**Status:** Idea.
+**Status:** Accepted (by the operator, through Agent Coordinator, 2026-10-31).
 
 **What must be true.** A caller that writes a code review on GitHub reads a pull request's commits page by page, and
 for each commit its revision, the author's and the committer's account as GitHub links them (a stable ID, or none
