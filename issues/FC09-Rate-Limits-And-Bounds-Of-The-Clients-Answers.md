@@ -1,12 +1,12 @@
 # FC09 — Rate Limits And Bounds Of The Clients' Answers
 
-**Status:** Analyzed; blocked by [FC02](README.md#fc02).
+**Status:** Backlog (Estimated and Backlog by the operator, 2026-10-31); blocked by [FC02](README.md#fc02).
 **Size:** M - small changes in both modules, but every list call changes its return type, and both forges are
 recorded again, GitHub's in a session with the operator.
 
 **What must be true.** A caller tells a forge's rate limit from a refusal and knows how long to wait before it tries
-again, knows when a list it reads page by page has ended, and never reads an answer without a bound, through the
-`github` and `forgejo` modules.
+again, knows when a list it reads page by page has ended, knows whether a failed request may have reached the forge,
+and never reads an answer without a bound, through the `github` and `forgejo` modules.
 
 ## Plan
 
@@ -21,6 +21,13 @@ check runs, runs and jobs; the recorders keep only the `content-type` and `locat
   has `x-ratelimit-remaining: 0`, a `Retry-After`, or a message naming a rate limit; a 403 without any of them stays
   a refusal. `delay()` follows GitHub's own rule: `Retry-After`, else until `reset`, else one minute. A GraphQL answer
   whose first error has `type: RATE_LIMITED` is one too. Forgejo's follows what *To be checked* measures.
+- **Sent or not sent.** Both clients throw status 0 today for a transport failure and for an answer that does not
+  decode alike, and a write cannot tell whether it reached the forge (Core's folded Review1 draft, 2.4). Each
+  exception gets `Delivery delivery()`: `NOT_SENT` (refused before sending: a bad argument, an invalid token, a
+  connection never made), `SENT_UNANSWERED` (the request went out and no answer came: a timeout, a reset, an
+  interrupt) and `ANSWERED` (a status came back, the answer perhaps undecodable or over its bound). The JDK's
+  `HttpClient` does not say whether bytes left before a failure, so a failure after the connection opened counts as
+  sent; a `ConnectException` counts as not sent.
 - **The end of a list.** Every paged list call returns `Page<T>(List<T> items, boolean more)`, a record of each
   module. `more` comes from the `Link` header's `rel="next"`; GitHub's envelope calls also read `total_count`,
   Forgejo's calls `X-Total-Count`. A full page without a next link is the last one. No caller breaks: the adapters
@@ -43,6 +50,8 @@ check runs, runs and jobs; the recorders keep only the `content-type` and `locat
 
 - A rate-limited answer of each forge, recorded or made by hand from its documentation, is told from a 403 for a
   missing permission, and gives the delay; a test fails when the 403 is taken for a rate limit.
+- A failure before sending, one while waiting for the answer, and an undecodable answer each name their delivery,
+  from hand-made transports.
 - A list whose last page is full reports no further page, and a page with a next link reports one, both from
   recorded answers.
 - An answer one byte over its bound fails naming the bound, its message holds no byte of the answer, and the reading
