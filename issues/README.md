@@ -38,6 +38,7 @@ is left out.
 | <a id="fc10"></a>[FC10](FC10-A-Pull-Requests-Commits-On-GitHub.md) | - | - | A GitHub pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and GitHub's signature verdict |
 | <a id="fc11"></a>[FC11](FC11-A-Pull-Requests-Commits-On-Forgejo.md) | - | [FC02](README.md#fc02) | A Forgejo pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and Forgejo's signature verdict, and any cap on the list |
 | <a id="fc13"></a>[FC13](FC13-GitHubs-Nulls-For-A-Deleted-Fork-And-An-Empty-Review.md) | - | - | A GitHub pull request from a deleted fork (`head.repo` null) and a review with a null `body` read instead of failing the read |
+| <a id="fc14"></a>[FC14](FC14-The-GitHub-Recorders-Ownership-Of-What-It-Made.md) | - | - | The GitHub recorder keeps owning what an earlier request made when a later one of its kind is refused, and the key page refusal test fails when the page does not stop |
 
 ## Finished
 
