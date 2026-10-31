@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import org.fuin.porelo.forge.github.model.PullsCreateReplyForReviewCommentRequest;
 import org.fuin.porelo.forge.github.model.SimpleUser;
+import org.fuin.porelo.forge.github.replay.ReplayHttpClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -296,11 +297,11 @@ class GitHubClientTest {
         assertThatExceptionOfType(GitHubException.class)
                 .as("a secure log hop cannot downgrade")
                 .isThrownBy(() -> client.jobLogs(TOKEN, "owner", "repo", 1));
-        assertThat(http.requests).as("the cleartext return is not contacted").hasSize(2);
-        assertThat(http.requests.getFirst().headers().firstValue("Authorization"))
+        assertThat(http.requests()).as("the cleartext return is not contacted").hasSize(2);
+        assertThat(http.requests().getFirst().headers().firstValue("Authorization"))
                 .as("the API request carries the token")
                 .contains("Bearer " + TOKEN);
-        assertThat(http.requests.getLast().headers().firstValue("Authorization"))
+        assertThat(http.requests().getLast().headers().firstValue("Authorization"))
                 .as("the foreign origin never receives the token")
                 .isEmpty();
     }
@@ -317,7 +318,7 @@ class GitHubClientTest {
         assertThatExceptionOfType(GitHubException.class)
                 .as("HTTPS must not downgrade")
                 .isThrownBy(() -> new GitHubClient(BASE, http).jobLogs(TOKEN, "owner", "repo", 1));
-        assertThat(http.requests).as("the insecure host is never contacted").hasSize(1);
+        assertThat(http.requests()).as("the insecure host is never contacted").hasSize(1);
     }
 
     // Prevents a redirect chain from restoring credentials after leaving the API.
@@ -334,7 +335,7 @@ class GitHubClientTest {
         assertThat(new GitHubClient(BASE, http).jobLogs(TOKEN, "owner", "repo", 1))
                 .as("redirect chain returns its log")
                 .isEqualTo("fixture-complete");
-        for (var request : http.requests.subList(1, 3))
+        for (var request : http.requests().subList(1, 3))
             assertThat(request.headers().firstValue("Authorization"))
                     .as("authentication stays removed after a foreign hop")
                     .isEmpty();
@@ -348,7 +349,7 @@ class GitHubClientTest {
                         .answer(307, Map.of("location", List.of("/download/log")), "")
                         .answer(200, Map.of(), "fixture-complete");
         new GitHubClient(BASE, http).jobLogs(TOKEN, "owner", "repo", 1);
-        assertThat(http.requests.getLast().headers().firstValue("Authorization"))
+        assertThat(http.requests().getLast().headers().firstValue("Authorization"))
                 .as("same-origin log storage requires its token")
                 .contains("Bearer " + TOKEN);
     }
@@ -358,7 +359,7 @@ class GitHubClientTest {
     @ValueSource(strings = {"ALWAYS", "NORMAL"})
     void automaticRedirectTransportsAreRefused(String policy) {
         var http = new ReplayHttpClient();
-        http.redirects = HttpClient.Redirect.valueOf(policy);
+        http.redirects(HttpClient.Redirect.valueOf(policy));
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .as("REST refuses automatic redirects")
                 .isThrownBy(() -> new GitHubClient(BASE, http))
@@ -391,7 +392,7 @@ class GitHubClientTest {
                 .isThrownBy(() -> new GitHubClient(BASE, http).jobLogs(TOKEN, "owner", "repo", 1))
                 .withMessageNotContaining(TOKEN)
                 .withNoCause();
-        assertThat(http.requests)
+        assertThat(http.requests())
                 .as("the credential-bearing destination is never contacted")
                 .hasSize(1);
     }
@@ -404,7 +405,7 @@ class GitHubClientTest {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .as("a dot is not a ref name")
                 .isThrownBy(() -> new GitHubClient(BASE, http).ref(TOKEN, "owner", "repo", value));
-        assertThat(http.requests).as("invalid input causes no I/O").isEmpty();
+        assertThat(http.requests()).as("invalid input causes no I/O").isEmpty();
     }
 
     // Prevents a multi-segment reference from losing its slashes, which GitHub's routing needs.
@@ -414,10 +415,10 @@ class GitHubClientTest {
         var client = new GitHubClient(BASE, http);
         client.ref(TOKEN, "owner", "repo", "heads/feature/a b");
         client.checkRuns(TOKEN, "owner", "repo", "feature/v1.0", 1, 50);
-        assertThat(http.requests.getFirst().uri().getRawPath())
+        assertThat(http.requests().getFirst().uri().getRawPath())
                 .as("the slashes between segments stay, the segments are encoded")
                 .isEqualTo("/repos/owner/repo/git/ref/heads/feature/a%20b");
-        assertThat(http.requests.getLast().uri().getRawPath())
+        assertThat(http.requests().getLast().uri().getRawPath())
                 .as("check runs take the same multi-segment reference")
                 .isEqualTo("/repos/owner/repo/commits/feature/v1%2E0/check-runs");
     }
@@ -442,7 +443,7 @@ class GitHubClientTest {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .as("%s is not a commit reference", ref)
                 .isThrownBy(() -> client.checkRuns(TOKEN, "owner", "repo", ref, 1, 50));
-        assertThat(http.requests).as("invalid input causes no I/O").isEmpty();
+        assertThat(http.requests()).as("invalid input causes no I/O").isEmpty();
     }
 
     // Prevents a query-string injection through a segment from reaching the wire.
@@ -450,10 +451,10 @@ class GitHubClientTest {
     void aQuestionMarkInsideASegmentIsEncoded() throws Exception {
         var http = new ReplayHttpClient().recording("ref");
         new GitHubClient(BASE, http).ref(TOKEN, "owner", "repo", "heads/a?x=1");
-        assertThat(http.requests.getFirst().uri().getRawPath())
+        assertThat(http.requests().getFirst().uri().getRawPath())
                 .as("the query character cannot end the path")
                 .isEqualTo("/repos/owner/repo/git/ref/heads/a%3Fx%3D1");
-        assertThat(http.requests.getFirst().uri().getRawQuery()).as("no query is added").isNull();
+        assertThat(http.requests().getFirst().uri().getRawQuery()).as("no query is added").isNull();
     }
 
     // Prevents a payload mismatch from being reported without the field that differs.
@@ -623,13 +624,13 @@ class GitHubClientTest {
                         org.fuin.porelo.forge.github.model.ChecksUpdateRequest.class);
         client.updateCheckRun(TOKEN, "owner", "repo", 1, update);
         assertThat(
-                        mapper.readTree(GitHubRecordingTest.requestBody(http.requests.getLast()))
+                        mapper.readTree(GitHubRecordingTest.requestBody(http.requests().getLast()))
                                 .path("completed_at")
                                 .asText())
                 .as("updated check timestamps match the API date-time format")
                 .isEqualTo("2026-01-01T00:00:00Z");
         assertThat(
-                        mapper.readTree(GitHubRecordingTest.requestBody(http.requests.getFirst()))
+                        mapper.readTree(GitHubRecordingTest.requestBody(http.requests().getFirst()))
                                 .path("started_at")
                                 .asText())
                 .as("outgoing check timestamps match the API date-time format")
@@ -656,7 +657,7 @@ class GitHubClientTest {
             assertThatExceptionOfType(NullPointerException.class)
                     .as("every write requires its body")
                     .isThrownBy(call::run);
-        assertThat(http.requests).as("body validation precedes all transport use").isEmpty();
+        assertThat(http.requests()).as("body validation precedes all transport use").isEmpty();
     }
 
     // Prevents general comments read without a time from sending an empty filter, which would
@@ -667,7 +668,7 @@ class GitHubClientTest {
 
         new GitHubClient(BASE, http).issueComments(TOKEN, "owner", "repo", 1, null, 2, 30);
 
-        assertThat(http.requests.getFirst().uri().getRawQuery())
+        assertThat(http.requests().getFirst().uri().getRawQuery())
                 .as("only the page is sent without a time")
                 .isEqualTo("page=2&per_page=30");
     }

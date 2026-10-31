@@ -1,6 +1,6 @@
 # FC12 — GitHub's Recorded Answers For Other Repositories
 
-**Status:** Implementing.
+**Status:** Review.
 **Size:** S - one test class made public, its recordings moved, one jar execution and a README section; no call and
 no recording changes.
 
@@ -32,9 +32,15 @@ replayed, to test that a changed field is held back.
   scope `test`), names the resource path and the recordings' file format, and says the recordings change only when
   this repository records again.
 - **Red first:** a test in a package of its own, `org.fuin.porelo.forge.github.replaytest`, which sees only public
-  API, replays `reviewCommentsOf` through `GitHubClient` with `ReplayHttpClient.recording`, then the same recording
+  API, replays `reviewComments` through `GitHubClient` with `ReplayHttpClient.recording`, then the same recording
   with one comment's `line` changed through `recorded` and `answer`, and reads the changed line; it does not compile
   until the client is public.
+- **Built so far:** all of the above; the jar was listed and replayed from the two jars alone, with no network. The
+  readings' findings, all fixed, each seen red once: `send` threw a body subscriber's failure wrapped in a
+  `CompletionException` instead of as the JDK does, completed a subscriber that had cancelled, and let a demand of
+  nothing pass, also one made while reading; `recording` queued a recording's answers one at a time, so another
+  answer could fall between a job log's two; an `Answer` took header names `HttpHeaders` refuses, failing only when
+  sent; and `send(null, ...)` left a null among the requests.
 
 ## Acceptance
 

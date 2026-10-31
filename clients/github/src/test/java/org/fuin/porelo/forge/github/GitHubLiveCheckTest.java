@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Map;
+import org.fuin.porelo.forge.github.replay.ReplayHttpClient;
 import org.junit.jupiter.api.Test;
 
 class GitHubLiveCheckTest {
@@ -22,10 +23,11 @@ class GitHubLiveCheckTest {
 
         // The recording reads the threads before one is resolved.
         assertThat(resolved).as("the recorded thread is not resolved").isNull();
-        assertThat(http.requests).as("threads and then comments are queried").hasSize(2);
+        assertThat(http.requests()).as("threads and then comments are queried").hasSize(2);
         assertThat(
                         GitHubJson.mapper(Strictness.STRICT)
-                                .readTree(GitHubRecordingTest.requestBody(http.requests.getLast()))
+                                .readTree(
+                                        GitHubRecordingTest.requestBody(http.requests().getLast()))
                                 .path("query")
                                 .asText())
                 .as("the second query is the comments query")

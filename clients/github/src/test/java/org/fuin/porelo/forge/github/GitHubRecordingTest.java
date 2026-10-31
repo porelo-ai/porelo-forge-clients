@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
+import org.fuin.porelo.forge.github.replay.ReplayHttpClient;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
@@ -28,7 +29,7 @@ class GitHubRecordingTest {
                         context,
                         recording.path("request_body"));
         GitHubScenario.requireUsefulResult(operation, result);
-        var request = http.requests.getFirst();
+        var request = http.requests().getFirst();
         assertThat(request.method())
                 .as("%s uses its documented verb", operation)
                 .isEqualTo(operation.method);
@@ -82,14 +83,15 @@ class GitHubRecordingTest {
                 }
             }
         }
-        assertThat(http.requests)
+        assertThat(http.requests())
                 .as("only the documented log redirect needs another exchange")
                 .hasSize(operation == GitHubOperations.jobLogs ? 2 : 1);
     }
 
     static JsonNode recording(String name) throws Exception {
         try (var stream =
-                GitHubRecordingTest.class.getResourceAsStream("/recordings/" + name + ".json")) {
+                GitHubRecordingTest.class.getResourceAsStream(
+                        ReplayHttpClient.RECORDINGS + name + ".json")) {
             if (stream == null) throw new IllegalStateException("Missing recording " + name);
             return JSON.readTree(stream);
         }

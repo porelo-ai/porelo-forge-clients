@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import org.fuin.porelo.forge.github.replay.ReplayHttpClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
@@ -91,7 +92,7 @@ class GitHubFixtureTest {
 
         fixture.close();
 
-        assertThat(http.requests.stream().map(request -> request.uri().getRawPath()))
+        assertThat(http.requests().stream().map(request -> request.uri().getRawPath()))
                 .as("cleanup touches only Actions runs")
                 .allMatch(path -> path.startsWith(RUNS) || path.endsWith("/dispatches"));
         assertThat(deletes(http)).as("the owned run is deleted").containsExactly(RUNS + "/7");
@@ -113,7 +114,7 @@ class GitHubFixtureTest {
 
         fixture.close();
 
-        assertThat(http.requests)
+        assertThat(http.requests())
                 .as("cleanup only discovers unrelated runs")
                 .allMatch(request -> request.method().equals("GET"));
     }
@@ -492,7 +493,7 @@ class GitHubFixtureTest {
     }
 
     private static List<String> deletes(ReplayHttpClient http) {
-        return http.requests.stream()
+        return http.requests().stream()
                 .filter(request -> request.method().equals("DELETE"))
                 .map(request -> request.uri().getRawPath())
                 .toList();

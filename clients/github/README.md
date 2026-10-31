@@ -26,10 +26,42 @@ List<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
 - `GitHubException.status()` is the HTTP status, or zero for transport and payload failures.
   Diagnostics scrub credentials and do not attach raw payloads or transport causes.
 
+## Replay in other repositories
+
+The `tests` jar of this module holds GitHub's recorded answers and
+`org.fuin.porelo.forge.github.replay.ReplayHttpClient`, an `HttpClient` that replays them without opening a socket,
+and nothing else. A test in another repository depends on it beside the main jar:
+
+```xml
+<dependency>
+    <groupId>org.fuin.porelo</groupId>
+    <artifactId>porelo-forge-client-github</artifactId>
+    <version>${forge-clients.version}</version>
+    <classifier>tests</classifier>
+    <scope>test</scope>
+</dependency>
+```
+
+```java
+var http = new ReplayHttpClient().recording("reviewComments");
+var comments = new GitHubClient(URI.create("https://api.github.com"), http, Strictness.STRICT)
+        .reviewComments(token, "fixture-org", "fixture-repo", 6, 1, 50);
+```
+
+`recording(name)` queues a recording's answers in order, `recorded(name)` returns them for a test to change one first,
+`answer` and `otherwise` add answers of the test's own, and `requests()` returns what was sent. The recordings are at
+`/org/fuin/porelo/forge/github/recordings/<name>.json`, one per call of `GitHubClient` and `GitHubGraphQl`, named
+after it, such as `pull` or `reviewThreads`. Each holds the `request_uri` it answered, the `request_body` of a write
+or a GraphQL query, the `status`, the kept `headers` and the `body` as text, and under `exchanges` every answer of the
+call, two for a job log, whose first answer GitHub redirects; `context` names the fixture's owner, repository, pull
+request and ids the requests used. Accounts, addresses and credentials are scrubbed, as below. The recordings change
+only when this repository records again.
+
 ## Build
 
-Unit tests replay the GitHub answers in `src/test/resources/recordings/`, with no network or credential. The
-recordings are made by the recorder below, which scrubs accounts, addresses and credentials before it writes them.
+Unit tests replay the GitHub answers in `src/test/resources/org/fuin/porelo/forge/github/recordings/`, with no
+network or credential. The recordings are made by the recorder below, which scrubs accounts, addresses and
+credentials before it writes them.
 An account it was not told about stops it, unless the account wrote or committed a commit, as GitHub's own committer
 does; such an account is named `fixture-committer-<n>`. A signed commit's raw text and signature are dropped, since
 the raw text names the author as git does.

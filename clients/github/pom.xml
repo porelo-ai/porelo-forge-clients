@@ -55,6 +55,25 @@
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
             <plugin>
+                <!-- The tests jar for other repositories' tests: the replaying client and the recordings, nothing else. -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>tests-jar</id>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>org/fuin/porelo/forge/github/replay/**</include>
+                                <include>org/fuin/porelo/forge/github/recordings/**</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <executions>
@@ -145,7 +164,7 @@
                             <mainClass>org.fuin.porelo.forge.github.GitHubRecorder</mainClass>
                             <classpathScope>test</classpathScope>
                             <arguments>
-                                <argument>${project.basedir}/src/test/resources/recordings</argument>
+                                <argument>${project.basedir}/src/test/resources/org/fuin/porelo/forge/github/recordings</argument>
                             </arguments>
                         </configuration>
                     </execution>

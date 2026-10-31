@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import org.fuin.porelo.forge.github.replay.ReplayHttpClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -132,8 +133,8 @@ class GitHubRecorderTest {
                             }
                         })
                 .withMessageContaining("Refusing leftovers");
-        assertThat(http.requests).as("leftover discovery stops before any mutation").hasSize(1);
-        assertThat(http.requests)
+        assertThat(http.requests()).as("leftover discovery stops before any mutation").hasSize(1);
+        assertThat(http.requests())
                 .as("the recorder must perform no write against someone else's resources")
                 .allMatch(request -> request.method().equals("GET"));
     }
@@ -162,7 +163,7 @@ class GitHubRecorderTest {
                                 fixture.prepare();
                             }
                         });
-        assertThat(http.requests.stream().filter(request -> request.method().equals("DELETE")))
+        assertThat(http.requests().stream().filter(request -> request.method().equals("DELETE")))
                 .as("a rejected create owns no remote resources")
                 .isEmpty();
     }
@@ -198,7 +199,7 @@ class GitHubRecorderTest {
                         })
                 .withMessage("scenario failed");
         assertThat(
-                        http.requests.stream()
+                        http.requests().stream()
                                 .filter(request -> request.method().equals("DELETE"))
                                 .map(request -> request.uri().getRawPath()))
                 .as("cleanup deletes exactly the branch this run owns")
@@ -225,7 +226,7 @@ class GitHubRecorderTest {
                 .withMessageContaining("pull requests")
                 .withMessageContaining("forge-client-unit");
         assertThat(
-                        http.requests.stream()
+                        http.requests().stream()
                                 .filter(request -> request.method().equals("DELETE"))
                                 .map(HttpRequest::uri))
                 .as("later cleanup still removes the branch")
@@ -280,13 +281,13 @@ class GitHubRecorderTest {
                 .withMessageContaining("review comments")
                 .withMessageNotContaining("pull requests");
         assertThat(
-                        http.requests.stream()
+                        http.requests().stream()
                                 .filter(request -> request.method().equals("PATCH"))
                                 .map(request -> request.uri().getRawPath()))
                 .as("the pull is closed all the same")
                 .containsExactly(pulls + "/7");
         assertThat(
-                        http.requests.stream()
+                        http.requests().stream()
                                 .filter(request -> request.method().equals("DELETE"))
                                 .map(request -> request.uri().getRawPath()))
                 .as("a refused comment does not keep the next one")
@@ -322,13 +323,13 @@ class GitHubRecorderTest {
         fixture.close();
 
         assertThat(
-                        http.requests.stream()
+                        http.requests().stream()
                                 .filter(request -> request.method().equals("PATCH"))
                                 .map(request -> request.uri().getRawPath()))
                 .as("only the open check run is completed")
                 .containsExactly("/" + GitHubFixture.ROOT + "/check-runs/6");
         assertThat(
-                        http.requests.stream()
+                        http.requests().stream()
                                 .map(request -> request.uri().getRawQuery())
                                 .filter(query -> query != null && query.contains("check_name="))
                                 .count())
