@@ -489,6 +489,8 @@ adapters, in another repository, call them and translate what they return into P
 ## Work in this repository
 
 - **Issue prefix: `FC`.**
+- **An issue covers one forge only** (operator, 2026-10-31): work for both forges is two issues, each standing alone,
+  so one forge never waits for the other's recording.
 - **Only two kinds of file are not Java**: `mvnw`, the Maven wrapper's script, as Maven generates it, since Maven
   must be fetched before any Java of the build runs; and openapi-generator's templates that are overridden, each
   a copy of the pinned generator's own with the change, since the generator reads nothing else.
