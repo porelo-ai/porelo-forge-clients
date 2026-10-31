@@ -32,6 +32,12 @@ is left out.
 |---|---|---|---|
 | <a id="fc03"></a>[FC03](FC03-The-Forge-Calls-Of-The-Adapters-Move-Here.md) | - | [FC02](README.md#fc02) | The clients make every call Porelo's build adapters make to GitHub and Forgejo today, with the same requests and answers, published as snapshots |
 
+## Idea
+
+| # | Size | Blocked by | What it covers |
+|---|---|---|---|
+| <a id="fc15"></a>[FC15](FC15-Sources-And-Javadoc-Jars-In-A-Release.md) | - | - | A release carries each client's sources and javadoc jars, which Maven Central requires and the release build does not make |
+
 ## Estimated
 
 | # | Size | Blocked by | What it covers |
