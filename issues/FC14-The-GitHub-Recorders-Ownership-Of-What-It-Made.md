@@ -1,6 +1,6 @@
 # FC14 — The GitHub Recorder's Ownership Of What It Made
 
-**Status:** Implementing.
+**Status:** Review.
 **Size:** S - one condition in the recorder's fixture and one in a test's transport, with a test each; no call of the
 client changes.
 
@@ -17,6 +17,8 @@ when the page does not stop the reading (second reading of [FC06](README.md#fc06
   cancel, which no catch in the client turns into the refusal.
 - **Red first:** `GitHubFixtureKeysTest` asks for a key, then for a second one that GitHub refuses with 422, and sees
   the first deleted on close; and the key page test fails with the page's stop on a refusal removed.
+- **Built so far:** all of the above; both tests were seen red, the first against the fixture as it was, the second with
+  the page's stop on a refusal taken out.
 
 ## Acceptance
 

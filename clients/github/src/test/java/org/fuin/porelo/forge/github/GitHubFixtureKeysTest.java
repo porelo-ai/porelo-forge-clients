@@ -117,6 +117,28 @@ class GitHubFixtureKeysTest {
         assertThat(remote.repository).isTrue();
     }
 
+    // Prevents a refused second request from giving up what the first one made.
+    @Test
+    void aRefusedSecondKeyKeepsTheFirstOwned() throws Exception {
+        var remote = new Remote();
+        var http = new ReplayHttpClient().otherwise(remote::answer);
+
+        try (var fixture = fixture(http)) {
+            fixture.prepare();
+            fixture.requesting(GitHubFixture.Requested.KEYS, () -> remote.keys.add(5L));
+            assertThatExceptionOfType(GitHubException.class)
+                    .isThrownBy(
+                            () ->
+                                    fixture.requesting(
+                                            GitHubFixture.Requested.KEYS,
+                                            () -> {
+                                                throw new GitHubException(422, "key in use");
+                                            }));
+        }
+
+        assertThat(deletes(http)).contains("/user/keys/5");
+    }
+
     // Prevents asking for one kind of key from deleting the run's keys of the other kind.
     @Test
     void eachKindOfKeyIsRemovedOnlyWhenAskedFor() throws Exception {

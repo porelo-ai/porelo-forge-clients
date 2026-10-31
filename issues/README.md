@@ -11,6 +11,7 @@ is left out.
 |---|---|---|---|
 | <a id="fc12"></a>[FC12](FC12-GitHubs-Recorded-Answers-For-Other-Repositories.md) | S | - | GitHub's recorded answers and the replaying `HttpClient` in a `tests` jar of the github module, for the adapters' tests |
 | <a id="fc06"></a>[FC06](FC06-Keys-Repositories-And-Commit-Statuses-On-GitHub.md) | M | - | A GitHub user's public SSH authentication and signing keys read without a token, the signed-in user's own keys of both kinds listed, added and deleted, whether a user owns an organization, a repository read and created in an organization, a commit's combined status |
+| <a id="fc14"></a>[FC14](FC14-The-GitHub-Recorders-Ownership-Of-What-It-Made.md) | S | - | The GitHub recorder keeps owning what an earlier request made when a later one of its kind is refused, and the key page refusal test fails when the page does not stop |
 | <a id="fc05"></a>[FC05](FC05-Keys-And-Repositories-On-Forgejo.md) | S | [FC02](README.md#fc02) | A Forgejo user's public SSH keys read, the signed-in user's own keys listed, added and deleted, whether a user owns an organization, a repository read and created in an organization |
 
 ## Implementing
@@ -18,7 +19,6 @@ is left out.
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="fc02"></a>[FC02](FC02-The-Forgejo-Client.md) | M | - | The `forgejo` module: 19 operations from Forgejo 17's MIT Swagger 2.0 description, its answers recorded from a real Forgejo |
-| <a id="fc14"></a>[FC14](FC14-The-GitHub-Recorders-Ownership-Of-What-It-Made.md) | S | - | The GitHub recorder keeps owning what an earlier request made when a later one of its kind is refused, and the key page refusal test fails when the page does not stop |
 
 ## Backlog
 

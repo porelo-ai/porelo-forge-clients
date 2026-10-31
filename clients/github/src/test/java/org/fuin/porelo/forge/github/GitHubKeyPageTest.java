@@ -128,7 +128,9 @@ class GitHubKeyPageTest {
                 throws IOException {
             var subscription = new CountingSubscription();
             handler.apply(info(status, "text/plain")).onSubscribe(subscription);
-            throw new IOException(subscription.cancelled ? "stream cancelled" : "not stopped");
+            // No catch of the client's turns this into the refusal it would otherwise read.
+            if (!subscription.cancelled) throw new AssertionError("the page did not stop");
+            throw new IOException("stream cancelled");
         }
 
         @Override

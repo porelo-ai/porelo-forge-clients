@@ -244,12 +244,14 @@ final class GitHubFixture implements AutoCloseable {
                 () -> {
                     if (scope != Scope.EVERYTHING)
                         throw new IllegalStateException("Fixture is not prepared");
-                    requested.add(resource);
+                    boolean added = requested.add(resource);
                     try {
                         return create.call();
                     } catch (GitHubException ex) {
-                        // A rejected create must never adopt a competing recorder's resource.
-                        if (ex.status() >= 400 && ex.status() < 500) requested.remove(resource);
+                        // A rejected create must never adopt a competing recorder's resource, nor
+                        // give up one an earlier request of this run made.
+                        if (added && ex.status() >= 400 && ex.status() < 500)
+                            requested.remove(resource);
                         throw ex;
                     }
                 });
