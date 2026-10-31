@@ -40,12 +40,26 @@ class ForgejoRecordingTest {
             assertThat(transport.requests.getFirst().method())
                     .as("%s uses the recorded API operation", operation)
                     .isEqualTo(operation.method);
+            var sent = transport.requests.getFirst();
+            if (recording.path("request_body").isNull()
+                    || recording.path("request_body").isMissingNode()) {
+                assertThat(sent.bodyPublisher().map(body -> body.contentLength()).orElse(0L))
+                        .as("%s sends no body", operation)
+                        .isZero();
+            } else {
+                requireSent(
+                        operation,
+                        "",
+                        recording.path("request_body"),
+                        JSON.readTree(requestBody(sent)));
+            }
             assertThat(transport.requests.getFirst().uri().getRawPath())
                     .as("%s addresses the seeded resource", operation)
                     .isEqualTo(operation.path(context));
             String expectedQuery =
                     switch (operation) {
                         case pulls -> "state=open&page=1&limit=50";
+                        case issueComments -> "since=" + context.since().replace(":", "%3A");
                         case runs -> "head_sha=" + context.actionsSha() + "&page=1&limit=50";
                         case reviews, statuses, hooks, organizations, keys, ownKeys ->
                                 "page=1&limit=50";
@@ -65,6 +79,74 @@ class ForgejoRecordingTest {
                     .as("%s sends the exact query captured during the live run", operation)
                     .isEqualTo(recordedUri.getRawQuery());
         }
+    }
+
+    /**
+     * Requires every recorded value at its place in what was sent; the records also send their
+     * empty defaults, which Forgejo took live.
+     */
+    private static void requireSent(
+            ForgejoOperations operation, String at, JsonNode recorded, JsonNode sent) {
+        if (recorded.isObject()) {
+            assertThat(sent.isObject()).as("%s sends %s as an object", operation, at).isTrue();
+            sent.properties().stream()
+                    .filter(field -> !recorded.has(field.getKey()))
+                    .forEach(
+                            field ->
+                                    assertThat(
+                                                    field.getValue().isNull()
+                                                            || (field.getValue().isContainerNode()
+                                                                    && field.getValue().isEmpty()))
+                                            .as(
+                                                    "%s sends only an empty default for %s.%s",
+                                                    operation, at, field.getKey())
+                                            .isTrue());
+            recorded.properties()
+                    .forEach(
+                            field ->
+                                    requireSent(
+                                            operation,
+                                            at + "." + field.getKey(),
+                                            field.getValue(),
+                                            sent.path(field.getKey())));
+        } else if (recorded.isArray()) {
+            assertThat(sent.isArray()).as("%s sends %s as a list", operation, at).isTrue();
+            assertThat(sent.size())
+                    .as("%s sends %s whole", operation, at)
+                    .isEqualTo(recorded.size());
+            for (int i = 0; i < recorded.size(); i++)
+                requireSent(operation, at + "[" + i + "]", recorded.get(i), sent.path(i));
+        } else {
+            assertThat(sent).as("%s sends %s", operation, at).isEqualTo(recorded);
+        }
+    }
+
+    static String requestBody(java.net.http.HttpRequest request) {
+        var subscriber =
+                java.net.http.HttpResponse.BodySubscribers.ofString(
+                        java.nio.charset.StandardCharsets.UTF_8);
+        request.bodyPublisher()
+                .orElseThrow()
+                .subscribe(
+                        new java.util.concurrent.Flow.Subscriber<java.nio.ByteBuffer>() {
+                            public void onSubscribe(
+                                    java.util.concurrent.Flow.Subscription subscription) {
+                                subscriber.onSubscribe(subscription);
+                            }
+
+                            public void onNext(java.nio.ByteBuffer buffer) {
+                                subscriber.onNext(java.util.List.of(buffer));
+                            }
+
+                            public void onError(Throwable error) {
+                                subscriber.onError(error);
+                            }
+
+                            public void onComplete() {
+                                subscriber.onComplete();
+                            }
+                        });
+        return subscriber.getBody().toCompletableFuture().join();
     }
 
     // Prevents renamed recorded fields from silently losing build identity.

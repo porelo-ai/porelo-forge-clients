@@ -22,13 +22,16 @@
   "context" : {
     "owner" : "review-org",
     "repo" : "review-fixture",
-    "sha" : "85a4ee9b4fc373c8b5638ee2082b4f46bfaaeba1",
-    "actionsSha" : "816e6da17392afa0f99897f3a0ae01a735971645",
+    "sha" : "637c633c7543ae77d2cd41b835db4f7af6aa0bfa",
+    "actionsSha" : "db2a5c2a9a7bdd09e4e5b6dc2ec4e86d6c1be70b",
     "index" : 1,
     "review" : 1,
     "run" : 1,
     "job" : 1,
-    "key" : 1
+    "key" : 1,
+    "comment" : 4,
+    "issueComment" : 6,
+    "since" : "2026-10-31T10:41:26Z"
   },
   "request_body" : null
 }

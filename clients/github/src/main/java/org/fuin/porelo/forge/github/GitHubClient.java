@@ -13,6 +13,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -53,6 +54,31 @@ public final class GitHubClient {
                 token,
                 "GET",
                 repo(owner, repo) + "/pulls?state=" + segment(state) + paging(page, perPage),
+                null,
+                listType(PullRequestSimple.class));
+    }
+
+    /**
+     * Reads the pull requests in a state whose head is a branch, named {@code owner:branch} as
+     * GitHub names a head of another fork.
+     */
+    public List<PullRequestSimple> pullsOfHead(
+            String token,
+            String owner,
+            String repo,
+            String head,
+            String state,
+            int page,
+            int perPage) {
+        return call(
+                token,
+                "GET",
+                repo(owner, repo)
+                        + "/pulls?state="
+                        + segment(state)
+                        + "&head="
+                        + segment(head)
+                        + paging(page, perPage),
                 null,
                 listType(PullRequestSimple.class));
     }
@@ -144,6 +170,125 @@ public final class GitHubClient {
                 pullPath(owner, repo, number) + "/comments/" + positive(commentId) + "/replies",
                 body,
                 json.constructType(PullRequestReviewComment.class));
+    }
+
+    /** Changes the text of an inline review comment. */
+    public PullRequestReviewComment updateReviewComment(
+            String token,
+            String owner,
+            String repo,
+            long commentId,
+            PullsUpdateReviewCommentRequest body) {
+        Objects.requireNonNull(body, "body");
+        return call(
+                token,
+                "PATCH",
+                repo(owner, repo) + "/pulls/comments/" + positive(commentId),
+                body,
+                json.constructType(PullRequestReviewComment.class));
+    }
+
+    /** Deletes an inline review comment. */
+    public void deleteReviewComment(String token, String owner, String repo, long commentId) {
+        delete(token, repo(owner, repo) + "/pulls/comments/" + positive(commentId));
+    }
+
+    /** Lists one page of the inline comments of one review. */
+    public List<ReviewComment> reviewCommentsOf(
+            String token,
+            String owner,
+            String repo,
+            long number,
+            long reviewId,
+            int page,
+            int perPage) {
+        return call(
+                token,
+                "GET",
+                pullPath(owner, repo, number)
+                        + "/reviews/"
+                        + positive(reviewId)
+                        + "/comments?"
+                        + pageQuery(page, perPage),
+                null,
+                listType(ReviewComment.class));
+    }
+
+    /**
+     * Lists one page of a pull request's general comments, those GitHub keeps on its issue; with a
+     * time, only those changed at or after it.
+     */
+    public List<IssueComment> issueComments(
+            String token,
+            String owner,
+            String repo,
+            long number,
+            @Nullable Instant since,
+            int page,
+            int perPage) {
+        return call(
+                token,
+                "GET",
+                repo(owner, repo)
+                        + "/issues/"
+                        + positive(number)
+                        + "/comments?"
+                        + (since == null ? "" : "since=" + segment(since.toString()) + "&")
+                        + pageQuery(page, perPage),
+                null,
+                listType(IssueComment.class));
+    }
+
+    /** Writes a general comment on a pull request. */
+    public IssueComment createIssueComment(
+            String token, String owner, String repo, long number, IssuesUpdateCommentRequest body) {
+        Objects.requireNonNull(body, "body");
+        return call(
+                token,
+                "POST",
+                repo(owner, repo) + "/issues/" + positive(number) + "/comments",
+                body,
+                json.constructType(IssueComment.class));
+    }
+
+    /** Changes the text of a general comment. */
+    public IssueComment updateIssueComment(
+            String token,
+            String owner,
+            String repo,
+            long commentId,
+            IssuesUpdateCommentRequest body) {
+        Objects.requireNonNull(body, "body");
+        return call(
+                token,
+                "PATCH",
+                repo(owner, repo) + "/issues/comments/" + positive(commentId),
+                body,
+                json.constructType(IssueComment.class));
+    }
+
+    /** Deletes a general comment. */
+    public void deleteIssueComment(String token, String owner, String repo, long commentId) {
+        delete(token, repo(owner, repo) + "/issues/comments/" + positive(commentId));
+    }
+
+    /**
+     * Compares two commits; its merge base is the old side of a pull request's diff. Only the first
+     * commit and file are asked for, since the answer lists both and the merge base needs neither.
+     */
+    public CommitComparison compare(
+            String token, String owner, String repo, String base, String head) {
+        return call(
+                token,
+                "GET",
+                repo(owner, repo)
+                        + "/compare/"
+                        + segment(base)
+                        + "..."
+                        + segment(head)
+                        + "?page=1&per_page=1",
+                null,
+                json.constructType(CommitComparison.class));
     }
 
     /** Lists one page of check runs for a commit reference. */
@@ -256,6 +401,19 @@ public final class GitHubClient {
     }
 
     <T> T graphQl(String token, Object body, Class<T> type) {
+        return graphQl(token, body, type, false);
+    }
+
+    /**
+     * Reads one node by its ID: an ID GitHub does not know, answered with a null node and a {@code
+     * NOT_FOUND} error on it, and one of another kind, answered with an empty node, read as a null
+     * node.
+     */
+    <T> T graphQlNode(String token, Object body, Class<T> type) {
+        return graphQl(token, body, type, true);
+    }
+
+    private <T> T graphQl(String token, Object body, Class<T> type, boolean node) {
         JsonNode envelope =
                 call(
                         token,
@@ -263,6 +421,20 @@ public final class GitHubClient {
                         "graphql",
                         Objects.requireNonNull(body, "body"),
                         json.constructType(JsonNode.class));
+        if (node && envelope.path("data") instanceof ObjectNode data) {
+            JsonNode found = data.path("node");
+            if (found.isObject() && found.isEmpty()) data.putNull("node");
+            if (found.isNull()
+                    && envelope instanceof ObjectNode object
+                    && object.path("errors")
+                            instanceof com.fasterxml.jackson.databind.node.ArrayNode list) {
+                list.removeIf(
+                        error ->
+                                error.path("type").asText().equals("NOT_FOUND")
+                                        && error.path("path").size() == 1
+                                        && error.path("path").path(0).asText().equals("node"));
+            }
+        }
         JsonNode errors = envelope.path("errors");
         // An empty or null list of errors is the absence of errors.
         if (envelope instanceof ObjectNode object
@@ -341,6 +513,11 @@ public final class GitHubClient {
         credentials.sort(java.util.Comparator.comparingInt(String::length).reversed());
         check(response, credentials);
         return GitHubJson.read(json, response.body(), type, credentials);
+    }
+
+    private void delete(String token, String path) {
+        HttpResponse<String> response = send(token, "DELETE", base.resolve(path), null, true);
+        check(response, List.of(token));
     }
 
     private HttpResponse<String> send(

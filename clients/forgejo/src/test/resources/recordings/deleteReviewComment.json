@@ -1,0 +1,29 @@
+{
+  "request_uri" : "/api/v1/repos/review-org/review-fixture/pulls/1/reviews/1/comments/4",
+  "status" : 204,
+  "headers" : { },
+  "body" : "",
+  "exchanges" : [
+    {
+      "request_uri" : "/api/v1/repos/review-org/review-fixture/pulls/1/reviews/1/comments/4",
+      "status" : 204,
+      "headers" : { },
+      "body" : ""
+    }
+  ],
+  "context" : {
+    "owner" : "review-org",
+    "repo" : "review-fixture",
+    "sha" : "637c633c7543ae77d2cd41b835db4f7af6aa0bfa",
+    "actionsSha" : "pending",
+    "index" : 1,
+    "review" : 1,
+    "run" : 1,
+    "job" : 1,
+    "key" : 1,
+    "comment" : 4,
+    "issueComment" : 1,
+    "since" : "1970-01-01T00:00:00Z"
+  },
+  "request_body" : null
+}

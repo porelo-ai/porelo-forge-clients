@@ -1,0 +1,37 @@
+{
+  "request_uri" : "/api/v1/version",
+  "status" : 200,
+  "headers" : {
+    "content-type" : [
+      "application/json;charset=utf-8"
+    ]
+  },
+  "body" : "{\"version\":\"17.0.1+gitea-1.22.0\"}",
+  "exchanges" : [
+    {
+      "request_uri" : "/api/v1/version",
+      "status" : 200,
+      "headers" : {
+        "content-type" : [
+          "application/json;charset=utf-8"
+        ]
+      },
+      "body" : "{\"version\":\"17.0.1+gitea-1.22.0\"}"
+    }
+  ],
+  "context" : {
+    "owner" : "review-org",
+    "repo" : "review-fixture",
+    "sha" : "637c633c7543ae77d2cd41b835db4f7af6aa0bfa",
+    "actionsSha" : "db2a5c2a9a7bdd09e4e5b6dc2ec4e86d6c1be70b",
+    "index" : 1,
+    "review" : 1,
+    "run" : 1,
+    "job" : 1,
+    "key" : 1,
+    "comment" : 4,
+    "issueComment" : 6,
+    "since" : "2026-10-31T10:41:26Z"
+  },
+  "request_body" : null
+}

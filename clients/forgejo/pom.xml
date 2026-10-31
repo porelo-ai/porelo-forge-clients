@@ -130,6 +130,22 @@
                                 <argument>get /users/{username}/keys</argument>
                                 <argument>--operation</argument>
                                 <argument>get /users/{username}/orgs/{org}/permissions</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/issues/{index}/comments</argument>
+                                <argument>--operation</argument>
+                                <argument>post /repos/{owner}/{repo}/issues/{index}/comments</argument>
+                                <argument>--operation</argument>
+                                <argument>patch /repos/{owner}/{repo}/issues/comments/{id}</argument>
+                                <argument>--operation</argument>
+                                <argument>delete /repos/{owner}/{repo}/issues/comments/{id}</argument>
+                                <argument>--operation</argument>
+                                <argument>post /repos/{owner}/{repo}/pulls/{index}/reviews/{id}/comments</argument>
+                                <argument>--operation</argument>
+                                <argument>delete /repos/{owner}/{repo}/pulls/{index}/reviews/{id}/comments/{comment}</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/pulls/{base}/{head}</argument>
+                                <argument>--operation</argument>
+                                <argument>get /version</argument>
                             </arguments>
                         </configuration>
                     </execution>

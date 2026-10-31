@@ -2,6 +2,7 @@ package org.fuin.porelo.forge.github;
 
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,9 +19,13 @@ public final class GitHubGraphQl {
                 pullRequest(number: $number) {
                   reviewThreads(first: 100, after: $after) {
                     nodes {
-                      id isResolved isOutdated path line
+                      id isResolved isOutdated path line diffSide startDiffSide
+                      resolvedBy { login id databaseId }
                       comments(first: 100) {
-                        nodes { databaseId body }
+                        nodes {
+                          id databaseId body createdAt
+                          author { login ... on User { id databaseId } ... on Bot { id databaseId } }
+                        }
                         pageInfo { hasNextPage endCursor }
                       }
                     }
@@ -38,7 +43,30 @@ public final class GitHubGraphQl {
               node(id: $id) {
                 ... on PullRequestReviewThread {
                   comments(first: 100, after: $after) {
-                    nodes { databaseId body }
+                    nodes {
+                      id databaseId body createdAt
+                      author { login ... on User { id databaseId } ... on Bot { id databaseId } }
+                    }
+                    pageInfo { hasNextPage endCursor }
+                  }
+                }
+              }
+            }
+            """;
+
+    /** Reads one thread by its node ID, its state, its resolver and the first page of comments. */
+    public static final String REVIEW_THREAD =
+            """
+            query ReviewThread($id: ID!) {
+              node(id: $id) {
+                ... on PullRequestReviewThread {
+                  id isResolved isOutdated path line diffSide startDiffSide
+                  resolvedBy { login id databaseId }
+                  comments(first: 100) {
+                    nodes {
+                      id databaseId body createdAt
+                      author { login ... on User { id databaseId } ... on Bot { id databaseId } }
+                    }
                     pageInfo { hasNextPage endCursor }
                   }
                 }
@@ -104,6 +132,15 @@ public final class GitHubGraphQl {
                 CommentsResponse.class);
     }
 
+    /** Reads one thread identified by its GraphQL node ID; an unknown ID reads a null node. */
+    public ThreadResponse reviewThread(String token, String id) {
+        requireId(id);
+        return client.graphQlNode(
+                token,
+                Map.of("query", REVIEW_THREAD, "variables", Map.of("id", id)),
+                ThreadResponse.class);
+    }
+
     /** Resolves a thread identified by its GraphQL node ID. */
     public ResolveResponse resolveReviewThread(String token, String id) {
         requireId(id);
@@ -134,11 +171,34 @@ public final class GitHubGraphQl {
         }
     }
 
-    /** A review comment's REST identity and Markdown body. */
-    public record Comment(@Nullable Long databaseId, String body) {
-        /** Requires comment text; some node identities may be unavailable. */
+    /**
+     * An account as GitHub names it; a user's or a bot's stable IDs are given, those of another
+     * kind of account, or of a deleted one, are not.
+     */
+    public record Account(String login, @Nullable String id, @Nullable Long databaseId) {
+        /** Requires the login. */
+        public Account {
+            Objects.requireNonNull(login, "login");
+        }
+    }
+
+    /**
+     * A review comment's node ID, REST identity, Markdown body, time and author; the author of a
+     * deleted account is null.
+     */
+    public record Comment(
+            String id,
+            @Nullable Long databaseId,
+            String body,
+            OffsetDateTime createdAt,
+            @Nullable Account author) {
+        /**
+         * Requires the comment's identity, text and time; some REST identities may be unavailable.
+         */
         public Comment {
+            Objects.requireNonNull(id, "id");
             Objects.requireNonNull(body, "body");
+            Objects.requireNonNull(createdAt, "createdAt");
         }
     }
 
@@ -151,13 +211,20 @@ public final class GitHubGraphQl {
         }
     }
 
-    /** Thread state and source location; outdated threads may lack a current line. */
+    /**
+     * Thread state, source location and side of the diff, {@code LEFT} or {@code RIGHT} in GitHub's
+     * terms; outdated threads may lack a current line, a single line has no start side, and an
+     * unresolved thread, or one whose resolver is gone, has no resolver.
+     */
     public record ReviewThread(
             String id,
             Boolean isResolved,
             Boolean isOutdated,
             String path,
             @Nullable Integer line,
+            String diffSide,
+            @Nullable String startDiffSide,
+            @Nullable Account resolvedBy,
             Comments comments) {
         /** Requires the selected thread fields. */
         public ReviewThread {
@@ -165,6 +232,7 @@ public final class GitHubGraphQl {
             Objects.requireNonNull(isResolved, "isResolved");
             Objects.requireNonNull(isOutdated, "isOutdated");
             Objects.requireNonNull(path, "path");
+            Objects.requireNonNull(diffSide, "diffSide");
             Objects.requireNonNull(comments, "comments");
         }
     }
@@ -215,6 +283,17 @@ public final class GitHubGraphQl {
     public record CommentsResponse(CommentsData data) {
         /** Requires query data. */
         public CommentsResponse {
+            Objects.requireNonNull(data, "data");
+        }
+    }
+
+    /** A selected thread, or null when no thread has the ID. */
+    public record ThreadData(@Nullable ReviewThread node) {}
+
+    /** The single thread envelope. */
+    public record ThreadResponse(ThreadData data) {
+        /** Requires query data. */
+        public ThreadResponse {
             Objects.requireNonNull(data, "data");
         }
     }

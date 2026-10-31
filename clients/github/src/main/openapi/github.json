@@ -21,7 +21,9 @@
         "pull-request-review.is_copilot_code_review",
         "pull-request-review.copilot_code_review_effort",
         "pull-request-review-comment.is_copilot_code_review",
-        "pull-request-review-comment.copilot_code_review_sources"
+        "pull-request-review-comment.copilot_code_review_sources",
+        "review-comment.is_copilot_code_review",
+        "review-comment.copilot_code_review_sources"
       ],
       "set": [
         "pull-request#/properties/labels/items/properties/archived_by",
@@ -48,6 +50,9 @@
         "deployment-simple#/properties/id/format",
         "check-run#/properties/check_suite/properties/id/format",
         "pull-request-review-comment#/properties/in_reply_to_id/format",
+        "review-comment#/properties/in_reply_to_id/format",
+        "commit#/properties/author",
+        "commit#/properties/committer",
         "check-run#/properties/conclusion/enum",
         "#/paths/~1repos~1{owner}~1{repo}~1pulls~1{pull_number}~1comments/post/requestBody/content/application~1json/schema/properties/in_reply_to/format"
       ]
@@ -1296,6 +1301,99 @@
         }
       }
     },
+    "/repos/{owner}/{repo}/compare/{basehead}": {
+      "get": {
+        "summary": "Compare two commits",
+        "description": "Compares two commits against one another. You can compare refs (branches or tags) and commit SHAs in the same repository, or you can compare refs and commit SHAs that exist in different repositories within the same repository network, including fork branches. For more information about how to view a repository's network, see \"[Understanding connections between repositories](https://docs.github.com/repositories/viewing-activity-and-data-for-your-repository/understanding-connections-between-repositories).\"\n\nThis endpoint is equivalent to running the `git log BASE..HEAD` command, but it returns commits in a different order. The `git log BASE..HEAD` command returns commits in reverse chronological order, whereas the API returns commits in chronological order.\n\nThis endpoint supports the following custom media types. For more information, see \"[Media types](https://docs.github.com/rest/using-the-rest-api/getting-started-with-the-rest-api#media-types).\"\n\n- **`application/vnd.github.diff`**: Returns the diff of the commit.\n- **`application/vnd.github.patch`**: Returns the patch of the commit. Diffs with binary data will have no `patch` property.\n\nThe API response includes details about the files that were changed between the two commits. This includes the status of the change (if a file was added, removed, modified, or renamed), and details of the change itself. For example, files with a `renamed` status have a `previous_filename` field showing the previous filename of the file, and files with a `modified` status have a `patch` field showing the changes made to the file.\n\nWhen calling this endpoint without any paging parameter (`per_page` or `page`), the returned list is limited to 250 commits, and the last commit in the list is the most recent of the entire comparison.\n\n**Working with large comparisons**\n\nTo process a response with a large number of commits, use a query parameter (`per_page` or `page`) to paginate the results. When using pagination:\n\n- The list of changed files is only shown on the first page of results, and it includes up to 300 changed files for the entire comparison.\n- The results are returned in chronological order, but the last commit in the returned list may not be the most recent one in the entire set if there are more pages of results.\n\nFor more information on working with pagination, see \"[Using pagination in the REST API](https://docs.github.com/rest/guides/using-pagination-in-the-rest-api).\"\n\n**Signature verification object**\n\nThe response will include a `verification` object that describes the result of verifying the commit's signature. The `verification` object includes the following fields:\n\n| Name | Type | Description |\n| ---- | ---- | ----------- |\n| `verified` | `boolean` | Indicates whether GitHub considers the signature in this commit to be verified. |\n| `reason` | `string` | The reason for verified value. Possible values and their meanings are enumerated in table below. |\n| `signature` | `string` | The signature that was extracted from the commit. |\n| `payload` | `string` | The value that was signed. |\n| `verified_at` | `string` | The date the signature was verified by GitHub. |\n\nThese are the possible values for `reason` in the `verification` object:\n\n| Value | Description |\n| ----- | ----------- |\n| `expired_key` | The key that made the signature is expired. |\n| `not_signing_key` | The \"signing\" flag is not among the usage flags in the GPG key that made the signature. |\n| `gpgverify_error` | There was an error communicating with the signature verification service. |\n| `gpgverify_unavailable` | The signature verification service is currently unavailable. |\n| `unsigned` | The object does not include a signature. |\n| `unknown_signature_type` | A non-PGP signature was found in the commit. |\n| `no_user` | No user was associated with the `committer` email address in the commit. |\n| `unverified_email` | The `committer` email address in the commit was associated with a user, but the email address is not verified on their account. |\n| `bad_email` | The `committer` email address in the commit is not included in the identities of the PGP key that made the signature. |\n| `unknown_key` | The key that made the signature has not been registered with any user's account. |\n| `malformed_signature` | There was an error parsing the signature. |\n| `invalid` | The signature could not be cryptographically verified using the key whose key-id was found in the signature. |\n| `valid` | None of the above errors applied, so the signature is considered to be verified. |",
+        "tags": [
+          "repos"
+        ],
+        "operationId": "repos/compare-commits",
+        "externalDocs": {
+          "description": "API method documentation",
+          "url": "https://docs.github.com/rest/commits/commits#compare-two-commits"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/owner"
+          },
+          {
+            "$ref": "#/components/parameters/repo"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/per-page"
+          },
+          {
+            "name": "basehead",
+            "description": "The base branch and head branch to compare. This parameter expects the format `BASE...HEAD`. Both must be branch names in `repo`. To compare with a branch that exists in a different repository in the same network as `repo`, the `basehead` parameter expects the format `USERNAME:BASE...USERNAME:HEAD`.",
+            "in": "path",
+            "required": true,
+            "x-multi-segment": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/commit-comparison"
+                },
+                "examples": {
+                  "default": {
+                    "$ref": "#/components/examples/commit-comparison"
+                  }
+                }
+              },
+              "application/vnd.github.diff": {
+                "schema": {
+                  "type": "string"
+                },
+                "examples": {
+                  "default": {
+                    "$ref": "#/components/examples/diff-media-type"
+                  }
+                }
+              },
+              "application/vnd.github.patch": {
+                "schema": {
+                  "type": "string"
+                },
+                "examples": {
+                  "default": {
+                    "$ref": "#/components/examples/patch-media-type"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/validation_failed"
+          },
+          "500": {
+            "$ref": "#/components/responses/internal_error"
+          },
+          "503": {
+            "$ref": "#/components/responses/service_unavailable"
+          }
+        },
+        "x-github": {
+          "githubCloudOnly": false,
+          "enabledForGitHubApps": true,
+          "category": "commits",
+          "subcategory": "commits"
+        }
+      }
+    },
     "/repos/{owner}/{repo}/git/ref/{ref}": {
       "get": {
         "summary": "Get a reference",
@@ -1347,6 +1445,281 @@
           "enabledForGitHubApps": true,
           "category": "git",
           "subcategory": "refs"
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/issues/comments/{comment_id}": {
+      "patch": {
+        "summary": "Update an issue comment",
+        "description": "You can use the REST API to update comments on issues and pull requests. Every pull request is an issue, but not every issue is a pull request.\n\nThis endpoint supports the following custom media types. For more information, see \"[Media types](https://docs.github.com/rest/using-the-rest-api/getting-started-with-the-rest-api#media-types).\"\n\n- **`application/vnd.github.raw+json`**: Returns the raw markdown body. Response will include `body`. This is the default if you do not pass any specific media type.\n- **`application/vnd.github.text+json`**: Returns a text only representation of the markdown body. Response will include `body_text`.\n- **`application/vnd.github.html+json`**: Returns HTML rendered from the body's markdown. Response will include `body_html`.\n- **`application/vnd.github.full+json`**: Returns raw, text, and HTML representations. Response will include `body`, `body_text`, and `body_html`.",
+        "tags": [
+          "issues"
+        ],
+        "operationId": "issues/update-comment",
+        "externalDocs": {
+          "description": "API method documentation",
+          "url": "https://docs.github.com/rest/issues/comments#update-an-issue-comment"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/owner"
+          },
+          {
+            "$ref": "#/components/parameters/repo"
+          },
+          {
+            "$ref": "#/components/parameters/comment-id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "body": {
+                    "type": "string",
+                    "description": "The contents of the comment."
+                  }
+                },
+                "required": [
+                  "body"
+                ]
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "body": "Me too"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/issue-comment"
+                },
+                "examples": {
+                  "default": {
+                    "$ref": "#/components/examples/issue-comment"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/validation_failed"
+          }
+        },
+        "x-github": {
+          "githubCloudOnly": false,
+          "enabledForGitHubApps": true,
+          "category": "issues",
+          "subcategory": "comments"
+        }
+      },
+      "delete": {
+        "summary": "Delete an issue comment",
+        "description": "You can use the REST API to delete comments on issues and pull requests. Every pull request is an issue, but not every issue is a pull request.",
+        "tags": [
+          "issues"
+        ],
+        "operationId": "issues/delete-comment",
+        "externalDocs": {
+          "description": "API method documentation",
+          "url": "https://docs.github.com/rest/issues/comments#delete-an-issue-comment"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/owner"
+          },
+          {
+            "$ref": "#/components/parameters/repo"
+          },
+          {
+            "$ref": "#/components/parameters/comment-id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Response"
+          }
+        },
+        "x-github": {
+          "githubCloudOnly": false,
+          "enabledForGitHubApps": true,
+          "category": "issues",
+          "subcategory": "comments"
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/issues/{issue_number}/comments": {
+      "get": {
+        "summary": "List issue comments",
+        "description": "You can use the REST API to list comments on issues and pull requests. Every pull request is an issue, but not every issue is a pull request.\n\nIssue comments are ordered by ascending ID.\n\nThis endpoint supports the following custom media types. For more information, see \"[Media types](https://docs.github.com/rest/using-the-rest-api/getting-started-with-the-rest-api#media-types).\"\n\n- **`application/vnd.github.raw+json`**: Returns the raw markdown body. Response will include `body`. This is the default if you do not pass any specific media type.\n- **`application/vnd.github.text+json`**: Returns a text only representation of the markdown body. Response will include `body_text`.\n- **`application/vnd.github.html+json`**: Returns HTML rendered from the body's markdown. Response will include `body_html`.\n- **`application/vnd.github.full+json`**: Returns raw, text, and HTML representations. Response will include `body`, `body_text`, and `body_html`.",
+        "tags": [
+          "issues"
+        ],
+        "operationId": "issues/list-comments",
+        "externalDocs": {
+          "description": "API method documentation",
+          "url": "https://docs.github.com/rest/issues/comments#list-issue-comments"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/owner"
+          },
+          {
+            "$ref": "#/components/parameters/repo"
+          },
+          {
+            "$ref": "#/components/parameters/issue-number"
+          },
+          {
+            "$ref": "#/components/parameters/since"
+          },
+          {
+            "$ref": "#/components/parameters/per-page"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/issue-comment"
+                  }
+                },
+                "examples": {
+                  "default": {
+                    "$ref": "#/components/examples/issue-comment-items"
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Link": {
+                "$ref": "#/components/headers/link"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "410": {
+            "$ref": "#/components/responses/gone"
+          }
+        },
+        "x-github": {
+          "githubCloudOnly": false,
+          "enabledForGitHubApps": true,
+          "category": "issues",
+          "subcategory": "comments"
+        }
+      },
+      "post": {
+        "summary": "Create an issue comment",
+        "description": "You can use the REST API to create comments on issues and pull requests. Every pull request is an issue, but not every issue is a pull request.\n\nThis endpoint triggers [notifications](https://docs.github.com/github/managing-subscriptions-and-notifications-on-github/about-notifications).\nCreating content too quickly using this endpoint may result in secondary rate limiting.\nFor more information, see \"[Rate limits for the API](https://docs.github.com/rest/using-the-rest-api/rate-limits-for-the-rest-api#about-secondary-rate-limits)\"\nand \"[Best practices for using the REST API](https://docs.github.com/rest/guides/best-practices-for-using-the-rest-api).\"\n\nThis endpoint supports the following custom media types. For more information, see \"[Media types](https://docs.github.com/rest/using-the-rest-api/getting-started-with-the-rest-api#media-types).\"\n\n- **`application/vnd.github.raw+json`**: Returns the raw markdown body. Response will include `body`. This is the default if you do not pass any specific media type.\n- **`application/vnd.github.text+json`**: Returns a text only representation of the markdown body. Response will include `body_text`.\n- **`application/vnd.github.html+json`**: Returns HTML rendered from the body's markdown. Response will include `body_html`.\n- **`application/vnd.github.full+json`**: Returns raw, text, and HTML representations. Response will include `body`, `body_text`, and `body_html`.",
+        "tags": [
+          "issues"
+        ],
+        "operationId": "issues/create-comment",
+        "externalDocs": {
+          "description": "API method documentation",
+          "url": "https://docs.github.com/rest/issues/comments#create-an-issue-comment"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/owner"
+          },
+          {
+            "$ref": "#/components/parameters/repo"
+          },
+          {
+            "$ref": "#/components/parameters/issue-number"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "body": {
+                    "type": "string",
+                    "description": "The contents of the comment."
+                  }
+                },
+                "required": [
+                  "body"
+                ]
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "body": "Me too"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/issue-comment"
+                },
+                "examples": {
+                  "default": {
+                    "$ref": "#/components/examples/issue-comment"
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "example": "https://api.github.com/repos/octocat/Hello-World/issues/comments/1",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "410": {
+            "$ref": "#/components/responses/gone"
+          },
+          "422": {
+            "$ref": "#/components/responses/validation_failed"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        },
+        "x-github": {
+          "triggersNotification": true,
+          "githubCloudOnly": false,
+          "enabledForGitHubApps": true,
+          "category": "issues",
+          "subcategory": "comments"
         }
       }
     },
@@ -1598,6 +1971,117 @@
           "enabledForGitHubApps": true,
           "category": "pulls",
           "subcategory": "pulls"
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/pulls/comments/{comment_id}": {
+      "patch": {
+        "summary": "Update a review comment for a pull request",
+        "description": "Edits the content of a specified review comment.\n\nThis endpoint supports the following custom media types. For more information, see \"[Media types](https://docs.github.com/rest/using-the-rest-api/getting-started-with-the-rest-api#media-types).\"\n\n- **`application/vnd.github-commitcomment.raw+json`**: Returns the raw markdown body. Response will include `body`. This is the default if you do not pass any specific media type.\n- **`application/vnd.github-commitcomment.text+json`**: Returns a text only representation of the markdown body. Response will include `body_text`.\n- **`application/vnd.github-commitcomment.html+json`**: Returns HTML rendered from the body's markdown. Response will include `body_html`.\n- **`application/vnd.github-commitcomment.full+json`**: Returns raw, text, and HTML representations. Response will include `body`, `body_text`, and `body_html`.",
+        "tags": [
+          "pulls"
+        ],
+        "operationId": "pulls/update-review-comment",
+        "externalDocs": {
+          "description": "API method documentation",
+          "url": "https://docs.github.com/rest/pulls/comments#update-a-review-comment-for-a-pull-request"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/owner"
+          },
+          {
+            "$ref": "#/components/parameters/repo"
+          },
+          {
+            "$ref": "#/components/parameters/comment-id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "body": {
+                    "type": "string",
+                    "description": "The text of the reply to the review comment."
+                  }
+                },
+                "required": [
+                  "body"
+                ]
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "body": "I like this too!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/pull-request-review-comment"
+                },
+                "examples": {
+                  "default": {
+                    "$ref": "#/components/examples/pull-request-review-comment-2"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-github": {
+          "githubCloudOnly": false,
+          "enabledForGitHubApps": true,
+          "category": "pulls",
+          "subcategory": "comments"
+        }
+      },
+      "delete": {
+        "summary": "Delete a review comment for a pull request",
+        "description": "Deletes a review comment.",
+        "tags": [
+          "pulls"
+        ],
+        "operationId": "pulls/delete-review-comment",
+        "externalDocs": {
+          "description": "API method documentation",
+          "url": "https://docs.github.com/rest/pulls/comments#delete-a-review-comment-for-a-pull-request"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/owner"
+          },
+          {
+            "$ref": "#/components/parameters/repo"
+          },
+          {
+            "$ref": "#/components/parameters/comment-id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Response"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        },
+        "x-github": {
+          "githubCloudOnly": false,
+          "enabledForGitHubApps": true,
+          "category": "pulls",
+          "subcategory": "comments"
         }
       }
     },
@@ -2192,6 +2676,74 @@
         },
         "x-github": {
           "triggersNotification": true,
+          "githubCloudOnly": false,
+          "enabledForGitHubApps": true,
+          "category": "pulls",
+          "subcategory": "reviews"
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/comments": {
+      "get": {
+        "summary": "List comments for a pull request review",
+        "description": "Lists comments for a specific pull request review.\n\nThis endpoint supports the following custom media types. For more information, see \"[Media types](https://docs.github.com/rest/using-the-rest-api/getting-started-with-the-rest-api#media-types).\"\n\n- **`application/vnd.github-commitcomment.raw+json`**: Returns the raw markdown body. Response will include `body`. This is the default if you do not pass any specific media type.\n- **`application/vnd.github-commitcomment.text+json`**: Returns a text only representation of the markdown body. Response will include `body_text`.\n- **`application/vnd.github-commitcomment.html+json`**: Returns HTML rendered from the body's markdown. Response will include `body_html`.\n- **`application/vnd.github-commitcomment.full+json`**: Returns raw, text, and HTML representations. Response will include `body`, `body_text`, and `body_html`.",
+        "tags": [
+          "pulls"
+        ],
+        "operationId": "pulls/list-comments-for-review",
+        "externalDocs": {
+          "description": "API method documentation",
+          "url": "https://docs.github.com/rest/pulls/reviews#list-comments-for-a-pull-request-review"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/owner"
+          },
+          {
+            "$ref": "#/components/parameters/repo"
+          },
+          {
+            "$ref": "#/components/parameters/pull-number"
+          },
+          {
+            "$ref": "#/components/parameters/review-id"
+          },
+          {
+            "$ref": "#/components/parameters/per-page"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/review-comment"
+                  }
+                },
+                "examples": {
+                  "default": {
+                    "$ref": "#/components/examples/review-comment-items"
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Link": {
+                "$ref": "#/components/headers/link"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        },
+        "x-github": {
           "githubCloudOnly": false,
           "enabledForGitHubApps": true,
           "category": "pulls",
@@ -3884,6 +4436,171 @@
           "rocket"
         ]
       },
+      "pinned-issue-comment": {
+        "title": "Pinned Issue Comment",
+        "description": "Context around who pinned an issue comment and when it was pinned.",
+        "type": "object",
+        "properties": {
+          "pinned_at": {
+            "type": "string",
+            "format": "date-time",
+            "examples": [
+              "2011-04-14T16:00:49Z"
+            ]
+          },
+          "pinned_by": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/simple-user"
+              }
+            ]
+          }
+        },
+        "required": [
+          "pinned_at",
+          "pinned_by"
+        ]
+      },
+      "issue-comment-minimized": {
+        "title": "Minimized Issue Comment",
+        "description": "Details about why an issue comment was minimized.",
+        "type": "object",
+        "properties": {
+          "reason": {
+            "description": "The reason the comment was minimized.",
+            "type": [
+              "string",
+              "null"
+            ],
+            "examples": [
+              "low-quality"
+            ]
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "issue-comment": {
+        "title": "Issue Comment",
+        "description": "Comments provide a way for people to collaborate on an issue.",
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "Unique identifier of the issue comment",
+            "type": "integer",
+            "format": "int64",
+            "examples": [
+              42
+            ]
+          },
+          "node_id": {
+            "type": "string"
+          },
+          "url": {
+            "description": "URL for the issue comment",
+            "type": "string",
+            "format": "uri",
+            "examples": [
+              "https://api.github.com/repositories/42/issues/comments/1"
+            ]
+          },
+          "body": {
+            "description": "Contents of the issue comment",
+            "type": "string",
+            "examples": [
+              "What version of Safari were you using when you observed this bug?"
+            ]
+          },
+          "body_text": {
+            "type": "string"
+          },
+          "body_html": {
+            "type": "string"
+          },
+          "html_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "user": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/simple-user"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "examples": [
+              "2011-04-14T16:00:49Z"
+            ]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "examples": [
+              "2011-04-14T16:00:49Z"
+            ]
+          },
+          "issue_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "author_association": {
+            "$ref": "#/components/schemas/author-association"
+          },
+          "performed_via_github_app": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/integration"
+              }
+            ]
+          },
+          "reactions": {
+            "$ref": "#/components/schemas/reaction-rollup"
+          },
+          "pin": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/pinned-issue-comment"
+              }
+            ]
+          },
+          "minimized": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/issue-comment-minimized"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "node_id",
+          "html_url",
+          "issue_url",
+          "user",
+          "url",
+          "created_at",
+          "updated_at"
+        ]
+      },
       "pull-request-minimal": {
         "title": "Pull Request Minimal",
         "type": "object",
@@ -4804,6 +5521,13 @@
           "avatar_url",
           "description"
         ]
+      },
+      "empty-object": {
+        "title": "Empty Object",
+        "description": "An object without any properties.",
+        "type": "object",
+        "properties": { },
+        "additionalProperties": false
       },
       "team-simple": {
         "title": "Team Simple",
@@ -6401,6 +7125,374 @@
           "pull_requests"
         ]
       },
+      "git-user": {
+        "title": "Git User",
+        "description": "Metaproperties for Git author/committer information.",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "examples": [
+              "\"Chris Wanstrath\""
+            ]
+          },
+          "email": {
+            "type": "string",
+            "examples": [
+              "\"chris@ozmm.org\""
+            ]
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "examples": [
+              "\"2007-10-29T02:42:39.000-07:00\""
+            ]
+          }
+        }
+      },
+      "verification": {
+        "title": "Verification",
+        "type": "object",
+        "properties": {
+          "verified": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "payload": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "signature": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "verified_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "verified",
+          "reason",
+          "payload",
+          "signature",
+          "verified_at"
+        ]
+      },
+      "diff-entry": {
+        "title": "Diff Entry",
+        "description": "Diff Entry",
+        "type": "object",
+        "properties": {
+          "sha": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "examples": [
+              "bbcd538c8e72b8c175046e27cc8f907076331401"
+            ]
+          },
+          "filename": {
+            "type": "string",
+            "examples": [
+              "file1.txt"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "added",
+              "removed",
+              "modified",
+              "renamed",
+              "copied",
+              "changed",
+              "unchanged"
+            ],
+            "examples": [
+              "added"
+            ]
+          },
+          "additions": {
+            "type": "integer",
+            "examples": [
+              103
+            ]
+          },
+          "deletions": {
+            "type": "integer",
+            "examples": [
+              21
+            ]
+          },
+          "changes": {
+            "type": "integer",
+            "examples": [
+              124
+            ]
+          },
+          "blob_url": {
+            "type": "string",
+            "format": "uri",
+            "examples": [
+              "https://github.com/octocat/Hello-World/blob/6dcb09b5b57875f334f61aebed695e2e4193db5e/file1.txt"
+            ]
+          },
+          "raw_url": {
+            "type": "string",
+            "format": "uri",
+            "examples": [
+              "https://github.com/octocat/Hello-World/raw/6dcb09b5b57875f334f61aebed695e2e4193db5e/file1.txt"
+            ]
+          },
+          "contents_url": {
+            "type": "string",
+            "format": "uri",
+            "examples": [
+              "https://api.github.com/repos/octocat/Hello-World/contents/file1.txt?ref=6dcb09b5b57875f334f61aebed695e2e4193db5e"
+            ]
+          },
+          "patch": {
+            "type": "string",
+            "examples": [
+              "@@ -132,7 +132,7 @@ module Test @@ -1000,7 +1000,7 @@ module Test"
+            ]
+          },
+          "previous_filename": {
+            "type": "string",
+            "examples": [
+              "file.txt"
+            ]
+          }
+        },
+        "required": [
+          "additions",
+          "blob_url",
+          "changes",
+          "contents_url",
+          "deletions",
+          "filename",
+          "raw_url",
+          "sha",
+          "status"
+        ]
+      },
+      "commit": {
+        "title": "Commit",
+        "description": "Commit",
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "examples": [
+              "https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e"
+            ]
+          },
+          "sha": {
+            "type": "string",
+            "examples": [
+              "6dcb09b5b57875f334f61aebed695e2e4193db5e"
+            ]
+          },
+          "node_id": {
+            "type": "string",
+            "examples": [
+              "MDY6Q29tbWl0NmRjYjA5YjViNTc4NzVmMzM0ZjYxYWViZWQ2OTVlMmU0MTkzZGI1ZQ=="
+            ]
+          },
+          "html_url": {
+            "type": "string",
+            "format": "uri",
+            "examples": [
+              "https://github.com/octocat/Hello-World/commit/6dcb09b5b57875f334f61aebed695e2e4193db5e"
+            ]
+          },
+          "comments_url": {
+            "type": "string",
+            "format": "uri",
+            "examples": [
+              "https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e/comments"
+            ]
+          },
+          "commit": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "examples": [
+                  "https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e"
+                ]
+              },
+              "author": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/git-user"
+                  }
+                ]
+              },
+              "committer": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/git-user"
+                  }
+                ]
+              },
+              "message": {
+                "type": "string",
+                "examples": [
+                  "Fix all the bugs"
+                ]
+              },
+              "comment_count": {
+                "type": "integer",
+                "examples": [
+                  0
+                ]
+              },
+              "tree": {
+                "type": "object",
+                "properties": {
+                  "sha": {
+                    "type": "string",
+                    "examples": [
+                      "827efc6d56897b048c772eb4087f854f46256132"
+                    ]
+                  },
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "examples": [
+                      "https://api.github.com/repos/octocat/Hello-World/tree/827efc6d56897b048c772eb4087f854f46256132"
+                    ]
+                  }
+                },
+                "required": [
+                  "sha",
+                  "url"
+                ]
+              },
+              "verification": {
+                "$ref": "#/components/schemas/verification"
+              }
+            },
+            "required": [
+              "author",
+              "committer",
+              "comment_count",
+              "message",
+              "tree",
+              "url"
+            ]
+          },
+          "author": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/simple-user"
+              },
+              {
+                "$ref": "#/components/schemas/empty-object"
+              }
+            ]
+          },
+          "committer": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/simple-user"
+              },
+              {
+                "$ref": "#/components/schemas/empty-object"
+              }
+            ]
+          },
+          "parents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "sha": {
+                  "type": "string",
+                  "examples": [
+                    "7638417db6d59f3c431d3e1f261cc637155684cd"
+                  ]
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri",
+                  "examples": [
+                    "https://api.github.com/repos/octocat/Hello-World/commits/7638417db6d59f3c431d3e1f261cc637155684cd"
+                  ]
+                },
+                "html_url": {
+                  "type": "string",
+                  "format": "uri",
+                  "examples": [
+                    "https://github.com/octocat/Hello-World/commit/7638417db6d59f3c431d3e1f261cc637155684cd"
+                  ]
+                }
+              },
+              "required": [
+                "sha",
+                "url"
+              ]
+            }
+          },
+          "stats": {
+            "type": "object",
+            "properties": {
+              "additions": {
+                "type": "integer"
+              },
+              "deletions": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            }
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/diff-entry"
+            }
+          }
+        },
+        "required": [
+          "url",
+          "sha",
+          "node_id",
+          "html_url",
+          "comments_url",
+          "commit",
+          "author",
+          "committer",
+          "parents"
+        ]
+      },
       "deployment-simple": {
         "title": "Deployment",
         "description": "A deployment created as the result of an Actions check run from a workflow that references an environment",
@@ -6959,6 +8051,110 @@
           "permission",
           "role_name",
           "user"
+        ]
+      },
+      "commit-comparison": {
+        "title": "Commit Comparison",
+        "description": "Commit Comparison",
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "examples": [
+              "https://api.github.com/repos/octocat/Hello-World/compare/master...topic"
+            ]
+          },
+          "html_url": {
+            "type": "string",
+            "format": "uri",
+            "examples": [
+              "https://github.com/octocat/Hello-World/compare/master...topic"
+            ]
+          },
+          "permalink_url": {
+            "type": "string",
+            "format": "uri",
+            "examples": [
+              "https://github.com/octocat/Hello-World/compare/octocat:bbcd538c8e72b8c175046e27cc8f907076331401...octocat:0328041d1152db8ae77652d1618a02e57f745f17"
+            ]
+          },
+          "diff_url": {
+            "type": "string",
+            "format": "uri",
+            "examples": [
+              "https://github.com/octocat/Hello-World/compare/master...topic.diff"
+            ]
+          },
+          "patch_url": {
+            "type": "string",
+            "format": "uri",
+            "examples": [
+              "https://github.com/octocat/Hello-World/compare/master...topic.patch"
+            ]
+          },
+          "base_commit": {
+            "$ref": "#/components/schemas/commit"
+          },
+          "merge_base_commit": {
+            "$ref": "#/components/schemas/commit"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "diverged",
+              "ahead",
+              "behind",
+              "identical"
+            ],
+            "examples": [
+              "ahead"
+            ]
+          },
+          "ahead_by": {
+            "type": "integer",
+            "examples": [
+              4
+            ]
+          },
+          "behind_by": {
+            "type": "integer",
+            "examples": [
+              5
+            ]
+          },
+          "total_commits": {
+            "type": "integer",
+            "examples": [
+              6
+            ]
+          },
+          "commits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/commit"
+            }
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/diff-entry"
+            }
+          }
+        },
+        "required": [
+          "url",
+          "html_url",
+          "permalink_url",
+          "diff_url",
+          "patch_url",
+          "base_commit",
+          "merge_base_commit",
+          "status",
+          "ahead_by",
+          "behind_by",
+          "total_commits",
+          "commits"
         ]
       },
       "git-ref": {
@@ -7937,6 +9133,257 @@
           "pull_request_url",
           "_links",
           "author_association"
+        ]
+      },
+      "review-comment": {
+        "title": "Legacy Review Comment",
+        "description": "Legacy Review Comment",
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "examples": [
+              "https://api.github.com/repos/octocat/Hello-World/pulls/comments/1"
+            ]
+          },
+          "pull_request_review_id": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "examples": [
+              42
+            ]
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "examples": [
+              10
+            ]
+          },
+          "node_id": {
+            "type": "string",
+            "examples": [
+              "MDI0OlB1bGxSZXF1ZXN0UmV2aWV3Q29tbWVudDEw"
+            ]
+          },
+          "diff_hunk": {
+            "type": "string",
+            "examples": [
+              "@@ -16,33 +16,40 @@ public class Connection : IConnection..."
+            ]
+          },
+          "path": {
+            "type": "string",
+            "examples": [
+              "file1.txt"
+            ]
+          },
+          "position": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "examples": [
+              1
+            ]
+          },
+          "original_position": {
+            "type": "integer",
+            "examples": [
+              4
+            ]
+          },
+          "commit_id": {
+            "type": "string",
+            "examples": [
+              "6dcb09b5b57875f334f61aebed695e2e4193db5e"
+            ]
+          },
+          "original_commit_id": {
+            "type": "string",
+            "examples": [
+              "9c48853fa3dc5c1c3d6f1f1cd1f2743e72652840"
+            ]
+          },
+          "in_reply_to_id": {
+            "type": "integer",
+            "examples": [
+              8
+            ],
+            "format": "int64"
+          },
+          "user": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/simple-user"
+              }
+            ]
+          },
+          "body": {
+            "type": "string",
+            "examples": [
+              "Great stuff"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "examples": [
+              "2011-04-14T16:00:49Z"
+            ]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "examples": [
+              "2011-04-14T16:00:49Z"
+            ]
+          },
+          "html_url": {
+            "type": "string",
+            "format": "uri",
+            "examples": [
+              "https://github.com/octocat/Hello-World/pull/1#discussion-diff-1"
+            ]
+          },
+          "pull_request_url": {
+            "type": "string",
+            "format": "uri",
+            "examples": [
+              "https://api.github.com/repos/octocat/Hello-World/pulls/1"
+            ]
+          },
+          "author_association": {
+            "$ref": "#/components/schemas/author-association"
+          },
+          "_links": {
+            "type": "object",
+            "properties": {
+              "self": {
+                "$ref": "#/components/schemas/link"
+              },
+              "html": {
+                "$ref": "#/components/schemas/link"
+              },
+              "pull_request": {
+                "$ref": "#/components/schemas/link"
+              }
+            },
+            "required": [
+              "self",
+              "html",
+              "pull_request"
+            ]
+          },
+          "body_text": {
+            "type": "string"
+          },
+          "body_html": {
+            "type": "string"
+          },
+          "reactions": {
+            "$ref": "#/components/schemas/reaction-rollup"
+          },
+          "side": {
+            "description": "The side of the first line of the range for a multi-line comment.",
+            "enum": [
+              "LEFT",
+              "RIGHT"
+            ],
+            "default": "RIGHT",
+            "type": "string"
+          },
+          "start_side": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The side of the first line of the range for a multi-line comment.",
+            "enum": [
+              "LEFT",
+              "RIGHT",
+              null
+            ],
+            "default": "RIGHT"
+          },
+          "line": {
+            "description": "The line of the blob to which the comment applies. The last line of the range for a multi-line comment",
+            "type": "integer",
+            "examples": [
+              2
+            ]
+          },
+          "original_line": {
+            "description": "The original line of the blob to which the comment applies. The last line of the range for a multi-line comment",
+            "type": "integer",
+            "examples": [
+              2
+            ]
+          },
+          "start_line": {
+            "description": "The first line of the range for a multi-line comment.",
+            "type": [
+              "integer",
+              "null"
+            ],
+            "examples": [
+              2
+            ]
+          },
+          "original_start_line": {
+            "description": "The original first line of the range for a multi-line comment.",
+            "type": [
+              "integer",
+              "null"
+            ],
+            "examples": [
+              2
+            ]
+          },
+          "subject_type": {
+            "description": "The level at which the comment is targeted, can be a diff line or a file.",
+            "type": "string",
+            "enum": [
+              "line",
+              "file"
+            ]
+          },
+          "is_copilot_code_review": {
+            "description": "Whether Copilot wrote the comment. GitHub sends it, its description does not have it.",
+            "type": "boolean"
+          },
+          "copilot_code_review_sources": {
+            "description": "GitHub sends it, its description does not have it; only an empty array has been seen, so its items' type is not known.",
+            "type": "array",
+            "items": { }
+          }
+        },
+        "required": [
+          "id",
+          "node_id",
+          "url",
+          "body",
+          "diff_hunk",
+          "path",
+          "position",
+          "original_position",
+          "commit_id",
+          "original_commit_id",
+          "user",
+          "pull_request_review_id",
+          "html_url",
+          "pull_request_url",
+          "_links",
+          "author_association",
+          "created_at",
+          "updated_at"
         ]
       },
       "public-user": {
@@ -9795,6 +11242,278 @@
           }
         ]
       },
+      "diff-media-type": {
+        "value": "diff --git a/testfile b/testfile\nindex 9bdeaeb..912c7ef 100644\n--- a/testfile\n+++ b/testfile\n@@ -1 +1 @@\n-test\n+test change\n"
+      },
+      "patch-media-type": {
+        "value": "From ac3282a2725be3b1d4979169a7a311c89066af1c Mon Sep 17 00:00:00 2001\nFrom: Mona Lisa <87831417+monalisa@users.noreply.github.com>\nDate: Fri, 6 Mar 2026 11:18:45 +0000\nSubject: [PATCH] Change 'test' to 'test change' in testfile\n\n---\ntestfile | 2 +-\n1 file changed, 1 insertion(+), 1 deletion(-)\n\ndiff --git a/testfile b/testfile\nindex 9bdeaeb..912c7ef 100644\n--- a/testfile\n+++ b/testfile\n@@ -1 +1 @@\n-test\n+test change\n"
+      },
+      "commit-comparison": {
+        "value": {
+          "url": "https://api.github.com/repos/octocat/Hello-World/compare/master...topic",
+          "html_url": "https://github.com/octocat/Hello-World/compare/master...topic",
+          "permalink_url": "https://github.com/octocat/Hello-World/compare/octocat:bbcd538c8e72b8c175046e27cc8f907076331401...octocat:0328041d1152db8ae77652d1618a02e57f745f17",
+          "diff_url": "https://github.com/octocat/Hello-World/compare/master...topic.diff",
+          "patch_url": "https://github.com/octocat/Hello-World/compare/master...topic.patch",
+          "base_commit": {
+            "url": "https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e",
+            "sha": "6dcb09b5b57875f334f61aebed695e2e4193db5e",
+            "node_id": "MDY6Q29tbWl0NmRjYjA5YjViNTc4NzVmMzM0ZjYxYWViZWQ2OTVlMmU0MTkzZGI1ZQ==",
+            "html_url": "https://github.com/octocat/Hello-World/commit/6dcb09b5b57875f334f61aebed695e2e4193db5e",
+            "comments_url": "https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e/comments",
+            "commit": {
+              "url": "https://api.github.com/repos/octocat/Hello-World/git/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e",
+              "author": {
+                "name": "Monalisa Octocat",
+                "email": "mona@github.com",
+                "date": "2011-04-14T16:00:49Z"
+              },
+              "committer": {
+                "name": "Monalisa Octocat",
+                "email": "mona@github.com",
+                "date": "2011-04-14T16:00:49Z"
+              },
+              "message": "Fix all the bugs",
+              "tree": {
+                "url": "https://api.github.com/repos/octocat/Hello-World/tree/6dcb09b5b57875f334f61aebed695e2e4193db5e",
+                "sha": "6dcb09b5b57875f334f61aebed695e2e4193db5e"
+              },
+              "comment_count": 0,
+              "verification": {
+                "verified": false,
+                "reason": "unsigned",
+                "signature": null,
+                "payload": null,
+                "verified_at": null
+              }
+            },
+            "author": {
+              "login": "octocat",
+              "id": 1,
+              "node_id": "MDQ6VXNlcjE=",
+              "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/octocat",
+              "html_url": "https://github.com/octocat",
+              "followers_url": "https://api.github.com/users/octocat/followers",
+              "following_url": "https://api.github.com/users/octocat/following{/other_user}",
+              "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
+              "organizations_url": "https://api.github.com/users/octocat/orgs",
+              "repos_url": "https://api.github.com/users/octocat/repos",
+              "events_url": "https://api.github.com/users/octocat/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/octocat/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "committer": {
+              "login": "octocat",
+              "id": 1,
+              "node_id": "MDQ6VXNlcjE=",
+              "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/octocat",
+              "html_url": "https://github.com/octocat",
+              "followers_url": "https://api.github.com/users/octocat/followers",
+              "following_url": "https://api.github.com/users/octocat/following{/other_user}",
+              "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
+              "organizations_url": "https://api.github.com/users/octocat/orgs",
+              "repos_url": "https://api.github.com/users/octocat/repos",
+              "events_url": "https://api.github.com/users/octocat/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/octocat/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "parents": [
+              {
+                "url": "https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e",
+                "sha": "6dcb09b5b57875f334f61aebed695e2e4193db5e"
+              }
+            ]
+          },
+          "merge_base_commit": {
+            "url": "https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e",
+            "sha": "6dcb09b5b57875f334f61aebed695e2e4193db5e",
+            "node_id": "MDY6Q29tbWl0NmRjYjA5YjViNTc4NzVmMzM0ZjYxYWViZWQ2OTVlMmU0MTkzZGI1ZQ==",
+            "html_url": "https://github.com/octocat/Hello-World/commit/6dcb09b5b57875f334f61aebed695e2e4193db5e",
+            "comments_url": "https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e/comments",
+            "commit": {
+              "url": "https://api.github.com/repos/octocat/Hello-World/git/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e",
+              "author": {
+                "name": "Monalisa Octocat",
+                "email": "mona@github.com",
+                "date": "2011-04-14T16:00:49Z"
+              },
+              "committer": {
+                "name": "Monalisa Octocat",
+                "email": "mona@github.com",
+                "date": "2011-04-14T16:00:49Z"
+              },
+              "message": "Fix all the bugs",
+              "tree": {
+                "url": "https://api.github.com/repos/octocat/Hello-World/tree/6dcb09b5b57875f334f61aebed695e2e4193db5e",
+                "sha": "6dcb09b5b57875f334f61aebed695e2e4193db5e"
+              },
+              "comment_count": 0,
+              "verification": {
+                "verified": false,
+                "reason": "unsigned",
+                "signature": null,
+                "payload": null,
+                "verified_at": null
+              }
+            },
+            "author": {
+              "login": "octocat",
+              "id": 1,
+              "node_id": "MDQ6VXNlcjE=",
+              "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/octocat",
+              "html_url": "https://github.com/octocat",
+              "followers_url": "https://api.github.com/users/octocat/followers",
+              "following_url": "https://api.github.com/users/octocat/following{/other_user}",
+              "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
+              "organizations_url": "https://api.github.com/users/octocat/orgs",
+              "repos_url": "https://api.github.com/users/octocat/repos",
+              "events_url": "https://api.github.com/users/octocat/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/octocat/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "committer": {
+              "login": "octocat",
+              "id": 1,
+              "node_id": "MDQ6VXNlcjE=",
+              "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/octocat",
+              "html_url": "https://github.com/octocat",
+              "followers_url": "https://api.github.com/users/octocat/followers",
+              "following_url": "https://api.github.com/users/octocat/following{/other_user}",
+              "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
+              "organizations_url": "https://api.github.com/users/octocat/orgs",
+              "repos_url": "https://api.github.com/users/octocat/repos",
+              "events_url": "https://api.github.com/users/octocat/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/octocat/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "parents": [
+              {
+                "url": "https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e",
+                "sha": "6dcb09b5b57875f334f61aebed695e2e4193db5e"
+              }
+            ]
+          },
+          "status": "behind",
+          "ahead_by": 1,
+          "behind_by": 2,
+          "total_commits": 1,
+          "commits": [
+            {
+              "url": "https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e",
+              "sha": "6dcb09b5b57875f334f61aebed695e2e4193db5e",
+              "node_id": "MDY6Q29tbWl0NmRjYjA5YjViNTc4NzVmMzM0ZjYxYWViZWQ2OTVlMmU0MTkzZGI1ZQ==",
+              "html_url": "https://github.com/octocat/Hello-World/commit/6dcb09b5b57875f334f61aebed695e2e4193db5e",
+              "comments_url": "https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e/comments",
+              "commit": {
+                "url": "https://api.github.com/repos/octocat/Hello-World/git/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e",
+                "author": {
+                  "name": "Monalisa Octocat",
+                  "email": "mona@github.com",
+                  "date": "2011-04-14T16:00:49Z"
+                },
+                "committer": {
+                  "name": "Monalisa Octocat",
+                  "email": "mona@github.com",
+                  "date": "2011-04-14T16:00:49Z"
+                },
+                "message": "Fix all the bugs",
+                "tree": {
+                  "url": "https://api.github.com/repos/octocat/Hello-World/tree/6dcb09b5b57875f334f61aebed695e2e4193db5e",
+                  "sha": "6dcb09b5b57875f334f61aebed695e2e4193db5e"
+                },
+                "comment_count": 0,
+                "verification": {
+                  "verified": false,
+                  "reason": "unsigned",
+                  "signature": null,
+                  "payload": null,
+                  "verified_at": null
+                }
+              },
+              "author": {
+                "login": "octocat",
+                "id": 1,
+                "node_id": "MDQ6VXNlcjE=",
+                "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+                "gravatar_id": "",
+                "url": "https://api.github.com/users/octocat",
+                "html_url": "https://github.com/octocat",
+                "followers_url": "https://api.github.com/users/octocat/followers",
+                "following_url": "https://api.github.com/users/octocat/following{/other_user}",
+                "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
+                "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+                "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
+                "organizations_url": "https://api.github.com/users/octocat/orgs",
+                "repos_url": "https://api.github.com/users/octocat/repos",
+                "events_url": "https://api.github.com/users/octocat/events{/privacy}",
+                "received_events_url": "https://api.github.com/users/octocat/received_events",
+                "type": "User",
+                "site_admin": false
+              },
+              "committer": {
+                "login": "octocat",
+                "id": 1,
+                "node_id": "MDQ6VXNlcjE=",
+                "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+                "gravatar_id": "",
+                "url": "https://api.github.com/users/octocat",
+                "html_url": "https://github.com/octocat",
+                "followers_url": "https://api.github.com/users/octocat/followers",
+                "following_url": "https://api.github.com/users/octocat/following{/other_user}",
+                "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
+                "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+                "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
+                "organizations_url": "https://api.github.com/users/octocat/orgs",
+                "repos_url": "https://api.github.com/users/octocat/repos",
+                "events_url": "https://api.github.com/users/octocat/events{/privacy}",
+                "received_events_url": "https://api.github.com/users/octocat/received_events",
+                "type": "User",
+                "site_admin": false
+              },
+              "parents": [
+                {
+                  "url": "https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e",
+                  "sha": "6dcb09b5b57875f334f61aebed695e2e4193db5e"
+                }
+              ]
+            }
+          ],
+          "files": [
+            {
+              "sha": "bbcd538c8e72b8c175046e27cc8f907076331401",
+              "filename": "file1.txt",
+              "status": "added",
+              "additions": 103,
+              "deletions": 21,
+              "changes": 124,
+              "blob_url": "https://github.com/octocat/Hello-World/blob/6dcb09b5b57875f334f61aebed695e2e4193db5e/file1.txt",
+              "raw_url": "https://github.com/octocat/Hello-World/raw/6dcb09b5b57875f334f61aebed695e2e4193db5e/file1.txt",
+              "contents_url": "https://api.github.com/repos/octocat/Hello-World/contents/file1.txt?ref=6dcb09b5b57875f334f61aebed695e2e4193db5e",
+              "patch": "@@ -132,7 +132,7 @@ module Test @@ -1000,7 +1000,7 @@ module Test"
+            }
+          ]
+        }
+      },
       "git-ref": {
         "value": {
           "ref": "refs/heads/featureA",
@@ -9805,6 +11524,77 @@
             "sha": "aa218f56b14c9653891f9e74264a383fa43fefbd",
             "url": "https://api.github.com/repos/octocat/Hello-World/git/commits/aa218f56b14c9653891f9e74264a383fa43fefbd"
           }
+        }
+      },
+      "issue-comment-items": {
+        "value": [
+          {
+            "id": 1,
+            "node_id": "MDEyOklzc3VlQ29tbWVudDE=",
+            "url": "https://api.github.com/repos/octocat/Hello-World/issues/comments/1",
+            "html_url": "https://github.com/octocat/Hello-World/issues/1347#issuecomment-1",
+            "body": "Me too",
+            "user": {
+              "login": "octocat",
+              "id": 1,
+              "node_id": "MDQ6VXNlcjE=",
+              "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/octocat",
+              "html_url": "https://github.com/octocat",
+              "followers_url": "https://api.github.com/users/octocat/followers",
+              "following_url": "https://api.github.com/users/octocat/following{/other_user}",
+              "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
+              "organizations_url": "https://api.github.com/users/octocat/orgs",
+              "repos_url": "https://api.github.com/users/octocat/repos",
+              "events_url": "https://api.github.com/users/octocat/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/octocat/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "created_at": "2011-04-14T16:00:49Z",
+            "updated_at": "2011-04-14T16:00:49Z",
+            "issue_url": "https://api.github.com/repos/octocat/Hello-World/issues/1347",
+            "author_association": "COLLABORATOR",
+            "minimized": null
+          }
+        ]
+      },
+      "issue-comment": {
+        "value": {
+          "id": 1,
+          "node_id": "MDEyOklzc3VlQ29tbWVudDE=",
+          "url": "https://api.github.com/repos/octocat/Hello-World/issues/comments/1",
+          "html_url": "https://github.com/octocat/Hello-World/issues/1347#issuecomment-1",
+          "body": "Me too",
+          "user": {
+            "login": "octocat",
+            "id": 1,
+            "node_id": "MDQ6VXNlcjE=",
+            "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/octocat",
+            "html_url": "https://github.com/octocat",
+            "followers_url": "https://api.github.com/users/octocat/followers",
+            "following_url": "https://api.github.com/users/octocat/following{/other_user}",
+            "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
+            "organizations_url": "https://api.github.com/users/octocat/orgs",
+            "repos_url": "https://api.github.com/users/octocat/repos",
+            "events_url": "https://api.github.com/users/octocat/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/octocat/received_events",
+            "type": "User",
+            "site_admin": false
+          },
+          "created_at": "2011-04-14T16:00:49Z",
+          "updated_at": "2011-04-14T16:00:49Z",
+          "issue_url": "https://api.github.com/repos/octocat/Hello-World/issues/1347",
+          "author_association": "COLLABORATOR",
+          "pin": null,
+          "minimized": null
         }
       },
       "pull-request": {
@@ -10384,6 +12174,64 @@
           }
         ]
       },
+      "pull-request-review-comment-2": {
+        "value": {
+          "url": "https://api.github.com/repos/octocat/Hello-World/pulls/comments/1",
+          "pull_request_review_id": 42,
+          "id": 10,
+          "node_id": "MDI0OlB1bGxSZXF1ZXN0UmV2aWV3Q29tbWVudDEw",
+          "diff_hunk": "@@ -16,33 +16,40 @@ public class Connection : IConnection...",
+          "path": "file1.txt",
+          "position": 1,
+          "original_position": 4,
+          "commit_id": "6dcb09b5b57875f334f61aebed695e2e4193db5e",
+          "original_commit_id": "9c48853fa3dc5c1c3d6f1f1cd1f2743e72652840",
+          "in_reply_to_id": 8,
+          "user": {
+            "login": "octocat",
+            "id": 1,
+            "node_id": "MDQ6VXNlcjE=",
+            "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/octocat",
+            "html_url": "https://github.com/octocat",
+            "followers_url": "https://api.github.com/users/octocat/followers",
+            "following_url": "https://api.github.com/users/octocat/following{/other_user}",
+            "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
+            "organizations_url": "https://api.github.com/users/octocat/orgs",
+            "repos_url": "https://api.github.com/users/octocat/repos",
+            "events_url": "https://api.github.com/users/octocat/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/octocat/received_events",
+            "type": "User",
+            "site_admin": false
+          },
+          "body": "Great stuff!",
+          "created_at": "2011-04-14T16:00:49Z",
+          "updated_at": "2011-04-14T16:00:49Z",
+          "html_url": "https://github.com/octocat/Hello-World/pull/1#discussion-diff-1",
+          "pull_request_url": "https://api.github.com/repos/octocat/Hello-World/pulls/1",
+          "author_association": "NONE",
+          "_links": {
+            "self": {
+              "href": "https://api.github.com/repos/octocat/Hello-World/pulls/comments/1"
+            },
+            "html": {
+              "href": "https://github.com/octocat/Hello-World/pull/1#discussion-diff-1"
+            },
+            "pull_request": {
+              "href": "https://api.github.com/repos/octocat/Hello-World/pulls/1"
+            }
+          },
+          "start_line": 1,
+          "original_start_line": 1,
+          "start_side": "RIGHT",
+          "line": 2,
+          "original_line": 2,
+          "side": "RIGHT"
+        }
+      },
       "pull-request-review-comment-example-for-a-multi-line-comment": {
         "value": {
           "url": "https://api.github.com/repos/octocat/Hello-World/pulls/comments/1",
@@ -10583,6 +12431,60 @@
           "commit_id": "ecdd80bb57125d7ba9641ffaa4d7d2c19d3f3091",
           "author_association": "COLLABORATOR"
         }
+      },
+      "review-comment-items": {
+        "value": [
+          {
+            "url": "https://api.github.com/repos/octocat/Hello-World/pulls/comments/1",
+            "pull_request_review_id": 42,
+            "id": 10,
+            "node_id": "MDI0OlB1bGxSZXF1ZXN0UmV2aWV3Q29tbWVudDEw",
+            "diff_hunk": "@@ -16,33 +16,40 @@ public class Connection : IConnection...",
+            "path": "file1.txt",
+            "position": 1,
+            "original_position": 4,
+            "commit_id": "6dcb09b5b57875f334f61aebed695e2e4193db5e",
+            "original_commit_id": "9c48853fa3dc5c1c3d6f1f1cd1f2743e72652840",
+            "in_reply_to_id": 8,
+            "user": {
+              "login": "octocat",
+              "id": 1,
+              "node_id": "MDQ6VXNlcjE=",
+              "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/octocat",
+              "html_url": "https://github.com/octocat",
+              "followers_url": "https://api.github.com/users/octocat/followers",
+              "following_url": "https://api.github.com/users/octocat/following{/other_user}",
+              "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
+              "organizations_url": "https://api.github.com/users/octocat/orgs",
+              "repos_url": "https://api.github.com/users/octocat/repos",
+              "events_url": "https://api.github.com/users/octocat/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/octocat/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "body": "Great stuff!",
+            "created_at": "2011-04-14T16:00:49Z",
+            "updated_at": "2011-04-14T16:00:49Z",
+            "html_url": "https://github.com/octocat/Hello-World/pull/1#discussion-diff-1",
+            "pull_request_url": "https://api.github.com/repos/octocat/Hello-World/pulls/1",
+            "author_association": "NONE",
+            "_links": {
+              "self": {
+                "href": "https://api.github.com/repos/octocat/Hello-World/pulls/comments/1"
+              },
+              "html": {
+                "href": "https://github.com/octocat/Hello-World/pull/1#discussion-diff-1"
+              },
+              "pull_request": {
+                "href": "https://api.github.com/repos/octocat/Hello-World/pulls/1"
+              }
+            }
+          }
+        ]
       },
       "private-user-response-with-public-and-private-profile-information": {
         "summary": "Response with public and private profile information",
@@ -10970,9 +12872,27 @@
         },
         "x-multi-segment": true
       },
+      "issue-number": {
+        "name": "issue_number",
+        "description": "The number that identifies the issue.",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        }
+      },
       "pull-number": {
         "name": "pull_number",
         "description": "The number that identifies the pull request.",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "review-id": {
+        "name": "review_id",
+        "description": "The unique identifier of the review.",
         "in": "path",
         "required": true,
         "schema": {
@@ -11026,6 +12946,16 @@
       },
       "forbidden": {
         "description": "Forbidden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/basic-error"
+            }
+          }
+        }
+      },
+      "gone": {
+        "description": "Gone",
         "content": {
           "application/json": {
             "schema": {

@@ -170,13 +170,29 @@ class ForgejoClientTest {
                         () -> client.createStatus(TOKEN, "owner", "repo", "abc", null),
                         () -> client.createRepository(TOKEN, "owner", null),
                         () -> client.addKey(TOKEN, null),
-                        () -> client.createHook(TOKEN, "owner", "repo", null));
+                        () -> client.createHook(TOKEN, "owner", "repo", null),
+                        () -> client.createReviewComment(TOKEN, "owner", "repo", 1, 1, null),
+                        () -> client.createIssueComment(TOKEN, "owner", "repo", 1, null),
+                        () -> client.editIssueComment(TOKEN, "owner", "repo", 1, null));
         for (Runnable call : calls) {
             assertThatExceptionOfType(NullPointerException.class)
                     .as("a missing mutation body is a caller error")
                     .isThrownBy(call::run);
         }
         assertThat(http.requests).as("body validation happens before transport use").isEmpty();
+    }
+
+    // Prevents general comments read without a time from sending an empty filter, which would
+    // differ from reading them all.
+    @Test
+    void generalCommentsWithoutATimeSendNoFilter() {
+        var http = new ReplayHttpClient().answer(200, Map.of(), "[]");
+
+        new ForgejoClient(BASE, http).issueComments(TOKEN, "owner", "repo", 1, null);
+
+        assertThat(http.requests.getFirst().uri().getRawQuery())
+                .as("no since is sent without a time")
+                .isNull();
     }
 
     // Prevents API drift from silently dropping the identity of a build.

@@ -1,0 +1,35 @@
+{
+  "request_uri" : "/repos/fixture-org/fixture-repo/issues/6/comments?since=2026-10-31T10%3A29%3A17Z&page=1&per_page=50",
+  "status" : 200,
+  "headers" : {
+    "content-type" : [ "application/json; charset=utf-8" ]
+  },
+  "body" : "[{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/comments/6542240307\",\"html_url\":\"https://host-1.example.org/fixture-org/fixture-repo/pull/6\",\"issue_url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/6\",\"id\":6542240307,\"node_id\":\"IC_kwDOVc0D888AAAABhfKqMw\",\"user\":{\"login\":\"fixture-user\",\"id\":1,\"node_id\":\"FIXTURE_NODE_1\",\"avatar_url\":\"https://host-2.example.org/u/1\",\"gravatar_id\":\"\",\"url\":\"https://example.org/users/fixture-user\",\"html_url\":\"https://host-1.example.org/fixture-user\",\"followers_url\":\"https://example.org/users/fixture-user/followers\",\"following_url\":\"https://example.org/users/fixture-user/following{/other_user}\",\"gists_url\":\"https://example.org/users/fixture-user/gists{/gist_id}\",\"starred_url\":\"https://example.org/users/fixture-user/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://example.org/users/fixture-user/subscriptions\",\"organizations_url\":\"https://example.org/users/fixture-user/orgs\",\"repos_url\":\"https://example.org/users/fixture-user/repos\",\"events_url\":\"https://example.org/users/fixture-user/events{/privacy}\",\"received_events_url\":\"https://example.org/users/fixture-user/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"created_at\":\"2026-10-31T10:29:18Z\",\"updated_at\":\"2026-10-31T10:29:19Z\",\"body\":\"Fixture comment, edited\",\"author_association\":\"MEMBER\",\"reactions\":{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/comments/6542240307/reactions\",\"total_count\":0,\"+1\":0,\"-1\":0,\"laugh\":0,\"hooray\":0,\"confused\":0,\"heart\":0,\"rocket\":0,\"eyes\":0},\"performed_via_github_app\":null,\"minimized\":null}]",
+  "exchanges" : [ {
+    "request_uri" : "/repos/fixture-org/fixture-repo/issues/6/comments?since=2026-10-31T10%3A29%3A17Z&page=1&per_page=50",
+    "status" : 200,
+    "headers" : {
+      "content-type" : [ "application/json; charset=utf-8" ]
+    },
+    "body" : "[{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/comments/6542240307\",\"html_url\":\"https://host-1.example.org/fixture-org/fixture-repo/pull/6\",\"issue_url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/6\",\"id\":6542240307,\"node_id\":\"IC_kwDOVc0D888AAAABhfKqMw\",\"user\":{\"login\":\"fixture-user\",\"id\":1,\"node_id\":\"FIXTURE_NODE_1\",\"avatar_url\":\"https://host-2.example.org/u/1\",\"gravatar_id\":\"\",\"url\":\"https://example.org/users/fixture-user\",\"html_url\":\"https://host-1.example.org/fixture-user\",\"followers_url\":\"https://example.org/users/fixture-user/followers\",\"following_url\":\"https://example.org/users/fixture-user/following{/other_user}\",\"gists_url\":\"https://example.org/users/fixture-user/gists{/gist_id}\",\"starred_url\":\"https://example.org/users/fixture-user/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://example.org/users/fixture-user/subscriptions\",\"organizations_url\":\"https://example.org/users/fixture-user/orgs\",\"repos_url\":\"https://example.org/users/fixture-user/repos\",\"events_url\":\"https://example.org/users/fixture-user/events{/privacy}\",\"received_events_url\":\"https://example.org/users/fixture-user/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"created_at\":\"2026-10-31T10:29:18Z\",\"updated_at\":\"2026-10-31T10:29:19Z\",\"body\":\"Fixture comment, edited\",\"author_association\":\"MEMBER\",\"reactions\":{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/comments/6542240307/reactions\",\"total_count\":0,\"+1\":0,\"-1\":0,\"laugh\":0,\"hooray\":0,\"confused\":0,\"heart\":0,\"rocket\":0,\"eyes\":0},\"performed_via_github_app\":null,\"minimized\":null}]"
+  } ],
+  "context" : {
+    "owner" : "fixture-org",
+    "repo" : "fixture-repo",
+    "sha" : "bb33e12342d6f5235c9c5acddfdb1fc6f86dedfd",
+    "number" : 6,
+    "comment" : 4431405345,
+    "check" : 124513283016,
+    "run" : 0,
+    "job" : 0,
+    "username" : "fixture-user",
+    "ref" : "heads/forge-client-c18dcd8e-2ca8-43a1-8176-32a541753041",
+    "thread" : "pending",
+    "reply" : 4431405381,
+    "issueComment" : 6542240307,
+    "review" : 5722360485,
+    "since" : "2026-10-31T10:29:17Z",
+    "base" : "main"
+  },
+  "request_body" : null
+}

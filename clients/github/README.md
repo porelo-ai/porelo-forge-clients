@@ -30,6 +30,9 @@ List<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
 
 Unit tests replay the GitHub answers in `src/test/resources/recordings/`, with no network or credential. The
 recordings are made by the recorder below, which scrubs accounts, addresses and credentials before it writes them.
+An account it was not told about stops it, unless the account wrote or committed a commit, as GitHub's own committer
+does; such an account is named `fixture-committer-<n>`. A signed commit's raw text and signature are dropped, since
+the raw text names the author as git does.
 They were recorded from GitHub; the job log is the two-step workflow's, ending in its `fixture-complete` marker. A
 test that needs what the recorded answers lack, such as a label or a private account, takes GitHub's own example from
 the extract.
@@ -56,9 +59,12 @@ operation in the `check-extract` execution in `pom.xml`. Its `--set` corrections
 a nullable date-time string for `archived_at`; the simple pull request label's `description` is nullable too; every
 integer identifier of a record that the description gives no format (`id`, a name ending in `_id`, and a new review
 comment's `in_reply_to`) is `int64`, since GitHub's identifiers have passed the 32-bit range; and a check run's
-`conclusion` also takes `stale` and `startup_failure`, which only GitHub sets and its check run request bodies list.
-Its `--add-property` additions are named in `info.x-extracted-from.added`: reviews and review comments carry
-`is_copilot_code_review`, a review `copilot_code_review_effort` and a review comment `copilot_code_review_sources`,
+`conclusion` also takes `stale` and `startup_failure`, which only GitHub sets and its check run request bodies list;
+a commit's `author` and `committer` are a `oneOf` that starts with `null`, since a commit whose author is no GitHub
+account comes as `null`, and the client reads an empty object as none too.
+Its `--add-property` additions are named in `info.x-extracted-from.added`: reviews and review comments (both of
+GitHub's review comment schemas) carry `is_copilot_code_review`, a review `copilot_code_review_effort` and a review
+comment `copilot_code_review_sources`,
 which GitHub sends and no version of its description has; only `null` and an empty array have been seen of the last
 two, so their types are left open. Each setting takes the JSON value at that pointer in the extract. The corrections
 apply during extraction; generated Java records are never edited.

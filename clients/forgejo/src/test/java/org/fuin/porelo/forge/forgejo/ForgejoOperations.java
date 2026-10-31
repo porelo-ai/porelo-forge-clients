@@ -9,10 +9,17 @@ enum ForgejoOperations {
     createHook("POST"),
     createPull("POST"),
     createReview("POST"),
+    createReviewComment("POST"),
     pulls("GET"),
+    pullOfBranches("GET"),
     pull("GET"),
     reviews("GET"),
     reviewComments("GET"),
+    deleteReviewComment("DELETE"),
+    createIssueComment("POST"),
+    editIssueComment("PATCH"),
+    issueComments("GET"),
+    deleteIssueComment("DELETE"),
     dismissReview("POST"),
     undismissReview("POST"),
     createStatus("POST"),
@@ -23,6 +30,7 @@ enum ForgejoOperations {
     branch("GET"),
     hooks("GET"),
     user("GET"),
+    version("GET"),
     organizations("GET"),
     keys("GET"),
     plainKeys("GET"),
@@ -80,6 +88,47 @@ enum ForgejoOperations {
                             JSON.treeToValue(body, DismissPullReviewOptions.class));
             case undismissReview ->
                     client.undismissReview(token, c.owner(), c.repo(), c.index(), c.review());
+            case createReviewComment ->
+                    client.createReviewComment(
+                            token,
+                            c.owner(),
+                            c.repo(),
+                            c.index(),
+                            c.review(),
+                            JSON.treeToValue(body, CreatePullReviewComment.class));
+            case deleteReviewComment -> {
+                client.deleteReviewComment(
+                        token, c.owner(), c.repo(), c.index(), c.review(), c.comment());
+                yield Boolean.TRUE;
+            }
+            case createIssueComment ->
+                    client.createIssueComment(
+                            token,
+                            c.owner(),
+                            c.repo(),
+                            c.index(),
+                            JSON.treeToValue(body, CreateIssueCommentOption.class));
+            case editIssueComment ->
+                    client.editIssueComment(
+                            token,
+                            c.owner(),
+                            c.repo(),
+                            c.issueComment(),
+                            JSON.treeToValue(body, EditIssueCommentOption.class));
+            case issueComments ->
+                    client.issueComments(
+                            token,
+                            c.owner(),
+                            c.repo(),
+                            c.index(),
+                            java.time.Instant.parse(c.since()));
+            case deleteIssueComment -> {
+                client.deleteIssueComment(token, c.owner(), c.repo(), c.issueComment());
+                yield Boolean.TRUE;
+            }
+            case pullOfBranches ->
+                    client.pullOfBranches(token, c.owner(), c.repo(), "main", "feature");
+            case version -> client.version(token);
             case pulls -> client.pulls(token, c.owner(), c.repo(), "open", 1, 50);
             case pull -> client.pull(token, c.owner(), c.repo(), c.index());
             case reviews -> client.reviews(token, c.owner(), c.repo(), c.index(), 1, 50);
@@ -117,6 +166,14 @@ enum ForgejoOperations {
         String pull = repo + "/pulls/" + c.index();
         return switch (this) {
             case createPull, pulls -> repo + "/pulls";
+            case pullOfBranches -> repo + "/pulls/main/feature";
+            case createReviewComment -> pull + "/reviews/" + c.review() + "/comments";
+            case deleteReviewComment ->
+                    pull + "/reviews/" + c.review() + "/comments/" + c.comment();
+            case createIssueComment, issueComments -> repo + "/issues/" + c.index() + "/comments";
+            case editIssueComment, deleteIssueComment ->
+                    repo + "/issues/comments/" + c.issueComment();
+            case version -> "/api/v1/version";
             case pull -> pull;
             case createReview, reviews -> pull + "/reviews";
             case reviewComments -> pull + "/reviews/" + c.review() + "/comments";
@@ -155,5 +212,8 @@ enum ForgejoOperations {
             long review,
             long run,
             long job,
-            long key) {}
+            long key,
+            long comment,
+            long issueComment,
+            String since) {}
 }

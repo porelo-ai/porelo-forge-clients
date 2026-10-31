@@ -14,6 +14,7 @@ import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -146,6 +147,99 @@ public final class ForgejoClient {
                 reviewPath(owner, repo, index, id) + "/undismissals",
                 null,
                 json.constructType(PullReview.class));
+    }
+
+    /**
+     * Reads the open pull request from a head branch into a base branch; a pair with none is a
+     * {@link ForgejoException} with status 404.
+     */
+    public PullRequest pullOfBranches(
+            String token, String owner, String repo, String base, String head) {
+        return call(
+                token,
+                "GET",
+                repo(owner, repo) + "/pulls/" + segment(base) + "/" + segment(head),
+                null,
+                json.constructType(PullRequest.class));
+    }
+
+    /**
+     * Adds a comment to a review; Forgejo takes one on a submitted review too, even another
+     * account's.
+     */
+    public PullReviewComment createReviewComment(
+            String token,
+            String owner,
+            String repo,
+            long index,
+            long reviewId,
+            CreatePullReviewComment body) {
+        Objects.requireNonNull(body, "body");
+        return call(
+                token,
+                "POST",
+                reviewPath(owner, repo, index, reviewId) + "/comments",
+                body,
+                json.constructType(PullReviewComment.class));
+    }
+
+    /** Deletes a review's comment. */
+    public void deleteReviewComment(
+            String token, String owner, String repo, long index, long reviewId, long id) {
+        delete(token, reviewPath(owner, repo, index, reviewId) + "/comments/" + positive(id));
+    }
+
+    /**
+     * Reads a pull request's general comments, all in one answer, since Forgejo pages none; only
+     * those updated since the given time when it is given.
+     */
+    public List<Comment> issueComments(
+            String token, String owner, String repo, long index, @Nullable Instant since) {
+        return call(
+                token,
+                "GET",
+                issuePath(owner, repo, index)
+                        + "/comments"
+                        + (since == null ? "" : "?since=" + segment(since.toString())),
+                null,
+                listType(Comment.class));
+    }
+
+    /** Writes a general comment on a pull request. */
+    public Comment createIssueComment(
+            String token, String owner, String repo, long index, CreateIssueCommentOption body) {
+        Objects.requireNonNull(body, "body");
+        return call(
+                token,
+                "POST",
+                issuePath(owner, repo, index) + "/comments",
+                body,
+                json.constructType(Comment.class));
+    }
+
+    /** Edits a general comment, or a review comment by its id, which has no edit of its own. */
+    public Comment editIssueComment(
+            String token, String owner, String repo, long id, EditIssueCommentOption body) {
+        Objects.requireNonNull(body, "body");
+        return call(
+                token,
+                "PATCH",
+                repo(owner, repo) + "/issues/comments/" + positive(id),
+                body,
+                json.constructType(Comment.class));
+    }
+
+    /**
+     * Deletes a general comment. Forgejo answers a review comment's id with success and keeps the
+     * comment; {@link #deleteReviewComment} deletes that.
+     */
+    public void deleteIssueComment(String token, String owner, String repo, long id) {
+        delete(token, repo(owner, repo) + "/issues/comments/" + positive(id));
+    }
+
+    /** Reads the server's version, such as {@code 17.0.1}. */
+    public ServerVersion version(String token) {
+        return call(token, "GET", "version", null, json.constructType(ServerVersion.class));
     }
 
     /** Lists one page of commit statuses. */
@@ -411,9 +505,7 @@ public final class ForgejoClient {
 
     /** Deletes one of the authenticated account's own SSH keys. */
     public void deleteKey(String token, long id) {
-        HttpResponse<String> response =
-                send(token, "DELETE", base.resolve("user/keys/" + positive(id)), null, true);
-        check(response, List.of(token));
+        delete(token, "user/keys/" + positive(id));
     }
 
     /**
@@ -588,6 +680,11 @@ public final class ForgejoClient {
         }
     }
 
+    private void delete(String token, String path) {
+        HttpResponse<String> response = send(token, "DELETE", base.resolve(path), null, true);
+        check(response, List.of(token));
+    }
+
     private JavaType listType(Class<?> element) {
         return json.getTypeFactory().constructCollectionType(List.class, element);
     }
@@ -598,6 +695,10 @@ public final class ForgejoClient {
 
     private static String pullPath(String owner, String repo, long index) {
         return repo(owner, repo) + "/pulls/" + positive(index);
+    }
+
+    private static String issuePath(String owner, String repo, long index) {
+        return repo(owner, repo) + "/issues/" + positive(index);
     }
 
     private static String reviewPath(String owner, String repo, long index, long id) {

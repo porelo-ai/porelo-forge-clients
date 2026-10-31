@@ -3,6 +3,7 @@ package org.fuin.porelo.forge.github;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.http.HttpRequest;
 import java.nio.file.Files;
@@ -596,6 +597,31 @@ class GitHubRecorderTest {
                 .doesNotContain("4433221");
     }
 
+    // Prevents a GraphQL account, whose number is its databaseId and whose id is its node id, from
+    // keeping either in the recording when no REST answer named the account first.
+    @Test
+    void aGraphQlAccountLosesItsNumberAndNodeId() throws Exception {
+        var scrubber = new RecordingScrubber(List.of(), Map.of("actual-user", "fixture-user"));
+        var input =
+                new ObjectMapper()
+                        .readTree(
+                                """
+                                {"data": {"node": {"resolvedBy":
+                                  {"login": "actual-user", "id": "U_kgDOActual", "databaseId": 4433221},
+                                 "comments": {"nodes": [{"id": "PRRC_kwDOComment", "databaseId": 98765,
+                                  "author": {"login": "actual-user", "id": "U_kgDOActual",
+                                   "databaseId": 4433221}}]}}}}
+                                """);
+
+        String scrubbed = scrubber.scrub(input).toString();
+
+        assertThat(scrubbed.contains("4433221")).as("the account's number is replaced").isFalse();
+        assertThat(scrubbed.contains("U_kgDOActual"))
+                .as("the account's node id is replaced")
+                .isFalse();
+        assertThat(scrubbed.contains("98765")).as("a comment's own number is kept").isTrue();
+    }
+
     // Prevents an account the recording was not told about from passing under a fixture name while
     // its real id and URLs stay in the file.
     @Test
@@ -611,6 +637,187 @@ class GitHubRecorderTest {
                                                         """
                                                         {"user": {"login": "someone-else", "id": 7}}
                                                         """)));
+    }
+
+    // Prevents a comparison from failing to record, or keeping a real account, when a commit was
+    // written or committed by an account no test token belongs to, such as GitHub's own committer.
+    @Test
+    void aCommitsUnknownAccountGetsAFixtureName() throws Exception {
+        var scrubber = new RecordingScrubber(List.of(), Map.of("actual-user", "fixture-user"));
+        var input =
+                new ObjectMapper()
+                        .readTree(
+                                """
+                                {"commits": [{"sha": "a1", "commit": {"message": "m"},
+                                  "author": {"login": "actual-user", "id": 11},
+                                  "committer": {"login": "real-committer", "id": 4455667,
+                                   "node_id": "MDQ6VXNlcjRealCommitter",
+                                   "html_url": "https://github.com/real-committer"}},
+                                 {"sha": "b2", "commit": {"message": "m"},
+                                  "author": {"login": "real-author", "id": 7788990}}],
+                                 "message": "by real-committer"}
+                                """);
+
+        String scrubbed = scrubber.scrub(input).toString();
+
+        assertThat(scrubbed)
+                .as("neither login, number nor node id of an unknown commit account survives")
+                .doesNotContain(
+                        "real-committer", "4455667", "RealCommitter", "real-author", "7788990")
+                .contains("\"login\":\"fixture-committer-1\"", "\"login\":\"fixture-committer-2\"");
+    }
+
+    // Prevents a comment author the recording was not told about from passing as a commit's
+    // account, since GraphQL names a comment's author under the same key as a commit's.
+    @Test
+    void anUnknownCommentAuthorIsStillRefused() {
+        var scrubber = new RecordingScrubber(List.of(), Map.of("actual-user", "fixture-user"));
+        assertThatExceptionOfType(IllegalStateException.class)
+                .as("an unknown author of a comment stops the recording")
+                .isThrownBy(
+                        () ->
+                                scrubber.scrub(
+                                        new ObjectMapper()
+                                                .readTree(
+                                                        """
+                                                        {"data": {"node": {"comments": {"nodes": [
+                                                          {"body": "b", "author": {"login": "real-mannequin"}}]}}}}
+                                                        """)));
+    }
+
+    // Prevents a commit's author from keeping a real name in a recording through the commit's
+    // message, such as a sign-off line, while GitHub's own committer name stays in other text.
+    @Test
+    void aCommitAuthorsNameIsScrubbedFromItsMessage() throws Exception {
+        var scrubber = new RecordingScrubber(List.of(), Map.of());
+        var input =
+                new ObjectMapper()
+                        .readTree(
+                                """
+                                {"sha": "a1", "commit": {
+                                  "author": {"name": "Real Person", "email": "real@person.invalid"},
+                                  "committer": {"name": "GitHub", "email": "noreply@github.com"},
+                                  "message": "Init\\n\\nSigned-off-by: Real Person <real@person.invalid>"},
+                                 "name": "GitHub Actions"}
+                                """);
+
+        String output = scrubber.scrub(input).toString();
+
+        assertThat(output)
+                .as("the author's name and address leave the message too")
+                .doesNotContain("Real Person", "person.invalid")
+                .contains("Signed-off-by: Fixture-User <fixture@example.org>", "GitHub Actions");
+    }
+
+    // Prevents an account learned from a commit from passing elsewhere, where only accounts the
+    // recording was told about may appear, whichever is read first.
+    @Test
+    void aCommitAccountIsStillRefusedElsewhere() {
+        var scrubber = new RecordingScrubber(List.of(), Map.of());
+        assertThatExceptionOfType(IllegalStateException.class)
+                .as("a commit's account is no account the recording was told about")
+                .isThrownBy(
+                        () ->
+                                scrubber.scrub(
+                                        new ObjectMapper()
+                                                .readTree(
+                                                        """
+                                                        {"commits": [{"sha": "a1", "commit": {"message": "m"},
+                                                          "author": {"login": "real-mannequin", "id": 1}}],
+                                                         "data": {"node": {"comments": {"nodes": [
+                                                          {"body": "b", "author": {"login": "real-mannequin"}}]}}}}
+                                                        """)));
+    }
+
+    // Prevents a commit's tagger, which a REST commit does not link, from passing as a commit
+    // account.
+    @Test
+    void anUnknownTaggerIsRefused() {
+        var scrubber = new RecordingScrubber(List.of(), Map.of());
+        assertThatExceptionOfType(IllegalStateException.class)
+                .as("only a commit's author and committer may be unknown")
+                .isThrownBy(
+                        () ->
+                                scrubber.scrub(
+                                        new ObjectMapper()
+                                                .readTree(
+                                                        """
+                                                        {"sha": "a1", "commit": {"message": "m"},
+                                                         "tagger": {"login": "stranger", "id": 1}}
+                                                        """)));
+    }
+
+    // Prevents a git author named like a known login from replacing that login in addresses with a
+    // name, which would put a space into them and stop their scrubbing early.
+    @Test
+    void aGitNameLikeALoginKeepsTheLoginsFixture() throws Exception {
+        var scrubber = new RecordingScrubber(List.of(), Map.of("actual-user", "fixture-user"));
+        var input =
+                new ObjectMapper()
+                        .readTree(
+                                """
+                                {"sha": "a1",
+                                 "url": "https://api.github.com/repos/actual-user/repo/commits/a1",
+                                 "commit": {"author": {"name": "actual-user", "email": "a@b.invalid"},
+                                  "message": "by Real Name"},
+                                 "author": {"login": "actual-user", "id": 11}}
+                                """);
+
+        String output = scrubber.scrub(input).toString();
+
+        assertThat(output)
+                .as("the login keeps its fixture name in addresses")
+                .contains("https://example.org/repos/fixture-user/repo/commits/a1")
+                .doesNotContain("actual-user", "Fixture User/");
+    }
+
+    // Prevents a git author named like a commit account's login, read before that account in
+    // GitHub's order, from replacing the login with a name instead of the account's fixture.
+    @Test
+    void aGitNameLikeACommitAccountKeepsItsFixture() throws Exception {
+        var scrubber = new RecordingScrubber(List.of(), Map.of());
+        var input =
+                new ObjectMapper()
+                        .readTree(
+                                """
+                                {"sha": "a1", "url": "https://api.github.com/users/ext-user",
+                                 "commit": {"author": {"name": "ext-user", "email": "a@b.invalid"},
+                                  "message": "by ext-user"},
+                                 "author": {"login": "ext-user", "id": 11}}
+                                """);
+
+        String output = scrubber.scrub(input).toString();
+
+        assertThat(output)
+                .as("the login keeps its account's fixture everywhere")
+                .contains("https://example.org/users/fixture-committer-1", "by fixture-committer-1")
+                .doesNotContain("ext-user", "Fixture-User");
+    }
+
+    // Prevents a signed commit's raw text, which names its author as git does, from keeping a real
+    // name in a recording.
+    @Test
+    void aCommitsSignedTextIsDropped() throws Exception {
+        var scrubber = new RecordingScrubber(List.of(), Map.of());
+        var input =
+                new ObjectMapper()
+                        .readTree(
+                                """
+                                {"commit": {"verification": {"verified": true, "reason": "valid",
+                                  "signature": "-----BEGIN PGP SIGNATURE-----\\nabc\\n",
+                                  "payload": "tree 4b41\\nauthor Real Person <real@person.invalid> 1 +0100\\n",
+                                  "verified_at": "2026-10-31T05:09:41Z"}}}
+                                """);
+
+        JsonNode verification = scrubber.scrub(input).path("commit").path("verification");
+
+        assertThat(verification.path("payload").isNull()).as("the raw commit is dropped").isTrue();
+        assertThat(verification.path("signature").isNull())
+                .as("the signature over it is dropped")
+                .isTrue();
+        assertThat(verification.path("verified").asBoolean())
+                .as("what GitHub found is kept")
+                .isTrue();
     }
 
     // Prevents a test user's real display name from entering a recording through a commit author.

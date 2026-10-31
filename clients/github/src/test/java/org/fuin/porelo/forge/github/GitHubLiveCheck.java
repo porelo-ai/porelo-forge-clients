@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.fuin.porelo.forge.github.model.PrivateUser;
 import org.fuin.porelo.forge.github.model.PublicUser;
 import org.fuin.porelo.forge.github.model.PullRequestSimple;
+import org.jspecify.annotations.Nullable;
 
 /** Scheduled strict reading against a retained fixture; only Actions dispatch writes new data. */
 public final class GitHubLiveCheck {
@@ -105,8 +106,64 @@ public final class GitHubLiveCheck {
                                             1,
                                             100));
             assertThat(checks.checkRuns()).as("the retained head has a check run").isNotEmpty();
-            boolean resolved = readThreads(graphql, token, Math.toIntExact(number));
-            assertThat(resolved).as("the retained pull has a resolved thread").isTrue();
+            String resolved = readThreads(graphql, token, Math.toIntExact(number));
+            assertThat(resolved).as("the retained pull has a resolved thread").isNotNull();
+            var thread = read("reviewThread", () -> graphql.reviewThread(token, resolved));
+            GitHubScenario.requireUsefulResult(GitHubOperations.reviewThread, thread);
+            var ofHead =
+                    read(
+                            "pullsOfHead",
+                            () ->
+                                    client.pullsOfHead(
+                                            token,
+                                            GitHubFixture.OWNER,
+                                            GitHubFixture.REPO,
+                                            GitHubFixture.OWNER + ":" + pull.head().ref(),
+                                            "open",
+                                            1,
+                                            100));
+            assertThat(ofHead.stream().anyMatch(value -> value.number() == number))
+                    .as("the retained pull is found by its head branch")
+                    .isTrue();
+            long review =
+                    java.util.Objects.requireNonNull(
+                            comments.getFirst().pullRequestReviewId(),
+                            "A review comment names no review");
+            var ofReview =
+                    read(
+                            "reviewCommentsOf",
+                            () ->
+                                    client.reviewCommentsOf(
+                                            token,
+                                            GitHubFixture.OWNER,
+                                            GitHubFixture.REPO,
+                                            number,
+                                            review,
+                                            1,
+                                            100));
+            assertThat(ofReview).as("a review's own comments are read").isNotEmpty();
+            read(
+                    "issueComments",
+                    () ->
+                            client.issueComments(
+                                    token,
+                                    GitHubFixture.OWNER,
+                                    GitHubFixture.REPO,
+                                    number,
+                                    null,
+                                    1,
+                                    100));
+            var comparison =
+                    read(
+                            "compare",
+                            () ->
+                                    client.compare(
+                                            token,
+                                            GitHubFixture.OWNER,
+                                            GitHubFixture.REPO,
+                                            pull.base().ref(),
+                                            pull.head().sha()));
+            GitHubScenario.requireUsefulResult(GitHubOperations.compare, comparison);
             var user = read("user", () -> client.user(token));
             String login =
                     switch (user) {
@@ -173,10 +230,11 @@ public final class GitHubLiveCheck {
      * Reads every page of the pull's threads and their comments, and reads the first thread's
      * comments once more through the comments query, so that query is checked on every run.
      *
-     * @return whether any thread is resolved
+     * @return the node id of the first resolved thread, or null when none is resolved
      */
-    static boolean readThreads(GitHubGraphQl graphql, String token, int number) throws Exception {
-        boolean resolved = false;
+    static @Nullable String readThreads(GitHubGraphQl graphql, String token, int number)
+            throws Exception {
+        String resolved = null;
         boolean commentsQueried = false;
         String after = null;
         for (int page = 0; page < 1000; page++) {
@@ -194,7 +252,7 @@ public final class GitHubLiveCheck {
             GitHubScenario.requireUsefulResult(GitHubOperations.reviewThreads, threads);
             var connection = threads.data().repository().pullRequest().reviewThreads();
             for (var thread : connection.nodes()) {
-                resolved |= thread.isResolved();
+                if (resolved == null && thread.isResolved()) resolved = thread.id();
                 if (!commentsQueried) {
                     var first =
                             read(

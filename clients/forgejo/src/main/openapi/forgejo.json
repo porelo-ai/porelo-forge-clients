@@ -542,6 +542,239 @@
         }
       }
     },
+    "/repos/{owner}/{repo}/issues/comments/{id}": {
+      "delete": {
+        "tags": [
+          "issue"
+        ],
+        "summary": "Delete a comment",
+        "operationId": "issueDeleteComment",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "id of comment to delete",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "$ref": "#/responses/empty"
+          },
+          "403": {
+            "$ref": "#/responses/forbidden"
+          },
+          "500": {
+            "$ref": "#/responses/internalServerError"
+          }
+        }
+      },
+      "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "issue"
+        ],
+        "summary": "Edit a comment",
+        "operationId": "issueEditComment",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "id of the comment to edit",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/EditIssueCommentOption"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/Comment"
+          },
+          "204": {
+            "$ref": "#/responses/empty"
+          },
+          "403": {
+            "$ref": "#/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          },
+          "423": {
+            "$ref": "#/responses/repoArchivedError"
+          },
+          "500": {
+            "$ref": "#/responses/internalServerError"
+          }
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/issues/{index}/comments": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "issue"
+        ],
+        "summary": "List all comments on an issue",
+        "operationId": "issueGetComments",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "index of the issue",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "if provided, only comments updated since the specified time are returned.",
+            "name": "since",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "if provided, only comments updated before the provided time are returned.",
+            "name": "before",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/CommentList"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          },
+          "422": {
+            "$ref": "#/responses/validationError"
+          },
+          "500": {
+            "$ref": "#/responses/internalServerError"
+          }
+        }
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "issue"
+        ],
+        "summary": "Add a comment to an issue",
+        "operationId": "issueCreateComment",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "index of the issue",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateIssueCommentOption"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/responses/Comment"
+          },
+          "403": {
+            "$ref": "#/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          },
+          "423": {
+            "$ref": "#/responses/repoArchivedError"
+          },
+          "500": {
+            "$ref": "#/responses/internalServerError"
+          }
+        }
+      }
+    },
     "/repos/{owner}/{repo}/pulls": {
       "get": {
         "produces": [
@@ -714,6 +947,56 @@
           },
           "423": {
             "$ref": "#/responses/repoArchivedError"
+          }
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/pulls/{base}/{head}": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "Get a pull request by base and head",
+        "operationId": "repoGetPullRequestByBaseHead",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "base of the pull request to get",
+            "name": "base",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "head of the pull request to get",
+            "name": "head",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/PullRequest"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
           }
         }
       }
@@ -916,6 +1199,130 @@
         "responses": {
           "200": {
             "$ref": "#/responses/PullReviewCommentList"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      },
+      "post": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "Add a new comment to a pull request review",
+        "operationId": "repoCreatePullReviewComment",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "index of the pull request",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "id of the review",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreatePullReviewCommentOptions"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/PullReviewComment"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          },
+          "422": {
+            "$ref": "#/responses/validationError"
+          }
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/pulls/{index}/reviews/{id}/comments/{comment}": {
+      "delete": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "Delete a pull review comment",
+        "operationId": "repoDeletePullReviewComment",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "index of the pull request",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "id of the review",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "id of the comment",
+            "name": "comment",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "$ref": "#/responses/empty"
+          },
+          "403": {
+            "$ref": "#/responses/forbidden"
           },
           "404": {
             "$ref": "#/responses/notFound"
@@ -1445,6 +1852,23 @@
           }
         }
       }
+    },
+    "/version": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "miscellaneous"
+        ],
+        "summary": "Returns the version of the running application",
+        "operationId": "getVersion",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/ServerVersion"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -1464,6 +1888,20 @@
       "x-go-package": "forgejo.org/modules/structs"
     },
     "APIForbiddenError": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        }
+      },
+      "x-go-package": "forgejo.org/services/context"
+    },
+    "APIInternalServerError": {
       "type": "object",
       "properties": {
         "message": {
@@ -1785,6 +2223,53 @@
       },
       "x-go-package": "forgejo.org/modules/structs"
     },
+    "Attachment": {
+      "description": "Attachment a generic attachment",
+      "type": "object",
+      "properties": {
+        "browser_download_url": {
+          "type": "string",
+          "x-go-name": "DownloadURL"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Created"
+        },
+        "download_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "DownloadCount"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Size"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "attachment",
+            "external"
+          ],
+          "x-go-name": "Type"
+        },
+        "uuid": {
+          "type": "string",
+          "x-go-name": "UUID"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
     "Branch": {
       "description": "Branch represents a repository branch",
       "type": "object",
@@ -1827,6 +2312,73 @@
         "user_can_push": {
           "type": "boolean",
           "x-go-name": "UserCanPush"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "Comment": {
+      "description": "Comment represents a comment on a commit or issue",
+      "type": "object",
+      "properties": {
+        "assets": {
+          "description": "The attachments to the comment",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Attachment"
+          },
+          "x-go-name": "Attachments"
+        },
+        "body": {
+          "description": "The body of the comment",
+          "type": "string",
+          "x-go-name": "Body"
+        },
+        "created_at": {
+          "description": "The time of the comment's creation",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Created"
+        },
+        "html_url": {
+          "description": "The HTML URL of the comment",
+          "type": "string",
+          "x-go-name": "HTMLURL"
+        },
+        "id": {
+          "description": "The identifier of the comment",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "issue_url": {
+          "description": "The HTML URL of the issue if the comment is posted on an issue, else empty string",
+          "type": "string",
+          "x-go-name": "IssueURL"
+        },
+        "original_author": {
+          "description": "The original author that posted the comment if it was not posted locally, else empty string",
+          "type": "string",
+          "x-go-name": "OriginalAuthor"
+        },
+        "original_author_id": {
+          "description": "The ID of the original author that posted the comment if it was not posted locally, else 0",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "OriginalAuthorID"
+        },
+        "pull_request_url": {
+          "description": "The HTML URL of the pull request if the comment is posted on a pull request, else empty string",
+          "type": "string",
+          "x-go-name": "PRURL"
+        },
+        "updated_at": {
+          "description": "The time of the comment's update",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Updated"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
         }
       },
       "x-go-package": "forgejo.org/modules/structs"
@@ -1936,6 +2488,27 @@
       "type": "object",
       "additionalProperties": {
         "type": "string"
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "CreateIssueCommentOption": {
+      "description": "CreateIssueCommentOption options for creating a comment on an issue",
+      "type": "object",
+      "required": [
+        "body"
+      ],
+      "properties": {
+        "body": {
+          "description": "The body of the comment",
+          "type": "string",
+          "x-go-name": "Body"
+        },
+        "updated_at": {
+          "description": "The time of the comment's update, needs admin or repository owner permission",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Updated"
+        }
       },
       "x-go-package": "forgejo.org/modules/structs"
     },
@@ -2052,6 +2625,9 @@
         }
       },
       "x-go-package": "forgejo.org/modules/structs"
+    },
+    "CreatePullReviewCommentOptions": {
+      "$ref": "#/definitions/CreatePullReviewComment"
     },
     "CreatePullReviewOptions": {
       "description": "CreatePullReviewOptions are options to create a pull review",
@@ -2201,6 +2777,27 @@
       "type": "integer",
       "format": "int64",
       "x-go-package": "time"
+    },
+    "EditIssueCommentOption": {
+      "description": "EditIssueCommentOption options for editing a comment",
+      "type": "object",
+      "required": [
+        "body"
+      ],
+      "properties": {
+        "body": {
+          "description": "The body of the comment",
+          "type": "string",
+          "x-go-name": "Body"
+        },
+        "updated_at": {
+          "description": "The time of the comment's update, needs admin or repository owner permission",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Updated"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
     },
     "ExternalTracker": {
       "description": "ExternalTracker represents settings for external tracker",
@@ -3374,6 +3971,17 @@
       "type": "string",
       "x-go-package": "forgejo.org/modules/structs"
     },
+    "ServerVersion": {
+      "description": "ServerVersion wraps the version of the server",
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "x-go-name": "Version"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
     "StateType": {
       "description": "StateType issue state type",
       "type": "string",
@@ -3612,6 +4220,28 @@
         "$ref": "#/definitions/Branch"
       }
     },
+    "Comment": {
+      "description": "Comment",
+      "schema": {
+        "$ref": "#/definitions/Comment"
+      }
+    },
+    "CommentList": {
+      "description": "CommentList",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/Comment"
+        }
+      },
+      "headers": {
+        "X-Total-Count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The total number of comments"
+        }
+      }
+    },
     "CommitStatus": {
       "description": "CommitStatus",
       "schema": {
@@ -3707,6 +4337,12 @@
         "$ref": "#/definitions/PullReview"
       }
     },
+    "PullReviewComment": {
+      "description": "PullComment",
+      "schema": {
+        "$ref": "#/definitions/PullReviewComment"
+      }
+    },
     "PullReviewCommentList": {
       "description": "PullCommentList",
       "schema": {
@@ -3744,6 +4380,12 @@
         "$ref": "#/definitions/Repository"
       }
     },
+    "ServerVersion": {
+      "description": "ServerVersion",
+      "schema": {
+        "$ref": "#/definitions/ServerVersion"
+      }
+    },
     "User": {
       "description": "User",
       "schema": {
@@ -3763,6 +4405,12 @@
       "description": "APIForbiddenError is a forbidden error response",
       "schema": {
         "$ref": "#/definitions/APIForbiddenError"
+      }
+    },
+    "internalServerError": {
+      "description": "APIInternalServerError is an error that is raised when an internal server error occurs",
+      "schema": {
+        "$ref": "#/definitions/APIInternalServerError"
       }
     },
     "notFound": {

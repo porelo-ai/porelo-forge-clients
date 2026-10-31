@@ -4,32 +4,37 @@
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ]
   },
-  "body" : "{\"data\":{\"unresolveReviewThread\":{\"thread\":{\"id\":\"PRRT_kwDOVc0D886yOcdN\",\"isResolved\":false}}}}",
+  "body" : "{\"data\":{\"unresolveReviewThread\":{\"thread\":{\"id\":\"PRRT_kwDOVc0D886yQCnS\",\"isResolved\":false}}}}",
   "exchanges" : [ {
     "request_uri" : "/graphql",
     "status" : 200,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ]
     },
-    "body" : "{\"data\":{\"unresolveReviewThread\":{\"thread\":{\"id\":\"PRRT_kwDOVc0D886yOcdN\",\"isResolved\":false}}}}"
+    "body" : "{\"data\":{\"unresolveReviewThread\":{\"thread\":{\"id\":\"PRRT_kwDOVc0D886yQCnS\",\"isResolved\":false}}}}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "sha" : "c7094bf703c991ae7d152eb58a449fee5471ba2c",
-    "number" : 3,
-    "comment" : 4430751210,
-    "check" : 124459864427,
-    "run" : 41174745550,
-    "job" : 124459888184,
+    "sha" : "bb33e12342d6f5235c9c5acddfdb1fc6f86dedfd",
+    "number" : 6,
+    "comment" : 4431405345,
+    "check" : 124513283016,
+    "run" : 41192947599,
+    "job" : 124513305292,
     "username" : "fixture-user",
-    "ref" : "heads/forge-client-03567d8b-1448-47cb-8074-087a127f6447",
-    "thread" : "PRRT_kwDOVc0D886yOcdN"
+    "ref" : "heads/forge-client-c18dcd8e-2ca8-43a1-8176-32a541753041",
+    "thread" : "PRRT_kwDOVc0D886yQCnS",
+    "reply" : 4431405381,
+    "issueComment" : 6542240307,
+    "review" : 5722360485,
+    "since" : "2026-10-31T10:29:17Z",
+    "base" : "main"
   },
   "request_body" : {
+    "query" : "mutation UnresolveReviewThread($id: ID!) {\n  unresolveReviewThread(input: {threadId: $id}) { thread { id isResolved } }\n}\n",
     "variables" : {
-      "id" : "PRRT_kwDOVc0D886yOcdN"
-    },
-    "query" : "mutation UnresolveReviewThread($id: ID!) {\n  unresolveReviewThread(input: {threadId: $id}) { thread { id isResolved } }\n}\n"
+      "id" : "PRRT_kwDOVc0D886yQCnS"
+    }
   }
 }

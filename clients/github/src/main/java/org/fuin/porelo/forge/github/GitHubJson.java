@@ -14,6 +14,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 
 final class GitHubJson {
     private GitHubJson() {}
@@ -33,6 +34,8 @@ final class GitHubJson {
                 new UserReader());
         unions.addDeserializer(
                 org.fuin.porelo.forge.github.model.IntegrationOwner.class, new OwnerReader());
+        unions.addDeserializer(
+                org.fuin.porelo.forge.github.model.CommitAuthor.class, new CommitAuthorReader());
         mapper.addMixIn(
                 org.fuin.porelo.forge.github.model.UsersGetAuthenticated200Response.class,
                 NoTypeId.class);
@@ -212,6 +215,25 @@ final class GitHubJson {
                 return context.readTreeAsValue(
                         value, org.fuin.porelo.forge.github.model.Enterprise.class);
             }
+            return context.readTreeAsValue(
+                    value, org.fuin.porelo.forge.github.model.SimpleUser.class);
+        }
+    }
+
+    /**
+     * A commit's author or committer is an account, or no account at all, which GitHub sends as
+     * null or as an empty object; both read as null.
+     */
+    private static final class CommitAuthorReader
+            extends com.fasterxml.jackson.databind.JsonDeserializer<
+                    org.fuin.porelo.forge.github.model.@Nullable CommitAuthor> {
+        @Override
+        public org.fuin.porelo.forge.github.model.@Nullable CommitAuthor deserialize(
+                com.fasterxml.jackson.core.JsonParser parser,
+                com.fasterxml.jackson.databind.DeserializationContext context)
+                throws java.io.IOException {
+            com.fasterxml.jackson.databind.JsonNode value = context.readTree(parser);
+            if (value.isObject() && value.isEmpty()) return null;
             return context.readTreeAsValue(
                     value, org.fuin.porelo.forge.github.model.SimpleUser.class);
         }

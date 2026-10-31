@@ -95,11 +95,25 @@
                                 <argument>--operation</argument>
                                 <argument>get /repos/{owner}/{repo}/commits/{ref}/check-runs</argument>
                                 <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/compare/{basehead}</argument>
+                                <argument>--operation</argument>
                                 <argument>get /repos/{owner}/{repo}/git/ref/{ref}</argument>
+                                <argument>--operation</argument>
+                                <argument>delete /repos/{owner}/{repo}/issues/comments/{comment_id}</argument>
+                                <argument>--operation</argument>
+                                <argument>patch /repos/{owner}/{repo}/issues/comments/{comment_id}</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/issues/{issue_number}/comments</argument>
+                                <argument>--operation</argument>
+                                <argument>post /repos/{owner}/{repo}/issues/{issue_number}/comments</argument>
                                 <argument>--operation</argument>
                                 <argument>get /repos/{owner}/{repo}/pulls</argument>
                                 <argument>--operation</argument>
                                 <argument>post /repos/{owner}/{repo}/pulls</argument>
+                                <argument>--operation</argument>
+                                <argument>delete /repos/{owner}/{repo}/pulls/comments/{comment_id}</argument>
+                                <argument>--operation</argument>
+                                <argument>patch /repos/{owner}/{repo}/pulls/comments/{comment_id}</argument>
                                 <argument>--operation</argument>
                                 <argument>get /repos/{owner}/{repo}/pulls/{pull_number}</argument>
                                 <argument>--operation</argument>
@@ -113,6 +127,8 @@
                                 <argument>get /repos/{owner}/{repo}/pulls/{pull_number}/reviews</argument>
                                 <argument>--operation</argument>
                                 <argument>post /repos/{owner}/{repo}/pulls/{pull_number}/reviews</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/comments</argument>
                                 <argument>--operation</argument>
                                 <argument>get /user</argument>
                                 <argument>--operation</argument>

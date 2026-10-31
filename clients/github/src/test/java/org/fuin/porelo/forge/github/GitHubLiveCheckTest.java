@@ -14,14 +14,14 @@ class GitHubLiveCheckTest {
     void readingThreadsAlsoReadsTheFirstThreadsCommentsThroughTheCommentsQuery() throws Exception {
         var http = new ReplayHttpClient().recording("reviewThreads").recording("threadComments");
 
-        boolean resolved =
+        String resolved =
                 GitHubLiveCheck.readThreads(
                         new GitHubGraphQl(GitHubRecordingTest.BASE, http, Strictness.STRICT),
                         GitHubRecordingTest.TOKEN,
                         1);
 
         // The recording reads the threads before one is resolved.
-        assertThat(resolved).as("the recorded thread is not resolved").isFalse();
+        assertThat(resolved).as("the recorded thread is not resolved").isNull();
         assertThat(http.requests).as("threads and then comments are queried").hasSize(2);
         assertThat(
                         GitHubJson.mapper(Strictness.STRICT)
@@ -91,12 +91,16 @@ class GitHubLiveCheckTest {
                         .answer(200, Map.of(), threads.toString())
                         .recording("threadComments");
 
-        boolean resolved =
+        String resolved =
                 GitHubLiveCheck.readThreads(
                         new GitHubGraphQl(GitHubRecordingTest.BASE, http, Strictness.STRICT),
                         GitHubRecordingTest.TOKEN,
                         1);
 
-        assertThat(resolved).as("a resolved thread is seen").isTrue();
+        assertThat(resolved)
+                .as("a resolved thread is seen by its node id")
+                .isEqualTo(
+                        threads.at("/data/repository/pullRequest/reviewThreads/nodes/0/id")
+                                .asText());
     }
 }

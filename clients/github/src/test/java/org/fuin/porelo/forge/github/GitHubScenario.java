@@ -13,69 +13,76 @@ final class GitHubScenario {
     private final GitHubGraphQl graphql;
     private final com.fasterxml.jackson.databind.ObjectMapper json =
             GitHubJson.mapper(Strictness.STRICT);
-    private GitHubOperations.Context context;
+    private String username = "pending";
+    private String thread = "pending";
+    private String since = "pending";
+    private long number;
+    private long comment;
+    private long reply;
+    private long issueComment;
+    private long review;
+    private long check;
+    private long run;
+    private long job;
 
     GitHubScenario(GitHubFixture fixture, java.net.http.HttpClient http) {
         this.fixture = fixture;
         transport = new RecordingHttpClient(http);
         client = new GitHubClient(GitHubFixture.BASE, transport);
         graphql = new GitHubGraphQl(GitHubFixture.BASE, transport);
-        context =
-                new GitHubOperations.Context(
-                        GitHubFixture.OWNER,
-                        GitHubFixture.REPO,
-                        fixture.sha(),
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        "pending",
-                        "heads/" + fixture.prefix,
-                        "pending");
+    }
+
+    /** What the operations so far have made, for the next one to address. */
+    private GitHubOperations.Context context() {
+        return new GitHubOperations.Context(
+                GitHubFixture.OWNER,
+                GitHubFixture.REPO,
+                fixture.sha(),
+                number,
+                comment,
+                check,
+                run,
+                job,
+                username,
+                "heads/" + fixture.prefix,
+                thread,
+                reply,
+                issueComment,
+                review,
+                since,
+                "main");
     }
 
     java.util.List<Capture> run() throws Exception {
-        var user = fixture.api("GET", "user", null).path("login").asText();
-        if (!user.matches("[A-Za-z0-9-]{1,39}"))
+        username = fixture.api("GET", "user", null).path("login").asText();
+        if (!username.matches("[A-Za-z0-9-]{1,39}"))
             throw new IllegalStateException("Test user has no login");
-        context =
-                new GitHubOperations.Context(
-                        context.owner(),
-                        context.repo(),
-                        context.sha(),
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        user,
-                        context.ref(),
-                        "pending");
         java.util.List<Capture> captures = new java.util.ArrayList<>();
         for (var operation : GitHubOperations.values()) {
             if (operation == GitHubOperations.runs) {
-                long run = fixture.dispatch(fixture.prefix);
+                run = fixture.dispatch(fixture.prefix);
                 var jobs =
                         fixture.api(
                                         "GET",
                                         GitHubFixture.ROOT + "/actions/runs/" + run + "/jobs",
                                         null)
                                 .path("jobs");
-                long job = jobs.path(0).path("id").asLong();
+                job = jobs.path(0).path("id").asLong();
                 if (job <= 0) throw new IllegalStateException("Dispatched workflow has no job");
-                update(
-                        context.number(),
-                        context.comment(),
-                        context.check(),
-                        run,
-                        job,
-                        context.thread());
             }
+            if (operation == GitHubOperations.createIssueComment)
+                // A second before the comment, in whole seconds, so reading since it finds it.
+                since =
+                        java.time.Instant.now()
+                                .minusSeconds(1)
+                                .truncatedTo(java.time.temporal.ChronoUnit.SECONDS)
+                                .toString();
             var body = body(operation);
+            var context = context();
             String token =
                     switch (operation) {
-                        case createReview, createReviewComment -> fixture.reviewerToken();
+                        case createReview, createReviewComment, updateReviewComment ->
+                                fixture.reviewerToken();
                         case createCheckRun, updateCheckRun -> fixture.appToken();
                         default -> fixture.userToken();
                     };
@@ -84,44 +91,29 @@ final class GitHubScenario {
             requireUsefulResult(operation, result);
             switch (result) {
                 case PullRequest pull when operation == GitHubOperations.createPull ->
-                        update(
-                                pull.number(),
-                                context.comment(),
-                                context.check(),
-                                context.run(),
-                                context.job(),
-                                context.thread());
-                case PullRequestReviewComment comment
-                        when operation == GitHubOperations.createReviewComment ->
-                        update(
-                                context.number(),
-                                comment.id(),
-                                context.check(),
-                                context.run(),
-                                context.job(),
-                                context.thread());
-                case CheckRun check when operation == GitHubOperations.createCheckRun ->
-                        update(
-                                context.number(),
-                                context.comment(),
-                                check.id(),
-                                context.run(),
-                                context.job(),
-                                context.thread());
+                        number = pull.number();
+                case PullRequestReviewComment created
+                        when operation == GitHubOperations.createReviewComment -> {
+                    comment = created.id();
+                    // GitHub files a single comment under a review of its own.
+                    review = java.util.Objects.requireNonNull(created.pullRequestReviewId());
+                }
+                case PullRequestReviewComment created
+                        when operation == GitHubOperations.replyReviewComment ->
+                        reply = created.id();
+                case IssueComment created when operation == GitHubOperations.createIssueComment ->
+                        issueComment = created.id();
+                case CheckRun created when operation == GitHubOperations.createCheckRun ->
+                        check = created.id();
                 case GitHubGraphQl.ThreadsResponse threads ->
-                        update(
-                                context.number(),
-                                context.comment(),
-                                context.check(),
-                                context.run(),
-                                context.job(),
+                        thread =
                                 threads.data()
                                         .repository()
                                         .pullRequest()
                                         .reviewThreads()
                                         .nodes()
                                         .getFirst()
-                                        .id());
+                                        .id();
                 default -> {}
             }
             var exchanges = transport.take();
@@ -142,22 +134,6 @@ final class GitHubScenario {
         return java.util.List.copyOf(captures);
     }
 
-    private void update(long number, long comment, long check, long run, long job, String thread) {
-        context =
-                new GitHubOperations.Context(
-                        context.owner(),
-                        context.repo(),
-                        context.sha(),
-                        number,
-                        comment,
-                        check,
-                        run,
-                        job,
-                        context.username(),
-                        context.ref(),
-                        thread);
-    }
-
     private com.fasterxml.jackson.databind.JsonNode body(GitHubOperations operation) {
         return json.valueToTree(
                 switch (operation) {
@@ -176,13 +152,13 @@ final class GitHubScenario {
                                     "body",
                                     "Approved fixture",
                                     "commit_id",
-                                    context.sha());
+                                    fixture.sha());
                     case createReviewComment ->
                             java.util.Map.of(
                                     "body",
                                     "```suggestion\nfixture-complete\n```",
                                     "commit_id",
-                                    context.sha(),
+                                    fixture.sha(),
                                     "path",
                                     fixture.prefix + ".txt",
                                     "line",
@@ -190,12 +166,17 @@ final class GitHubScenario {
                                     "side",
                                     "RIGHT");
                     case replyReviewComment -> java.util.Map.of("body", "Fixture reply");
+                    case updateReviewComment ->
+                            java.util.Map.of(
+                                    "body", "```suggestion\nfixture-complete\n```\nEdited");
+                    case createIssueComment -> java.util.Map.of("body", "Fixture comment");
+                    case updateIssueComment -> java.util.Map.of("body", "Fixture comment, edited");
                     case createCheckRun ->
                             java.util.Map.of(
                                     "name",
                                     fixture.prefix,
                                     "head_sha",
-                                    context.sha(),
+                                    fixture.sha(),
                                     "external_id",
                                     fixture.prefix);
                     case updateCheckRun ->
@@ -235,6 +216,28 @@ final class GitHubScenario {
                             .as("each fixture thread has comments")
                             .isNotEmpty();
             }
+            case GitHubGraphQl.ThreadResponse response -> {
+                var thread = response.data().node();
+                assertThat(thread).as("the thread is read by its id").isNotNull();
+                assertThat(thread.isResolved()).as("the thread was resolved before").isTrue();
+                assertThat(thread.resolvedBy() != null && thread.resolvedBy().databaseId() != null)
+                        .as("a resolved thread names its resolver's stable id")
+                        .isTrue();
+                assertThat(
+                                thread.comments().nodes().stream()
+                                        .allMatch(
+                                                comment ->
+                                                        comment.author() != null
+                                                                && comment.author().databaseId()
+                                                                        != null))
+                        .as("each comment names its author's stable id")
+                        .isTrue();
+            }
+            case CommitComparison comparison ->
+                    assertThat(comparison.mergeBaseCommit().sha())
+                            .as("the comparison names its merge base")
+                            .matches("[a-f0-9]{40,64}");
+            case GitHubOperations.Deleted deleted -> {}
             case GitHubGraphQl.CommentsResponse response -> {
                 assertThat(response.data().node()).as("the comment thread is visible").isNotNull();
                 assertThat(response.data().node().comments().nodes())

@@ -1,6 +1,7 @@
 # Forgejo client
 
-`org.fuin.porelo:porelo-forge-client-forgejo` covers Forgejo 17 pull requests, reviews and their comments,
+`org.fuin.porelo:porelo-forge-client-forgejo` covers Forgejo 17 pull requests, reviews and their comments, a pull
+request's general comments, the server's version,
 review dismissal and undismissal, commit statuses, Actions runs, jobs and logs, branches, repository webhooks,
 the authenticated account, organizations and collaborator permissions, an account's public SSH keys, the
 authenticated account's own SSH keys, an account's permissions in an organization, and repositories. It uses the
@@ -26,6 +27,16 @@ List<PullRequest> open = forgejo.pulls(token, "owner", "repo", "open", 1, 50);
   `organizationPermissions` reads an account's permissions in an organization; Forgejo 17 leaves out `is_owner`
   for anyone but an owner, so it reads as null then. `repository` reads a repository, and `createRepository`
   creates one in an organization. List calls take a page and a limit, and the caller advances the page.
+- `pullOfBranches(base, head)` reads the open pull request from one branch into another, or fails with status 404.
+  `issueComments` reads a pull request's general comments, only those updated since a time when one is given;
+  Forgejo pages none, so all come in one answer, and review comments are not among them. `createIssueComment`,
+  `editIssueComment` and `deleteIssueComment` write, edit and delete one. `createReviewComment` and
+  `deleteReviewComment` add a comment to a review and delete one; a review that is already submitted, even another
+  account's, takes a new comment. `version` reads the server's version, such as `17.0.1+gitea-1.22.0`.
+- What Forgejo 17 does not offer, measured against it: a review comment has no edit of its own, but
+  `editIssueComment` with its id edits it; `DELETE .../issues/comments/{id}` answers 204 for a review comment and
+  leaves it in place, so only `deleteReviewComment` deletes one; and there is no thread state to read or change, and
+  no reply to a review comment.
 - Reading is lenient by default, ignoring fields Forgejo adds within its API version; `Strictness.STRICT` refuses
   them, as the tests do. In both, a required field may not be missing or null.
 - A failure is a `ForgejoException` with the HTTP status, or 0 when nothing was answered; its message carries no

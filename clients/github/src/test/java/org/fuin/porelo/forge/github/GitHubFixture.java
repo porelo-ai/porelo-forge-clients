@@ -499,22 +499,12 @@ final class GitHubFixture implements AutoCloseable {
                     Scope.EVERYTHING,
                     "review comments",
                     failures,
-                    () -> {
-                        // A comment the user may not delete does not keep the others.
-                        boolean refused = false;
-                        for (long number : closedPulls)
-                            for (var comment : items("pulls/" + number + "/comments")) {
-                                long id = comment.path("id").asLong();
-                                if (id <= 0)
-                                    throw new IllegalStateException("Comment has no identity");
-                                try {
-                                    api("DELETE", ROOT + "/pulls/comments/" + id, null);
-                                } catch (GitHubException ex) {
-                                    refused = true;
-                                }
-                            }
-                        if (refused) throw new IllegalStateException("A comment remains");
-                    });
+                    () -> deleteComments(closedPulls, "pulls/", "/pulls/comments/"));
+            cleanup(
+                    Scope.EVERYTHING,
+                    "general comments",
+                    failures,
+                    () -> deleteComments(closedPulls, "issues/", "/issues/comments/"));
             cleanup(
                     Scope.EVERYTHING,
                     "check runs",
@@ -587,6 +577,22 @@ final class GitHubFixture implements AutoCloseable {
         }
         if (!failures.isEmpty())
             fail("Cleanup left " + String.join(", ", failures) + " for " + prefix);
+    }
+
+    /** Deletes every comment of the pulls; one the user may not delete does not keep the others. */
+    private void deleteComments(List<Long> pulls, String list, String delete) throws Exception {
+        boolean refused = false;
+        for (long number : pulls)
+            for (var comment : items(list + number + "/comments")) {
+                long id = comment.path("id").asLong();
+                if (id <= 0) throw new IllegalStateException("Comment has no identity");
+                try {
+                    api("DELETE", ROOT + delete + id, null);
+                } catch (GitHubException ex) {
+                    refused = true;
+                }
+            }
+        if (refused) throw new IllegalStateException("A comment remains");
     }
 
     private void removeActionsRuns() throws Exception {

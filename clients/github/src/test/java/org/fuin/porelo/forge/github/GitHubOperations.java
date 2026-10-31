@@ -11,12 +11,20 @@ enum GitHubOperations {
     createReviewComment("POST", "/repos/{owner}/{repo}/pulls/{pull_number}/comments"),
     replyReviewComment(
             "POST", "/repos/{owner}/{repo}/pulls/{pull_number}/comments/{comment_id}/replies"),
+    updateReviewComment("PATCH", "/repos/{owner}/{repo}/pulls/comments/{comment_id}"),
+    createIssueComment("POST", "/repos/{owner}/{repo}/issues/{pull_number}/comments"),
+    updateIssueComment("PATCH", "/repos/{owner}/{repo}/issues/comments/{issue_comment_id}"),
     createCheckRun("POST", "/repos/{owner}/{repo}/check-runs"),
     updateCheckRun("PATCH", "/repos/{owner}/{repo}/check-runs/{check_run_id}"),
     pulls("GET", "/repos/{owner}/{repo}/pulls"),
+    pullsOfHead("GET", "/repos/{owner}/{repo}/pulls"),
     pull("GET", "/repos/{owner}/{repo}/pulls/{pull_number}"),
     reviews("GET", "/repos/{owner}/{repo}/pulls/{pull_number}/reviews"),
     reviewComments("GET", "/repos/{owner}/{repo}/pulls/{pull_number}/comments"),
+    reviewCommentsOf(
+            "GET", "/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/comments"),
+    issueComments("GET", "/repos/{owner}/{repo}/issues/{pull_number}/comments"),
+    compare("GET", "/repos/{owner}/{repo}/compare/{basehead}"),
     checkRuns("GET", "/repos/{owner}/{repo}/commits/{ref}/check-runs"),
     runs("GET", "/repos/{owner}/{repo}/actions/runs"),
     jobs("GET", "/repos/{owner}/{repo}/actions/runs/{run_id}/jobs"),
@@ -28,7 +36,11 @@ enum GitHubOperations {
     reviewThreads("POST", "/graphql"),
     threadComments("POST", "/graphql"),
     resolveReviewThread("POST", "/graphql"),
-    unresolveReviewThread("POST", "/graphql");
+    // Between resolving and reopening, so the thread is read with its resolver.
+    reviewThread("POST", "/graphql"),
+    unresolveReviewThread("POST", "/graphql"),
+    deleteIssueComment("DELETE", "/repos/{owner}/{repo}/issues/comments/{issue_comment_id}"),
+    deleteReviewComment("DELETE", "/repos/{owner}/{repo}/pulls/comments/{reply_id}");
     final String method;
     private final String template;
     private static final ObjectMapper JSON = GitHubJson.mapper(Strictness.STRICT);
@@ -62,6 +74,8 @@ enum GitHubOperations {
             case checkRuns -> client.checkRuns(token, c.owner(), c.repo(), c.sha(), 1, 50);
             case ref -> client.ref(token, c.owner(), c.repo(), c.ref());
             case pulls -> client.pulls(token, c.owner(), c.repo(), "open", 1, 50);
+            case pullsOfHead ->
+                    client.pullsOfHead(token, c.owner(), c.repo(), head(c), "open", 1, 50);
             case createPull ->
                     client.createPull(
                             token,
@@ -78,6 +92,49 @@ enum GitHubOperations {
                             c.repo(),
                             c.number(),
                             JSON.treeToValue(body, PullsCreateReviewCommentRequest.class));
+            case updateReviewComment ->
+                    client.updateReviewComment(
+                            token,
+                            c.owner(),
+                            c.repo(),
+                            c.comment(),
+                            JSON.treeToValue(body, PullsUpdateReviewCommentRequest.class));
+            case deleteReviewComment -> {
+                client.deleteReviewComment(token, c.owner(), c.repo(), c.reply());
+                yield Deleted.DELETED;
+            }
+            case reviewCommentsOf ->
+                    client.reviewCommentsOf(
+                            token, c.owner(), c.repo(), c.number(), c.review(), 1, 50);
+            case issueComments ->
+                    client.issueComments(
+                            token,
+                            c.owner(),
+                            c.repo(),
+                            c.number(),
+                            java.time.Instant.parse(c.since()),
+                            1,
+                            50);
+            case createIssueComment ->
+                    client.createIssueComment(
+                            token,
+                            c.owner(),
+                            c.repo(),
+                            c.number(),
+                            JSON.treeToValue(body, IssuesUpdateCommentRequest.class));
+            case updateIssueComment ->
+                    client.updateIssueComment(
+                            token,
+                            c.owner(),
+                            c.repo(),
+                            c.issueComment(),
+                            JSON.treeToValue(body, IssuesUpdateCommentRequest.class));
+            case deleteIssueComment -> {
+                client.deleteIssueComment(token, c.owner(), c.repo(), c.issueComment());
+                yield Deleted.DELETED;
+            }
+            case compare -> client.compare(token, c.owner(), c.repo(), c.base(), c.sha());
+            case reviewThread -> graphql.reviewThread(token, c.thread());
             case replyReviewComment ->
                     client.replyReviewComment(
                             token,
@@ -110,6 +167,10 @@ enum GitHubOperations {
                 .replace("{repo}", c.repo())
                 .replace("{pull_number}", Long.toString(c.number()))
                 .replace("{comment_id}", Long.toString(c.comment()))
+                .replace("{reply_id}", Long.toString(c.reply()))
+                .replace("{issue_comment_id}", Long.toString(c.issueComment()))
+                .replace("{review_id}", Long.toString(c.review()))
+                .replace("{basehead}", c.base() + "..." + c.sha())
                 .replace("{check_run_id}", Long.toString(c.check()))
                 .replace("{run_id}", Long.toString(c.run()))
                 .replace("{job_id}", Long.toString(c.job()))
@@ -121,10 +182,19 @@ enum GitHubOperations {
     String query(Context c) {
         return switch (this) {
             case pulls -> "state=open&page=1&per_page=50";
+            case pullsOfHead ->
+                    "state=open&head=" + head(c).replace(":", "%3A") + "&page=1&per_page=50";
             case runs -> "head_sha=" + c.sha() + "&page=1&per_page=50";
-            case reviews, reviewComments, checkRuns, jobs -> "page=1&per_page=50";
+            case reviews, reviewComments, reviewCommentsOf, checkRuns, jobs -> "page=1&per_page=50";
+            case issueComments -> "since=" + c.since().replace(":", "%3A") + "&page=1&per_page=50";
+            case compare -> "page=1&per_page=1";
             default -> null;
         };
+    }
+
+    /** The fixture branch as GitHub names a pull request's head, {@code owner:branch}. */
+    private static String head(Context c) {
+        return c.owner() + ":" + c.ref().substring("heads/".length());
     }
 
     record Context(
@@ -138,5 +208,15 @@ enum GitHubOperations {
             long job,
             String username,
             String ref,
-            String thread) {}
+            String thread,
+            long reply,
+            long issueComment,
+            long review,
+            String since,
+            String base) {}
+
+    /** What a delete answers: nothing but its status. */
+    enum Deleted {
+        DELETED
+    }
 }

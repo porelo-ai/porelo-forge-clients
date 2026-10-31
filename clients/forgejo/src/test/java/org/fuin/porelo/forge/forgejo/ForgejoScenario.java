@@ -5,17 +5,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.fuin.porelo.forge.forgejo.ForgejoOperations.Context;
+import org.fuin.porelo.forge.forgejo.model.Comment;
 import org.fuin.porelo.forge.forgejo.model.ListActionRunResponse;
 import org.fuin.porelo.forge.forgejo.model.OrganizationPermissions;
 import org.fuin.porelo.forge.forgejo.model.PublicKey;
 import org.fuin.porelo.forge.forgejo.model.PullRequest;
 import org.fuin.porelo.forge.forgejo.model.PullReview;
+import org.fuin.porelo.forge.forgejo.model.PullReviewComment;
 import org.fuin.porelo.forge.forgejo.model.Repository;
+import org.jspecify.annotations.Nullable;
 
 /** Drives all operations in dependency order in one isolated live environment. */
 final class ForgejoScenario {
@@ -26,12 +32,24 @@ final class ForgejoScenario {
     static final String ADDED_PUBLIC_KEY =
             "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK0/KIjf5jKU1F6jYSWxCNnQbmCGSfgPnYf0DlLinAJn forgejo-added";
 
+    static final String EARLIER_COMMENT = "Earlier general comment fixture";
+    static final String EDITED_COMMENT = "Edited general comment fixture";
+
     private final ForgejoContainer fixture;
     private final ObjectMapper json = ForgejoJson.mapper(Strictness.STRICT);
     private final RecordingHttpClient transport;
     private final ForgejoClient client;
     private final List<Capture> captures = new ArrayList<>();
-    private Context context;
+    private final String sha;
+    private String actionsSha = "pending";
+    private long index = 1;
+    private long review = 1;
+    private long run = 1;
+    private long job = 1;
+    private long key = 1;
+    private long comment = 1;
+    private long issueComment = 1;
+    private String since = "1970-01-01T00:00:00Z";
 
     /**
      * The recorder reads leniently, so an answer is kept even where it differs from the description
@@ -41,7 +59,7 @@ final class ForgejoScenario {
         this.fixture = fixture;
         transport = new RecordingHttpClient(fixture.transport());
         client = new ForgejoClient(fixture.base(), transport, strictness);
-        String sha =
+        sha =
                 fixture.api("GET", ForgejoContainer.repoPath() + "/branches/feature", null)
                         .path("commit")
                         .path("id")
@@ -49,17 +67,23 @@ final class ForgejoScenario {
         if (!sha.matches("[a-f0-9]{40,64}")) {
             throw new IllegalStateException("Feature branch did not return a commit identity");
         }
-        context =
-                new Context(
-                        ForgejoContainer.OWNER,
-                        ForgejoContainer.REPO,
-                        sha,
-                        "pending",
-                        1,
-                        1,
-                        1,
-                        1,
-                        1);
+    }
+
+    /** What the operations so far have made, for the next one to address. */
+    private Context context() {
+        return new Context(
+                ForgejoContainer.OWNER,
+                ForgejoContainer.REPO,
+                sha,
+                actionsSha,
+                index,
+                review,
+                run,
+                job,
+                key,
+                comment,
+                issueComment,
+                since);
     }
 
     List<Capture> run() throws Exception {
@@ -67,24 +91,19 @@ final class ForgejoScenario {
             if (operation == ForgejoOperations.runs) {
                 fixture.workflow();
                 JsonNode jobs = fixture.waitForJobs();
-                context =
-                        new Context(
-                                context.owner(),
-                                context.repo(),
-                                context.sha(),
-                                jobs.path("sha").asText(),
-                                context.index(),
-                                context.review(),
-                                jobs.path("run").asLong(),
-                                jobs.path("job").asLong(),
-                                context.key());
+                actionsSha = jobs.path("sha").asText();
+                run = jobs.path("run").asLong();
+                job = jobs.path("job").asLong();
+            }
+            if (operation == ForgejoOperations.createIssueComment) {
+                since = afterAnEarlierComment();
             }
             JsonNode body = body(operation);
             String token =
                     operation == ForgejoOperations.createReview
                             ? fixture.reviewerToken()
                             : fixture.adminToken();
-            Object result = operation.invoke(client, token, context, body);
+            Object result = operation.invoke(client, token, context(), body);
             requireUsefulResult(operation, result);
             if (operation == ForgejoOperations.plainKeys) {
                 String seeded =
@@ -96,54 +115,19 @@ final class ForgejoScenario {
                         .as("the key page lists exactly the seeded key, without its comment")
                         .containsExactly(seeded);
             }
-            if (operation == ForgejoOperations.createPull) {
-                Long index = ((PullRequest) result).number();
-                if (index == null || index < 1) {
-                    throw new IllegalStateException("Created pull request has no number");
-                }
-                context =
-                        new Context(
-                                context.owner(),
-                                context.repo(),
-                                context.sha(),
-                                context.actionsSha(),
-                                index,
-                                context.review(),
-                                context.run(),
-                                context.job(),
-                                context.key());
-            } else if (operation == ForgejoOperations.createReview) {
-                Long id = ((PullReview) result).id();
-                if (id == null || id < 1) {
-                    throw new IllegalStateException("Created review has no identity");
-                }
-                context =
-                        new Context(
-                                context.owner(),
-                                context.repo(),
-                                context.sha(),
-                                context.actionsSha(),
-                                context.index(),
-                                id,
-                                context.run(),
-                                context.job(),
-                                context.key());
-            } else if (operation == ForgejoOperations.addKey) {
-                Long id = ((PublicKey) result).id();
-                if (id == null || id < 1) {
-                    throw new IllegalStateException("Added key has no identity");
-                }
-                context =
-                        new Context(
-                                context.owner(),
-                                context.repo(),
-                                context.sha(),
-                                context.actionsSha(),
-                                context.index(),
-                                context.review(),
-                                context.run(),
-                                context.job(),
-                                id);
+            switch (result) {
+                case PullRequest pull when operation == ForgejoOperations.createPull ->
+                        index = identity(pull.number(), "Created pull request has no number");
+                case PullReview created when operation == ForgejoOperations.createReview ->
+                        review = identity(created.id(), "Created review has no identity");
+                case PullReviewComment created
+                        when operation == ForgejoOperations.createReviewComment ->
+                        comment = identity(created.id(), "Created review comment has no identity");
+                case Comment created when operation == ForgejoOperations.createIssueComment ->
+                        issueComment = identity(created.id(), "Created comment has no identity");
+                case PublicKey added when operation == ForgejoOperations.addKey ->
+                        key = identity(added.id(), "Added key has no identity");
+                default -> {}
             }
             List<ObjectNode> exchanges = transport.take();
             assertThat(exchanges)
@@ -152,11 +136,32 @@ final class ForgejoScenario {
             ObjectNode recording = exchanges.getLast().deepCopy();
             recording.set("request_uri", exchanges.getFirst().path("request_uri"));
             recording.set("exchanges", json.valueToTree(exchanges));
-            recording.set("context", json.valueToTree(context));
+            recording.set("context", json.valueToTree(context()));
             recording.set("request_body", body);
             captures.add(new Capture(operation.name(), recording));
         }
         return List.copyOf(captures);
+    }
+
+    private static long identity(@Nullable Long id, String missing) {
+        if (id == null || id < 1) {
+            throw new IllegalStateException(missing);
+        }
+        return id;
+    }
+
+    /**
+     * Writes a comment, then waits into the next whole second and returns it, so reading since then
+     * must leave the earlier comment out.
+     */
+    private String afterAnEarlierComment() throws InterruptedException {
+        fixture.api(
+                "POST",
+                ForgejoContainer.repoPath() + "/issues/" + index + "/comments",
+                json.valueToTree(Map.of("body", EARLIER_COMMENT)));
+        Instant next = Instant.now().plusSeconds(1).truncatedTo(ChronoUnit.SECONDS);
+        Thread.sleep(Math.max(0, Duration.between(Instant.now(), next).toMillis()) + 50);
+        return next.toString();
     }
 
     private JsonNode body(ForgejoOperations operation) {
@@ -203,7 +208,7 @@ final class ForgejoScenario {
                                     "body",
                                     "Approved fixture",
                                     "commit_id",
-                                    context.sha(),
+                                    sha,
                                     "comments",
                                     List.of(
                                             Map.of(
@@ -215,6 +220,16 @@ final class ForgejoScenario {
                                                     0,
                                                     "body",
                                                     "Review comment fixture")));
+                    case createReviewComment ->
+                            Map.of(
+                                    "path",
+                                    "review.txt",
+                                    "new_position",
+                                    1,
+                                    "body",
+                                    "Added review comment fixture");
+                    case createIssueComment -> Map.of("body", "General comment fixture");
+                    case editIssueComment -> Map.of("body", EDITED_COMMENT);
                     case dismissReview -> Map.of("message", "Exercise dismissal", "priors", false);
                     case createStatus ->
                             Map.of(
@@ -234,6 +249,13 @@ final class ForgejoScenario {
 
     static void requireUsefulResult(ForgejoOperations operation, Object result) {
         assertThat(result).as("%s must return a payload", operation).isNotNull();
+        if (operation == ForgejoOperations.issueComments) {
+            assertThat((List<?>) result)
+                    .extracting(value -> ((Comment) value).body())
+                    .as("reading since a time finds the comment after it and not the one before")
+                    .contains(EDITED_COMMENT)
+                    .doesNotContain(EARLIER_COMMENT);
+        }
         if (result instanceof Collection<?> collection) {
             assertThat(collection)
                     .as("%s must exercise a seeded item, not only an empty array", operation)

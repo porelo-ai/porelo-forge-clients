@@ -8,6 +8,7 @@ import java.net.http.HttpClient;
 import java.util.List;
 import java.util.Map;
 import org.fuin.porelo.forge.github.model.PullsCreateReplyForReviewCommentRequest;
+import org.fuin.porelo.forge.github.model.SimpleUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -647,12 +648,28 @@ class GitHubClientTest {
                         () -> client.createReviewComment(TOKEN, "owner", "repo", 1, null),
                         () -> client.replyReviewComment(TOKEN, "owner", "repo", 1, 1, null),
                         () -> client.createCheckRun(TOKEN, "owner", "repo", null),
-                        () -> client.updateCheckRun(TOKEN, "owner", "repo", 1, null));
+                        () -> client.updateCheckRun(TOKEN, "owner", "repo", 1, null),
+                        () -> client.updateReviewComment(TOKEN, "owner", "repo", 1, null),
+                        () -> client.createIssueComment(TOKEN, "owner", "repo", 1, null),
+                        () -> client.updateIssueComment(TOKEN, "owner", "repo", 1, null));
         for (var call : calls)
             assertThatExceptionOfType(NullPointerException.class)
                     .as("every write requires its body")
                     .isThrownBy(call::run);
         assertThat(http.requests).as("body validation precedes all transport use").isEmpty();
+    }
+
+    // Prevents general comments read without a time from sending an empty filter, which would
+    // differ from reading them all.
+    @Test
+    void generalCommentsWithoutATimeSendOnlyThePage() {
+        var http = new ReplayHttpClient().answer(200, Map.of(), "[]");
+
+        new GitHubClient(BASE, http).issueComments(TOKEN, "owner", "repo", 1, null, 2, 30);
+
+        assertThat(http.requests.getFirst().uri().getRawQuery())
+                .as("only the page is sent without a time")
+                .isEqualTo("page=2&per_page=30");
     }
 
     // Prevents reflected credentials from leaking in API error diagnostics.
@@ -717,6 +734,131 @@ class GitHubClientTest {
                                 assertThat(ex.status())
                                         .as("HTTP 200 still carries the GraphQL error")
                                         .isEqualTo(200));
+    }
+
+    // Prevents a comparison from failing when a commit's author or committer is no GitHub account,
+    // which GitHub sends as null or as an empty object.
+    @Test
+    void aCommitWithoutAnAccountIsCompared() throws Exception {
+        var comparison =
+                (com.fasterxml.jackson.databind.node.ObjectNode)
+                        extractExample("commit-comparison").deepCopy();
+        var base = (com.fasterxml.jackson.databind.node.ObjectNode) comparison.path("base_commit");
+        base.putNull("author");
+        base.putObject("committer");
+        var http = new ReplayHttpClient().answer(200, Map.of(), comparison.toString());
+
+        var read =
+                new GitHubClient(BASE, http, Strictness.STRICT)
+                        .compare(TOKEN, "owner", "repo", "main", "abc");
+
+        assertThat(read.baseCommit().author()).as("no account wrote the base").isNull();
+        assertThat(read.baseCommit().committer()).as("an empty account reads as none").isNull();
+        assertThat(read.mergeBaseCommit().author())
+                .as("an account is read as one")
+                .isInstanceOf(SimpleUser.class);
+        assertThat(read.mergeBaseCommit().sha())
+                .as("the merge base is read")
+                .isEqualTo(comparison.path("merge_base_commit").path("sha").asText());
+    }
+
+    // Prevents a thread ID GitHub does not know, which it answers with a null node and a NOT_FOUND
+    // error for it, from failing as a broken answer instead of reading as no thread.
+    @Test
+    void anUnknownThreadIdReadsNoThread() {
+        var http =
+                new ReplayHttpClient()
+                        .answer(
+                                200,
+                                Map.of(),
+                                """
+                                {"data": {"node": null}, "errors": [{"type": "NOT_FOUND",
+                                 "path": ["node"], "message": "Could not resolve to a node"}]}
+                                """);
+
+        var thread = new GitHubGraphQl(BASE, http, Strictness.STRICT).reviewThread(TOKEN, "PRRT_x");
+
+        assertThat(thread.data().node()).as("no thread has the id").isNull();
+    }
+
+    // Prevents the ID of something that is not a thread, which GitHub answers with an empty node,
+    // from failing as a broken answer instead of reading as no thread.
+    @Test
+    void anIdOfAnotherKindReadsNoThread() {
+        var http = new ReplayHttpClient().answer(200, Map.of(), "{\"data\": {\"node\": {}}}");
+
+        var thread = new GitHubGraphQl(BASE, http, Strictness.STRICT).reviewThread(TOKEN, "PRRC_x");
+
+        assertThat(thread.data().node()).as("no thread has the id").isNull();
+    }
+
+    // Prevents a NOT_FOUND error from being dropped when GitHub did send a node beside it.
+    @Test
+    void aNotFoundBesideANodeStillFails() {
+        var http =
+                new ReplayHttpClient()
+                        .answer(
+                                200,
+                                Map.of(),
+                                """
+                                {"data": {"node": {}}, "errors": [{"type": "NOT_FOUND",
+                                 "path": ["node"], "message": "Could not resolve"}]}
+                                """);
+
+        assertThatExceptionOfType(GitHubException.class)
+                .as("an error beside a node is not an unknown id")
+                .isThrownBy(
+                        () ->
+                                new GitHubGraphQl(BASE, http, Strictness.STRICT)
+                                        .reviewThread(TOKEN, "PRRT_x"));
+    }
+
+    // Prevents any other GraphQL error on a thread read from passing as no thread.
+    @Test
+    void anotherErrorOnAThreadReadStillFails() {
+        var http =
+                new ReplayHttpClient()
+                        .answer(
+                                200,
+                                Map.of(),
+                                """
+                                {"data": {"node": null}, "errors": [{"type": "FORBIDDEN",
+                                 "path": ["node"], "message": "Resource not accessible"}]}
+                                """);
+
+        assertThatExceptionOfType(GitHubException.class)
+                .as("a refusal is not an unknown id")
+                .isThrownBy(
+                        () ->
+                                new GitHubGraphQl(BASE, http, Strictness.STRICT)
+                                        .reviewThread(TOKEN, "PRRT_x"))
+                .withMessageContaining("Resource not accessible");
+    }
+
+    // Prevents an author that is neither a user nor a bot, such as a mannequin, from failing the
+    // reading or from being given an identity GitHub did not send.
+    @Test
+    void anAuthorOfAnotherKindHasNoStableId() {
+        var http =
+                new ReplayHttpClient()
+                        .answer(
+                                200,
+                                Map.of(),
+                                """
+                                {"data": {"node": {"id": "PRRT_x", "isResolved": false,
+                                 "isOutdated": false, "path": "a.txt", "line": 1, "diffSide": "RIGHT",
+                                 "startDiffSide": null, "resolvedBy": null,
+                                 "comments": {"nodes": [{"id": "PRRC_x", "databaseId": 7, "body": "b",
+                                  "createdAt": "2026-10-31T10:00:00Z", "author": {"login": "someone"}}],
+                                  "pageInfo": {"hasNextPage": false, "endCursor": null}}}}}
+                                """);
+
+        var thread = new GitHubGraphQl(BASE, http, Strictness.STRICT).reviewThread(TOKEN, "PRRT_x");
+
+        var author = thread.data().node().comments().nodes().getFirst().author();
+        assertThat(author.login()).as("the author is named").isEqualTo("someone");
+        assertThat(author.databaseId()).as("no stable id is made up").isNull();
+        assertThat(author.id()).as("no node id is made up").isNull();
     }
 
     // Prevents an empty error container from turning a successful GraphQL answer into a failure.

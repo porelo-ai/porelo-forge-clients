@@ -10,13 +10,13 @@ is left out.
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="fc05"></a>[FC05](FC05-Keys-And-Repositories-On-Forgejo.md) | S | [FC02](README.md#fc02) | A Forgejo user's public SSH keys read, the signed-in user's own keys listed, added and deleted, whether a user owns an organization, a repository read and created in an organization |
+| <a id="fc08"></a>[FC08](FC08-Comments-Threads-And-Versions-Through-The-Clients.md) | L | [FC02](README.md#fc02) | A pull request's general comments read since a time, written, edited and deleted on both forges, GitHub review comments edited and deleted, one review's comments, a merge base, one GitHub thread with its state and resolver read by its id, a pull request found by its branch, Forgejo's version, and what Forgejo's API cannot do stated |
 
 ## Implementing
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="fc02"></a>[FC02](FC02-The-Forgejo-Client.md) | M | - | The `forgejo` module: 19 operations from Forgejo 17's MIT Swagger 2.0 description, its answers recorded from a real Forgejo |
-| <a id="fc08"></a>[FC08](FC08-Comments-Threads-And-Versions-Through-The-Clients.md) | L | [FC02](README.md#fc02) | A pull request's general comments read since a time, written, edited and deleted on both forges, GitHub review comments edited and deleted, one review's comments, a merge base, one GitHub thread with its state and resolver read by its id, Forgejo's version, and what Forgejo's API cannot do stated |
 
 ## Backlog
 

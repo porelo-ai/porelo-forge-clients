@@ -30,6 +30,13 @@ final class RecordingScrubber {
                     Pattern.CASE_INSENSITIVE);
     private static final String API_HOST = "api.github.com";
     private static final Set<String> GIT_IDENTITIES = Set.of("author", "committer", "tagger");
+    private static final String GITHUB_COMMITTER = "noreply@github.com";
+    private static final Set<String> COMMIT_ACCOUNTS = Set.of("author", "committer");
+    // Without a space, so a name replaced inside an address keeps it one address.
+    private static final String GIT_NAME = "Fixture-User";
+    // A signed commit's raw text names its author as git does, so neither it nor the signature
+    // over it is kept.
+    private static final Set<String> SIGNED = Set.of("payload", "signature");
     // What an account's profile says of the person behind it.
     private static final Set<String> PROFILE =
             Set.of("location", "bio", "company", "blog", "twitter_username", "email", "hireable");
@@ -39,14 +46,20 @@ final class RecordingScrubber {
                             com.fasterxml.jackson.databind.DeserializationFeature
                                     .FAIL_ON_TRAILING_TOKENS);
     private final List<String> secrets;
+    // The accounts the recording was told about, which may appear anywhere.
+    private final Set<String> told;
+    // The accounts the recording was told about, then the commit accounts it learns.
     private final java.util.Map<String, String> identities;
+    private int commitAccounts;
+    private final List<String> gitNames = new java.util.ArrayList<>();
     private final java.util.Map<String, String> hosts = new java.util.HashMap<>();
     // A real account's or App's id, node id, slug and name, and the fixture text that replaces it.
     private final java.util.Map<String, String> aliases = new java.util.HashMap<>();
     private final java.util.Map<String, Integer> fixtureNumbers = new java.util.HashMap<>();
 
     RecordingScrubber(List<String> secrets, java.util.Map<String, String> identities) {
-        this.identities = java.util.Map.copyOf(identities);
+        this.told = Set.copyOf(identities.keySet());
+        this.identities = new java.util.HashMap<>(identities);
         if (secrets.stream().anyMatch(String::isBlank)) {
             throw new IllegalArgumentException("Cannot scrub an empty credential");
         }
@@ -62,19 +75,37 @@ final class RecordingScrubber {
 
     /** Learns the identities of every input before scrubbing any, so all lose all of them. */
     List<JsonNode> scrubAll(List<JsonNode> inputs) {
-        inputs.forEach(this::collect);
+        inputs.forEach(input -> collect(input, "", false));
+        // Only once every account is known: a name that is also a login keeps its fixture name.
+        for (String name : gitNames)
+            if (!identities.containsKey(name)) aliasText(TextNode.valueOf(name), GIT_NAME);
         return inputs.stream().map(input -> scrub(input, "")).toList();
     }
 
     /** Learns every account's and App's identity first, so text before it is scrubbed too. */
-    private void collect(JsonNode input) {
+    private void collect(JsonNode input, String parentKey, boolean inCommit) {
         if (input.isObject()) {
             if (input.path("login").isTextual()) {
-                String fixture = identities.get(input.path("login").asText());
-                if (fixture == null)
-                    throw new IllegalStateException(
-                            "A recording names an account it was not told about");
+                String login = input.path("login").asText();
+                // A commit may be written or committed by any account, GitHub's own among them;
+                // anywhere else only an account the recording was told about may appear.
+                if (!told.contains(login)) {
+                    if (!inCommit || !COMMIT_ACCOUNTS.contains(parentKey))
+                        throw new IllegalStateException(
+                                "A recording names an account it was not told about");
+                    identities.computeIfAbsent(
+                            login, key -> "fixture-committer-" + ++commitAccounts);
+                }
+                String fixture = identities.get(login);
                 alias(input, fixture, "FIXTURE_NODE_");
+            }
+            // A git identity's name and address may recur in text, such as a sign-off line;
+            // GitHub's own committer is no person, and its name is in much other text.
+            if (GIT_IDENTITIES.contains(parentKey)
+                    && !input.has("login")
+                    && !input.path("email").asText().equals(GITHUB_COMMITTER)) {
+                if (input.path("name").isTextual()) gitNames.add(input.path("name").asText());
+                aliasText(input.path("email"), "fixture@example.org");
             }
             if (isApp(input)) {
                 alias(input, "fixture-app", "FIXTURE_APP_NODE_");
@@ -83,14 +114,16 @@ final class RecordingScrubber {
                 // Without a space, so a name replaced inside an address keeps it one address.
                 aliasText(input.path("name"), "fixture-app");
             }
-            input.forEach(this::collect);
+            // A REST commit names its sha and its git commit beside the accounts linked to it.
+            boolean commit = input.has("sha") && input.path("commit").isObject();
+            input.properties().forEach(field -> collect(field.getValue(), field.getKey(), commit));
         } else if (input.isArray()) {
-            input.forEach(this::collect);
+            input.forEach(value -> collect(value, parentKey, false));
         } else if (input.isTextual()) {
             String value = input.textValue().stripLeading();
             if (value.startsWith("{") || value.startsWith("[")) {
                 try {
-                    collect(json.readTree(input.textValue()));
+                    collect(json.readTree(input.textValue()), "", false);
                 } catch (java.io.IOException ex) {
                     // Plain log output may start with JSON punctuation.
                 }
@@ -108,9 +141,12 @@ final class RecordingScrubber {
 
     private void alias(JsonNode input, String fixture, String nodePrefix) {
         int number = fixtureNumber(fixture);
-        if (input.path("id").isIntegralNumber())
-            aliases.put(input.path("id").asText(), String.valueOf(number));
+        // REST names an account by its number and node_id; GraphQL by databaseId and id.
+        for (String key : List.of("id", "databaseId"))
+            if (input.path(key).isIntegralNumber())
+                aliases.put(input.path(key).asText(), String.valueOf(number));
         aliasText(input.path("node_id"), nodePrefix + number);
+        aliasText(input.path("id"), nodePrefix + number);
     }
 
     private void aliasText(JsonNode value, String fixture) {
@@ -124,11 +160,16 @@ final class RecordingScrubber {
             boolean gitIdentity = GIT_IDENTITIES.contains(parentKey) && !input.has("login");
             boolean account = input.path("login").isTextual();
             boolean app = isApp(input);
+            boolean verification = parentKey.equals("verification");
             ObjectNode result = json.createObjectNode();
             input.properties()
                     .forEach(
                             field -> {
-                                if (CREDENTIAL_KEYS.contains(
+                                if (verification
+                                        && SIGNED.contains(field.getKey())
+                                        && !field.getValue().isNull()) {
+                                    result.putNull(field.getKey());
+                                } else if (CREDENTIAL_KEYS.contains(
                                         field.getKey().toLowerCase(Locale.ROOT))) {
                                     result.put(
                                             field.getKey(),
@@ -141,7 +182,8 @@ final class RecordingScrubber {
                                             field.getKey(),
                                             identities.get(field.getValue().asText()));
                                 } else if ((account || app)
-                                        && field.getKey().equals("id")
+                                        && (field.getKey().equals("id")
+                                                || field.getKey().equals("databaseId"))
                                         && field.getValue().isIntegralNumber()) {
                                     result.put(
                                             field.getKey(),

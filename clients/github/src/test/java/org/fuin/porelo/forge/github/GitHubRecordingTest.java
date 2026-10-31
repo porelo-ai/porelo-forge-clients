@@ -50,7 +50,7 @@ class GitHubRecordingTest {
         assertThat(request.headers().firstValue("X-GitHub-Api-Version"))
                 .as("%s pins the API contract", operation)
                 .contains("2026-03-10");
-        if (operation.method.equals("GET")) {
+        if (operation.method.equals("GET") || operation.method.equals("DELETE")) {
             assertThat(request.bodyPublisher().orElseThrow().contentLength())
                     .as("reads send no mutation body")
                     .isZero();
@@ -63,6 +63,7 @@ class GitHubRecordingTest {
                 String query =
                         switch (operation) {
                             case reviewThreads -> GitHubGraphQl.REVIEW_THREADS;
+                            case reviewThread -> GitHubGraphQl.REVIEW_THREAD;
                             case threadComments -> GitHubGraphQl.THREAD_COMMENTS;
                             case resolveReviewThread -> GitHubGraphQl.RESOLVE_REVIEW_THREAD;
                             case unresolveReviewThread -> GitHubGraphQl.UNRESOLVE_REVIEW_THREAD;

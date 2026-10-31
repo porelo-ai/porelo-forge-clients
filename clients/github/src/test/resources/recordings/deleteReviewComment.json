@@ -1,0 +1,31 @@
+{
+  "request_uri" : "/repos/fixture-org/fixture-repo/pulls/comments/4431405381",
+  "status" : 204,
+  "headers" : { },
+  "body" : "",
+  "exchanges" : [ {
+    "request_uri" : "/repos/fixture-org/fixture-repo/pulls/comments/4431405381",
+    "status" : 204,
+    "headers" : { },
+    "body" : ""
+  } ],
+  "context" : {
+    "owner" : "fixture-org",
+    "repo" : "fixture-repo",
+    "sha" : "bb33e12342d6f5235c9c5acddfdb1fc6f86dedfd",
+    "number" : 6,
+    "comment" : 4431405345,
+    "check" : 124513283016,
+    "run" : 41192947599,
+    "job" : 124513305292,
+    "username" : "fixture-user",
+    "ref" : "heads/forge-client-c18dcd8e-2ca8-43a1-8176-32a541753041",
+    "thread" : "PRRT_kwDOVc0D886yQCnS",
+    "reply" : 4431405381,
+    "issueComment" : 6542240307,
+    "review" : 5722360485,
+    "since" : "2026-10-31T10:29:17Z",
+    "base" : "main"
+  },
+  "request_body" : null
+}
