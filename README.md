@@ -16,7 +16,8 @@ complete clients of any API. They know nothing of Porelo: Porelo's adapters use 
   NullAway and read JSON as the clients need, built here and never published.
 
 The records of each client are generated at build time by openapi-generator, with the templates in
-`openapi-templates/` overriding its own. `github` and `forgejo` come first.
+`openapi-templates/` overriding its own, as [doc/records.md](doc/records.md) describes; the decisions behind it are in
+[doc/decisions.md](doc/decisions.md). `github` and `forgejo` come first.
 
 ## Building
 

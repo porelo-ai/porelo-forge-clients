@@ -9,16 +9,14 @@ is left out.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="fc07"></a>[FC07](FC07-Plain-Key-Lists-On-Forgejo.md) | XS | - | A Forgejo account's public SSH keys read without a token from its `<login>.keys` page, a missing login told apart from other failures |
 | <a id="fc05"></a>[FC05](FC05-Keys-And-Repositories-On-Forgejo.md) | S | [FC02](README.md#fc02) | A Forgejo user's public SSH keys read, the signed-in user's own keys listed, added and deleted, whether a user owns an organization, a repository read and created in an organization |
-| <a id="fc04"></a>[FC04](FC04-Records-Generated-From-A-Pinned-OpenAPI-Description.md) | M | - | Records generated at build time by openapi-generator (a pinned snapshot until `useRecords` is released) from a pinned, filtered OpenAPI 3.1 or Swagger 2.0 description, with overridden templates; blocks [FC01](README.md#fc01) and [FC02](README.md#fc02) |
 
 ## Implementing
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="fc02"></a>[FC02](FC02-The-Forgejo-Client.md) | M | [FC04](README.md#fc04) | The `forgejo` module: 19 operations from Forgejo 17's MIT Swagger 2.0 description, its answers recorded from a real Forgejo |
-| <a id="fc01"></a>[FC01](FC01-The-GitHub-Client.md) | L | [FC04](README.md#fc04) | The `github` module: 18 REST operations from GitHub's MIT OpenAPI 3.1 description, review threads over GraphQL, no webhooks, tested against recorded answers |
+| <a id="fc02"></a>[FC02](FC02-The-Forgejo-Client.md) | M | - | The `forgejo` module: 19 operations from Forgejo 17's MIT Swagger 2.0 description, its answers recorded from a real Forgejo |
+| <a id="fc01"></a>[FC01](FC01-The-GitHub-Client.md) | L | - | The `github` module: 18 REST operations from GitHub's MIT OpenAPI 3.1 description, review threads over GraphQL, no webhooks, tested against recorded answers |
 
 ## Backlog
 
@@ -31,3 +29,10 @@ is left out.
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="fc03"></a>[FC03](FC03-The-Forge-Calls-Of-The-Adapters-Move-Here.md) | - | [FC01](README.md#fc01), [FC02](README.md#fc02) | The clients make every call Porelo's build adapters make to GitHub and Forgejo today, with the same requests and answers, published as snapshots |
+
+## Finished
+
+| # | What was built |
+|---|---|
+| <a id="fc07"></a>FC07 — Plain Key Lists On Forgejo | `ForgejoClient.plainKeys` reads an account's public SSH keys from its `<login>.keys` page without a token, and a missing login is told apart from any other failure. |
+| <a id="fc04"></a>FC04 — Records Generated From A Pinned OpenAPI Description | Records generated at build time by openapi-generator from a pinned, filtered OpenAPI 3.1 or Swagger 2.0 extract with overridden templates, the `openapi-extract` command and the `openapi-records` check; described in [doc/records.md](../doc/records.md). |

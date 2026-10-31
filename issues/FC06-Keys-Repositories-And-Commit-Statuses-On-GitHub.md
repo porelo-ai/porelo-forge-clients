@@ -27,8 +27,14 @@ commit's statuses, through the `github` module, in GitHub's own terms.
   an invited owner who has not accepted is `pending`; `repository(token, owner, repo)`,
   `createRepository(token, org, body)` and `status(token, owner, repo, ref, page, perPage)`, the combined status with
   its list of statuses. Each answer is read in the client's strictness.
-- **What the test organization keeps for it:** the admin test user has one SSH authentication key and one SSH signing
-  key made for the test, and the commit the live check reads carries one commit status, set once by hand.
+- **What the test organization keeps for it:** the reviewer test user, a machine account, has one SSH authentication
+  key and one SSH signing key made for the test, so no key of a person's own account is added or deleted; the commit
+  the live check reads carries one commit status, set once by hand.
+- **Tokens:** the admin test user's token, owned by the organization on all its repositories, adds *Administration:
+  write* and *Commit statuses: read* to what the pull requests need. A token owned by an organization takes no account
+  permissions, so the reviewer test user's own keys go through a second token owned by that account, on public
+  repositories only, with *Git SSH keys: write* and *SSH signing keys: write*, given as
+  `LIVE_GITHUB_REVIEWER_KEYS_TOKEN`.
 - **Recordings and live check:** the recording test records the thirteen, adding a second key of each kind made for the
   test, listing it and deleting it; the repository it creates carries the run's prefix and is deleted after, which needs
   a delete call in the test code only. A key or repository a failed or interrupted run leaves is removed too. `live.yml`
@@ -46,8 +52,4 @@ commit's statuses, through the `github` module, in GitHub's own terms.
 
 ## To be checked
 
-- Which fine-grained permissions the admin test user's token needs beyond those for pull requests, runs and logs: by
-  GitHub's documentation, *Administration: write* on the organization's repositories (all repositories, not only the
-  test repository) to create and delete one, *Commit statuses: read*, *Members: read* on the organization, and the
-  account permissions *Git SSH keys: write* and *SSH signing keys: write*. Measured against the test organization, then
-  given to the operator to set.
+- That the permissions under *Tokens* are enough, measured by the recording against the test organization.
