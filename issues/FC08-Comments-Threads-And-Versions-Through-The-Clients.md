@@ -1,6 +1,6 @@
 # FC08 — Comments, Threads And Versions Through The Clients
 
-**Status:** Analyzed; blocked by [FC02](README.md#fc02).
+**Status:** Backlog (Estimated and Backlog by the operator, 2026-10-31); blocked by [FC02](README.md#fc02).
 **Size:** L - fifteen calls on two forges and a GraphQL query of its own, as many as the GitHub client began with,
 and GitHub recorded again in a session with the operator.
 
