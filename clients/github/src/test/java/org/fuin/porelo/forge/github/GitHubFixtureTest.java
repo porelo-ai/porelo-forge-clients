@@ -47,6 +47,8 @@ class GitHubFixtureTest {
                                                         + "\"}}");
                                     if (path.endsWith("/actions/runs"))
                                         return new ReplayHttpClient.Answer(200, Map.of(), NONE);
+                                    if (path.equals("/repos/porelo-ai-test/forge-client-unit"))
+                                        return new ReplayHttpClient.Answer(404, Map.of(), "{}");
                                     return new ReplayHttpClient.Answer(200, Map.of(), "[]");
                                 });
         var fixture = fixture(http, "unit");
@@ -505,7 +507,12 @@ class GitHubFixtureTest {
                 "synthetic-user-token",
                 "synthetic-reviewer-token",
                 "synthetic-app-token",
-                List.of("synthetic-user-token", "synthetic-reviewer-token", "synthetic-app-token"),
+                "synthetic-keys-token",
+                List.of(
+                        "synthetic-user-token",
+                        "synthetic-reviewer-token",
+                        "synthetic-app-token",
+                        "synthetic-keys-token"),
                 runId);
     }
 }

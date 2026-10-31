@@ -32,6 +32,17 @@ enum GitHubOperations {
     ref("GET", "/repos/{owner}/{repo}/git/ref/{ref}"),
     user("GET", "/user"),
     membership("GET", "/user/memberships/orgs/{org}"),
+    orgMembership("GET", "/orgs/{org}/memberships/{username}"),
+    keys("GET", "/users/{login}/keys"),
+    signingKeys("GET", "/users/{login}/ssh_signing_keys"),
+    plainKeys("GET", "/{login}.keys"),
+    ownKeys("GET", "/user/keys"),
+    addKey("POST", "/user/keys"),
+    ownSigningKeys("GET", "/user/ssh_signing_keys"),
+    addSigningKey("POST", "/user/ssh_signing_keys"),
+    repository("GET", "/repos/{owner}/{repo}"),
+    createRepository("POST", "/orgs/{org}/repos"),
+    status("GET", "/repos/{owner}/{repo}/commits/{ref}/status"),
     permission("GET", "/repos/{owner}/{repo}/collaborators/{username}/permission"),
     reviewThreads("POST", "/graphql"),
     threadComments("POST", "/graphql"),
@@ -40,7 +51,9 @@ enum GitHubOperations {
     reviewThread("POST", "/graphql"),
     unresolveReviewThread("POST", "/graphql"),
     deleteIssueComment("DELETE", "/repos/{owner}/{repo}/issues/comments/{issue_comment_id}"),
-    deleteReviewComment("DELETE", "/repos/{owner}/{repo}/pulls/comments/{reply_id}");
+    deleteReviewComment("DELETE", "/repos/{owner}/{repo}/pulls/comments/{reply_id}"),
+    deleteKey("DELETE", "/user/keys/{key_id}"),
+    deleteSigningKey("DELETE", "/user/ssh_signing_keys/{signing_key_id}");
     final String method;
     private final String template;
     private static final ObjectMapper JSON = GitHubJson.mapper(Strictness.STRICT);
@@ -153,6 +166,39 @@ enum GitHubOperations {
                             JSON.treeToValue(body, PullsCreateReviewRequest.class));
             case user -> client.user(token);
             case membership -> client.membership(token, c.owner());
+            case orgMembership -> client.orgMembership(token, c.owner(), c.username());
+            case keys -> client.keys(c.keyAccount(), 1, 50);
+            case signingKeys -> client.signingKeys(c.keyAccount(), 1, 50);
+            case plainKeys -> client.plainKeys(c.keyAccount());
+            case ownKeys -> client.ownKeys(token, 1, 50);
+            case addKey ->
+                    client.addKey(
+                            token,
+                            JSON.treeToValue(
+                                    body,
+                                    UsersCreatePublicSshKeyForAuthenticatedUserRequest.class));
+            case ownSigningKeys -> client.ownSigningKeys(token, 1, 50);
+            case addSigningKey ->
+                    client.addSigningKey(
+                            token,
+                            JSON.treeToValue(
+                                    body,
+                                    UsersCreateSshSigningKeyForAuthenticatedUserRequest.class));
+            case repository -> client.repository(token, c.owner(), c.repo());
+            case createRepository ->
+                    client.createRepository(
+                            token,
+                            c.owner(),
+                            JSON.treeToValue(body, ReposCreateInOrgRequest.class));
+            case status -> client.status(token, c.owner(), c.repo(), c.sha(), 1, 50);
+            case deleteKey -> {
+                client.deleteKey(token, c.key());
+                yield Deleted.DELETED;
+            }
+            case deleteSigningKey -> {
+                client.deleteSigningKey(token, c.signingKey());
+                yield Deleted.DELETED;
+            }
             case reviewThreads ->
                     graphql.reviewThreads(
                             token, c.owner(), c.repo(), Math.toIntExact(c.number()), null);
@@ -175,8 +221,11 @@ enum GitHubOperations {
                 .replace("{run_id}", Long.toString(c.run()))
                 .replace("{job_id}", Long.toString(c.job()))
                 .replace("{username}", c.username())
+                .replace("{login}", c.keyAccount())
+                .replace("{key_id}", Long.toString(c.key()))
+                .replace("{signing_key_id}", Long.toString(c.signingKey()))
                 .replace("{org}", c.owner())
-                .replace("{ref}", this == checkRuns ? c.sha() : c.ref());
+                .replace("{ref}", this == checkRuns || this == status ? c.sha() : c.ref());
     }
 
     String query(Context c) {
@@ -185,11 +234,31 @@ enum GitHubOperations {
             case pullsOfHead ->
                     "state=open&head=" + head(c).replace(":", "%3A") + "&page=1&per_page=50";
             case runs -> "head_sha=" + c.sha() + "&page=1&per_page=50";
-            case reviews, reviewComments, reviewCommentsOf, checkRuns, jobs -> "page=1&per_page=50";
+            case reviews,
+                    reviewComments,
+                    reviewCommentsOf,
+                    checkRuns,
+                    jobs,
+                    keys,
+                    signingKeys,
+                    ownKeys,
+                    ownSigningKeys,
+                    status ->
+                    "page=1&per_page=50";
             case issueComments -> "since=" + c.since().replace(":", "%3A") + "&page=1&per_page=50";
             case compare -> "page=1&per_page=1";
             default -> null;
         };
+    }
+
+    /** Whether the call sends no token: an account's public keys. */
+    boolean anonymous() {
+        return this == keys || this == signingKeys || this == plainKeys;
+    }
+
+    /** Whether the call reads a page of the web beside the API rather than the API. */
+    boolean web() {
+        return this == plainKeys;
     }
 
     /** The fixture branch as GitHub names a pull request's head, {@code owner:branch}. */
@@ -213,7 +282,10 @@ enum GitHubOperations {
             long issueComment,
             long review,
             String since,
-            String base) {}
+            String base,
+            String keyAccount,
+            long key,
+            long signingKey) {}
 
     /** What a delete answers: nothing but its status. */
     enum Deleted {

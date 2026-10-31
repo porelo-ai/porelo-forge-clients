@@ -4,39 +4,42 @@
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ]
   },
-  "body" : "{\"data\":{\"repository\":{\"pullRequest\":{\"reviewThreads\":{\"nodes\":[{\"id\":\"PRRT_kwDOVc0D886yQCnS\",\"isResolved\":false,\"isOutdated\":false,\"path\":\"forge-client-c18dcd8e-2ca8-43a1-8176-32a541753041.txt\",\"line\":1,\"diffSide\":\"RIGHT\",\"startDiffSide\":null,\"resolvedBy\":null,\"comments\":{\"nodes\":[{\"id\":\"PRRC_kwDOVc0D888AAAABCCHhIQ\",\"databaseId\":4431405345,\"body\":\"```suggestion\\nfixture-complete\\n```\\nEdited\",\"createdAt\":\"2026-10-31T10:29:14Z\",\"author\":{\"login\":\"fixture-reviewer\",\"id\":\"FIXTURE_NODE_3\",\"databaseId\":3}},{\"id\":\"PRRC_kwDOVc0D888AAAABCCHhRQ\",\"databaseId\":4431405381,\"body\":\"Fixture reply\",\"createdAt\":\"2026-10-31T10:29:16Z\",\"author\":{\"login\":\"fixture-user\",\"id\":\"FIXTURE_NODE_1\",\"databaseId\":1}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"Y3Vyc29yOnYyOpK0MjAyNi0xMC0zMVQxMDoyOToxNlrPAAAAAQgh4UU=\"}}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"Y3Vyc29yOnYyOpK0MjAyNi0xMC0zMVQxMDoyOToxNFrOskAp0g==\"}}}}}}",
+  "body" : "{\"data\":{\"repository\":{\"pullRequest\":{\"reviewThreads\":{\"nodes\":[{\"id\":\"PRRT_kwDOVc0D886yR_70\",\"isResolved\":false,\"isOutdated\":false,\"path\":\"forge-client-008005a2-66a3-4359-8fd7-7e18d0c9e80f.txt\",\"line\":1,\"diffSide\":\"RIGHT\",\"startDiffSide\":null,\"resolvedBy\":null,\"comments\":{\"nodes\":[{\"id\":\"PRRC_kwDOVc0D888AAAABCC4-ZA\",\"databaseId\":4432215652,\"body\":\"```suggestion\\nfixture-complete\\n```\\nEdited\",\"createdAt\":\"2026-10-31T15:20:34Z\",\"author\":{\"login\":\"fixture-reviewer\",\"id\":\"FIXTURE_NODE_3\",\"databaseId\":3}},{\"id\":\"PRRC_kwDOVc0D888AAAABCC4-oQ\",\"databaseId\":4432215713,\"body\":\"Fixture reply\",\"createdAt\":\"2026-10-31T15:20:35Z\",\"author\":{\"login\":\"fixture-user\",\"id\":\"FIXTURE_NODE_1\",\"databaseId\":1}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"Y3Vyc29yOnYyOpK0MjAyNi0xMC0zMVQxNToyMDozNVrPAAAAAQguPqE=\"}}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"Y3Vyc29yOnYyOpK0MjAyNi0xMC0zMVQxNToyMDozNFrOskf-9A==\"}}}}}}",
   "exchanges" : [ {
     "request_uri" : "/graphql",
     "status" : 200,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ]
     },
-    "body" : "{\"data\":{\"repository\":{\"pullRequest\":{\"reviewThreads\":{\"nodes\":[{\"id\":\"PRRT_kwDOVc0D886yQCnS\",\"isResolved\":false,\"isOutdated\":false,\"path\":\"forge-client-c18dcd8e-2ca8-43a1-8176-32a541753041.txt\",\"line\":1,\"diffSide\":\"RIGHT\",\"startDiffSide\":null,\"resolvedBy\":null,\"comments\":{\"nodes\":[{\"id\":\"PRRC_kwDOVc0D888AAAABCCHhIQ\",\"databaseId\":4431405345,\"body\":\"```suggestion\\nfixture-complete\\n```\\nEdited\",\"createdAt\":\"2026-10-31T10:29:14Z\",\"author\":{\"login\":\"fixture-reviewer\",\"id\":\"FIXTURE_NODE_3\",\"databaseId\":3}},{\"id\":\"PRRC_kwDOVc0D888AAAABCCHhRQ\",\"databaseId\":4431405381,\"body\":\"Fixture reply\",\"createdAt\":\"2026-10-31T10:29:16Z\",\"author\":{\"login\":\"fixture-user\",\"id\":\"FIXTURE_NODE_1\",\"databaseId\":1}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"Y3Vyc29yOnYyOpK0MjAyNi0xMC0zMVQxMDoyOToxNlrPAAAAAQgh4UU=\"}}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"Y3Vyc29yOnYyOpK0MjAyNi0xMC0zMVQxMDoyOToxNFrOskAp0g==\"}}}}}}"
+    "body" : "{\"data\":{\"repository\":{\"pullRequest\":{\"reviewThreads\":{\"nodes\":[{\"id\":\"PRRT_kwDOVc0D886yR_70\",\"isResolved\":false,\"isOutdated\":false,\"path\":\"forge-client-008005a2-66a3-4359-8fd7-7e18d0c9e80f.txt\",\"line\":1,\"diffSide\":\"RIGHT\",\"startDiffSide\":null,\"resolvedBy\":null,\"comments\":{\"nodes\":[{\"id\":\"PRRC_kwDOVc0D888AAAABCC4-ZA\",\"databaseId\":4432215652,\"body\":\"```suggestion\\nfixture-complete\\n```\\nEdited\",\"createdAt\":\"2026-10-31T15:20:34Z\",\"author\":{\"login\":\"fixture-reviewer\",\"id\":\"FIXTURE_NODE_3\",\"databaseId\":3}},{\"id\":\"PRRC_kwDOVc0D888AAAABCC4-oQ\",\"databaseId\":4432215713,\"body\":\"Fixture reply\",\"createdAt\":\"2026-10-31T15:20:35Z\",\"author\":{\"login\":\"fixture-user\",\"id\":\"FIXTURE_NODE_1\",\"databaseId\":1}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"Y3Vyc29yOnYyOpK0MjAyNi0xMC0zMVQxNToyMDozNVrPAAAAAQguPqE=\"}}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"Y3Vyc29yOnYyOpK0MjAyNi0xMC0zMVQxNToyMDozNFrOskf-9A==\"}}}}}}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "sha" : "bb33e12342d6f5235c9c5acddfdb1fc6f86dedfd",
-    "number" : 6,
-    "comment" : 4431405345,
-    "check" : 124513283016,
-    "run" : 41192947599,
-    "job" : 124513305292,
+    "sha" : "37e122c3b023a75ab5565350233253edf3381566",
+    "number" : 8,
+    "comment" : 4432215652,
+    "check" : 124575786127,
+    "run" : 41214410160,
+    "job" : 124575815731,
     "username" : "fixture-user",
-    "ref" : "heads/forge-client-c18dcd8e-2ca8-43a1-8176-32a541753041",
+    "ref" : "heads/forge-client-008005a2-66a3-4359-8fd7-7e18d0c9e80f",
     "thread" : "pending",
-    "reply" : 4431405381,
-    "issueComment" : 6542240307,
-    "review" : 5722360485,
-    "since" : "2026-10-31T10:29:17Z",
-    "base" : "main"
+    "reply" : 4432215713,
+    "issueComment" : 6545312265,
+    "review" : 5723525816,
+    "since" : "2026-10-31T15:20:36Z",
+    "base" : "main",
+    "keyAccount" : "fixture-reviewer",
+    "key" : 168305365,
+    "signingKey" : 1289718
   },
   "request_body" : {
-    "query" : "query ReviewThreads($owner: String!, $repo: String!, $number: Int!, $after: String) {\n  repository(owner: $owner, name: $repo) {\n    pullRequest(number: $number) {\n      reviewThreads(first: 100, after: $after) {\n        nodes {\n          id isResolved isOutdated path line diffSide startDiffSide\n          resolvedBy { login id databaseId }\n          comments(first: 100) {\n            nodes {\n              id databaseId body createdAt\n              author { login ... on User { id databaseId } ... on Bot { id databaseId } }\n            }\n            pageInfo { hasNextPage endCursor }\n          }\n        }\n        pageInfo { hasNextPage endCursor }\n      }\n    }\n  }\n}\n",
     "variables" : {
       "owner" : "fixture-org",
       "repo" : "fixture-repo",
-      "number" : 6
-    }
+      "number" : 8
+    },
+    "query" : "query ReviewThreads($owner: String!, $repo: String!, $number: Int!, $after: String) {\n  repository(owner: $owner, name: $repo) {\n    pullRequest(number: $number) {\n      reviewThreads(first: 100, after: $after) {\n        nodes {\n          id isResolved isOutdated path line diffSide startDiffSide\n          resolvedBy { login id databaseId }\n          comments(first: 100) {\n            nodes {\n              id databaseId body createdAt\n              author { login ... on User { id databaseId } ... on Bot { id databaseId } }\n            }\n            pageInfo { hasNextPage endCursor }\n          }\n        }\n        pageInfo { hasNextPage endCursor }\n      }\n    }\n  }\n}\n"
   }
 }

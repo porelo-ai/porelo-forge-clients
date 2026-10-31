@@ -2,7 +2,8 @@
 
 `org.fuin.porelo:porelo-forge-client-github` covers github.com pull requests, reviews, review comments
 and replies, check runs, Actions runs, jobs and logs, git refs, the authenticated account, organization
-membership and collaborator permissions. GraphQL supplies paged review threads and their resolution;
+membership and collaborator permissions, an account's SSH keys and signing keys, repositories and a commit's
+combined status. GraphQL supplies paged review threads and their resolution;
 GitHub Enterprise Server and webhooks are outside this module. The library uses the caller's JDK
 `HttpClient`, Jackson and JSpecify, and never depends on Porelo contracts; its REST records are generated from
 the committed extract.
@@ -23,6 +24,16 @@ List<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
 - Reading defaults to `Strictness.LENIENT`; `Strictness.STRICT` rejects unknown fields. Both reject missing
   required fields and null collection elements. Nullable enum properties read an unknown value as null in
   either mode; unknown values of non-null enum properties are refused.
+- Three calls take no token and send none: `keys` and `signingKeys`, an account's public SSH authentication and
+  signing keys, and `plainKeys`, the lines of the page `<login>.keys` beside the API, read from the web base
+  (`https://github.com/` unless the four-argument constructor names another), as `text/plain` and up to 256 KiB.
+  A missing login is a `GitHubException` with status 404; no failure reads as an empty list.
+- The signed-in account's own keys of both kinds are listed, added and deleted with `ownKeys`, `addKey`,
+  `deleteKey`, `ownSigningKeys`, `addSigningKey` and `deleteSigningKey`; GitHub refuses a key it already has, which
+  the caller then finds in the list. `orgMembership` reads an account's membership in an organization: an owner
+  has role `admin` and state `active`; an invited owner who has not accepted is `pending`. `repository` and
+  `createRepository` read a repository and create one in an organization, and `status` reads a commit's combined
+  status with a page of its statuses.
 - `GitHubException.status()` is the HTTP status, or zero for transport and payload failures.
   Diagnostics scrub credentials and do not attach raw payloads or transport causes.
 
@@ -74,15 +85,22 @@ recorder and the live check, not against GitHub's schema file.
 Build and replay from the repository root with `./mvnw -B -s settings.xml verify`.
 The manual recorder runs from that root with
 `./mvnw -B -s settings.xml -pl clients/github test-compile exec:java@record-github`. It reads
-`LIVE_GITHUB_USER_TOKEN`, `LIVE_GITHUB_REVIEWER_TOKEN`, `LIVE_GITHUB_APP_ID` and `LIVE_GITHUB_APP_KEY`
-from the environment, targeting `porelo-ai-test/forge-clients-live`. The App key is PEM RSA, PKCS#1 or
-PKCS#8. It refuses matching leftovers and closes or removes its own resources, including on interrupt.
+`LIVE_GITHUB_USER_TOKEN`, `LIVE_GITHUB_REVIEWER_TOKEN`, `LIVE_GITHUB_REVIEWER_KEYS_TOKEN`, `LIVE_GITHUB_APP_ID`
+and `LIVE_GITHUB_APP_KEY` from the environment, targeting `porelo-ai-test/forge-clients-live`. The App key is PEM
+RSA, PKCS#1 or PKCS#8. The user token belongs to the organization's owner, a test account, and may administer its
+repositories and write commit statuses; the keys token belongs to the reviewer, also a test account, and may write
+its SSH keys and signing keys, since a token owned by the organization holds no account permissions. The recorder
+refuses a keys token of any other account. It refuses matching leftovers and closes or removes its own resources,
+including on interrupt: its branch, a repository named after the run, and keys titled after it, each made for that
+run only.
 The two-step workflow must already be installed in that repository as `two-step.yml`.
 
 The `github-live` profile runs the strict reading scenario against the kept review fixture and a newly
 dispatched Actions run. Workflow proposals are delivered separately for installation by the repository owner.
 The live fixture requires an open pull request labeled `forge-client-live`, an approving review, inline
-comments and a resolved thread, and a check run on its head commit.
+comments and a resolved thread, and a check run and a commit status on its head commit; the approving reviewer
+keeps one SSH key and one signing key made for the test, read without a token, and with
+`LIVE_GITHUB_REVIEWER_KEYS_TOKEN` as its own.
 
 The extract is fetched with `org.fuin.porelo.forge.openapi.OpenApiExtract` (see
 [openapi-extract](../../openapi-extract/README.md)), the source and digest below, and one `--operation` for each
@@ -96,9 +114,10 @@ a commit's `author` and `committer` are a `oneOf` that starts with `null`, since
 account comes as `null`, and the client reads an empty object as none too.
 Its `--add-property` additions are named in `info.x-extracted-from.added`: reviews and review comments (both of
 GitHub's review comment schemas) carry `is_copilot_code_review`, a review `copilot_code_review_effort` and a review
-comment `copilot_code_review_sources`,
-which GitHub sends and no version of its description has; only `null` and an empty array have been seen of the last
-two, so their types are left open. Each setting takes the JSON value at that pointer in the extract. The corrections
+comment `copilot_code_review_sources`, and a repository's `security_and_analysis` carries
+`secret_scanning_validity_checks` with the `status` its siblings have,
+which GitHub sends and no version of its description has; only `null` and an empty array have been seen of the
+copilot fields' effort and sources, so their types are left open. Each setting takes the JSON value at that pointer in the extract. The corrections
 apply during extraction; generated Java records are never edited.
 
 ## OpenAPI description license

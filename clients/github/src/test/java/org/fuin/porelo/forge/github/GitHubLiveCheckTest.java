@@ -105,4 +105,102 @@ class GitHubLiveCheckTest {
                         threads.at("/data/repository/pullRequest/reviewThreads/nodes/0/id")
                                 .asText());
     }
+
+    // Prevents the live check from passing on keys of another account that only match in number.
+    @Test
+    void theKeysReadOwnAndPublicMustBeTheSame() throws Exception {
+        var http = keyRecordings();
+
+        GitHubLiveCheck.readKeys(keyClient(http), GitHubRecordingTest.TOKEN, reviewer());
+
+        assertThat(http.requests()).as("all five key reads are made").hasSize(5);
+    }
+
+    @Test
+    void anOwnKeyThatIsNotShownPubliclyFailsTheCheck() throws Exception {
+        var http =
+                new ReplayHttpClient()
+                        .recording("keys")
+                        .recording("signingKeys")
+                        .recording("plainKeys")
+                        .answer(200, Map.of(), withAnotherId("ownKeys"))
+                        .recording("ownSigningKeys");
+
+        assertThatExceptionOfType(AssertionError.class)
+                .isThrownBy(
+                        () ->
+                                GitHubLiveCheck.readKeys(
+                                        keyClient(http), GitHubRecordingTest.TOKEN, reviewer()))
+                .withMessageContaining("own keys");
+    }
+
+    @Test
+    void aKeyPageWithAnotherKeyFailsTheCheck() throws Exception {
+        var http =
+                new ReplayHttpClient()
+                        .recording("keys")
+                        .recording("signingKeys")
+                        .answer(
+                                200,
+                                Map.of("content-type", java.util.List.of("text/plain")),
+                                "ssh-ed25519 AAAA\n")
+                        .recording("ownKeys")
+                        .recording("ownSigningKeys");
+
+        assertThatExceptionOfType(AssertionError.class)
+                .isThrownBy(
+                        () ->
+                                GitHubLiveCheck.readKeys(
+                                        keyClient(http), GitHubRecordingTest.TOKEN, reviewer()))
+                .withMessageContaining("key page");
+    }
+
+    @Test
+    void anOwnSigningKeyThatIsNotShownPubliclyFailsTheCheck() throws Exception {
+        var http =
+                new ReplayHttpClient()
+                        .recording("keys")
+                        .recording("signingKeys")
+                        .recording("plainKeys")
+                        .recording("ownKeys")
+                        .answer(200, Map.of(), withAnotherId("ownSigningKeys"));
+
+        assertThatExceptionOfType(AssertionError.class)
+                .isThrownBy(
+                        () ->
+                                GitHubLiveCheck.readKeys(
+                                        keyClient(http), GitHubRecordingTest.TOKEN, reviewer()))
+                .withMessageContaining("own signing keys");
+    }
+
+    /** The recorded answer with its first key's identity changed. */
+    private static String withAnotherId(String name) throws Exception {
+        var json = GitHubJson.mapper(Strictness.STRICT);
+        var keys = json.readTree(GitHubRecordingTest.recording(name).path("body").asText());
+        ((ObjectNode) keys.path(0)).put("id", keys.path(0).path("id").asLong() + 1);
+        return json.writeValueAsString(keys);
+    }
+
+    private static ReplayHttpClient keyRecordings() throws Exception {
+        return new ReplayHttpClient()
+                .recording("keys")
+                .recording("signingKeys")
+                .recording("plainKeys")
+                .recording("ownKeys")
+                .recording("ownSigningKeys");
+    }
+
+    private static GitHubClient keyClient(ReplayHttpClient http) {
+        return new GitHubClient(
+                GitHubRecordingTest.BASE, GitHubRecordingTest.BASE, http, Strictness.LENIENT);
+    }
+
+    private static org.fuin.porelo.forge.github.model.SimpleUser reviewer() throws Exception {
+        var json = GitHubJson.mapper(Strictness.STRICT);
+        return json.treeToValue(
+                json.readTree(GitHubRecordingTest.recording("reviews").path("body").asText())
+                        .path(0)
+                        .path("user"),
+                org.fuin.porelo.forge.github.model.SimpleUser.class);
+    }
 }

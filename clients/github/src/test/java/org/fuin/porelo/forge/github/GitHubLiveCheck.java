@@ -6,19 +6,52 @@ import java.net.http.HttpClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.fuin.porelo.forge.github.model.Key;
+import org.fuin.porelo.forge.github.model.KeySimple;
 import org.fuin.porelo.forge.github.model.PrivateUser;
 import org.fuin.porelo.forge.github.model.PublicUser;
 import org.fuin.porelo.forge.github.model.PullRequestSimple;
+import org.fuin.porelo.forge.github.model.SimpleUser;
+import org.fuin.porelo.forge.github.model.SshSigningKey;
 import org.jspecify.annotations.Nullable;
 
 /** Scheduled strict reading against a retained fixture; only Actions dispatch writes new data. */
 public final class GitHubLiveCheck {
     private GitHubLiveCheck() {}
 
+    /**
+     * Reads the approving reviewer's public keys of both kinds without a token, its key page, and
+     * the same account's own keys with its keys token; the account keeps one key of each kind.
+     */
+    static void readKeys(GitHubClient client, String keysToken, @Nullable SimpleUser reviewer)
+            throws Exception {
+        if (reviewer == null) throw new IllegalStateException("The approving review names no one");
+        String login = reviewer.login();
+        var keys = read("keys", () -> client.keys(login, 1, 100));
+        assertThat(keys).as("the reviewer has a public key").isNotEmpty();
+        var signing = read("signingKeys", () -> client.signingKeys(login, 1, 100));
+        assertThat(signing).as("the reviewer has a public signing key").isNotEmpty();
+        var page = read("plainKeys", () -> client.plainKeys(login));
+        assertThat(page)
+                .as("the key page lists the same keys")
+                .containsExactlyInAnyOrderElementsOf(keys.stream().map(KeySimple::key).toList());
+        var own = read("ownKeys", () -> client.ownKeys(keysToken, 1, 100));
+        assertThat(own.stream().map(Key::id).toList())
+                .as("the reviewer's own keys are those it shows")
+                .containsExactlyInAnyOrderElementsOf(keys.stream().map(KeySimple::id).toList());
+        var ownSigning = read("ownSigningKeys", () -> client.ownSigningKeys(keysToken, 1, 100));
+        assertThat(ownSigning.stream().map(SshSigningKey::id).toList())
+                .as("the reviewer's own signing keys are those it shows")
+                .containsExactlyInAnyOrderElementsOf(
+                        signing.stream().map(SshSigningKey::id).toList());
+    }
+
     /** Checks the retained fixture and dispatches a fresh log-producing workflow. */
     public static void main(String[] args) throws Exception {
         if (args.length != 0) throw new IllegalArgumentException("Live checks take no arguments");
         String token = GitHubFixture.required(System.getenv(), "LIVE_GITHUB_USER_TOKEN");
+        String keysToken =
+                GitHubFixture.required(System.getenv(), "LIVE_GITHUB_REVIEWER_KEYS_TOKEN");
         try (var http = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build();
                 var fixture =
                         new GitHubFixture(
@@ -26,10 +59,13 @@ public final class GitHubLiveCheck {
                                 token,
                                 token,
                                 token,
-                                List.of(token),
+                                keysToken,
+                                List.of(token, keysToken),
                                 UUID.randomUUID().toString())) {
             fixture.beginLiveCheck();
-            var client = new GitHubClient(GitHubFixture.BASE, http, Strictness.STRICT);
+            var client =
+                    new GitHubClient(
+                            GitHubFixture.BASE, GitHubFixture.WEB, http, Strictness.STRICT);
             var graphql = new GitHubGraphQl(GitHubFixture.BASE, http, Strictness.STRICT);
             List<PullRequestSimple> selected = new ArrayList<>();
             for (int page = 1; page <= 1000; page++) {
@@ -172,6 +208,42 @@ public final class GitHubLiveCheck {
                         default -> throw new IllegalStateException("Unknown account view");
                     };
             read("membership", () -> client.membership(token, GitHubFixture.OWNER));
+            var owner =
+                    read(
+                            "orgMembership",
+                            () -> client.orgMembership(token, GitHubFixture.OWNER, login));
+            assertThat(owner.role().equals("admin") && owner.state().equals("active"))
+                    .as("the test user owns the test organization")
+                    .isTrue();
+            readKeys(
+                    client,
+                    keysToken,
+                    reviews.stream()
+                            .filter(value -> value.state().equals("APPROVED"))
+                            .findFirst()
+                            .orElseThrow()
+                            .user());
+            var repository =
+                    read(
+                            "repository",
+                            () ->
+                                    client.repository(
+                                            token, GitHubFixture.OWNER, GitHubFixture.REPO));
+            assertThat(repository.fullName())
+                    .as("the test repository is read by its name")
+                    .isEqualTo(GitHubFixture.ROOT.substring("repos/".length()));
+            var status =
+                    read(
+                            "status",
+                            () ->
+                                    client.status(
+                                            token,
+                                            GitHubFixture.OWNER,
+                                            GitHubFixture.REPO,
+                                            pull.head().sha(),
+                                            1,
+                                            100));
+            GitHubScenario.requireUsefulResult(GitHubOperations.status, status);
             read(
                     "permission",
                     () -> client.permission(token, GitHubFixture.OWNER, GitHubFixture.REPO, login));

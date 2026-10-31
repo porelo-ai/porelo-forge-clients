@@ -3,6 +3,7 @@ package org.fuin.porelo.forge.github;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
+import java.util.concurrent.Callable;
 import org.fuin.porelo.forge.github.model.*;
 
 /** Validates that fixtures exercise useful API data rather than empty envelopes. */
@@ -24,16 +25,20 @@ final class GitHubScenario {
     private long check;
     private long run;
     private long job;
+    private long key;
+    private long signingKey;
 
     GitHubScenario(GitHubFixture fixture, java.net.http.HttpClient http) {
         this.fixture = fixture;
         transport = new RecordingHttpClient(http);
-        client = new GitHubClient(GitHubFixture.BASE, transport);
+        client =
+                new GitHubClient(
+                        GitHubFixture.BASE, GitHubFixture.WEB, transport, Strictness.LENIENT);
         graphql = new GitHubGraphQl(GitHubFixture.BASE, transport);
     }
 
     /** What the operations so far have made, for the next one to address. */
-    private GitHubOperations.Context context() {
+    private GitHubOperations.Context context() throws Exception {
         return new GitHubOperations.Context(
                 GitHubFixture.OWNER,
                 GitHubFixture.REPO,
@@ -50,7 +55,10 @@ final class GitHubScenario {
                 issueComment,
                 review,
                 since,
-                "main");
+                "main",
+                fixture.keyAccount(),
+                key,
+                signingKey);
     }
 
     java.util.List<Capture> run() throws Exception {
@@ -84,10 +92,25 @@ final class GitHubScenario {
                         case createReview, createReviewComment, updateReviewComment ->
                                 fixture.reviewerToken();
                         case createCheckRun, updateCheckRun -> fixture.appToken();
+                        case ownKeys,
+                                addKey,
+                                deleteKey,
+                                ownSigningKeys,
+                                addSigningKey,
+                                deleteSigningKey ->
+                                fixture.keysToken();
                         default -> fixture.userToken();
                     };
+            GitHubFixture.Requested resource =
+                    switch (operation) {
+                        case createRepository -> GitHubFixture.Requested.REPOSITORY;
+                        case addKey -> GitHubFixture.Requested.KEYS;
+                        case addSigningKey -> GitHubFixture.Requested.SIGNING_KEYS;
+                        default -> null;
+                    };
+            Callable<Object> call = () -> operation.invoke(client, graphql, token, context, body);
             Object result =
-                    fixture.guarded(() -> operation.invoke(client, graphql, token, context, body));
+                    resource == null ? fixture.guarded(call) : fixture.requesting(resource, call);
             requireUsefulResult(operation, result);
             switch (result) {
                 case PullRequest pull when operation == GitHubOperations.createPull ->
@@ -105,6 +128,9 @@ final class GitHubScenario {
                         issueComment = created.id();
                 case CheckRun created when operation == GitHubOperations.createCheckRun ->
                         check = created.id();
+                case Key created when operation == GitHubOperations.addKey -> key = created.id();
+                case SshSigningKey created when operation == GitHubOperations.addSigningKey ->
+                        signingKey = created.id();
                 case GitHubGraphQl.ThreadsResponse threads ->
                         thread =
                                 threads.data()
@@ -134,7 +160,8 @@ final class GitHubScenario {
         return java.util.List.copyOf(captures);
     }
 
-    private com.fasterxml.jackson.databind.JsonNode body(GitHubOperations operation) {
+    private com.fasterxml.jackson.databind.JsonNode body(GitHubOperations operation)
+            throws Exception {
         return json.valueToTree(
                 switch (operation) {
                     case createPull ->
@@ -181,6 +208,17 @@ final class GitHubScenario {
                                     fixture.prefix);
                     case updateCheckRun ->
                             java.util.Map.of("status", "completed", "conclusion", "success");
+                    case addKey, addSigningKey ->
+                            java.util.Map.of(
+                                    "title", fixture.prefix, "key", GitHubFixture.newPublicKey());
+                    case createRepository ->
+                            java.util.Map.of(
+                                    "name",
+                                    fixture.prefix,
+                                    "private",
+                                    true,
+                                    "description",
+                                    "Fixture repository");
                     default -> null;
                 });
     }
@@ -233,6 +271,10 @@ final class GitHubScenario {
                         .as("each comment names its author's stable id")
                         .isTrue();
             }
+            case CombinedCommitStatus status ->
+                    assertThat(status.statuses())
+                            .as("the combined status holds a status")
+                            .isNotEmpty();
             case CommitComparison comparison ->
                     assertThat(comparison.mergeBaseCommit().sha())
                             .as("the comparison names its merge base")

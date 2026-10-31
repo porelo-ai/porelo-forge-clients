@@ -114,6 +114,7 @@ class GitHubRecorderTest {
                                         "user",
                                         "reviewer",
                                         "app",
+                                        "keys",
                                         List.of("user"),
                                         "../other"));
     }
@@ -147,6 +148,9 @@ class GitHubRecorderTest {
                         .answer(200, Map.of(), "[]")
                         .answer(200, Map.of(), "[]")
                         .answer(200, Map.of(), "{\"workflow_runs\":[]}")
+                        .answer(404, Map.of(), "{\"message\":\"Not Found\"}")
+                        .answer(200, Map.of(), "[]")
+                        .answer(200, Map.of(), "[]")
                         .answer(200, Map.of(), "{\"object\":{\"sha\":\"" + "a".repeat(40) + "\"}}")
                         .answer(422, Map.of(), "{}")
                         .answer(200, Map.of(), "[]")
@@ -948,7 +952,13 @@ class GitHubRecorderTest {
 
     private static GitHubFixture fixture(ReplayHttpClient http) {
         return new GitHubFixture(
-                http, "user", "reviewer", "app", List.of("user", "reviewer", "app"), "unit");
+                http,
+                "user",
+                "reviewer",
+                "app",
+                "keys",
+                List.of("user", "reviewer", "app", "keys"),
+                "unit");
     }
 
     private static ReplayHttpClient preparedTransport(String sha) {
@@ -956,8 +966,12 @@ class GitHubRecorderTest {
                 .answer(200, Map.of(), "[]")
                 .answer(200, Map.of(), "[]")
                 .answer(200, Map.of(), "{\"workflow_runs\":[]}")
+                .answer(404, Map.of(), "{\"message\":\"Not Found\"}")
+                .answer(200, Map.of(), "[]")
+                .answer(200, Map.of(), "[]")
                 .answer(200, Map.of(), "{\"object\":{\"sha\":\"" + sha + "\"}}")
                 .answer(201, Map.of(), "{\"ref\":\"refs/heads/forge-client-unit\"}")
-                .answer(201, Map.of(), "{\"commit\":{\"sha\":\"" + sha + "\"}}");
+                .answer(201, Map.of(), "{\"commit\":{\"sha\":\"" + sha + "\"}}")
+                .answer(201, Map.of(), "{\"state\":\"success\"}");
     }
 }

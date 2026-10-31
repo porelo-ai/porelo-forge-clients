@@ -24,7 +24,10 @@ import org.jspecify.annotations.Nullable;
 
 /** Synchronous GitHub API calls. The caller owns the transport and supplies a token per call. */
 public final class GitHubClient {
+    private static final URI WEB = URI.create("https://github.com/");
+
     private final URI base;
+    private final URI web;
     private final HttpClient http;
     private final ObjectMapper json;
 
@@ -33,13 +36,21 @@ public final class GitHubClient {
         this(base, http, Strictness.LENIENT);
     }
 
-    /** Creates a reader; the supplied transport must never follow redirects automatically. */
+    /**
+     * Creates a reader for github.com's web pages beside the API; the supplied transport must never
+     * follow redirects automatically.
+     */
     public GitHubClient(URI base, HttpClient http, Strictness strictness) {
-        validateUri(base);
-        if (base.getRawQuery() != null || base.getRawFragment() != null) {
-            throw new IllegalArgumentException("The API base must have no query or fragment");
-        }
-        this.base = URI.create(base.toASCIIString().replaceAll("/+$", "") + "/");
+        this(base, WEB, http, strictness);
+    }
+
+    /**
+     * Creates a reader with the web base its key pages are read from, such as {@code
+     * https://github.com/}; the supplied transport must never follow redirects automatically.
+     */
+    public GitHubClient(URI base, URI web, HttpClient http, Strictness strictness) {
+        this.base = root(base, "API base");
+        this.web = root(web, "web base");
         this.http = Objects.requireNonNull(http);
         if (http.followRedirects() != HttpClient.Redirect.NEVER) {
             throw new IllegalArgumentException("The HTTP client must use Redirect.NEVER");
@@ -389,6 +400,159 @@ public final class GitHubClient {
                 json.constructType(OrgMembership.class));
     }
 
+    /** Reads an account's membership in an organization: an owner is an active {@code admin}. */
+    public OrgMembership orgMembership(String token, String org, String login) {
+        return call(
+                token,
+                "GET",
+                "orgs/" + segment(org) + "/memberships/" + segment(login),
+                null,
+                json.constructType(OrgMembership.class));
+    }
+
+    /** Lists one page of an account's public SSH authentication keys, without a token. */
+    public List<KeySimple> keys(String login, int page, int perPage) {
+        return exchange(
+                null,
+                "GET",
+                "users/" + segment(login) + "/keys?" + pageQuery(page, perPage),
+                null,
+                listType(KeySimple.class));
+    }
+
+    /** Lists one page of an account's public SSH signing keys, without a token. */
+    public List<SshSigningKey> signingKeys(String login, int page, int perPage) {
+        return exchange(
+                null,
+                "GET",
+                "users/" + segment(login) + "/ssh_signing_keys?" + pageQuery(page, perPage),
+                null,
+                listType(SshSigningKey.class));
+    }
+
+    /**
+     * Reads an account's public SSH authentication keys without a token, as the lines of GitHub's
+     * page {@code <login>.keys} beside the API, which leaves out the keys' titles. A missing login
+     * is a {@link GitHubException} with status 404; no failure reads as an empty list.
+     */
+    public List<String> plainKeys(String login) {
+        URI uri = web.resolve(segment(login) + ".keys");
+        GitHubKeyPage page = new GitHubKeyPage();
+        byte[] bytes;
+        try {
+            // The body is read inside send, so the request timeout covers it too.
+            bytes =
+                    http.send(
+                                    HttpRequest.newBuilder(uri)
+                                            .timeout(Duration.ofSeconds(60))
+                                            .header("Accept", "text/plain")
+                                            .GET()
+                                            .build(),
+                                    page)
+                            .body();
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new GitHubException(0, "GitHub request interrupted");
+        } catch (IOException | IllegalArgumentException ex) {
+            // A transport may fail the exchange once the page stops reading; its verdict stands.
+            GitHubException verdict = page.verdict;
+            throw verdict != null ? verdict : new GitHubException(0, "GitHub request failed");
+        }
+        GitHubException verdict = page.verdict;
+        if (verdict != null) {
+            throw verdict;
+        }
+        return new String(bytes, StandardCharsets.UTF_8)
+                .lines()
+                .map(String::strip)
+                .filter(line -> !line.isEmpty())
+                .toList();
+    }
+
+    /** Lists one page of the authenticated account's own SSH authentication keys. */
+    public List<Key> ownKeys(String token, int page, int perPage) {
+        return call(
+                token, "GET", "user/keys?" + pageQuery(page, perPage), null, listType(Key.class));
+    }
+
+    /**
+     * Adds an SSH authentication key to the authenticated account; a key GitHub already has is
+     * refused with its status, and the caller finds it in {@link #ownKeys}.
+     */
+    public Key addKey(String token, UsersCreatePublicSshKeyForAuthenticatedUserRequest body) {
+        Objects.requireNonNull(body, "body");
+        return call(token, "POST", "user/keys", body, json.constructType(Key.class));
+    }
+
+    /** Deletes one of the authenticated account's own SSH authentication keys. */
+    public void deleteKey(String token, long keyId) {
+        delete(token, "user/keys/" + positive(keyId));
+    }
+
+    /** Lists one page of the authenticated account's own SSH signing keys. */
+    public List<SshSigningKey> ownSigningKeys(String token, int page, int perPage) {
+        return call(
+                token,
+                "GET",
+                "user/ssh_signing_keys?" + pageQuery(page, perPage),
+                null,
+                listType(SshSigningKey.class));
+    }
+
+    /**
+     * Adds an SSH signing key to the authenticated account; a key GitHub already has is refused
+     * with its status, and the caller finds it in {@link #ownSigningKeys}.
+     */
+    public SshSigningKey addSigningKey(
+            String token, UsersCreateSshSigningKeyForAuthenticatedUserRequest body) {
+        Objects.requireNonNull(body, "body");
+        return call(
+                token,
+                "POST",
+                "user/ssh_signing_keys",
+                body,
+                json.constructType(SshSigningKey.class));
+    }
+
+    /** Deletes one of the authenticated account's own SSH signing keys. */
+    public void deleteSigningKey(String token, long keyId) {
+        delete(token, "user/ssh_signing_keys/" + positive(keyId));
+    }
+
+    /** Reads a repository. */
+    public FullRepository repository(String token, String owner, String repo) {
+        return call(
+                token, "GET", repo(owner, repo), null, json.constructType(FullRepository.class));
+    }
+
+    /** Creates a repository in an organization. */
+    public FullRepository createRepository(String token, String org, ReposCreateInOrgRequest body) {
+        Objects.requireNonNull(body, "body");
+        return call(
+                token,
+                "POST",
+                "orgs/" + segment(org) + "/repos",
+                body,
+                json.constructType(FullRepository.class));
+    }
+
+    /**
+     * Reads a commit's combined status, with one page of its statuses, the newest of each context.
+     */
+    public CombinedCommitStatus status(
+            String token, String owner, String repo, String ref, int page, int perPage) {
+        return call(
+                token,
+                "GET",
+                repo(owner, repo)
+                        + "/commits/"
+                        + segments(ref)
+                        + "/status?"
+                        + pageQuery(page, perPage),
+                null,
+                json.constructType(CombinedCommitStatus.class));
+    }
+
     /** Reads a collaborator's repository permission. */
     public RepositoryCollaboratorPermission permission(
             String token, String owner, String repo, String username) {
@@ -456,6 +620,7 @@ public final class GitHubClient {
      * Reads a job log, following at most five redirects and stripping authentication off origin.
      */
     public String jobLogs(String token, String owner, String repo, long jobId) {
+        Objects.requireNonNull(token, "token");
         URI uri = base.resolve(repo(owner, repo) + "/actions/jobs/" + positive(jobId) + "/logs");
         boolean authenticate = true;
         for (int redirects = 0; redirects <= 5; redirects++) {
@@ -504,9 +669,21 @@ public final class GitHubClient {
 
     private <T> T call(
             String token, String method, String path, @Nullable Object body, JavaType type) {
+        return exchange(Objects.requireNonNull(token, "token"), method, path, body, type);
+    }
+
+    /** Calls the API; a null token sends none. */
+    private <T> T exchange(
+            @Nullable String token,
+            String method,
+            String path,
+            @Nullable Object body,
+            JavaType type) {
         HttpResponse<String> response = send(token, method, base.resolve(path), body, true);
         List<String> credentials = new ArrayList<>();
-        credentials.add(token);
+        if (token != null) {
+            credentials.add(token);
+        }
         if (body != null) {
             collectCredentials(json.valueToTree(body), credentials);
         }
@@ -516,13 +693,18 @@ public final class GitHubClient {
     }
 
     private void delete(String token, String path) {
+        Objects.requireNonNull(token, "token");
         HttpResponse<String> response = send(token, "DELETE", base.resolve(path), null, true);
         check(response, List.of(token));
     }
 
     private HttpResponse<String> send(
-            String token, String method, URI uri, @Nullable Object body, boolean authenticate) {
-        if (token.isBlank() || token.chars().anyMatch(c -> c < 33 || c > 126)) {
+            @Nullable String token,
+            String method,
+            URI uri,
+            @Nullable Object body,
+            boolean authenticate) {
+        if (token != null && (token.isBlank() || token.chars().anyMatch(c -> c < 33 || c > 126))) {
             throw new IllegalArgumentException("Invalid access token");
         }
         try {
@@ -531,7 +713,7 @@ public final class GitHubClient {
                             .timeout(Duration.ofSeconds(60))
                             .header("Accept", "application/vnd.github+json")
                             .header("X-GitHub-Api-Version", "2026-03-10");
-            if (authenticate && sameOrigin(base, uri)) {
+            if (token != null && authenticate && sameOrigin(base, uri)) {
                 request.header("Authorization", "Bearer " + token);
             }
             if (body != null) {
@@ -634,6 +816,14 @@ public final class GitHubClient {
             encoded.add(segment(part));
         }
         return String.join("/", encoded);
+    }
+
+    private static URI root(URI uri, String name) {
+        validateUri(uri);
+        if (uri.getRawQuery() != null || uri.getRawFragment() != null) {
+            throw new IllegalArgumentException("The " + name + " must have no query or fragment");
+        }
+        return URI.create(uri.toASCIIString().replaceAll("/+$", "") + "/");
     }
 
     private static void validateUri(URI uri) {

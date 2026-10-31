@@ -1,0 +1,38 @@
+{
+  "request_uri" : "/user/ssh_signing_keys?page=1&per_page=50",
+  "status" : 200,
+  "headers" : {
+    "content-type" : [ "application/json; charset=utf-8" ]
+  },
+  "body" : "[{\"id\":1289590,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIHqAhdm8fNga7IAObFXjTjZzA4AxqRHwyV6gaJtSOFc\",\"title\":\"porelo test signing\",\"created_at\":\"2026-10-31T14:43:15.645+01:00\"}]",
+  "exchanges" : [ {
+    "request_uri" : "/user/ssh_signing_keys?page=1&per_page=50",
+    "status" : 200,
+    "headers" : {
+      "content-type" : [ "application/json; charset=utf-8" ]
+    },
+    "body" : "[{\"id\":1289590,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIHqAhdm8fNga7IAObFXjTjZzA4AxqRHwyV6gaJtSOFc\",\"title\":\"porelo test signing\",\"created_at\":\"2026-10-31T14:43:15.645+01:00\"}]"
+  } ],
+  "context" : {
+    "owner" : "fixture-org",
+    "repo" : "fixture-repo",
+    "sha" : "37e122c3b023a75ab5565350233253edf3381566",
+    "number" : 8,
+    "comment" : 4432215652,
+    "check" : 124575786127,
+    "run" : 41214410160,
+    "job" : 124575815731,
+    "username" : "fixture-user",
+    "ref" : "heads/forge-client-008005a2-66a3-4359-8fd7-7e18d0c9e80f",
+    "thread" : "pending",
+    "reply" : 4432215713,
+    "issueComment" : 6545312265,
+    "review" : 5723525816,
+    "since" : "2026-10-31T15:20:36Z",
+    "base" : "main",
+    "keyAccount" : "fixture-reviewer",
+    "key" : 168305365,
+    "signingKey" : 0
+  },
+  "request_body" : null
+}

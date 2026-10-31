@@ -652,12 +652,35 @@ class GitHubClientTest {
                         () -> client.updateCheckRun(TOKEN, "owner", "repo", 1, null),
                         () -> client.updateReviewComment(TOKEN, "owner", "repo", 1, null),
                         () -> client.createIssueComment(TOKEN, "owner", "repo", 1, null),
-                        () -> client.updateIssueComment(TOKEN, "owner", "repo", 1, null));
+                        () -> client.updateIssueComment(TOKEN, "owner", "repo", 1, null),
+                        () -> client.addKey(TOKEN, null),
+                        () -> client.addSigningKey(TOKEN, null),
+                        () -> client.createRepository(TOKEN, "org", null));
         for (var call : calls)
             assertThatExceptionOfType(NullPointerException.class)
                     .as("every write requires its body")
                     .isThrownBy(call::run);
         assertThat(http.requests()).as("body validation precedes all transport use").isEmpty();
+    }
+
+    // Prevents a missing token from sending an anonymous request where one is due.
+    @Test
+    void nullTokensFailBeforeIo() {
+        var http = new ReplayHttpClient();
+        var client = new GitHubClient(BASE, http);
+        List<Runnable> calls =
+                List.of(
+                        () -> client.repository(null, "owner", "repo"),
+                        () -> client.ownKeys(null, 1, 50),
+                        () -> client.deleteKey(null, 1),
+                        () -> client.deleteSigningKey(null, 1),
+                        () -> client.jobLogs(null, "owner", "repo", 1),
+                        () -> client.graphQl(null, Map.of("query", "{}"), Object.class));
+        for (var call : calls)
+            assertThatExceptionOfType(NullPointerException.class)
+                    .as("every call but the key reads requires its token")
+                    .isThrownBy(call::run);
+        assertThat(http.requests()).as("token validation precedes all transport use").isEmpty();
     }
 
     // Prevents general comments read without a time from sending an empty filter, which would
@@ -888,8 +911,7 @@ class GitHubClientTest {
                                 .asText());
     }
 
-    private static com.fasterxml.jackson.databind.JsonNode extractExample(String name)
-            throws Exception {
+    static com.fasterxml.jackson.databind.JsonNode extractExample(String name) throws Exception {
         var example =
                 GitHubJson.mapper(Strictness.STRICT)
                         .readTree(java.nio.file.Path.of("src/main/openapi/github.json").toFile())

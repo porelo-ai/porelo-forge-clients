@@ -1,0 +1,43 @@
+{
+  "request_uri" : "/user/keys",
+  "status" : 201,
+  "headers" : {
+    "content-type" : [ "application/json; charset=utf-8" ],
+    "location" : [ "https://example.org/user/keys/168305365" ]
+  },
+  "body" : "{\"id\":168305365,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDJ4KYAvVy2qvdPrQhrS5fA+Jd79MeOzTgGSgGkEfigH\",\"created_at\":\"2026-10-31T15:20:59Z\",\"last_used\":null,\"url\":\"https://example.org/user/keys/168305365\",\"title\":\"forge-client-008005a2-66a3-4359-8fd7-7e18d0c9e80f\",\"verified\":true,\"read_only\":false}",
+  "exchanges" : [ {
+    "request_uri" : "/user/keys",
+    "status" : 201,
+    "headers" : {
+      "content-type" : [ "application/json; charset=utf-8" ],
+      "location" : [ "https://example.org/user/keys/168305365" ]
+    },
+    "body" : "{\"id\":168305365,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDJ4KYAvVy2qvdPrQhrS5fA+Jd79MeOzTgGSgGkEfigH\",\"created_at\":\"2026-10-31T15:20:59Z\",\"last_used\":null,\"url\":\"https://example.org/user/keys/168305365\",\"title\":\"forge-client-008005a2-66a3-4359-8fd7-7e18d0c9e80f\",\"verified\":true,\"read_only\":false}"
+  } ],
+  "context" : {
+    "owner" : "fixture-org",
+    "repo" : "fixture-repo",
+    "sha" : "37e122c3b023a75ab5565350233253edf3381566",
+    "number" : 8,
+    "comment" : 4432215652,
+    "check" : 124575786127,
+    "run" : 41214410160,
+    "job" : 124575815731,
+    "username" : "fixture-user",
+    "ref" : "heads/forge-client-008005a2-66a3-4359-8fd7-7e18d0c9e80f",
+    "thread" : "pending",
+    "reply" : 4432215713,
+    "issueComment" : 6545312265,
+    "review" : 5723525816,
+    "since" : "2026-10-31T15:20:36Z",
+    "base" : "main",
+    "keyAccount" : "fixture-reviewer",
+    "key" : 0,
+    "signingKey" : 0
+  },
+  "request_body" : {
+    "key" : "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDJ4KYAvVy2qvdPrQhrS5fA+Jd79MeOzTgGSgGkEfigH",
+    "title" : "forge-client-008005a2-66a3-4359-8fd7-7e18d0c9e80f"
+  }
+}

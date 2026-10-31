@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 /** Owns only one run's remote artifacts; creation and shutdown cleanup are serialized. */
 final class GitHubFixture implements AutoCloseable {
     static final URI BASE = URI.create("https://api.github.com/");
+    static final URI WEB = URI.create("https://github.com/");
     static final String OWNER = "porelo-ai-test";
     static final String REPO = "forge-clients-live";
     static final String ROOT = "repos/" + OWNER + "/" + REPO;
@@ -39,6 +40,7 @@ final class GitHubFixture implements AutoCloseable {
     private final String userToken;
     private final String reviewerToken;
     private final String appToken;
+    private final String keysToken;
     private final List<String> secrets;
     final String prefix;
     private final Thread shutdown;
@@ -53,6 +55,9 @@ final class GitHubFixture implements AutoCloseable {
     private boolean dispatchUnseen;
     private boolean hookRegistered;
     private String sha = "";
+    private String keyAccount = "";
+    // Set before the scenario asks GitHub for one, so an answer lost on the way is cleaned up too.
+    private final java.util.Set<Requested> requested = java.util.EnumSet.noneOf(Requested.class);
     private final List<Long> dispatchedRuns = new ArrayList<>();
 
     /** What a run created and its cleanup removes. */
@@ -67,6 +72,7 @@ final class GitHubFixture implements AutoCloseable {
             String userToken,
             String reviewerToken,
             String appToken,
+            String keysToken,
             List<String> secrets,
             String runId) {
         if (http.followRedirects() != HttpClient.Redirect.NEVER)
@@ -79,6 +85,7 @@ final class GitHubFixture implements AutoCloseable {
         this.userToken = userToken;
         this.reviewerToken = reviewerToken;
         this.appToken = appToken;
+        this.keysToken = keysToken;
         this.secrets = List.copyOf(secrets);
         prefix = "forge-client-" + runId;
         shutdown =
@@ -98,10 +105,17 @@ final class GitHubFixture implements AutoCloseable {
         String reviewer = required(env, "LIVE_GITHUB_REVIEWER_TOKEN");
         String id = required(env, "LIVE_GITHUB_APP_ID");
         String key = required(env, "LIVE_GITHUB_APP_KEY");
+        String keys = required(env, "LIVE_GITHUB_REVIEWER_KEYS_TOKEN");
         String jwt = GitHubAppToken.jwt(id, key, java.time.Instant.now());
         var bootstrap =
                 new GitHubFixture(
-                        http, user, reviewer, jwt, List.of(user, reviewer, key, jwt), "bootstrap");
+                        http,
+                        user,
+                        reviewer,
+                        jwt,
+                        keys,
+                        List.of(user, reviewer, key, jwt, keys),
+                        "bootstrap");
         long installation =
                 bootstrap.apiWith(jwt, "GET", ROOT + "/installation", null).path("id").asLong();
         if (installation <= 0)
@@ -121,7 +135,8 @@ final class GitHubFixture implements AutoCloseable {
                 user,
                 reviewer,
                 token,
-                List.of(user, reviewer, key, jwt, token),
+                keys,
+                List.of(user, reviewer, key, jwt, token, keys),
                 env.getOrDefault("LIVE_GITHUB_RUN_ID", UUID.randomUUID().toString()));
     }
 
@@ -144,7 +159,10 @@ final class GitHubFixture implements AutoCloseable {
         if (scope != Scope.NONE) throw new IllegalStateException("Fixture is already prepared");
         if (!items("git/matching-refs/heads/" + prefix).isEmpty()
                 || pulls().stream().anyMatch(this::hasPrefix)
-                || allRuns().stream().anyMatch(this::hasPrefix)) {
+                || allRuns().stream().anyMatch(this::hasPrefix)
+                || repositoryExists()
+                || !ownKeys("user/keys").isEmpty()
+                || !ownKeys("user/ssh_signing_keys").isEmpty()) {
             throw new IllegalStateException("Refusing leftovers of " + prefix);
         }
         String baseSha =
@@ -181,6 +199,111 @@ final class GitHubFixture implements AutoCloseable {
                         .asText();
         if (!sha.matches("[a-f0-9]{40,64}"))
             throw new IllegalStateException("Fixture commit has no identity");
+        // A status of its own, so the combined status has one to read; it goes with the branch.
+        api(
+                "POST",
+                ROOT + "/statuses/" + sha,
+                Map.of("state", "success", "context", prefix, "description", "Fixture status"));
+    }
+
+    /**
+     * The account whose own keys the keys token lists, adds and deletes, read once: it must be the
+     * reviewer, a test account, so no key of anyone else is touched.
+     */
+    String keyAccount() throws Exception {
+        return locked(
+                () -> {
+                    if (keyAccount.isEmpty()) {
+                        String login =
+                                apiWith(keysToken, "GET", "user", null).path("login").asText();
+                        if (!login.matches("[A-Za-z0-9-]{1,39}"))
+                            throw new IllegalStateException("The keys token names no account");
+                        if (!login.equals(
+                                apiWith(reviewerToken, "GET", "user", null).path("login").asText()))
+                            throw new IllegalStateException(
+                                    "The keys token must belong to the reviewer");
+                        keyAccount = login;
+                    }
+                    return keyAccount;
+                });
+    }
+
+    /** What a run asks GitHub to make under its own name, and removes once it has asked. */
+    enum Requested {
+        REPOSITORY,
+        KEYS,
+        SIGNING_KEYS
+    }
+
+    /**
+     * Asks GitHub to make what is named after this run, owning it from before the request on, so an
+     * interrupted request is cleaned up too; a refused one leaves it to whoever made it.
+     */
+    <T> T requesting(Requested resource, Callable<T> create) throws Exception {
+        return locked(
+                () -> {
+                    if (scope != Scope.EVERYTHING)
+                        throw new IllegalStateException("Fixture is not prepared");
+                    requested.add(resource);
+                    try {
+                        return create.call();
+                    } catch (GitHubException ex) {
+                        // A rejected create must never adopt a competing recorder's resource.
+                        if (ex.status() >= 400 && ex.status() < 500) requested.remove(resource);
+                        throw ex;
+                    }
+                });
+    }
+
+    /**
+     * A new SSH public key made for one run, in OpenSSH's form with no comment; its private half is
+     * dropped at once.
+     */
+    static String newPublicKey() throws Exception {
+        byte[] encoded =
+                java.security.KeyPairGenerator.getInstance("Ed25519")
+                        .generateKeyPair()
+                        .getPublic()
+                        .getEncoded();
+        // An X.509 Ed25519 key ends in its 32 raw bytes.
+        byte[] raw = java.util.Arrays.copyOfRange(encoded, encoded.length - 32, encoded.length);
+        byte[] type = "ssh-ed25519".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+        var blob = java.nio.ByteBuffer.allocate(4 + type.length + 4 + raw.length);
+        blob.putInt(type.length).put(type).putInt(raw.length).put(raw);
+        return "ssh-ed25519 " + java.util.Base64.getEncoder().encodeToString(blob.array());
+    }
+
+    private boolean repositoryExists() throws Exception {
+        try {
+            api("GET", "repos/" + OWNER + "/" + prefix, null);
+            return true;
+        } catch (GitHubException ex) {
+            if (ex.status() == 404) return false;
+            throw ex;
+        }
+    }
+
+    /** The keys token's own keys of one kind that this run titled. */
+    private List<JsonNode> ownKeys(String list) throws Exception {
+        List<JsonNode> result = new ArrayList<>();
+        for (int page = 1; page <= 100; page++) {
+            JsonNode answer = apiWith(keysToken, "GET", list + "?per_page=100&page=" + page, null);
+            if (!answer.isArray())
+                throw new IllegalStateException("Expected an array for key discovery");
+            for (JsonNode key : answer)
+                if (key.path("title").asText().equals(prefix)) result.add(key);
+            if (answer.size() < 100) return result;
+        }
+        throw new IllegalStateException("Key discovery exceeded pagination bound");
+    }
+
+    private void deleteOwnKeys(String list) throws Exception {
+        for (JsonNode key : ownKeys(list)) {
+            long id = key.path("id").asLong();
+            if (id <= 0) throw new IllegalStateException("Key has no identity");
+            apiWith(keysToken, "DELETE", list + "/" + id, null);
+        }
+        if (!ownKeys(list).isEmpty()) throw new IllegalStateException("A key remains");
     }
 
     /** Takes ownership of the Actions runs this check dispatches, and of nothing else. */
@@ -216,6 +339,10 @@ final class GitHubFixture implements AutoCloseable {
 
     String appToken() {
         return appToken;
+    }
+
+    String keysToken() {
+        return keysToken;
     }
 
     String sha() {
@@ -551,6 +678,32 @@ final class GitHubFixture implements AutoCloseable {
                         }
                     });
             cleanup(Scope.ACTIONS_RUNS, "Actions runs", failures, this::removeActionsRuns);
+            cleanup(
+                    Scope.EVERYTHING,
+                    "repository",
+                    failures,
+                    () -> {
+                        if (!requested.contains(Requested.REPOSITORY)) return;
+                        if (repositoryExists())
+                            api("DELETE", "repos/" + OWNER + "/" + prefix, null);
+                        if (repositoryExists())
+                            throw new IllegalStateException("Repository remains");
+                    });
+            cleanup(
+                    Scope.EVERYTHING,
+                    "keys",
+                    failures,
+                    () -> {
+                        if (requested.contains(Requested.KEYS)) deleteOwnKeys("user/keys");
+                    });
+            cleanup(
+                    Scope.EVERYTHING,
+                    "signing keys",
+                    failures,
+                    () -> {
+                        if (requested.contains(Requested.SIGNING_KEYS))
+                            deleteOwnKeys("user/ssh_signing_keys");
+                    });
             cleanup(
                     Scope.EVERYTHING,
                     "branch",

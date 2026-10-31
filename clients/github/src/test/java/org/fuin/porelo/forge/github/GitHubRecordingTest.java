@@ -23,7 +23,8 @@ class GitHubRecordingTest {
         var http = new ReplayHttpClient().recording(operation.name());
         Object result =
                 operation.invoke(
-                        new GitHubClient(BASE, http, Strictness.STRICT),
+                        // The key page is read beside the API; replayed, both share one base.
+                        new GitHubClient(BASE, BASE, http, Strictness.STRICT),
                         new GitHubGraphQl(BASE, http, Strictness.STRICT),
                         TOKEN,
                         context,
@@ -42,17 +43,29 @@ class GitHubRecordingTest {
         assertThat(request.uri())
                 .as("%s sends the captured relative target", operation)
                 .isEqualTo(BASE.resolve(recording.path("request_uri").asText()));
-        assertThat(request.headers().firstValue("Authorization"))
-                .as("%s authenticates only to the API", operation)
-                .contains("Bearer " + TOKEN);
-        assertThat(request.headers().firstValue("Accept"))
-                .as("%s requests GitHub JSON", operation)
-                .contains("application/vnd.github+json");
-        assertThat(request.headers().firstValue("X-GitHub-Api-Version"))
-                .as("%s pins the API contract", operation)
-                .contains("2026-03-10");
+        if (operation.anonymous()) {
+            assertThat(request.headers().firstValue("Authorization"))
+                    .as("%s sends no token", operation)
+                    .isEmpty();
+        } else {
+            assertThat(request.headers().firstValue("Authorization"))
+                    .as("%s authenticates only to the API", operation)
+                    .contains("Bearer " + TOKEN);
+        }
+        if (operation.web()) {
+            assertThat(request.headers().firstValue("Accept"))
+                    .as("%s asks for the key page as text", operation)
+                    .contains("text/plain");
+        } else {
+            assertThat(request.headers().firstValue("Accept"))
+                    .as("%s requests GitHub JSON", operation)
+                    .contains("application/vnd.github+json");
+            assertThat(request.headers().firstValue("X-GitHub-Api-Version"))
+                    .as("%s pins the API contract", operation)
+                    .contains("2026-03-10");
+        }
         if (operation.method.equals("GET") || operation.method.equals("DELETE")) {
-            assertThat(request.bodyPublisher().orElseThrow().contentLength())
+            assertThat(request.bodyPublisher().map(body -> body.contentLength()).orElse(0L))
                     .as("reads send no mutation body")
                     .isZero();
         } else {

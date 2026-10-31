@@ -46,9 +46,15 @@ final class RecordingHttpClient extends HttpClient {
             throws IOException, InterruptedException {
         lastRequest = request;
         HttpResponse<T> response = delegate.send(request, handler);
-        if (!(response.body() instanceof String body)) {
-            throw new IllegalArgumentException("The fixture transport captures only text bodies");
-        }
+        // The key page is read as bytes, up to its bound; it is text all the same.
+        String body =
+                switch (response.body()) {
+                    case String text -> text;
+                    case byte[] bytes -> new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+                    default ->
+                            throw new IllegalArgumentException(
+                                    "The fixture transport captures only text bodies");
+                };
         ObjectNode recorded = json.createObjectNode();
         // Redirect queries may contain storage signatures that are unknown to the fixture.
         if (exchanges.isEmpty()) {

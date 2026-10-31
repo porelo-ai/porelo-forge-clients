@@ -152,6 +152,30 @@
                                 <argument>get /user</argument>
                                 <argument>--operation</argument>
                                 <argument>get /user/memberships/orgs/{org}</argument>
+                                <argument>--operation</argument>
+                                <argument>delete /user/keys/{key_id}</argument>
+                                <argument>--operation</argument>
+                                <argument>delete /user/ssh_signing_keys/{ssh_signing_key_id}</argument>
+                                <argument>--operation</argument>
+                                <argument>get /orgs/{org}/memberships/{username}</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/commits/{ref}/status</argument>
+                                <argument>--operation</argument>
+                                <argument>get /user/keys</argument>
+                                <argument>--operation</argument>
+                                <argument>get /user/ssh_signing_keys</argument>
+                                <argument>--operation</argument>
+                                <argument>get /users/{username}/keys</argument>
+                                <argument>--operation</argument>
+                                <argument>get /users/{username}/ssh_signing_keys</argument>
+                                <argument>--operation</argument>
+                                <argument>post /orgs/{org}/repos</argument>
+                                <argument>--operation</argument>
+                                <argument>post /user/keys</argument>
+                                <argument>--operation</argument>
+                                <argument>post /user/ssh_signing_keys</argument>
                             </arguments>
                         </configuration>
                     </execution>
