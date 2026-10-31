@@ -23,10 +23,13 @@ check runs, runs and jobs; the recorders keep only the `content-type` and `locat
   whose first error has `type: RATE_LIMITED` is one too. Forgejo's follows what *To be checked* measures.
 - **The end of a list.** Every paged list call returns `Page<T>(List<T> items, boolean more)`, a record of each
   module. `more` comes from the `Link` header's `rel="next"`; GitHub's envelope calls also read `total_count`,
-  Forgejo's calls `X-Total-Count`. A full page without a next link is the last one.
+  Forgejo's calls `X-Total-Count`. A full page without a next link is the last one. No caller breaks: the adapters
+  do not use the clients yet, and will move onto them with `Page`.
 - **Bounded answers.** Both clients read through one bounded body handler, made from Forgejo's `BoundedBytes`: an
-  answer 16 MiB, an error answer 64 KiB (only its `message` is read), a job log as *Open questions* decides. Past
-  the bound the reading stops and the client throws `"<forge> answer exceeds <n> bytes"`, with no part of the answer.
+  answer 16 MiB, an error answer 64 KiB (only its `message` is read). Past the bound the reading stops and the
+  client throws `"<forge> answer exceeds <n> bytes"`, with no part of the answer. A job log is read up to 64 MiB and
+  keeps its last 1 MiB, since a build reads a log's tail; `jobLogs` then returns a `JobLog(String text, boolean cut)`
+  (operator, 2026-10-31).
 - **Recordings.** Both recorders also keep `link`, `x-total-count`, `retry-after` and `x-ratelimit-*`, scrubbed like
   any address. Review comments are recorded one per page as well, so a full last page is recorded. A rate-limited
   answer is not provoked from GitHub; it is made by hand from GitHub's documented headers.
@@ -43,15 +46,11 @@ check runs, runs and jobs; the recorders keep only the `content-type` and `locat
 - A list whose last page is full reports no further page, and a page with a next link reports one, both from
   recorded answers.
 - An answer one byte over its bound fails naming the bound, its message holds no byte of the answer, and the reading
-  stops there; seen for a JSON answer, an error answer and a job log on both forges.
-
-## Open questions
-
-- **A job log over its bound:** fail, as for any other answer, or keep its last part, since a build reads a log's
-  tail? Proposed: keep the last 1 MiB and say that it was cut, under a read bound of 64 MiB.
+  stops there; seen for a JSON answer and an error answer on both forges.
+- A job log over 1 MiB keeps exactly its last 1 MiB and says it was cut, one at 1 MiB is whole and not cut, and one
+  over 64 MiB fails naming the bound; on both forges.
 
 ## To be checked
 
 - Which rate-limit headers and statuses Forgejo sends, measured against the pinned Forgejo with its limiter on, or
   that it has none for its API.
-- Ask Agent Adapters whether anything already calls the list methods, which `Page` changes.

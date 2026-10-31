@@ -27,7 +27,7 @@ is left out.
 
 | # | Size | Blocked by | Open questions | What it covers |
 |---|---|---|---|---|
-| <a id="fc09"></a>[FC09](FC09-Rate-Limits-And-Bounds-Of-The-Clients-Answers.md) | M | [FC02](README.md#fc02) | 1 | A rate limit told from a refusal with the delay to wait, the end of a paged list known, and every answer read up to a bound, on both forges |
+| <a id="fc09"></a>[FC09](FC09-Rate-Limits-And-Bounds-Of-The-Clients-Answers.md) | M | [FC02](README.md#fc02) | 0 | A rate limit told from a refusal with the delay to wait, the end of a paged list known, and every answer read up to a bound, on both forges |
 
 ## Accepted
 
