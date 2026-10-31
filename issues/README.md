@@ -10,7 +10,6 @@ is left out.
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="fc05"></a>[FC05](FC05-Keys-And-Repositories-On-Forgejo.md) | S | [FC02](README.md#fc02) | A Forgejo user's public SSH keys read, the signed-in user's own keys listed, added and deleted, whether a user owns an organization, a repository read and created in an organization |
-| <a id="fc08"></a>[FC08](FC08-Comments-Threads-And-Versions-Through-The-Clients.md) | L | [FC02](README.md#fc02) | A pull request's general comments read since a time, written, edited and deleted on both forges, GitHub review comments edited and deleted, one review's comments, a merge base, one GitHub thread with its state and resolver read by its id, a pull request found by its branch, Forgejo's version, and what Forgejo's API cannot do stated |
 
 ## Implementing
 
@@ -44,6 +43,7 @@ is left out.
 
 | # | What was built |
 |---|---|
+| <a id="fc08"></a>FC08 — Comments, Threads And Versions Through The Clients | GitHub's general comments, review comment edits and deletes, one review's comments, the merge base, pull requests by head branch and one review thread by its id with its resolver; Forgejo's general comments, review comments, the pull request of two branches and the server version, with what Forgejo cannot do measured; recorded live and from the container; described in both clients' READMEs. |
 | <a id="fc01"></a>FC01 — The GitHub Client | The `github` module: 18 REST operations from GitHub's OpenAPI description and review threads over GraphQL, tested strictly against answers recorded live and scrubbed, with the hand-run recorder and the live check; described in [clients/github/README.md](../clients/github/README.md). |
 | <a id="fc07"></a>FC07 — Plain Key Lists On Forgejo | `ForgejoClient.plainKeys` reads an account's public SSH keys from its `<login>.keys` page without a token, and a missing login is told apart from any other failure. |
 | <a id="fc04"></a>FC04 — Records Generated From A Pinned OpenAPI Description | Records generated at build time by openapi-generator from a pinned, filtered OpenAPI 3.1 or Swagger 2.0 extract with overridden templates, the `openapi-extract` command and the `openapi-records` check; described in [doc/records.md](../doc/records.md). |
