@@ -1,6 +1,6 @@
 # FC12 — GitHub's Recorded Answers For Other Repositories
 
-**Status:** Backlog (Estimated and Backlog by the operator, 2026-10-31, once its plan was in).
+**Status:** Implementing.
 **Size:** S - one test class made public, its recordings moved, one jar execution and a README section; no call and
 no recording changes.
 
