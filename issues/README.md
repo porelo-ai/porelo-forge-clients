@@ -21,6 +21,7 @@ is left out.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
+| <a id="fc12"></a>[FC12](FC12-GitHubs-Recorded-Answers-For-Other-Repositories.md) | S | - | GitHub's recorded answers and the replaying `HttpClient` in a `tests` jar of the github module, for the adapters' tests |
 | <a id="fc06"></a>[FC06](FC06-Keys-Repositories-And-Commit-Statuses-On-GitHub.md) | M | - | A GitHub user's public SSH authentication and signing keys read without a token, the signed-in user's own keys of both kinds listed, added and deleted, whether a user owns an organization, a repository read and created in an organization, a commit's combined status |
 | <a id="fc09"></a>[FC09](FC09-Rate-Limits-And-Bounds-Of-The-Clients-Answers.md) | M | [FC02](README.md#fc02) | A rate limit told from a refusal with the delay to wait, the end of a paged list known, whether a failed request was sent, and every answer read up to a bound, on both forges |
 
@@ -36,7 +37,6 @@ is left out.
 |---|---|---|---|
 | <a id="fc10"></a>[FC10](FC10-A-Pull-Requests-Commits-On-GitHub.md) | - | - | A GitHub pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and GitHub's signature verdict |
 | <a id="fc11"></a>[FC11](FC11-A-Pull-Requests-Commits-On-Forgejo.md) | - | [FC02](README.md#fc02) | A Forgejo pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and Forgejo's signature verdict, and any cap on the list |
-| <a id="fc12"></a>[FC12](FC12-GitHubs-Recorded-Answers-For-Other-Repositories.md) | - | - | GitHub's recorded answers and the replaying `HttpClient` in a `tests` jar of the github module, for the adapters' tests |
 | <a id="fc13"></a>[FC13](FC13-GitHubs-Nulls-For-A-Deleted-Fork-And-An-Empty-Review.md) | - | - | A GitHub pull request from a deleted fork (`head.repo` null) and a review with a null `body` read instead of failing the read |
 
 ## Finished
