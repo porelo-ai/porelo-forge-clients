@@ -25,14 +25,6 @@ is left out.
 |---|---|---|---|
 | <a id="fc09"></a>[FC09](FC09-Rate-Limits-And-Bounds-Of-The-Clients-Answers.md) | M | [FC02](README.md#fc02) | A rate limit told from a refusal with the delay to wait, the end of a paged list known, whether a failed request was sent, and every answer read up to a bound, on both forges |
 
-## Analyzed
-
-| # | Size | Blocked by | Open questions | What it covers |
-|---|---|---|---|---|
-| <a id="fc13"></a>[FC13](FC13-GitHubs-Nulls-For-A-Deleted-Fork-And-An-Empty-Review.md) | M | - | 0 | A GitHub pull request from a deleted fork (`head.repo` null) and a review with a null `body` read instead of failing the read |
-| <a id="fc10"></a>[FC10](FC10-A-Pull-Requests-Commits-On-GitHub.md) | S | - | 0 | A GitHub pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and GitHub's signature verdict |
-| <a id="fc11"></a>[FC11](FC11-A-Pull-Requests-Commits-On-Forgejo.md) | S | [FC02](README.md#fc02) | 0 | A Forgejo pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and Forgejo's signature verdict, and any cap on the list |
-
 ## Accepted
 
 | # | Size | Blocked by | What it covers |
@@ -44,6 +36,14 @@ is left out.
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="fc14"></a>[FC14](FC14-The-GitHub-Recorders-Ownership-Of-What-It-Made.md) | - | - | The GitHub recorder keeps owning what an earlier request made when a later one of its kind is refused, and the key page refusal test fails when the page does not stop |
+
+## Estimated
+
+| # | Size | Blocked by | What it covers |
+|---|---|---|---|
+| <a id="fc13"></a>[FC13](FC13-GitHubs-Nulls-For-A-Deleted-Fork-And-An-Empty-Review.md) | M | - | A GitHub pull request from a deleted fork (`head.repo` null) and a review with a null `body` read instead of failing the read |
+| <a id="fc10"></a>[FC10](FC10-A-Pull-Requests-Commits-On-GitHub.md) | S | - | A GitHub pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and GitHub's signature verdict |
+| <a id="fc11"></a>[FC11](FC11-A-Pull-Requests-Commits-On-Forgejo.md) | S | [FC02](README.md#fc02) | A Forgejo pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and Forgejo's signature verdict, and any cap on the list |
 
 ## Finished
 

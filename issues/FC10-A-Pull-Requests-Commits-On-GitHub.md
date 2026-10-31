@@ -1,6 +1,7 @@
 # FC10 — A Pull Request's Commits On GitHub
 
-**Status:** Analyzed (Accepted by the operator, through Agent Coordinator, 2026-10-31).
+**Status:** Estimated (Accepted and Estimated by the operator, through Agent Coordinator,
+2026-10-31).
 **Size:** S - one call added to the `github` module, its recording and live check; no record other repositories read
 changes.
 

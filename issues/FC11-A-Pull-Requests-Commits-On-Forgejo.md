@@ -1,6 +1,7 @@
 # FC11 — A Pull Request's Commits On Forgejo
 
-**Status:** Analyzed (Accepted by the operator, through Agent Coordinator, 2026-10-31); blocked by
+**Status:** Estimated (Accepted and Estimated by the operator, through Agent Coordinator,
+2026-10-31); blocked by
 [FC02](README.md#fc02).
 **Size:** S - one call added to the `forgejo` module, recorded against a Forgejo in podman; no record other
 repositories read changes.

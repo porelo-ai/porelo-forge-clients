@@ -1,6 +1,7 @@
 # FC13 — GitHub's Nulls For A Deleted Fork And An Empty Review
 
-**Status:** Analyzed (Accepted by the operator, through Agent Coordinator, 2026-10-31).
+**Status:** Estimated (Accepted and Estimated by the operator, through Agent Coordinator,
+2026-10-31).
 **Size:** M - two schema corrections in the `github` extract, whose generated records other repositories read: a
 field that was never null becomes nullable.
 
