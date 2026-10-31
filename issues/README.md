@@ -16,25 +16,25 @@ is left out.
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="fc02"></a>[FC02](FC02-The-Forgejo-Client.md) | M | - | The `forgejo` module: 19 operations from Forgejo 17's MIT Swagger 2.0 description, its answers recorded from a real Forgejo |
-| <a id="fc01"></a>[FC01](FC01-The-GitHub-Client.md) | L | - | The `github` module: 18 REST operations from GitHub's MIT OpenAPI 3.1 description, review threads over GraphQL, no webhooks, tested against recorded answers |
 
 ## Backlog
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="fc06"></a>[FC06](FC06-Keys-Repositories-And-Commit-Statuses-On-GitHub.md) | M | [FC01](README.md#fc01) | A GitHub user's public SSH authentication and signing keys read without a token, the signed-in user's own keys of both kinds listed, added and deleted, whether a user owns an organization, a repository read and created in an organization, a commit's combined status |
+| <a id="fc06"></a>[FC06](FC06-Keys-Repositories-And-Commit-Statuses-On-GitHub.md) | M | - | A GitHub user's public SSH authentication and signing keys read without a token, the signed-in user's own keys of both kinds listed, added and deleted, whether a user owns an organization, a repository read and created in an organization, a commit's combined status |
 
 ## Accepted
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="fc03"></a>[FC03](FC03-The-Forge-Calls-Of-The-Adapters-Move-Here.md) | - | [FC01](README.md#fc01), [FC02](README.md#fc02) | The clients make every call Porelo's build adapters make to GitHub and Forgejo today, with the same requests and answers, published as snapshots |
-| <a id="fc08"></a>[FC08](FC08-Comments-Threads-And-Versions-Through-The-Clients.md) | - | [FC01](README.md#fc01), [FC02](README.md#fc02) | A pull request's general comments read since a time, written, edited and deleted on both forges, GitHub review comments edited and deleted, one GitHub thread with its state read by its id, Forgejo's version, and what Forgejo's API cannot do stated |
-| <a id="fc09"></a>[FC09](FC09-Rate-Limits-And-Bounds-Of-The-Clients-Answers.md) | - | [FC01](README.md#fc01), [FC02](README.md#fc02) | A rate limit told from a refusal with the delay to wait, the end of a paged list known, and every answer read up to a bound, on both forges |
+| <a id="fc03"></a>[FC03](FC03-The-Forge-Calls-Of-The-Adapters-Move-Here.md) | - | [FC02](README.md#fc02) | The clients make every call Porelo's build adapters make to GitHub and Forgejo today, with the same requests and answers, published as snapshots |
+| <a id="fc08"></a>[FC08](FC08-Comments-Threads-And-Versions-Through-The-Clients.md) | - | [FC02](README.md#fc02) | A pull request's general comments read since a time, written, edited and deleted on both forges, GitHub review comments edited and deleted, one GitHub thread with its state read by its id, Forgejo's version, and what Forgejo's API cannot do stated |
+| <a id="fc09"></a>[FC09](FC09-Rate-Limits-And-Bounds-Of-The-Clients-Answers.md) | - | [FC02](README.md#fc02) | A rate limit told from a refusal with the delay to wait, the end of a paged list known, and every answer read up to a bound, on both forges |
 
 ## Finished
 
 | # | What was built |
 |---|---|
+| <a id="fc01"></a>FC01 — The GitHub Client | The `github` module: 18 REST operations from GitHub's OpenAPI description and review threads over GraphQL, tested strictly against answers recorded live and scrubbed, with the hand-run recorder and the live check; described in [clients/github/README.md](../clients/github/README.md). |
 | <a id="fc07"></a>FC07 — Plain Key Lists On Forgejo | `ForgejoClient.plainKeys` reads an account's public SSH keys from its `<login>.keys` page without a token, and a missing login is told apart from any other failure. |
 | <a id="fc04"></a>FC04 — Records Generated From A Pinned OpenAPI Description | Records generated at build time by openapi-generator from a pinned, filtered OpenAPI 3.1 or Swagger 2.0 extract with overridden templates, the `openapi-extract` command and the `openapi-records` check; described in [doc/records.md](../doc/records.md). |

@@ -40,6 +40,7 @@ public final class OpenApiExtract {
                         Path.of(arguments.one("--out")),
                         arguments.replacements(),
                         arguments.additions(),
+                        arguments.settings(),
                         arguments.selection());
             } else {
                 service.check(Path.of(arguments.one("--extract")), arguments.selection());
@@ -73,6 +74,7 @@ public final class OpenApiExtract {
                                     "--out",
                                     "--replace",
                                     "--add-property",
+                                    "--set",
                                     "--operation",
                                     "--webhook")
                             : Set.of("--extract", "--operation", "--webhook");
@@ -89,7 +91,7 @@ public final class OpenApiExtract {
             }
             Arguments result = new Arguments(args[0], options);
             for (String option : allowed) {
-                if (!Set.of("--operation", "--webhook", "--replace", "--add-property")
+                if (!Set.of("--operation", "--webhook", "--replace", "--add-property", "--set")
                         .contains(option)) {
                     result.one(option);
                 }
@@ -136,6 +138,25 @@ public final class OpenApiExtract {
                                 addition.substring(separator + 1)));
             }
             return additions;
+        }
+
+        List<ExtractService.Setting> settings() {
+            List<ExtractService.Setting> settings = new ArrayList<>();
+            for (String setting : options.getOrDefault("--set", List.of())) {
+                int hash = setting.indexOf('#');
+                int separator = setting.indexOf('=');
+                // Without a schema name, the pointer starts at the extract's root.
+                if (hash < 0 || separator < hash + 3) {
+                    throw new IllegalArgumentException(
+                            "Setting must be [<schema>]#/<JSON pointer>=<JSON value>");
+                }
+                settings.add(
+                        new ExtractService.Setting(
+                                setting.substring(0, hash),
+                                setting.substring(hash + 1, separator),
+                                setting.substring(separator + 1)));
+            }
+            return settings;
         }
 
         List<ExtractService.Replacement> replacements() {

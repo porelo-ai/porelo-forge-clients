@@ -12,5 +12,6 @@
     <description>Published clients of individual forge APIs</description>
     <modules>
         <module>forgejo</module>
+        <module>github</module>
     </modules>
 </project>

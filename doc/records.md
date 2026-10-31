@@ -47,6 +47,8 @@ from the one an override was copied from, so moving the pin re-copies each.
   description does not let be null, naming the JSON field; a required field gets no default.
 - `enumClass.mustache`, `enumOuterClass.mustache`, `additionalProperties.mustache`, `oneof_interface.mustache` and the
   record's discriminator accessor say `@Nullable` where the generator's code returns null.
+- `additionalProperties.mustache` refuses a null for an undeclared property, which Jackson hands to the setter past
+  the mapper's setting for nulls in a map.
 - The normalizer `REMOVE_ANYOF_ONEOF_AND_KEEP_PROPERTIES_ONLY` drops a `oneOf` or `anyOf` that only narrows its
   schema's own properties, and `fetch` drops that schema's `discriminator`, since without its `oneOf` the generator
   would make it a class. A schema that keeps `additionalProperties` stays a class.
@@ -57,8 +59,8 @@ its client's compile under NullAway, naming the file.
 
 ## Reading an answer
 
-Every reader of a client - its calls and webhook deliveries - is built with a strictness, the caller's choice. By
-default it is lenient; the tests build it strict.
+Every reader of a client - its calls, GraphQL answers and webhook deliveries - is built with a strictness, the
+caller's choice. By default it is lenient; the tests build it strict.
 
 | In the answer | Lenient | Strict |
 |---|---|---|

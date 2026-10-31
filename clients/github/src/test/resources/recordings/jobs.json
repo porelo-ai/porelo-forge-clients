@@ -1,0 +1,30 @@
+{
+  "request_uri" : "/repos/fixture-org/fixture-repo/actions/runs/41174745550/jobs?page=1&per_page=50",
+  "status" : 200,
+  "headers" : {
+    "content-type" : [ "application/json; charset=utf-8" ]
+  },
+  "body" : "{\"total_count\":1,\"jobs\":[{\"id\":124459888184,\"run_id\":41174745550,\"workflow_name\":\"forge-client-03567d8b-1448-47cb-8074-087a127f6447\",\"head_branch\":\"forge-client-03567d8b-1448-47cb-8074-087a127f6447\",\"run_url\":\"https://host-1.example.org/repos/fixture-org/fixture-repo/actions/runs/41174745550\",\"run_attempt\":1,\"node_id\":\"CR_kwDOVc0D888AAAAc-mMuOA\",\"head_sha\":\"c7094bf703c991ae7d152eb58a449fee5471ba2c\",\"url\":\"https://host-1.example.org/repos/fixture-org/fixture-repo/actions/jobs/124459888184\",\"html_url\":\"https://host-2.example.org/fixture-org/fixture-repo/actions/runs/41174745550/job/124459888184\",\"status\":\"completed\",\"conclusion\":\"success\",\"created_at\":\"2026-10-31T05:59:42Z\",\"started_at\":\"2026-10-31T05:59:45Z\",\"completed_at\":\"2026-10-31T05:59:49Z\",\"name\":\"fixture\",\"steps\":[{\"name\":\"Set up job\",\"status\":\"completed\",\"conclusion\":\"success\",\"number\":1,\"started_at\":\"2026-10-31T05:59:46Z\",\"completed_at\":\"2026-10-31T05:59:46Z\"},{\"name\":\"Start fixture\",\"status\":\"completed\",\"conclusion\":\"success\",\"number\":2,\"started_at\":\"2026-10-31T05:59:46Z\",\"completed_at\":\"2026-10-31T05:59:47Z\"},{\"name\":\"Finish fixture\",\"status\":\"completed\",\"conclusion\":\"success\",\"number\":3,\"started_at\":\"2026-10-31T05:59:47Z\",\"completed_at\":\"2026-10-31T05:59:47Z\"},{\"name\":\"Complete job\",\"status\":\"completed\",\"conclusion\":\"success\",\"number\":4,\"started_at\":\"2026-10-31T05:59:47Z\",\"completed_at\":\"2026-10-31T05:59:47Z\"}],\"check_run_url\":\"https://host-1.example.org/repos/fixture-org/fixture-repo/check-runs/124459888184\",\"labels\":[\"ubuntu-24.04\"],\"runner_id\":1000000000,\"runner_name\":\"GitHub Actions 1000000000\",\"runner_group_id\":0,\"runner_group_name\":\"GitHub Actions\"}]}",
+  "exchanges" : [ {
+    "request_uri" : "/repos/fixture-org/fixture-repo/actions/runs/41174745550/jobs?page=1&per_page=50",
+    "status" : 200,
+    "headers" : {
+      "content-type" : [ "application/json; charset=utf-8" ]
+    },
+    "body" : "{\"total_count\":1,\"jobs\":[{\"id\":124459888184,\"run_id\":41174745550,\"workflow_name\":\"forge-client-03567d8b-1448-47cb-8074-087a127f6447\",\"head_branch\":\"forge-client-03567d8b-1448-47cb-8074-087a127f6447\",\"run_url\":\"https://host-1.example.org/repos/fixture-org/fixture-repo/actions/runs/41174745550\",\"run_attempt\":1,\"node_id\":\"CR_kwDOVc0D888AAAAc-mMuOA\",\"head_sha\":\"c7094bf703c991ae7d152eb58a449fee5471ba2c\",\"url\":\"https://host-1.example.org/repos/fixture-org/fixture-repo/actions/jobs/124459888184\",\"html_url\":\"https://host-2.example.org/fixture-org/fixture-repo/actions/runs/41174745550/job/124459888184\",\"status\":\"completed\",\"conclusion\":\"success\",\"created_at\":\"2026-10-31T05:59:42Z\",\"started_at\":\"2026-10-31T05:59:45Z\",\"completed_at\":\"2026-10-31T05:59:49Z\",\"name\":\"fixture\",\"steps\":[{\"name\":\"Set up job\",\"status\":\"completed\",\"conclusion\":\"success\",\"number\":1,\"started_at\":\"2026-10-31T05:59:46Z\",\"completed_at\":\"2026-10-31T05:59:46Z\"},{\"name\":\"Start fixture\",\"status\":\"completed\",\"conclusion\":\"success\",\"number\":2,\"started_at\":\"2026-10-31T05:59:46Z\",\"completed_at\":\"2026-10-31T05:59:47Z\"},{\"name\":\"Finish fixture\",\"status\":\"completed\",\"conclusion\":\"success\",\"number\":3,\"started_at\":\"2026-10-31T05:59:47Z\",\"completed_at\":\"2026-10-31T05:59:47Z\"},{\"name\":\"Complete job\",\"status\":\"completed\",\"conclusion\":\"success\",\"number\":4,\"started_at\":\"2026-10-31T05:59:47Z\",\"completed_at\":\"2026-10-31T05:59:47Z\"}],\"check_run_url\":\"https://host-1.example.org/repos/fixture-org/fixture-repo/check-runs/124459888184\",\"labels\":[\"ubuntu-24.04\"],\"runner_id\":1000000000,\"runner_name\":\"GitHub Actions 1000000000\",\"runner_group_id\":0,\"runner_group_name\":\"GitHub Actions\"}]}"
+  } ],
+  "context" : {
+    "owner" : "fixture-org",
+    "repo" : "fixture-repo",
+    "sha" : "c7094bf703c991ae7d152eb58a449fee5471ba2c",
+    "number" : 3,
+    "comment" : 4430751210,
+    "check" : 124459864427,
+    "run" : 41174745550,
+    "job" : 124459888184,
+    "username" : "fixture-user",
+    "ref" : "heads/forge-client-03567d8b-1448-47cb-8074-087a127f6447",
+    "thread" : "pending"
+  },
+  "request_body" : null
+}

@@ -9,6 +9,8 @@ What holds and why: one row per decision, and its full text below. How the recor
 | Records | [What the generator gets wrong is fixed in its configuration and templates, never in its output](#what-the-generator-gets-wrong-is-fixed-in-its-configuration-and-templates-never-in-its-output) |
 | Records | [The extract is committed, the full description is not](#the-extract-is-committed-the-full-description-is-not) |
 | Records | [Strict in the tests, lenient at run time](#strict-in-the-tests-lenient-at-run-time) |
+| Recordings | [A cloud forge is recorded by hand and checked live on a schedule, never on a push](#a-cloud-forge-is-recorded-by-hand-and-checked-live-on-a-schedule-never-on-a-push) |
+| GitHub | [Three credentials, since GitHub splits them](#three-credentials-since-github-splits-them) |
 
 ## The generator is pinned to a snapshot until `useRecords` is released
 
@@ -36,3 +38,21 @@ keeps working. The tests read strictly and refuse an unknown field, so a recorde
 extract is seen. In both readings a required field that is missing, or null where the description does not allow
 it, is refused; forges send null for optional fields their descriptions do not mark, so an optional field may be
 absent or null.
+
+## A cloud forge is recorded by hand and checked live on a schedule, never on a push
+
+Every build replays recorded answers, with no network and no credential, so a push or a pull request, a fork's too,
+needs no secret. The answers are made by a recording test that runs only by hand, in a test organization of its own
+with one test repository, separate from the project's. It creates what it records under a prefix with the run's id,
+removes or closes all of it after, on a failure or an interrupt too, and scrubs accounts, addresses and credentials
+before it writes. A forge changes its answers without a new API version, which a replay cannot see; so a live check
+runs the reading calls strictly against what the test repository keeps for it, daily outside the working day and by
+hand. A difference is answered by recording again and committing the diff with the change it needs. A forge that
+offered a test instance of its own, free of credentials, would change this.
+
+## Three credentials, since GitHub splits them
+
+Only a GitHub App creates and updates check runs, so check runs use an installation token minted per run from the
+App's id and key. Nobody can approve their own pull request, so a second test user writes the approving review with a
+token of their own. Everything else goes through the fine-grained token of the test user who administers the test
+repository. All three reach a run through its environment and are never written to a file.

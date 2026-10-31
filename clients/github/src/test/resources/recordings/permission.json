@@ -1,0 +1,30 @@
+{
+  "request_uri" : "/repos/fixture-org/fixture-repo/collaborators/fixture-user/permission",
+  "status" : 200,
+  "headers" : {
+    "content-type" : [ "application/json; charset=utf-8" ]
+  },
+  "body" : "{\"permission\":\"admin\",\"user\":{\"login\":\"fixture-user\",\"id\":3,\"node_id\":\"FIXTURE_NODE_3\",\"avatar_url\":\"https://host-3.example.org/u/3\",\"gravatar_id\":\"\",\"url\":\"https://host-1.example.org/users/fixture-user\",\"html_url\":\"https://host-2.example.org/fixture-user\",\"followers_url\":\"https://host-1.example.org/users/fixture-user/followers\",\"following_url\":\"https://host-1.example.org/users/fixture-user/following{/other_user}\",\"gists_url\":\"https://host-1.example.org/users/fixture-user/gists{/gist_id}\",\"starred_url\":\"https://host-1.example.org/users/fixture-user/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://host-1.example.org/users/fixture-user/subscriptions\",\"organizations_url\":\"https://host-1.example.org/users/fixture-user/orgs\",\"repos_url\":\"https://host-1.example.org/users/fixture-user/repos\",\"events_url\":\"https://host-1.example.org/users/fixture-user/events{/privacy}\",\"received_events_url\":\"https://host-1.example.org/users/fixture-user/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false,\"permissions\":{\"admin\":true,\"maintain\":true,\"push\":true,\"triage\":true,\"pull\":true},\"role_name\":\"admin\"},\"role_name\":\"admin\"}",
+  "exchanges" : [ {
+    "request_uri" : "/repos/fixture-org/fixture-repo/collaborators/fixture-user/permission",
+    "status" : 200,
+    "headers" : {
+      "content-type" : [ "application/json; charset=utf-8" ]
+    },
+    "body" : "{\"permission\":\"admin\",\"user\":{\"login\":\"fixture-user\",\"id\":3,\"node_id\":\"FIXTURE_NODE_3\",\"avatar_url\":\"https://host-3.example.org/u/3\",\"gravatar_id\":\"\",\"url\":\"https://host-1.example.org/users/fixture-user\",\"html_url\":\"https://host-2.example.org/fixture-user\",\"followers_url\":\"https://host-1.example.org/users/fixture-user/followers\",\"following_url\":\"https://host-1.example.org/users/fixture-user/following{/other_user}\",\"gists_url\":\"https://host-1.example.org/users/fixture-user/gists{/gist_id}\",\"starred_url\":\"https://host-1.example.org/users/fixture-user/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://host-1.example.org/users/fixture-user/subscriptions\",\"organizations_url\":\"https://host-1.example.org/users/fixture-user/orgs\",\"repos_url\":\"https://host-1.example.org/users/fixture-user/repos\",\"events_url\":\"https://host-1.example.org/users/fixture-user/events{/privacy}\",\"received_events_url\":\"https://host-1.example.org/users/fixture-user/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false,\"permissions\":{\"admin\":true,\"maintain\":true,\"push\":true,\"triage\":true,\"pull\":true},\"role_name\":\"admin\"},\"role_name\":\"admin\"}"
+  } ],
+  "context" : {
+    "owner" : "fixture-org",
+    "repo" : "fixture-repo",
+    "sha" : "c7094bf703c991ae7d152eb58a449fee5471ba2c",
+    "number" : 3,
+    "comment" : 4430751210,
+    "check" : 124459864427,
+    "run" : 41174745550,
+    "job" : 124459888184,
+    "username" : "fixture-user",
+    "ref" : "heads/forge-client-03567d8b-1448-47cb-8074-087a127f6447",
+    "thread" : "pending"
+  },
+  "request_body" : null
+}

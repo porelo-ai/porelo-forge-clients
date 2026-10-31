@@ -1,6 +1,6 @@
 # FC09 — Rate Limits And Bounds Of The Clients' Answers
 
-**Status:** Accepted (operator, 2026-10-31); blocked by [FC01](README.md#fc01) and [FC02](README.md#fc02).
+**Status:** Accepted (operator, 2026-10-31); blocked by [FC02](README.md#fc02).
 
 **What must be true.** A caller tells a forge's rate limit from a refusal and knows how long to wait before it tries
 again, knows when a list it reads page by page has ended, and never reads an answer without a bound, through the

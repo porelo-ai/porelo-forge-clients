@@ -21,6 +21,23 @@
           }
         }
       }
+    },
+    "/permissions": {
+      "get": {
+        "operationId": "permissions",
+        "responses": {
+          "200": {
+            "description": "Permissions with undeclared ones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/permissions"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -61,6 +78,17 @@
             "type": ["string", "null"],
             "enum": ["approved", "rejected", null]
           }
+        }
+      },
+      "permissions": {
+        "type": "object",
+        "properties": {
+          "checks": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": {
+          "type": "string"
         }
       }
     }

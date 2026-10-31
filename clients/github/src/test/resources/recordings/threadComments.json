@@ -1,0 +1,35 @@
+{
+  "request_uri" : "/graphql",
+  "status" : 200,
+  "headers" : {
+    "content-type" : [ "application/json; charset=utf-8" ]
+  },
+  "body" : "{\"data\":{\"node\":{\"comments\":{\"nodes\":[{\"databaseId\":4430751210,\"body\":\"```suggestion\\nfixture-complete\\n```\"},{\"databaseId\":4430751241,\"body\":\"Fixture reply\"}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"Y3Vyc29yOnYyOpK0MjAyNi0xMC0zMVQwNTo1OTozM1rPAAAAAQgX5gk=\"}}}}}",
+  "exchanges" : [ {
+    "request_uri" : "/graphql",
+    "status" : 200,
+    "headers" : {
+      "content-type" : [ "application/json; charset=utf-8" ]
+    },
+    "body" : "{\"data\":{\"node\":{\"comments\":{\"nodes\":[{\"databaseId\":4430751210,\"body\":\"```suggestion\\nfixture-complete\\n```\"},{\"databaseId\":4430751241,\"body\":\"Fixture reply\"}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"Y3Vyc29yOnYyOpK0MjAyNi0xMC0zMVQwNTo1OTozM1rPAAAAAQgX5gk=\"}}}}}"
+  } ],
+  "context" : {
+    "owner" : "fixture-org",
+    "repo" : "fixture-repo",
+    "sha" : "c7094bf703c991ae7d152eb58a449fee5471ba2c",
+    "number" : 3,
+    "comment" : 4430751210,
+    "check" : 124459864427,
+    "run" : 41174745550,
+    "job" : 124459888184,
+    "username" : "fixture-user",
+    "ref" : "heads/forge-client-03567d8b-1448-47cb-8074-087a127f6447",
+    "thread" : "PRRT_kwDOVc0D886yOcdN"
+  },
+  "request_body" : {
+    "variables" : {
+      "id" : "PRRT_kwDOVc0D886yOcdN"
+    },
+    "query" : "query ThreadComments($id: ID!, $after: String) {\n  node(id: $id) {\n    ... on PullRequestReviewThread {\n      comments(first: 100, after: $after) {\n        nodes { databaseId body }\n        pageInfo { hasNextPage endCursor }\n      }\n    }\n  }\n}\n"
+  }
+}

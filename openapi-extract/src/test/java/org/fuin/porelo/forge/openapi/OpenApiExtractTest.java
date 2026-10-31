@@ -726,6 +726,104 @@ class OpenApiExtractTest {
         assertThat(output).as("a failed addition creates no output").doesNotExist();
     }
 
+    // Prevents a wrong value in a forge's description from reaching the generator, nested below a
+    // property, while the correction stays visible in the extract.
+    @Test
+    void aSettingReplacesAnExistingNodeAddsAMissingOneAndIsListed() throws Exception {
+        Path output = directory.resolve("extract.json");
+        Result result =
+                fetch(
+                        fixture("openapi31.json"),
+                        output,
+                        "post /items",
+                        "--set",
+                        "Node#/properties/next={\"anyOf\":[{\"type\":\"null\"},"
+                                + "{\"$ref\":\"#/components/schemas/Node\"}]}",
+                        "--set",
+                        "Envelope#/properties/item/description=\"the item\"");
+        assertThat(result).as("both settings name a reached schema").isEqualTo(new Result(0, ""));
+        JsonNode extract = mapper.readTree(output.toFile());
+
+        assertThat(extract.at("/components/schemas/Node/properties/next/anyOf/0/type").asText())
+                .as("an existing node is replaced")
+                .isEqualTo("null");
+        assertThat(extract.at("/components/schemas/Node/properties/next/$ref").isMissingNode())
+                .as("the replaced node keeps nothing of the old one")
+                .isTrue();
+        assertThat(extract.at("/components/schemas/Envelope/properties/item/description").asText())
+                .as("a missing node under an object is added")
+                .isEqualTo("the item");
+        assertThat(extract.at("/info/x-extracted-from/set/1").asText())
+                .as("a setting is recorded beside the source")
+                .isEqualTo("Envelope#/properties/item/description");
+    }
+
+    // Prevents a setting from silently outliving the error it corrects once the description itself
+    // is fixed.
+    @Test
+    void aSettingOfAValueTheDescriptionHasStopsTheFetchNamingIt() throws Exception {
+        Path output = directory.resolve("extract.json");
+        Result result =
+                fetch(
+                        fixture("openapi31.json"),
+                        output,
+                        "post /items",
+                        "--set",
+                        "Node#/type=\"object\"");
+
+        assertThat(result.status()).as("a redundant setting stops the fetch").isEqualTo(1);
+        assertThat(result.error())
+                .as("the redundant setting is named")
+                .contains("Node#/type; drop the setting");
+        assertThat(output).as("a redundant setting creates no output").doesNotExist();
+    }
+
+    // Prevents a value the description gets wrong outside a component schema, such as an inline
+    // request body, from staying wrong for want of a way to correct it.
+    @Test
+    void aSettingWithoutASchemaNameTakesItsPointerFromTheExtractsRoot() throws Exception {
+        Path output = directory.resolve("extract.json");
+        Result result =
+                fetch(
+                        fixture("openapi31.json"),
+                        output,
+                        "post /items",
+                        "--set",
+                        "#/paths/~1items/post/summary=\"Creates an item\"");
+        assertThat(result).as("the setting names a kept node").isEqualTo(new Result(0, ""));
+        JsonNode extract = mapper.readTree(output.toFile());
+
+        assertThat(extract.at("/paths/~1items/post/summary").asText())
+                .as("the node under the root is set")
+                .isEqualTo("Creates an item");
+        assertThat(extract.at("/info/x-extracted-from/set/0").asText())
+                .as("the setting is recorded with its pointer from the root")
+                .isEqualTo("#/paths/~1items/post/summary");
+    }
+
+    // Prevents a setting that matches nothing from passing silently when the description changes.
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "Missing#/properties/x={}",
+                "Node#/nothing/here/x={}",
+                "Node#/properties/next={not json",
+                "Node#/properties/next=",
+                "Node#properties=1",
+                "Node#/=1",
+                "Node#/properties/={\"type\": \"string\"}",
+                "#/nothing/here/x=1",
+                "Node=1"
+            })
+    void invalidSettingsFailWithoutWriting(String setting) throws Exception {
+        Path output = directory.resolve("extract.json");
+        Result result = fetch(fixture("openapi31.json"), output, "post /items", "--set", setting);
+
+        assertThat(result.status()).as("invalid setting %s fails fetch", setting).isEqualTo(1);
+        assertThat(result.error()).as("the invalid setting has a diagnostic").isNotBlank();
+        assertThat(output).as("a failed setting creates no output").doesNotExist();
+    }
+
     private Result fetch(byte[] source, Path output, String operation, String... extra)
             throws Exception {
         return fetchWithDigest(source, output, digest(source), operation, extra);

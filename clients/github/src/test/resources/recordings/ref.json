@@ -1,0 +1,30 @@
+{
+  "request_uri" : "/repos/fixture-org/fixture-repo/git/ref/heads/forge-client-03567d8b-1448-47cb-8074-087a127f6447",
+  "status" : 200,
+  "headers" : {
+    "content-type" : [ "application/json; charset=utf-8" ]
+  },
+  "body" : "{\"ref\":\"refs/heads/forge-client-03567d8b-1448-47cb-8074-087a127f6447\",\"node_id\":\"REF_kwDOVc0D89oAPHJlZnMvaGVhZHMvZm9yZ2UtY2xpZW50LTAzNTY3ZDhiLTE0NDgtNDdjYi04MDc0LTA4N2ExMjdmNjQ0Nw\",\"url\":\"https://host-1.example.org/repos/fixture-org/fixture-repo/git/refs/heads/forge-client-03567d8b-1448-47cb-8074-087a127f6447\",\"object\":{\"sha\":\"c7094bf703c991ae7d152eb58a449fee5471ba2c\",\"type\":\"commit\",\"url\":\"https://host-1.example.org/repos/fixture-org/fixture-repo/git/commits/c7094bf703c991ae7d152eb58a449fee5471ba2c\"}}",
+  "exchanges" : [ {
+    "request_uri" : "/repos/fixture-org/fixture-repo/git/ref/heads/forge-client-03567d8b-1448-47cb-8074-087a127f6447",
+    "status" : 200,
+    "headers" : {
+      "content-type" : [ "application/json; charset=utf-8" ]
+    },
+    "body" : "{\"ref\":\"refs/heads/forge-client-03567d8b-1448-47cb-8074-087a127f6447\",\"node_id\":\"REF_kwDOVc0D89oAPHJlZnMvaGVhZHMvZm9yZ2UtY2xpZW50LTAzNTY3ZDhiLTE0NDgtNDdjYi04MDc0LTA4N2ExMjdmNjQ0Nw\",\"url\":\"https://host-1.example.org/repos/fixture-org/fixture-repo/git/refs/heads/forge-client-03567d8b-1448-47cb-8074-087a127f6447\",\"object\":{\"sha\":\"c7094bf703c991ae7d152eb58a449fee5471ba2c\",\"type\":\"commit\",\"url\":\"https://host-1.example.org/repos/fixture-org/fixture-repo/git/commits/c7094bf703c991ae7d152eb58a449fee5471ba2c\"}}"
+  } ],
+  "context" : {
+    "owner" : "fixture-org",
+    "repo" : "fixture-repo",
+    "sha" : "c7094bf703c991ae7d152eb58a449fee5471ba2c",
+    "number" : 3,
+    "comment" : 4430751210,
+    "check" : 124459864427,
+    "run" : 41174745550,
+    "job" : 124459888184,
+    "username" : "fixture-user",
+    "ref" : "heads/forge-client-03567d8b-1448-47cb-8074-087a127f6447",
+    "thread" : "pending"
+  },
+  "request_body" : null
+}

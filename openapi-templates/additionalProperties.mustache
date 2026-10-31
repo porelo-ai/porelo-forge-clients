@@ -15,6 +15,10 @@
     */
     @JsonAnySetter
     public {{classname}} putAdditionalProperty(String key, {{{.}}} value) {
+        // Jackson hands a JSON null to this setter past the mapper's setting for nulls in a map.
+        if (value == null) {
+            throw new IllegalArgumentException("Additional property " + key + " is null");
+        }
         this.additionalProperties.put(key, value);
         return this;
     }

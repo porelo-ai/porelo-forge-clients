@@ -48,6 +48,25 @@ class GeneratedRecordTest {
                 .withMessageContaining("\"added\"");
     }
 
+    // Prevents a null in an open map, which its schema does not allow, from reaching a caller the
+    // record promises a map without nulls.
+    @ParameterizedTest
+    @MethodSource("readings")
+    void aNullInAnOpenMapFails(ObjectMapper reading) throws Exception {
+        String json =
+                """
+                {"checks": "write", "added": %s}""";
+
+        assertThat(
+                        reading.readValue(json.formatted("\"read\""), Permissions.class)
+                                .getAdditionalProperty("added"))
+                .as("an undeclared property is read")
+                .isEqualTo("read");
+        assertThatExceptionOfType(JsonProcessingException.class)
+                .as("a null the open map's schema does not allow fails")
+                .isThrownBy(() -> reading.readValue(json.formatted("null"), Permissions.class));
+    }
+
     // Prevents a caller from breaking when a forge adds a field within one API version.
     @Test
     void theLenientReadingPassesAFieldTheRecordDoesNotKnow() throws Exception {

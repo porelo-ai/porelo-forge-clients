@@ -1,6 +1,6 @@
 # FC08 — Comments, Threads And Versions Through The Clients
 
-**Status:** Accepted (operator, 2026-10-31); blocked by [FC01](README.md#fc01) and [FC02](README.md#fc02).
+**Status:** Accepted (operator, 2026-10-31); blocked by [FC02](README.md#fc02).
 
 **What must be true.** A caller that writes a code review on GitHub or Forgejo reads, writes, edits and deletes a pull
 request's general comments, reading only those since a given time; edits and deletes a review comment; reads one GitHub

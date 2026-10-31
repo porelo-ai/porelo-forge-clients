@@ -1,0 +1,37 @@
+{
+  "status" : 200,
+  "headers" : {
+    "content-type" : [ "text/plain" ]
+  },
+  "body" : "﻿2026-10-31T05:59:46.8319967Z Current runner version: '2.338.2'\n2026-10-31T05:59:46.8345214Z ##[group]Runner Image Provisioner\n2026-10-31T05:59:46.8346156Z Hosted Compute Agent\n2026-10-31T05:59:46.8346874Z Version: 20261021.618\n2026-10-31T05:59:46.8347784Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e\n2026-10-31T05:59:46.8348606Z Build Date: 2026-10-21T00:45:21Z\n2026-10-31T05:59:46.8349337Z Worker ID: {0c01c051-dec3-439c-a33d-027842a5b9eb}\n2026-10-31T05:59:46.8350150Z Region: westus\n2026-10-31T05:59:46.8350764Z Cloud: Azure\n2026-10-31T05:59:46.8351338Z ##[endgroup]\n2026-10-31T05:59:46.8352839Z ##[group]Operating System\n2026-10-31T05:59:46.8353744Z Ubuntu\n2026-10-31T05:59:46.8354319Z 24.04.5\n2026-10-31T05:59:46.8354877Z LTS\n2026-10-31T05:59:46.8355422Z ##[endgroup]\n2026-10-31T05:59:46.8356005Z ##[group]Runner Image\n2026-10-31T05:59:46.8356691Z Image: ubuntu-24.04\n2026-10-31T05:59:46.8357530Z Version: 20261025.353.1\n2026-10-31T05:59:46.8358882Z Included Software: https://host-2.example.org/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md\n2026-10-31T05:59:46.8360483Z Image Release: https://host-2.example.org/actions/runner-images/releases/tag/ubuntu24%2F20261025.353\n2026-10-31T05:59:46.8361530Z ##[endgroup]\n2026-10-31T05:59:46.8362577Z ##[group]GITHUB_TOKEN Permissions\n2026-10-31T05:59:46.8364514Z Metadata: read\n2026-10-31T05:59:46.8365150Z ##[endgroup]\n2026-10-31T05:59:46.8367701Z Secret source: Actions\n2026-10-31T05:59:46.8368795Z Cache mode: write\n2026-10-31T05:59:46.8369548Z Prepare workflow directory\n2026-10-31T05:59:46.8725670Z Prepare all required actions\n2026-10-31T05:59:46.8835581Z Complete job name: fixture\n2026-10-31T05:59:46.9919248Z ##[group]Run echo fixture-start\n2026-10-31T05:59:46.9920133Z \u001B[36;1mecho fixture-start\u001B[0m\n2026-10-31T05:59:47.0226091Z shell: /usr/bin/bash -e {0}\n2026-10-31T05:59:47.0228007Z ##[endgroup]\n2026-10-31T05:59:47.0458368Z fixture-start\n2026-10-31T05:59:47.0583233Z ##[group]Run echo fixture-complete\n2026-10-31T05:59:47.0584049Z \u001B[36;1mecho fixture-complete\u001B[0m\n2026-10-31T05:59:47.0603920Z shell: /usr/bin/bash -e {0}\n2026-10-31T05:59:47.0604547Z ##[endgroup]\n2026-10-31T05:59:47.0735754Z fixture-complete\n2026-10-31T05:59:47.0836389Z Cleaning up orphan processes\n",
+  "request_uri" : "/repos/fixture-org/fixture-repo/actions/jobs/124459888184/logs",
+  "exchanges" : [ {
+    "request_uri" : "/repos/fixture-org/fixture-repo/actions/jobs/124459888184/logs",
+    "status" : 302,
+    "headers" : {
+      "content-type" : [ "text/html;charset=utf-8" ],
+      "location" : [ "https://host-4.example.org/actions-results/1e40b5dd-850c-436a-bd77-3635a6e28baf/workflow-job-run-01682a21-ba99-52f4-ac5d-791cd5fe9b69/logs/job/job-logs.txt" ]
+    },
+    "body" : ""
+  }, {
+    "status" : 200,
+    "headers" : {
+      "content-type" : [ "text/plain" ]
+    },
+    "body" : "﻿2026-10-31T05:59:46.8319967Z Current runner version: '2.338.2'\n2026-10-31T05:59:46.8345214Z ##[group]Runner Image Provisioner\n2026-10-31T05:59:46.8346156Z Hosted Compute Agent\n2026-10-31T05:59:46.8346874Z Version: 20261021.618\n2026-10-31T05:59:46.8347784Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e\n2026-10-31T05:59:46.8348606Z Build Date: 2026-10-21T00:45:21Z\n2026-10-31T05:59:46.8349337Z Worker ID: {0c01c051-dec3-439c-a33d-027842a5b9eb}\n2026-10-31T05:59:46.8350150Z Region: westus\n2026-10-31T05:59:46.8350764Z Cloud: Azure\n2026-10-31T05:59:46.8351338Z ##[endgroup]\n2026-10-31T05:59:46.8352839Z ##[group]Operating System\n2026-10-31T05:59:46.8353744Z Ubuntu\n2026-10-31T05:59:46.8354319Z 24.04.5\n2026-10-31T05:59:46.8354877Z LTS\n2026-10-31T05:59:46.8355422Z ##[endgroup]\n2026-10-31T05:59:46.8356005Z ##[group]Runner Image\n2026-10-31T05:59:46.8356691Z Image: ubuntu-24.04\n2026-10-31T05:59:46.8357530Z Version: 20261025.353.1\n2026-10-31T05:59:46.8358882Z Included Software: https://host-2.example.org/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md\n2026-10-31T05:59:46.8360483Z Image Release: https://host-2.example.org/actions/runner-images/releases/tag/ubuntu24%2F20261025.353\n2026-10-31T05:59:46.8361530Z ##[endgroup]\n2026-10-31T05:59:46.8362577Z ##[group]GITHUB_TOKEN Permissions\n2026-10-31T05:59:46.8364514Z Metadata: read\n2026-10-31T05:59:46.8365150Z ##[endgroup]\n2026-10-31T05:59:46.8367701Z Secret source: Actions\n2026-10-31T05:59:46.8368795Z Cache mode: write\n2026-10-31T05:59:46.8369548Z Prepare workflow directory\n2026-10-31T05:59:46.8725670Z Prepare all required actions\n2026-10-31T05:59:46.8835581Z Complete job name: fixture\n2026-10-31T05:59:46.9919248Z ##[group]Run echo fixture-start\n2026-10-31T05:59:46.9920133Z \u001B[36;1mecho fixture-start\u001B[0m\n2026-10-31T05:59:47.0226091Z shell: /usr/bin/bash -e {0}\n2026-10-31T05:59:47.0228007Z ##[endgroup]\n2026-10-31T05:59:47.0458368Z fixture-start\n2026-10-31T05:59:47.0583233Z ##[group]Run echo fixture-complete\n2026-10-31T05:59:47.0584049Z \u001B[36;1mecho fixture-complete\u001B[0m\n2026-10-31T05:59:47.0603920Z shell: /usr/bin/bash -e {0}\n2026-10-31T05:59:47.0604547Z ##[endgroup]\n2026-10-31T05:59:47.0735754Z fixture-complete\n2026-10-31T05:59:47.0836389Z Cleaning up orphan processes\n"
+  } ],
+  "context" : {
+    "owner" : "fixture-org",
+    "repo" : "fixture-repo",
+    "sha" : "c7094bf703c991ae7d152eb58a449fee5471ba2c",
+    "number" : 3,
+    "comment" : 4430751210,
+    "check" : 124459864427,
+    "run" : 41174745550,
+    "job" : 124459888184,
+    "username" : "fixture-user",
+    "ref" : "heads/forge-client-03567d8b-1448-47cb-8074-087a127f6447",
+    "thread" : "pending"
+  },
+  "request_body" : null
+}

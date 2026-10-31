@@ -1,6 +1,7 @@
 package org.fuin.porelo.forge.openapi;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.Separators;
@@ -53,12 +54,30 @@ final class ExtractService {
         }
     }
 
+    /**
+     * A value a forge's description gets wrong, set at a JSON pointer inside a kept schema, or from
+     * the extract's root when the schema is empty: an existing node is replaced, a missing one
+     * under an existing object is added. A pointer without a parent object, and a value the
+     * description already has, are refused.
+     */
+    record Setting(String schema, String pointer, String json) {
+        Setting {
+            if ((!schema.isEmpty() && schema.isBlank())
+                    || !pointer.startsWith("/")
+                    || pointer.length() < 2) {
+                throw new IllegalArgumentException(
+                        "Setting must be [<schema>]#/<JSON pointer>=<JSON value>");
+            }
+        }
+    }
+
     void fetch(
             URI source,
             String expectedDigest,
             Path output,
             List<Replacement> replacements,
             List<Addition> additions,
+            List<Setting> settings,
             Selection selection)
             throws IOException, InterruptedException {
         HttpsSource.validate(source);
@@ -83,6 +102,7 @@ final class ExtractService {
         OpenApiDocument document = new OpenApiDocument(parse(text));
         ObjectNode extract = document.extract(selection);
         add(extract, additions);
+        set(extract, settings);
         new OpenApiDocument(extract).check(selection);
         ObjectNode info = requireObject(extract.path("info"), "info");
         ObjectNode origin =
@@ -92,6 +112,10 @@ final class ExtractService {
         if (!additions.isEmpty()) {
             var added = origin.putArray("added");
             additions.forEach(addition -> added.add(addition.schema() + "." + addition.property()));
+        }
+        if (!settings.isEmpty()) {
+            var set = origin.putArray("set");
+            settings.forEach(setting -> set.add(setting.schema() + "#" + setting.pointer()));
         }
         DefaultIndenter indenter = new DefaultIndenter("  ", "\n");
         DefaultPrettyPrinter printer =
@@ -125,6 +149,38 @@ final class ExtractService {
                 properties.set(
                         addition.property(),
                         requireObject(mapper.readTree(addition.json()), "addition"));
+            }
+        }
+        if (!problems.isEmpty()) {
+            throw new Problems(problems);
+        }
+    }
+
+    private void set(ObjectNode extract, List<Setting> settings) throws IOException {
+        List<String> problems = new java.util.ArrayList<>();
+        for (Setting setting : settings) {
+            JsonNode schema =
+                    setting.schema().isEmpty()
+                            ? extract
+                            : extract.path("components").path("schemas").path(setting.schema());
+            if (schema.isMissingNode()) {
+                schema = extract.path("definitions").path(setting.schema());
+            }
+            JsonPointer pointer = JsonPointer.compile(setting.pointer());
+            String name = setting.schema() + "#" + setting.pointer();
+            JsonNode value = mapper.readTree(setting.json());
+            if (!(schema instanceof ObjectNode)) {
+                problems.add("No schema to set in: " + setting.schema());
+            } else if (pointer.last().getMatchingProperty().isEmpty()) {
+                problems.add("No name to set at: " + name);
+            } else if (!(schema.at(pointer.head()) instanceof ObjectNode parent)) {
+                problems.add("No object to set in: " + name);
+            } else if (value == null || value.isMissingNode()) {
+                problems.add("No JSON value to set at: " + name);
+            } else if (value.equals(parent.get(pointer.last().getMatchingProperty()))) {
+                problems.add("The description already has " + name + "; drop the setting");
+            } else {
+                parent.set(pointer.last().getMatchingProperty(), value);
             }
         }
         if (!problems.isEmpty()) {

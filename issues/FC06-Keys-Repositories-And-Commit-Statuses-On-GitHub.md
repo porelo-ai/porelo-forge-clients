@@ -1,7 +1,6 @@
 # FC06 — Keys, Repositories And Commit Statuses On GitHub
 
-**Status:** Backlog (Estimated and Backlog by the operator, 2026-10-30, sprint 6m);
-blocked by [FC01](README.md#fc01).
+**Status:** Backlog (Estimated and Backlog by the operator, 2026-10-30, sprint 6m).
 **Size:** M - thirteen calls added to the `github` module, its recordings and its live check; no existing call changes.
 
 **What must be true.** A caller reads a GitHub user's public SSH authentication keys, through the API and as the

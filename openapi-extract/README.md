@@ -16,8 +16,13 @@ operation is required. Fetch also accepts repeated `--replace <from>=<to>` argum
 parsing but after digest verification, and repeated `--add-property <schema>.<property>=<JSON schema>`
 arguments, which add a property a forge sends but its description lacks to a kept component schema; an
 addition is refused when the schema is missing or already has the property, so a description that gains it
-drops the addition, and each one is recorded in the extract's `info.x-extracted-from.added`. Webhooks use OpenAPI 3.1's `webhooks`; `x-webhooks` is discarded.
+drops the addition, and each one is recorded in the extract's `info.x-extracted-from.added`. Repeated
+`--set [<schema>]#<JSON pointer>=<JSON value>` arguments correct a value the description gets wrong inside a kept
+schema, or from the extract's root when no schema is named, such as in an inline request body: an existing node is
+replaced and a missing one under an existing object is added; a pointer without a parent object or ending without a
+name is refused, and so is a value the description already has, so a description that is corrected drops the setting;
+each one is recorded in `info.x-extracted-from.set`. Webhooks use OpenAPI 3.1's `webhooks`; `x-webhooks` is discarded.
 Path item references are expanded before selecting operations. Other references must be local JSON pointers into
 the description's reusable components, definitions, parameters, or responses; external references fail. Literal
-examples and default values are preserved as data. Fetch writes only after validation succeeds; check is read-only and exits
-with status 1 and one line per problem if the committed selection or reference closure has drifted.
+examples and default values are preserved as data. Fetch writes only after validation succeeds; check is read-only and
+exits with status 1 and one line per problem if the committed selection or reference closure has drifted.
