@@ -1,7 +1,7 @@
 # Builds the clients on every change to them: compiled, their unit tests run against the forges' recorded answers, and
-# the shared checks of the root's validate. A tag v<version> publishes every module to Maven Central; a release depends
-# only on releases. Against porelo-parent as a snapshot while it is developed (-U takes the newest), as the shared rules
-# allow.
+# the shared checks of the root's validate. A push to main publishes the clients to Maven Central as a snapshot, a tag
+# v<version> as a release; a release depends only on releases. Against porelo-parent as a snapshot while it is developed
+# (-U takes the newest), as the shared rules allow.
 name: Build
 
 on:
@@ -20,9 +20,10 @@ on:
 permissions:
     contents: read
 
+# Main publishes, and a publish cut off halfway leaves the clients' snapshots from two commits: there a run waits.
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+    cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
     build:
@@ -94,9 +95,33 @@ jobs:
                   ./mvnw -B -s settings.xml help:effective-pom -Doutput=target/effective-pom.xml
                   ./mvnw -B -s settings.xml -N exec:exec@check-releases
 
+            # Main publishes a snapshot, so the adapters build against the clients without a checkout of this one; a
+            # version on main that is no snapshot would publish a release from a branch. A start by hand on main
+            # publishes too, since a push of workflows alone starts no Build.
+            - name: Main carries a snapshot
+              if: >-
+                  (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+                  && github.ref == 'refs/heads/main'
+              run: |
+                  set -eu
+                  VERSION="$(sed -n 's|^    <version>\(.*\)</version>$|\1|p' pom.xml | head -1)"
+                  [ -n "$VERSION" ] || { echo "::error::no version in pom.xml"; exit 1; }
+                  case "$VERSION" in
+                      *-SNAPSHOT) ;;
+                      *) echo "::error::$VERSION on main would publish a release as a snapshot"; exit 1 ;;
+                  esac
+
+            # Signed with the key from the environment by Bouncy Castle, so no key is imported into the runner's
+            # keyring. The tests run again: this Maven resolves the snapshots it builds against anew, and publishes only
+            # what passed with them.
             - name: Publish the clients to Central
-              if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+              if: >-
+                  (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
+                  || ((github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+                  && github.ref == 'refs/heads/main')
               env:
                   OSS_SONATYPE_USERNAME: ${{ secrets.OSS_SONATYPE_USERNAME }}
                   OSS_SONATYPE_TOKEN: ${{ secrets.OSS_SONATYPE_TOKEN }}
-              run: ./mvnw -B -s settings.xml -Pcentral-sonatype-release deploy
+                  MAVEN_GPG_KEY: ${{ secrets.OSS_SONATYPE_GPG_PRIVATE_KEY }}
+                  MAVEN_GPG_PASSPHRASE: ${{ secrets.OSS_SONATYPE_GPG_PASSPHRASE }}
+              run: ./mvnw -B -s settings.xml -Pcentral-sonatype-release -Dgpg.signer=bc clean deploy
