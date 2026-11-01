@@ -1,0 +1,15 @@
+# FC16 — GitHub's Live Tests Through The App Token
+
+**Status:** Idea
+
+**What must be true.** The GitHub recorder and the live check run with the App's installation token and the
+reviewer test account's tokens only, as the test KDBX holds them, so no person's own token is pasted or kept for them:
+`LIVE_GITHUB_APP_TOKEN` takes the place of `LIVE_GITHUB_USER_TOKEN`, `LIVE_GITHUB_APP_ID` and `LIVE_GITHUB_APP_KEY`.
+
+## To be checked
+
+- An installation token has no user, so `GET /user`, `GET /user/memberships/orgs/{org}` and a collaborator's
+  permission by the signed-in login go through the reviewer test account's token; the account that opens the pull
+  request becomes the App's bot account, which the scrubber must map as it maps the test user today.
+- Whether the reviewer's own keys keep a token of their own, since a token owned by the organization takes no account
+  permissions.

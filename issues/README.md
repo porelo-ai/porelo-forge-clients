@@ -37,6 +37,7 @@ is left out.
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="fc15"></a>[FC15](FC15-Sources-And-Javadoc-Jars-In-A-Release.md) | - | - | A release carries each client's sources and javadoc jars, which Maven Central requires and the release build does not make |
+| <a id="fc16"></a>[FC16](FC16-GitHubs-Live-Tests-Through-The-App-Token.md) | - | - | The GitHub recorder and live check run with the App's installation token and the reviewer test account's tokens, with no person's own token |
 
 ## Estimated
 
