@@ -5,13 +5,6 @@ issue, and who sets which state, are in [AGENTS.md](../AGENTS.md). *Open questio
 waits on the operator: the items under an issue's own *Open questions*. Its prefix is `FC`. A group with nothing in it
 is left out.
 
-## Review
-
-| # | Size | Blocked by | What it covers |
-|---|---|---|---|
-| <a id="fc12"></a>[FC12](FC12-GitHubs-Recorded-Answers-For-Other-Repositories.md) | S | - | GitHub's recorded answers and the replaying `HttpClient` in a `tests` jar of the github module, for the adapters' tests |
-| <a id="fc14"></a>[FC14](FC14-The-GitHub-Recorders-Ownership-Of-What-It-Made.md) | S | - | The GitHub recorder keeps owning what an earlier request made when a later one of its kind is refused, and the key page refusal test fails when the page does not stop |
-
 ## Implementing
 
 | # | Size | Blocked by | What it covers |
@@ -43,6 +36,8 @@ is left out.
 
 | # | What was built |
 |---|---|
+| <a id="fc14"></a>FC14 — The GitHub Recorder's Ownership Of What It Made | The GitHub recorder keeps owning what an earlier request made when a later one of its kind is refused, and the key page refusal test fails when the page does not stop. |
+| <a id="fc12"></a>FC12 — GitHub's Recorded Answers For Other Repositories | GitHub's recorded answers and the replaying `HttpClient` in a `tests` jar of the github module, published beside the main jar for the adapters' tests; described in [clients/github/README.md](../clients/github/README.md). |
 | <a id="fc06"></a>FC06 — Keys, Repositories And Commit Statuses On GitHub | A GitHub user's public SSH authentication and signing keys and key page read without a token, the signed-in user's own keys of both kinds listed, added and deleted, whether a user owns an organization, a repository read and created in an organization and a commit's combined status, recorded live; described in [clients/github/README.md](../clients/github/README.md). |
 | <a id="fc05"></a>FC05 — Keys And Repositories On Forgejo | A Forgejo user's public SSH keys read, the signed-in user's own keys listed, added and deleted, whether a user owns an organization, a repository read and created in an organization; described in [clients/forgejo/README.md](../clients/forgejo/README.md). |
 | <a id="fc02"></a>FC02 — The Forgejo Client | The `forgejo` module: REST operations from Forgejo 17's MIT Swagger 2.0 description and signed webhook deliveries, its answers recorded from a real Forgejo and every call checked live against one in the Build; described in [clients/forgejo/README.md](../clients/forgejo/README.md). |
