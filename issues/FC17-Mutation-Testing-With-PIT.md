@@ -7,5 +7,4 @@ run by hand, not in CI and with no threshold, with PIT and its JUnit 5 plugin pi
 survivors into real gaps and harmless ones. Where a test calls real tools, such as Forgejo's live check in podman, it
 runs on a VM.
 
-The model is the `pit` profile of `porelo-message-matrix`, on its branch `pit-try` until it is pushed, with the report
-of that try at `~/.porelo/handover/porelo-message-matrix/pit-014d86a/report.md`.
+The model is the `pit` profile of `porelo-message-matrix`, on its branch `pit-try` until it is pushed.

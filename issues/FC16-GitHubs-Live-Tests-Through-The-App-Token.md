@@ -3,7 +3,7 @@
 **Status:** Idea
 
 **What must be true.** The GitHub recorder and the live check run with the App's installation token and the
-reviewer test account's tokens only, as the test KDBX holds them, so no person's own token is pasted or kept for them:
+reviewer test account's tokens only, from the environment, so no person's own token is needed for them:
 `LIVE_GITHUB_APP_TOKEN` takes the place of `LIVE_GITHUB_USER_TOKEN`, `LIVE_GITHUB_APP_ID` and `LIVE_GITHUB_APP_KEY`.
 
 ## To be checked
