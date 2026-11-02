@@ -227,19 +227,21 @@ final class GitHubScenario {
 
     static void requireUsefulResult(GitHubOperations operation, Object result) {
         assertThat(result).as("%s must return a payload", operation).isNotNull();
+        if (operation == GitHubOperations.reviewCommentsFirstPage)
+            assertThat(((Page<?>) result).more())
+                    .as("a page with a next link says a further page follows")
+                    .isTrue();
+        if (operation == GitHubOperations.reviewCommentsLastPage)
+            assertThat(((Page<?>) result).more())
+                    .as("a full last page says nothing follows")
+                    .isFalse();
         switch (result) {
+            case Page<?> page ->
+                    assertThat(page.items())
+                            .as("%s must return a seeded item", operation)
+                            .isNotEmpty();
             case Collection<?> values ->
                     assertThat(values).as("%s must return a seeded item", operation).isNotEmpty();
-            case ActionsListWorkflowRunsForRepo200Response runs ->
-                    assertThat(runs.workflowRuns())
-                            .as("runs must include a real build")
-                            .isNotEmpty();
-            case ActionsListJobsForWorkflowRun200Response jobs ->
-                    assertThat(jobs.jobs()).as("jobs must include an executed job").isNotEmpty();
-            case ChecksListForRef200Response checks ->
-                    assertThat(checks.checkRuns())
-                            .as("checks must include an App check run")
-                            .isNotEmpty();
             case GitHubGraphQl.ThreadsResponse response -> {
                 assertThat(response.data().repository())
                         .as("the review repository is visible")
@@ -295,8 +297,8 @@ final class GitHubScenario {
                             .as("unresolve changes the thread state")
                             .isFalse();
             // Only a yes or no is asserted, so a failure prints no log line.
-            case String logs ->
-                    assertThat(logs.contains("fixture-complete"))
+            case JobLog logs ->
+                    assertThat(logs.text().contains("fixture-complete"))
                             .as("the job executed its expected step")
                             .isTrue();
             case GitRef ref ->

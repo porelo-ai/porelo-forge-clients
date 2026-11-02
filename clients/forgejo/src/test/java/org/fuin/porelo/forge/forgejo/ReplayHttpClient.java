@@ -43,6 +43,9 @@ final class ReplayHttpClient extends HttpClient {
     /** Answers each request twice through the same handler, as a retrying transport does. */
     boolean retrying;
 
+    /** Fails every request with this before any answer, as a broken transport does. */
+    @Nullable Exception failure;
+
     ReplayHttpClient answer(int status, Map<String, List<String>> headers, String body) {
         answers.add(new Answer(status, headers, body));
         return this;
@@ -78,8 +81,14 @@ final class ReplayHttpClient extends HttpClient {
     /** Delivers text through the supplied BodyHandler, as a real transport does. */
     @Override
     public <T> HttpResponse<T> send(HttpRequest request, HttpResponse.BodyHandler<T> handler)
-            throws IOException {
+            throws IOException, InterruptedException {
         requests.add(request);
+        if (failure instanceof IOException broken) {
+            throw broken;
+        }
+        if (failure instanceof InterruptedException interrupted) {
+            throw interrupted;
+        }
         if (retrying) {
             Answer first = answers.remove();
             try {
@@ -210,6 +219,10 @@ final class ReplayHttpClient extends HttpClient {
             }
             // Over HTTP/2 a cancelled body fails the whole exchange.
             throw new IOException("Stream cancelled");
+        }
+        if (subscription.position < subscription.body.length) {
+            // The connection stays taken for as long as nobody cancels.
+            throw new AssertionError("The subscriber stopped reading without cancelling");
         }
         T body;
         try {

@@ -1,6 +1,6 @@
 # FC09 — Rate Limits And Bounds Of The Clients' Answers
 
-**Status:** Implementing.
+**Status:** Review.
 **Size:** M - small changes in both modules, but every list call changes its return type, and both forges are
 recorded again, GitHub's in a session with the operator.
 
@@ -20,7 +20,8 @@ check runs, runs and jobs; the recorders keep only the `content-type` and `locat
   `Retry-After` (seconds or an HTTP date), and `boolean rateLimited()`. GitHub's is true on a 429, and on a 403 that
   has `x-ratelimit-remaining: 0`, a `Retry-After`, or a message naming a rate limit; a 403 without any of them stays
   a refusal. `delay()` follows GitHub's own rule: `Retry-After`, else until `reset`, else one minute. A GraphQL answer
-  whose first error has `type: RATE_LIMITED` is one too. Forgejo's follows what *To be checked* measures.
+  whose first error has `type: RATE_LIMITED` is one too. The pinned Forgejo, as the container runs it, answered 6000 requests in 4 s with no refusal and no rate-limit
+  header, so Forgejo's is true only on a 429, which can come only from what stands before it.
 - **Sent or not sent.** Both clients throw status 0 today for a transport failure and for an answer that does not
   decode alike, and a write cannot tell whether it reached the forge (Core's folded Review1 draft, 2.4). Each
   exception gets `Delivery delivery()`: `NOT_SENT` (refused before sending: a bad argument, an invalid token, a
@@ -30,7 +31,8 @@ check runs, runs and jobs; the recorders keep only the `content-type` and `locat
   sent; a `ConnectException` counts as not sent.
 - **The end of a list.** Every paged list call returns `Page<T>(List<T> items, boolean more)`, a record of each
   module. `more` comes from the `Link` header's `rel="next"`; GitHub's envelope calls also read `total_count`,
-  Forgejo's calls `X-Total-Count`. A full page without a next link is the last one. The adapters already read
+  Forgejo's calls `X-Total-Count`. A full page without a next link is the last one. GitHub's `status` is not one of them: its envelope says the
+  commit's combined `state` and `sha`, which a `Page` would lose, and its own `total_count` tells the end. The adapters already read
   lists through the GitHub client, so they change with this call in the same push round.
 - **Bounded answers.** Both clients read through one bounded body handler, made from Forgejo's `BoundedBytes`: an
   answer 16 MiB, an error answer 64 KiB (only its `message` is read). Past the bound the reading stops and the
@@ -57,8 +59,3 @@ check runs, runs and jobs; the recorders keep only the `content-type` and `locat
   stops there; seen for a JSON answer and an error answer on both forges.
 - A job log over 1 MiB keeps exactly its last 1 MiB and says it was cut, one at 1 MiB is whole and not cut, and one
   over 64 MiB fails naming the bound; on both forges.
-
-## To be checked
-
-- Which rate-limit headers and statuses Forgejo sends, measured against the pinned Forgejo with its limiter on, or
-  that it has none for its API.

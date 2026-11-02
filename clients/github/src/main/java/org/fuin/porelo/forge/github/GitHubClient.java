@@ -6,9 +6,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
+import java.net.http.HttpConnectTimeoutException;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
@@ -19,12 +22,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 import org.fuin.porelo.forge.github.model.*;
 import org.jspecify.annotations.Nullable;
 
 /** Synchronous GitHub API calls. The caller owns the transport and supplies a token per call. */
 public final class GitHubClient {
     private static final URI WEB = URI.create("https://github.com/");
+    private static final Pattern NEXT_LINK =
+            Pattern.compile("rel=\"?next\"?(\\s|;|,|$)", Pattern.CASE_INSENSITIVE);
 
     private final URI base;
     private final URI web;
@@ -59,21 +65,19 @@ public final class GitHubClient {
     }
 
     /** Lists one page of pull requests in the requested state. */
-    public List<PullRequestSimple> pulls(
+    public Page<PullRequestSimple> pulls(
             String token, String owner, String repo, String state, int page, int perPage) {
-        return call(
+        return page(
                 token,
-                "GET",
                 repo(owner, repo) + "/pulls?state=" + segment(state) + paging(page, perPage),
-                null,
-                listType(PullRequestSimple.class));
+                PullRequestSimple.class);
     }
 
     /**
      * Reads the pull requests in a state whose head is a branch, named {@code owner:branch} as
      * GitHub names a head of another fork.
      */
-    public List<PullRequestSimple> pullsOfHead(
+    public Page<PullRequestSimple> pullsOfHead(
             String token,
             String owner,
             String repo,
@@ -81,17 +85,15 @@ public final class GitHubClient {
             String state,
             int page,
             int perPage) {
-        return call(
+        return page(
                 token,
-                "GET",
                 repo(owner, repo)
                         + "/pulls?state="
                         + segment(state)
                         + "&head="
                         + segment(head)
                         + paging(page, perPage),
-                null,
-                listType(PullRequestSimple.class));
+                PullRequestSimple.class);
     }
 
     /** Creates a pull request. */
@@ -117,14 +119,12 @@ public final class GitHubClient {
     }
 
     /** Lists one page of reviews. */
-    public List<PullRequestReview> reviews(
+    public Page<PullRequestReview> reviews(
             String token, String owner, String repo, long number, int page, int perPage) {
-        return call(
+        return page(
                 token,
-                "GET",
                 pullPath(owner, repo, number) + "/reviews?" + pageQuery(page, perPage),
-                null,
-                listType(PullRequestReview.class));
+                PullRequestReview.class);
     }
 
     /** Creates a review, optionally with inline comments. */
@@ -140,14 +140,12 @@ public final class GitHubClient {
     }
 
     /** Lists one page of inline review comments. */
-    public List<PullRequestReviewComment> reviewComments(
+    public Page<PullRequestReviewComment> reviewComments(
             String token, String owner, String repo, long number, int page, int perPage) {
-        return call(
+        return page(
                 token,
-                "GET",
                 pullPath(owner, repo, number) + "/comments?" + pageQuery(page, perPage),
-                null,
-                listType(PullRequestReviewComment.class));
+                PullRequestReviewComment.class);
     }
 
     /** Creates an inline comment; its body may contain a GitHub suggestion. */
@@ -205,7 +203,7 @@ public final class GitHubClient {
     }
 
     /** Lists one page of the inline comments of one review. */
-    public List<ReviewComment> reviewCommentsOf(
+    public Page<ReviewComment> reviewCommentsOf(
             String token,
             String owner,
             String repo,
@@ -213,23 +211,21 @@ public final class GitHubClient {
             long reviewId,
             int page,
             int perPage) {
-        return call(
+        return page(
                 token,
-                "GET",
                 pullPath(owner, repo, number)
                         + "/reviews/"
                         + positive(reviewId)
                         + "/comments?"
                         + pageQuery(page, perPage),
-                null,
-                listType(ReviewComment.class));
+                ReviewComment.class);
     }
 
     /**
      * Lists one page of a pull request's general comments, those GitHub keeps on its issue; with a
      * time, only those changed at or after it.
      */
-    public List<IssueComment> issueComments(
+    public Page<IssueComment> issueComments(
             String token,
             String owner,
             String repo,
@@ -237,17 +233,15 @@ public final class GitHubClient {
             @Nullable Instant since,
             int page,
             int perPage) {
-        return call(
+        return page(
                 token,
-                "GET",
                 repo(owner, repo)
                         + "/issues/"
                         + positive(number)
                         + "/comments?"
                         + (since == null ? "" : "since=" + segment(since.toString()) + "&")
                         + pageQuery(page, perPage),
-                null,
-                listType(IssueComment.class));
+                IssueComment.class);
     }
 
     /** Writes a general comment on a pull request. */
@@ -303,18 +297,21 @@ public final class GitHubClient {
     }
 
     /** Lists one page of check runs for a commit reference. */
-    public ChecksListForRef200Response checkRuns(
+    public Page<CheckRun> checkRuns(
             String token, String owner, String repo, String ref, int page, int perPage) {
-        return call(
-                token,
-                "GET",
-                repo(owner, repo)
-                        + "/commits/"
-                        + segments(ref)
-                        + "/check-runs?"
-                        + pageQuery(page, perPage),
-                null,
-                json.constructType(ChecksListForRef200Response.class));
+        Answered<ChecksListForRef200Response> answer =
+                exchange(
+                        Objects.requireNonNull(token, "token"),
+                        "GET",
+                        repo(owner, repo)
+                                + "/commits/"
+                                + segments(ref)
+                                + "/check-runs?"
+                                + pageQuery(page, perPage),
+                        null,
+                        json.constructType(ChecksListForRef200Response.class));
+        return envelopePage(
+                answer.value().checkRuns(), answer.value().totalCount(), answer, page, perPage);
     }
 
     /** Creates a check run using a GitHub App installation token. */
@@ -342,32 +339,38 @@ public final class GitHubClient {
     }
 
     /** Lists one page of Actions runs for a commit. */
-    public ActionsListWorkflowRunsForRepo200Response runs(
+    public Page<WorkflowRun> runs(
             String token, String owner, String repo, String sha, int page, int perPage) {
-        return call(
-                token,
-                "GET",
-                repo(owner, repo)
-                        + "/actions/runs?head_sha="
-                        + segment(sha)
-                        + paging(page, perPage),
-                null,
-                json.constructType(ActionsListWorkflowRunsForRepo200Response.class));
+        Answered<ActionsListWorkflowRunsForRepo200Response> answer =
+                exchange(
+                        Objects.requireNonNull(token, "token"),
+                        "GET",
+                        repo(owner, repo)
+                                + "/actions/runs?head_sha="
+                                + segment(sha)
+                                + paging(page, perPage),
+                        null,
+                        json.constructType(ActionsListWorkflowRunsForRepo200Response.class));
+        return envelopePage(
+                answer.value().workflowRuns(), answer.value().totalCount(), answer, page, perPage);
     }
 
     /** Lists one page of jobs in an Actions run. */
-    public ActionsListJobsForWorkflowRun200Response jobs(
+    public Page<Job> jobs(
             String token, String owner, String repo, long runId, int page, int perPage) {
-        return call(
-                token,
-                "GET",
-                repo(owner, repo)
-                        + "/actions/runs/"
-                        + positive(runId)
-                        + "/jobs?"
-                        + pageQuery(page, perPage),
-                null,
-                json.constructType(ActionsListJobsForWorkflowRun200Response.class));
+        Answered<ActionsListJobsForWorkflowRun200Response> answer =
+                exchange(
+                        Objects.requireNonNull(token, "token"),
+                        "GET",
+                        repo(owner, repo)
+                                + "/actions/runs/"
+                                + positive(runId)
+                                + "/jobs?"
+                                + pageQuery(page, perPage),
+                        null,
+                        json.constructType(ActionsListJobsForWorkflowRun200Response.class));
+        return envelopePage(
+                answer.value().jobs(), answer.value().totalCount(), answer, page, perPage);
     }
 
     /** Reads a git reference such as {@code heads/main}, encoding each of its segments. */
@@ -411,23 +414,16 @@ public final class GitHubClient {
     }
 
     /** Lists one page of an account's public SSH authentication keys, without a token. */
-    public List<KeySimple> keys(String login, int page, int perPage) {
-        return exchange(
-                null,
-                "GET",
-                "users/" + segment(login) + "/keys?" + pageQuery(page, perPage),
-                null,
-                listType(KeySimple.class));
+    public Page<KeySimple> keys(String login, int page, int perPage) {
+        return publicPage(
+                "users/" + segment(login) + "/keys?" + pageQuery(page, perPage), KeySimple.class);
     }
 
     /** Lists one page of an account's public SSH signing keys, without a token. */
-    public List<SshSigningKey> signingKeys(String login, int page, int perPage) {
-        return exchange(
-                null,
-                "GET",
+    public Page<SshSigningKey> signingKeys(String login, int page, int perPage) {
+        return publicPage(
                 "users/" + segment(login) + "/ssh_signing_keys?" + pageQuery(page, perPage),
-                null,
-                listType(SshSigningKey.class));
+                SshSigningKey.class);
     }
 
     /**
@@ -452,11 +448,11 @@ public final class GitHubClient {
                             .body();
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new GitHubException(0, "GitHub request interrupted");
+            throw interrupted();
         } catch (IOException | IllegalArgumentException ex) {
             // A transport may fail the exchange once the page stops reading; its verdict stands.
             GitHubException verdict = page.verdict;
-            throw verdict != null ? verdict : new GitHubException(0, "GitHub request failed");
+            throw verdict != null ? verdict : failed(ex);
         }
         GitHubException verdict = page.verdict;
         if (verdict != null) {
@@ -470,9 +466,8 @@ public final class GitHubClient {
     }
 
     /** Lists one page of the authenticated account's own SSH authentication keys. */
-    public List<Key> ownKeys(String token, int page, int perPage) {
-        return call(
-                token, "GET", "user/keys?" + pageQuery(page, perPage), null, listType(Key.class));
+    public Page<Key> ownKeys(String token, int page, int perPage) {
+        return page(token, "user/keys?" + pageQuery(page, perPage), Key.class);
     }
 
     /**
@@ -490,13 +485,9 @@ public final class GitHubClient {
     }
 
     /** Lists one page of the authenticated account's own SSH signing keys. */
-    public List<SshSigningKey> ownSigningKeys(String token, int page, int perPage) {
-        return call(
-                token,
-                "GET",
-                "user/ssh_signing_keys?" + pageQuery(page, perPage),
-                null,
-                listType(SshSigningKey.class));
+    public Page<SshSigningKey> ownSigningKeys(String token, int page, int perPage) {
+        return page(
+                token, "user/ssh_signing_keys?" + pageQuery(page, perPage), SshSigningKey.class);
     }
 
     /**
@@ -606,25 +597,35 @@ public final class GitHubClient {
             object.remove("errors");
         }
         if (envelope.has("errors")) {
-            JsonNode message = envelope.path("errors").path(0).path("message");
+            JsonNode first = envelope.path("errors").path(0);
+            JsonNode message = first.path("message");
             throw new GitHubException(
                     200,
                     GitHubJson.safe(
                             message.isTextual() ? message.asText() : "GraphQL request failed",
-                            List.of(token)));
+                            List.of(token)),
+                    Delivery.ANSWERED,
+                    null,
+                    first.path("type").asText().equals("RATE_LIMITED"));
         }
-        return GitHubJson.convert(json, envelope, json.constructType(type), List.of(token));
+        try {
+            return GitHubJson.convert(json, envelope, json.constructType(type), List.of(token));
+        } catch (GitHubException undecodable) {
+            throw answered(undecodable);
+        }
     }
 
     /**
-     * Reads a job log, following at most five redirects and stripping authentication off origin.
+     * Reads a job log, following at most five redirects and stripping authentication off origin. A
+     * log is read up to 64 MiB, of which its last 1 MiB is kept, since a build reads a log's tail.
      */
-    public String jobLogs(String token, String owner, String repo, long jobId) {
+    public JobLog jobLogs(String token, String owner, String repo, long jobId) {
         Objects.requireNonNull(token, "token");
         URI uri = base.resolve(repo(owner, repo) + "/actions/jobs/" + positive(jobId) + "/logs");
         boolean authenticate = true;
         for (int redirects = 0; redirects <= 5; redirects++) {
-            HttpResponse<String> response = send(token, "GET", uri, null, authenticate);
+            BoundedAnswer answer = BoundedAnswer.log();
+            HttpResponse<String> response = send(token, "GET", uri, null, authenticate, answer);
             if (List.of(301, 302, 303, 307, 308).contains(response.statusCode())) {
                 if (redirects == 5) {
                     throw new GitHubException(response.statusCode(), "Too many log redirects");
@@ -661,7 +662,7 @@ public final class GitHubClient {
                 }
             } else {
                 check(response, List.of(token));
-                return response.body();
+                return new JobLog(response.body(), answer.cut());
             }
         }
         throw new GitHubException(0, "Too many log redirects");
@@ -669,17 +670,56 @@ public final class GitHubClient {
 
     private <T> T call(
             String token, String method, String path, @Nullable Object body, JavaType type) {
-        return exchange(Objects.requireNonNull(token, "token"), method, path, body, type);
+        Answered<T> answer =
+                exchange(Objects.requireNonNull(token, "token"), method, path, body, type);
+        return answer.value();
+    }
+
+    private <T> Page<T> page(String token, String path, Class<T> element) {
+        return listed(Objects.requireNonNull(token, "token"), path, element);
+    }
+
+    private <T> Page<T> publicPage(String path, Class<T> element) {
+        return listed(null, path, element);
+    }
+
+    private <T> Page<T> listed(@Nullable String token, String path, Class<T> element) {
+        Answered<List<T>> answer = exchange(token, "GET", path, null, listType(element));
+        return new Page<>(answer.value(), nextLink(answer.headers()));
+    }
+
+    /** An envelope also counts the whole list, so a page says whether more follow either way. */
+    private static <T> Page<T> envelopePage(
+            @Nullable List<T> items,
+            @Nullable Number total,
+            Answered<?> answer,
+            int page,
+            int perPage) {
+        return new Page<>(
+                items == null ? List.of() : items,
+                nextLink(answer.headers())
+                        || (total != null && (long) page * perPage < total.longValue()));
+    }
+
+    /** GitHub links a next page when there is one; a full page without the link is the last. */
+    private static boolean nextLink(HttpHeaders headers) {
+        for (String value : headers.allValues("link")) {
+            if (NEXT_LINK.matcher(value).find()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Calls the API; a null token sends none. */
-    private <T> T exchange(
+    private <T> Answered<T> exchange(
             @Nullable String token,
             String method,
             String path,
             @Nullable Object body,
             JavaType type) {
-        HttpResponse<String> response = send(token, method, base.resolve(path), body, true);
+        HttpResponse<String> response =
+                send(token, method, base.resolve(path), body, true, BoundedAnswer.json());
         List<String> credentials = new ArrayList<>();
         if (token != null) {
             credentials.add(token);
@@ -689,12 +729,27 @@ public final class GitHubClient {
         }
         credentials.sort(java.util.Comparator.comparingInt(String::length).reversed());
         check(response, credentials);
-        return GitHubJson.read(json, response.body(), type, credentials);
+        try {
+            T value = GitHubJson.read(json, response.body(), type, credentials);
+            return new Answered<>(value, response.headers());
+        } catch (GitHubException undecodable) {
+            throw answered(undecodable);
+        }
+    }
+
+    private static GitHubException answered(GitHubException undecodable) {
+        return new GitHubException(
+                undecodable.status(),
+                Objects.requireNonNull(undecodable.getMessage()),
+                Delivery.ANSWERED,
+                null,
+                false);
     }
 
     private void delete(String token, String path) {
         Objects.requireNonNull(token, "token");
-        HttpResponse<String> response = send(token, "DELETE", base.resolve(path), null, true);
+        HttpResponse<String> response =
+                send(token, "DELETE", base.resolve(path), null, true, BoundedAnswer.json());
         check(response, List.of(token));
     }
 
@@ -703,10 +758,12 @@ public final class GitHubClient {
             String method,
             URI uri,
             @Nullable Object body,
-            boolean authenticate) {
+            boolean authenticate,
+            BoundedAnswer answer) {
         if (token != null && (token.isBlank() || token.chars().anyMatch(c -> c < 33 || c > 126))) {
             throw new IllegalArgumentException("Invalid access token");
         }
+        HttpResponse<String> response;
         try {
             HttpRequest.Builder request =
                     HttpRequest.newBuilder(uri)
@@ -723,16 +780,79 @@ public final class GitHubClient {
             } else {
                 request.method(method, HttpRequest.BodyPublishers.noBody());
             }
-            return http.send(
-                    request.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            response = http.send(request.build(), answer);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new GitHubException(0, "GitHub request interrupted");
+            throw interrupted();
+        } catch (JsonProcessingException unwritable) {
+            throw new GitHubException(
+                    0, "GitHub request could not be written", Delivery.NOT_SENT, null, false);
         } catch (IOException | IllegalArgumentException ex) {
-            // Transport exceptions can include URLs, headers and credential-bearing input.
-            throw new GitHubException(0, "GitHub request failed");
+            // A transport may fail the exchange once the answer stops reading; its verdict stands.
+            GitHubException exceeded = answer.exceeded();
+            throw exceeded != null ? exceeded : failed(ex);
         }
+        GitHubException exceeded = answer.exceeded();
+        if (exceeded != null) {
+            throw exceeded;
+        }
+        return response;
     }
+
+    private static GitHubException interrupted() {
+        return new GitHubException(
+                0, "GitHub request interrupted", Delivery.SENT_UNANSWERED, null, false);
+    }
+
+    /**
+     * The JDK does not say whether bytes left before a failure, so anything after the connection
+     * opened counts as sent. The message stays fixed: transport exceptions can include URLs,
+     * headers and credential-bearing input.
+     */
+    private static GitHubException failed(Exception ex) {
+        boolean notSent = ex instanceof IllegalArgumentException || neverConnected(ex);
+        return new GitHubException(
+                0,
+                "GitHub request failed",
+                notSent ? Delivery.NOT_SENT : Delivery.SENT_UNANSWERED,
+                null,
+                false);
+    }
+
+    private static boolean neverConnected(Throwable failure) {
+        for (Throwable t = failure; t != null; t = t.getCause()) {
+            if (t instanceof ConnectException || t instanceof HttpConnectTimeoutException) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Makes the failure of a refused answer, telling a rate limit from a refusal. */
+    static GitHubException refusal(int status, String message, HttpHeaders headers) {
+        RateLimit limit = RateLimit.read(headers, Instant.now());
+        return new GitHubException(
+                status, message, Delivery.ANSWERED, limit, isRateLimit(status, message, limit));
+    }
+
+    /**
+     * GitHub's own rule: a 429, or a 403 with no requests remaining, a wait asked or a message
+     * naming a rate limit. Any other 403 is a refusal.
+     */
+    private static boolean isRateLimit(int status, String message, @Nullable RateLimit limit) {
+        if (status == 429) {
+            return true;
+        }
+        if (status != 403) {
+            return false;
+        }
+        return (limit != null
+                        && (Long.valueOf(0).equals(limit.remaining())
+                                || limit.retryAfter() != null))
+                || message.toLowerCase(Locale.ROOT).contains("rate limit");
+    }
+
+    private record Answered<T>(T value, HttpHeaders headers) {}
 
     private void check(HttpResponse<String> response, List<String> credentials) {
         if (response.statusCode() < 200 || response.statusCode() >= 300) {
@@ -745,7 +865,7 @@ public final class GitHubClient {
             } catch (JsonProcessingException ex) {
                 // A non-JSON error page is not safe to include in an exception.
             }
-            throw new GitHubException(response.statusCode(), message);
+            throw refusal(response.statusCode(), message, response.headers());
         }
     }
 

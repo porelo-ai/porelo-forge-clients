@@ -1,34 +1,40 @@
 {
-  "request_uri" : "/repos/fixture-org/fixture-repo/git/ref/heads/forge-client-008005a2-66a3-4359-8fd7-7e18d0c9e80f",
+  "request_uri" : "/repos/fixture-org/fixture-repo/git/ref/heads/forge-client-fe8f0ce3-1393-4be5-95a2-23c396ffccb7",
   "status" : 200,
   "headers" : {
-    "content-type" : [ "application/json; charset=utf-8" ]
+    "content-type" : [ "application/json; charset=utf-8" ],
+    "x-ratelimit-limit" : [ "5000" ],
+    "x-ratelimit-remaining" : [ "4933" ],
+    "x-ratelimit-reset" : [ "1793626493" ]
   },
-  "body" : "{\"ref\":\"refs/heads/forge-client-008005a2-66a3-4359-8fd7-7e18d0c9e80f\",\"node_id\":\"REF_kwDOVc0D89oAPHJlZnMvaGVhZHMvZm9yZ2UtY2xpZW50LTAwODAwNWEyLTY2YTMtNDM1OS04ZmQ3LTdlMThkMGM5ZTgwZg\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/git/refs/heads/forge-client-008005a2-66a3-4359-8fd7-7e18d0c9e80f\",\"object\":{\"sha\":\"37e122c3b023a75ab5565350233253edf3381566\",\"type\":\"commit\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/git/commits/37e122c3b023a75ab5565350233253edf3381566\"}}",
+  "body" : "{\"ref\":\"refs/heads/forge-client-fe8f0ce3-1393-4be5-95a2-23c396ffccb7\",\"node_id\":\"REF_kwDOVc0D89oAPHJlZnMvaGVhZHMvZm9yZ2UtY2xpZW50LWZlOGYwY2UzLTEzOTMtNGJlNS05NWEyLTIzYzM5NmZmY2NiNw\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/git/refs/heads/forge-client-fe8f0ce3-1393-4be5-95a2-23c396ffccb7\",\"object\":{\"sha\":\"106a418ba376232cacc2e934a78a2e0e6d74e96d\",\"type\":\"commit\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/git/commits/106a418ba376232cacc2e934a78a2e0e6d74e96d\"}}",
   "exchanges" : [ {
-    "request_uri" : "/repos/fixture-org/fixture-repo/git/ref/heads/forge-client-008005a2-66a3-4359-8fd7-7e18d0c9e80f",
+    "request_uri" : "/repos/fixture-org/fixture-repo/git/ref/heads/forge-client-fe8f0ce3-1393-4be5-95a2-23c396ffccb7",
     "status" : 200,
     "headers" : {
-      "content-type" : [ "application/json; charset=utf-8" ]
+      "content-type" : [ "application/json; charset=utf-8" ],
+      "x-ratelimit-limit" : [ "5000" ],
+      "x-ratelimit-remaining" : [ "4933" ],
+      "x-ratelimit-reset" : [ "1793626493" ]
     },
-    "body" : "{\"ref\":\"refs/heads/forge-client-008005a2-66a3-4359-8fd7-7e18d0c9e80f\",\"node_id\":\"REF_kwDOVc0D89oAPHJlZnMvaGVhZHMvZm9yZ2UtY2xpZW50LTAwODAwNWEyLTY2YTMtNDM1OS04ZmQ3LTdlMThkMGM5ZTgwZg\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/git/refs/heads/forge-client-008005a2-66a3-4359-8fd7-7e18d0c9e80f\",\"object\":{\"sha\":\"37e122c3b023a75ab5565350233253edf3381566\",\"type\":\"commit\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/git/commits/37e122c3b023a75ab5565350233253edf3381566\"}}"
+    "body" : "{\"ref\":\"refs/heads/forge-client-fe8f0ce3-1393-4be5-95a2-23c396ffccb7\",\"node_id\":\"REF_kwDOVc0D89oAPHJlZnMvaGVhZHMvZm9yZ2UtY2xpZW50LWZlOGYwY2UzLTEzOTMtNGJlNS05NWEyLTIzYzM5NmZmY2NiNw\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/git/refs/heads/forge-client-fe8f0ce3-1393-4be5-95a2-23c396ffccb7\",\"object\":{\"sha\":\"106a418ba376232cacc2e934a78a2e0e6d74e96d\",\"type\":\"commit\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/git/commits/106a418ba376232cacc2e934a78a2e0e6d74e96d\"}}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "sha" : "37e122c3b023a75ab5565350233253edf3381566",
-    "number" : 8,
-    "comment" : 4432215652,
-    "check" : 124575786127,
-    "run" : 41214410160,
-    "job" : 124575815731,
+    "sha" : "106a418ba376232cacc2e934a78a2e0e6d74e96d",
+    "number" : 9,
+    "comment" : 4442878206,
+    "check" : 125300836755,
+    "run" : 41452502256,
+    "job" : 125300905174,
     "username" : "fixture-user",
-    "ref" : "heads/forge-client-008005a2-66a3-4359-8fd7-7e18d0c9e80f",
+    "ref" : "heads/forge-client-fe8f0ce3-1393-4be5-95a2-23c396ffccb7",
     "thread" : "pending",
-    "reply" : 4432215713,
-    "issueComment" : 6545312265,
-    "review" : 5723525816,
-    "since" : "2026-10-31T15:20:36Z",
+    "reply" : 4442878477,
+    "issueComment" : 6578232947,
+    "review" : 5737183682,
+    "since" : "2026-11-02T13:22:53Z",
     "base" : "main",
     "keyAccount" : "fixture-reviewer",
     "key" : 0,

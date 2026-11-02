@@ -24,6 +24,8 @@ enum ForgejoOperations {
     undismissReview("POST"),
     createStatus("POST"),
     statuses("GET"),
+    statusesFirstPage("GET"),
+    statusesLastPage("GET"),
     runs("GET"),
     jobs("GET"),
     jobLogs("GET"),
@@ -135,6 +137,8 @@ enum ForgejoOperations {
             case reviewComments ->
                     client.reviewComments(token, c.owner(), c.repo(), c.index(), c.review());
             case statuses -> client.statuses(token, c.owner(), c.repo(), c.sha(), 1, 50);
+            case statusesFirstPage -> client.statuses(token, c.owner(), c.repo(), c.sha(), 1, 1);
+            case statusesLastPage -> client.statuses(token, c.owner(), c.repo(), c.sha(), 2, 1);
             case runs -> client.runs(token, c.owner(), c.repo(), c.actionsSha(), 1, 50);
             case jobs -> client.jobs(token, c.owner(), c.repo(), c.run());
             case jobLogs -> client.jobLogs(token, c.owner(), c.repo(), c.job());
@@ -179,7 +183,8 @@ enum ForgejoOperations {
             case reviewComments -> pull + "/reviews/" + c.review() + "/comments";
             case dismissReview -> pull + "/reviews/" + c.review() + "/dismissals";
             case undismissReview -> pull + "/reviews/" + c.review() + "/undismissals";
-            case createStatus, statuses -> repo + "/statuses/" + c.sha();
+            case createStatus, statuses, statusesFirstPage, statusesLastPage ->
+                    repo + "/statuses/" + c.sha();
             case runs -> repo + "/actions/runs";
             case jobs -> repo + "/actions/runs/" + c.run() + "/jobs";
             case jobLogs -> repo + "/actions/jobs/" + c.job() + "/logs";

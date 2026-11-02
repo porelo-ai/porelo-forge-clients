@@ -27,19 +27,20 @@ public final class GitHubLiveCheck {
             throws Exception {
         if (reviewer == null) throw new IllegalStateException("The approving review names no one");
         String login = reviewer.login();
-        var keys = read("keys", () -> client.keys(login, 1, 100));
+        var keys = read("keys", () -> client.keys(login, 1, 100).items());
         assertThat(keys).as("the reviewer has a public key").isNotEmpty();
-        var signing = read("signingKeys", () -> client.signingKeys(login, 1, 100));
+        var signing = read("signingKeys", () -> client.signingKeys(login, 1, 100).items());
         assertThat(signing).as("the reviewer has a public signing key").isNotEmpty();
         var page = read("plainKeys", () -> client.plainKeys(login));
         assertThat(page)
                 .as("the key page lists the same keys")
                 .containsExactlyInAnyOrderElementsOf(keys.stream().map(KeySimple::key).toList());
-        var own = read("ownKeys", () -> client.ownKeys(keysToken, 1, 100));
+        var own = read("ownKeys", () -> client.ownKeys(keysToken, 1, 100).items());
         assertThat(own.stream().map(Key::id).toList())
                 .as("the reviewer's own keys are those it shows")
                 .containsExactlyInAnyOrderElementsOf(keys.stream().map(KeySimple::id).toList());
-        var ownSigning = read("ownSigningKeys", () -> client.ownSigningKeys(keysToken, 1, 100));
+        var ownSigning =
+                read("ownSigningKeys", () -> client.ownSigningKeys(keysToken, 1, 100).items());
         assertThat(ownSigning.stream().map(SshSigningKey::id).toList())
                 .as("the reviewer's own signing keys are those it shows")
                 .containsExactlyInAnyOrderElementsOf(
@@ -75,12 +76,13 @@ public final class GitHubLiveCheck {
                                 "pulls",
                                 () ->
                                         client.pulls(
-                                                token,
-                                                GitHubFixture.OWNER,
-                                                GitHubFixture.REPO,
-                                                "open",
-                                                current,
-                                                100));
+                                                        token,
+                                                        GitHubFixture.OWNER,
+                                                        GitHubFixture.REPO,
+                                                        "open",
+                                                        current,
+                                                        100)
+                                                .items());
                 for (var pull : pulls)
                     if (pull.labels().stream()
                             .anyMatch(label -> label.name().equals(GitHubFixture.KEPT)))
@@ -109,12 +111,13 @@ public final class GitHubLiveCheck {
                             "reviews",
                             () ->
                                     client.reviews(
-                                            token,
-                                            GitHubFixture.OWNER,
-                                            GitHubFixture.REPO,
-                                            number,
-                                            1,
-                                            100));
+                                                    token,
+                                                    GitHubFixture.OWNER,
+                                                    GitHubFixture.REPO,
+                                                    number,
+                                                    1,
+                                                    100)
+                                            .items());
             assertThat(reviews.stream().anyMatch(review -> review.state().equals("APPROVED")))
                     .as("the retained pull has an approving review")
                     .isTrue();
@@ -123,25 +126,27 @@ public final class GitHubLiveCheck {
                             "reviewComments",
                             () ->
                                     client.reviewComments(
-                                            token,
-                                            GitHubFixture.OWNER,
-                                            GitHubFixture.REPO,
-                                            number,
-                                            1,
-                                            100));
+                                                    token,
+                                                    GitHubFixture.OWNER,
+                                                    GitHubFixture.REPO,
+                                                    number,
+                                                    1,
+                                                    100)
+                                            .items());
             assertThat(comments).as("the retained pull has inline review comments").isNotEmpty();
             var checks =
                     read(
                             "checkRuns",
                             () ->
                                     client.checkRuns(
-                                            token,
-                                            GitHubFixture.OWNER,
-                                            GitHubFixture.REPO,
-                                            pull.head().sha(),
-                                            1,
-                                            100));
-            assertThat(checks.checkRuns()).as("the retained head has a check run").isNotEmpty();
+                                                    token,
+                                                    GitHubFixture.OWNER,
+                                                    GitHubFixture.REPO,
+                                                    pull.head().sha(),
+                                                    1,
+                                                    100)
+                                            .items());
+            assertThat(checks).as("the retained head has a check run").isNotEmpty();
             String resolved = readThreads(graphql, token, Math.toIntExact(number));
             assertThat(resolved).as("the retained pull has a resolved thread").isNotNull();
             var thread = read("reviewThread", () -> graphql.reviewThread(token, resolved));
@@ -151,13 +156,14 @@ public final class GitHubLiveCheck {
                             "pullsOfHead",
                             () ->
                                     client.pullsOfHead(
-                                            token,
-                                            GitHubFixture.OWNER,
-                                            GitHubFixture.REPO,
-                                            GitHubFixture.OWNER + ":" + pull.head().ref(),
-                                            "open",
-                                            1,
-                                            100));
+                                                    token,
+                                                    GitHubFixture.OWNER,
+                                                    GitHubFixture.REPO,
+                                                    GitHubFixture.OWNER + ":" + pull.head().ref(),
+                                                    "open",
+                                                    1,
+                                                    100)
+                                            .items());
             assertThat(ofHead.stream().anyMatch(value -> value.number() == number))
                     .as("the retained pull is found by its head branch")
                     .isTrue();
@@ -170,25 +176,27 @@ public final class GitHubLiveCheck {
                             "reviewCommentsOf",
                             () ->
                                     client.reviewCommentsOf(
-                                            token,
-                                            GitHubFixture.OWNER,
-                                            GitHubFixture.REPO,
-                                            number,
-                                            review,
-                                            1,
-                                            100));
+                                                    token,
+                                                    GitHubFixture.OWNER,
+                                                    GitHubFixture.REPO,
+                                                    number,
+                                                    review,
+                                                    1,
+                                                    100)
+                                            .items());
             assertThat(ofReview).as("a review's own comments are read").isNotEmpty();
             read(
                     "issueComments",
                     () ->
                             client.issueComments(
-                                    token,
-                                    GitHubFixture.OWNER,
-                                    GitHubFixture.REPO,
-                                    number,
-                                    null,
-                                    1,
-                                    100));
+                                            token,
+                                            GitHubFixture.OWNER,
+                                            GitHubFixture.REPO,
+                                            number,
+                                            null,
+                                            1,
+                                            100)
+                                    .items());
             var comparison =
                     read(
                             "compare",
@@ -262,13 +270,14 @@ public final class GitHubLiveCheck {
                             "runs",
                             () ->
                                     client.runs(
-                                            token,
-                                            GitHubFixture.OWNER,
-                                            GitHubFixture.REPO,
-                                            ref._object().sha(),
-                                            1,
-                                            100));
-            assertThat(runs.workflowRuns().stream().anyMatch(value -> value.id() == run))
+                                                    token,
+                                                    GitHubFixture.OWNER,
+                                                    GitHubFixture.REPO,
+                                                    ref._object().sha(),
+                                                    1,
+                                                    100)
+                                            .items());
+            assertThat(runs.stream().anyMatch(value -> value.id() == run))
                     .as("the fresh dispatch is visible")
                     .isTrue();
             var jobs =
@@ -276,22 +285,24 @@ public final class GitHubLiveCheck {
                             "jobs",
                             () ->
                                     client.jobs(
-                                            token,
-                                            GitHubFixture.OWNER,
-                                            GitHubFixture.REPO,
-                                            run,
-                                            1,
-                                            100));
-            assertThat(jobs.jobs()).as("the fresh workflow executed a job").isNotEmpty();
+                                                    token,
+                                                    GitHubFixture.OWNER,
+                                                    GitHubFixture.REPO,
+                                                    run,
+                                                    1,
+                                                    100)
+                                            .items());
+            assertThat(jobs).as("the fresh workflow executed a job").isNotEmpty();
             var logs =
                     read(
                             "jobLogs",
                             () ->
                                     client.jobLogs(
-                                            token,
-                                            GitHubFixture.OWNER,
-                                            GitHubFixture.REPO,
-                                            jobs.jobs().getFirst().id()));
+                                                    token,
+                                                    GitHubFixture.OWNER,
+                                                    GitHubFixture.REPO,
+                                                    jobs.getFirst().id())
+                                            .text());
             assertThat(logs.contains("fixture-complete"))
                     .as("fresh job logs contain the fixture marker")
                     .isTrue();

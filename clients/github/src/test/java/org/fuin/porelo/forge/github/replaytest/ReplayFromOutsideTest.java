@@ -36,7 +36,8 @@ class ReplayFromOutsideTest {
 
         List<PullRequestReviewComment> comments =
                 new GitHubClient(API, http, Strictness.STRICT)
-                        .reviewComments("token", "fixture-org", "fixture-repo", 6, 1, 50);
+                        .reviewComments("token", "fixture-org", "fixture-repo", 6, 1, 50)
+                        .items();
 
         assertThat(comments).extracting(PullRequestReviewComment::line).containsExactly(1, 1);
         assertThat(http.requests())
@@ -62,7 +63,8 @@ class ReplayFromOutsideTest {
 
         List<PullRequestReviewComment> comments =
                 new GitHubClient(API, http, Strictness.STRICT)
-                        .reviewComments("token", "fixture-org", "fixture-repo", 6, 1, 50);
+                        .reviewComments("token", "fixture-org", "fixture-repo", 6, 1, 50)
+                        .items();
 
         assertThat(comments).extracting(PullRequestReviewComment::line).containsExactly(7, 1);
     }
@@ -100,7 +102,8 @@ class ReplayFromOutsideTest {
         List<HttpRequest> before = http.requests();
 
         new GitHubClient(API, http, Strictness.STRICT)
-                .reviewComments("token", "fixture-org", "fixture-repo", 6, 1, 50);
+                .reviewComments("token", "fixture-org", "fixture-repo", 6, 1, 50)
+                .items();
 
         assertThat(before).isEmpty();
         assertThat(http.requests()).hasSize(1);

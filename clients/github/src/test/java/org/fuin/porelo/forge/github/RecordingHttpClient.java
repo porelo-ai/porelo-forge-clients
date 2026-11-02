@@ -67,7 +67,16 @@ final class RecordingHttpClient extends HttpClient {
         }
         recorded.put("status", response.statusCode());
         Map<String, List<String>> headers = new java.util.LinkedHashMap<>();
-        for (String name : List.of("content-type", "location")) {
+        for (String name :
+                List.of(
+                        "content-type",
+                        "location",
+                        "link",
+                        "x-total-count",
+                        "retry-after",
+                        "x-ratelimit-limit",
+                        "x-ratelimit-remaining",
+                        "x-ratelimit-reset")) {
             List<String> values = response.headers().allValues(name);
             if (!values.isEmpty()) {
                 headers.put(name, values);

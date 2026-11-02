@@ -33,11 +33,11 @@ class GitHubKeysTest {
                         .answer(200, JSON_TYPE, renamed.toString());
         var client = new GitHubClient(BASE, http, Strictness.STRICT);
 
-        assertThat(client.signingKeys("octocat", 1, 50))
+        assertThat(client.signingKeys("octocat", 1, 50).items())
                 .extracting(key -> key.id())
                 .containsExactly(2L, 3L);
         assertThatExceptionOfType(GitHubException.class)
-                .isThrownBy(() -> client.signingKeys("octocat", 1, 50))
+                .isThrownBy(() -> client.signingKeys("octocat", 1, 50).items())
                 .withMessageContaining("created_at");
 
         assertThat(http.requests())
@@ -58,7 +58,7 @@ class GitHubKeysTest {
                                 JSON_TYPE,
                                 GitHubClientTest.extractExample("key-simple-items").toString());
 
-        var keys = new GitHubClient(BASE, http, Strictness.STRICT).keys("octocat", 2, 10);
+        var keys = new GitHubClient(BASE, http, Strictness.STRICT).keys("octocat", 2, 10).items();
 
         assertThat(keys).extracting(key -> key.key()).containsExactly("ssh-rsa AAA...");
         HttpRequest request = http.requests().getFirst();

@@ -2,42 +2,48 @@
   "request_uri" : "/graphql",
   "status" : 200,
   "headers" : {
-    "content-type" : [ "application/json; charset=utf-8" ]
+    "content-type" : [ "application/json; charset=utf-8" ],
+    "x-ratelimit-limit" : [ "5000" ],
+    "x-ratelimit-remaining" : [ "4997" ],
+    "x-ratelimit-reset" : [ "1793629415" ]
   },
-  "body" : "{\"data\":{\"resolveReviewThread\":{\"thread\":{\"id\":\"PRRT_kwDOVc0D886yR_70\",\"isResolved\":true}}}}",
+  "body" : "{\"data\":{\"resolveReviewThread\":{\"thread\":{\"id\":\"PRRT_kwDOVc0D886yrwQ9\",\"isResolved\":true}}}}",
   "exchanges" : [ {
     "request_uri" : "/graphql",
     "status" : 200,
     "headers" : {
-      "content-type" : [ "application/json; charset=utf-8" ]
+      "content-type" : [ "application/json; charset=utf-8" ],
+      "x-ratelimit-limit" : [ "5000" ],
+      "x-ratelimit-remaining" : [ "4997" ],
+      "x-ratelimit-reset" : [ "1793629415" ]
     },
-    "body" : "{\"data\":{\"resolveReviewThread\":{\"thread\":{\"id\":\"PRRT_kwDOVc0D886yR_70\",\"isResolved\":true}}}}"
+    "body" : "{\"data\":{\"resolveReviewThread\":{\"thread\":{\"id\":\"PRRT_kwDOVc0D886yrwQ9\",\"isResolved\":true}}}}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "sha" : "37e122c3b023a75ab5565350233253edf3381566",
-    "number" : 8,
-    "comment" : 4432215652,
-    "check" : 124575786127,
-    "run" : 41214410160,
-    "job" : 124575815731,
+    "sha" : "106a418ba376232cacc2e934a78a2e0e6d74e96d",
+    "number" : 9,
+    "comment" : 4442878206,
+    "check" : 125300836755,
+    "run" : 41452502256,
+    "job" : 125300905174,
     "username" : "fixture-user",
-    "ref" : "heads/forge-client-008005a2-66a3-4359-8fd7-7e18d0c9e80f",
-    "thread" : "PRRT_kwDOVc0D886yR_70",
-    "reply" : 4432215713,
-    "issueComment" : 6545312265,
-    "review" : 5723525816,
-    "since" : "2026-10-31T15:20:36Z",
+    "ref" : "heads/forge-client-fe8f0ce3-1393-4be5-95a2-23c396ffccb7",
+    "thread" : "PRRT_kwDOVc0D886yrwQ9",
+    "reply" : 4442878477,
+    "issueComment" : 6578232947,
+    "review" : 5737183682,
+    "since" : "2026-11-02T13:22:53Z",
     "base" : "main",
     "keyAccount" : "fixture-reviewer",
-    "key" : 168305365,
-    "signingKey" : 1289718
+    "key" : 168472395,
+    "signingKey" : 1293241
   },
   "request_body" : {
+    "query" : "mutation ResolveReviewThread($id: ID!) {\n  resolveReviewThread(input: {threadId: $id}) { thread { id isResolved } }\n}\n",
     "variables" : {
-      "id" : "PRRT_kwDOVc0D886yR_70"
-    },
-    "query" : "mutation ResolveReviewThread($id: ID!) {\n  resolveReviewThread(input: {threadId: $id}) { thread { id isResolved } }\n}\n"
+      "id" : "PRRT_kwDOVc0D886yrwQ9"
+    }
   }
 }

@@ -49,7 +49,11 @@ class GitHubClientTest {
 
         var single = client.pull(TOKEN, "owner", "repo", 1).labels().getFirst();
         var listed =
-                client.pulls(TOKEN, "owner", "repo", "open", 1, 50).getFirst().labels().getFirst();
+                client.pulls(TOKEN, "owner", "repo", "open", 1, 50)
+                        .items()
+                        .getFirst()
+                        .labels()
+                        .getFirst();
 
         assertThat(mapper.<com.fasterxml.jackson.databind.JsonNode>valueToTree(single))
                 .as(
@@ -231,7 +235,7 @@ class GitHubClientTest {
                         1,
                         1,
                         new PullsCreateReplyForReviewCommentRequest("reply"));
-        var listed = client.runs(TOKEN, "owner", "repo", "abc", 1, 50).workflowRuns().getFirst();
+        var listed = client.runs(TOKEN, "owner", "repo", "abc", 1, 50).items().getFirst();
 
         assertThat(read.inReplyToId())
                 .as("a reply names a comment above the 32-bit range in %s", strictness)
@@ -272,7 +276,7 @@ class GitHubClientTest {
         assertThat(
                         new GitHubClient(BASE, lenient)
                                 .runs(TOKEN, "owner", "repo", "abc", 1, 50)
-                                .workflowRuns())
+                                .items())
                 .as("compatible additions still expose the recorded runs")
                 .isNotEmpty();
     }
@@ -332,7 +336,7 @@ class GitHubClientTest {
                                 "")
                         .answer(302, Map.of("location", List.of("https://example.org/return")), "")
                         .answer(200, Map.of(), "fixture-complete");
-        assertThat(new GitHubClient(BASE, http).jobLogs(TOKEN, "owner", "repo", 1))
+        assertThat(new GitHubClient(BASE, http).jobLogs(TOKEN, "owner", "repo", 1).text())
                 .as("redirect chain returns its log")
                 .isEqualTo("fixture-complete");
         for (var request : http.requests().subList(1, 3))

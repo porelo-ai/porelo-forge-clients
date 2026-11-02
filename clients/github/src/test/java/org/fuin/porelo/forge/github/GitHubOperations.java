@@ -21,6 +21,9 @@ enum GitHubOperations {
     pull("GET", "/repos/{owner}/{repo}/pulls/{pull_number}"),
     reviews("GET", "/repos/{owner}/{repo}/pulls/{pull_number}/reviews"),
     reviewComments("GET", "/repos/{owner}/{repo}/pulls/{pull_number}/comments"),
+    // One to a page over the comment and its reply: a page GitHub links onward, then a full last.
+    reviewCommentsFirstPage("GET", "/repos/{owner}/{repo}/pulls/{pull_number}/comments"),
+    reviewCommentsLastPage("GET", "/repos/{owner}/{repo}/pulls/{pull_number}/comments"),
     reviewCommentsOf(
             "GET", "/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/comments"),
     issueComments("GET", "/repos/{owner}/{repo}/issues/{pull_number}/comments"),
@@ -98,6 +101,10 @@ enum GitHubOperations {
             case pull -> client.pull(token, c.owner(), c.repo(), c.number());
             case reviewComments ->
                     client.reviewComments(token, c.owner(), c.repo(), c.number(), 1, 50);
+            case reviewCommentsFirstPage ->
+                    client.reviewComments(token, c.owner(), c.repo(), c.number(), 1, 1);
+            case reviewCommentsLastPage ->
+                    client.reviewComments(token, c.owner(), c.repo(), c.number(), 2, 1);
             case createReviewComment ->
                     client.createReviewComment(
                             token,
@@ -246,7 +253,8 @@ enum GitHubOperations {
                     status ->
                     "page=1&per_page=50";
             case issueComments -> "since=" + c.since().replace(":", "%3A") + "&page=1&per_page=50";
-            case compare -> "page=1&per_page=1";
+            case compare, reviewCommentsFirstPage -> "page=1&per_page=1";
+            case reviewCommentsLastPage -> "page=2&per_page=1";
             default -> null;
         };
     }

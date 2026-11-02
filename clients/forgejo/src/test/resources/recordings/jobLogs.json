@@ -6,7 +6,7 @@
       "text/plain; charset=utf-8"
     ]
   },
-  "body" : "2026-10-31T10:41:27.1971664Z Runner [redacted] (version:v13.2.0) received task 1 of job build, triggered by event: push\n2026-10-31T10:41:27.2001228Z workflow prepared\n2026-10-31T10:41:27.2014944Z ⭐ Run Main echo fixture-complete\n2026-10-31T10:41:27.2052467Z fixture-complete\n2026-10-31T10:41:27.2055318Z 🏁  Job succeeded\n",
+  "body" : "2026-11-02T08:32:42.7131522Z Runner [redacted] (version:v13.2.0) received task 1 of job build, triggered by event: push\n2026-11-02T08:32:42.7156915Z workflow prepared\n2026-11-02T08:32:42.7176209Z ⭐ Run Main echo fixture-complete\n2026-11-02T08:32:42.7206131Z fixture-complete\n2026-11-02T08:32:42.7208263Z 🏁  Job succeeded\n",
   "exchanges" : [
     {
       "request_uri" : "/api/v1/repos/review-org/review-fixture/actions/jobs/1/logs",
@@ -16,14 +16,14 @@
           "text/plain; charset=utf-8"
         ]
       },
-      "body" : "2026-10-31T10:41:27.1971664Z Runner [redacted] (version:v13.2.0) received task 1 of job build, triggered by event: push\n2026-10-31T10:41:27.2001228Z workflow prepared\n2026-10-31T10:41:27.2014944Z ⭐ Run Main echo fixture-complete\n2026-10-31T10:41:27.2052467Z fixture-complete\n2026-10-31T10:41:27.2055318Z 🏁  Job succeeded\n"
+      "body" : "2026-11-02T08:32:42.7131522Z Runner [redacted] (version:v13.2.0) received task 1 of job build, triggered by event: push\n2026-11-02T08:32:42.7156915Z workflow prepared\n2026-11-02T08:32:42.7176209Z ⭐ Run Main echo fixture-complete\n2026-11-02T08:32:42.7206131Z fixture-complete\n2026-11-02T08:32:42.7208263Z 🏁  Job succeeded\n"
     }
   ],
   "context" : {
     "owner" : "review-org",
     "repo" : "review-fixture",
-    "sha" : "637c633c7543ae77d2cd41b835db4f7af6aa0bfa",
-    "actionsSha" : "db2a5c2a9a7bdd09e4e5b6dc2ec4e86d6c1be70b",
+    "sha" : "f76b00f8a18b88b37410d71cd9bd902add8aeff7",
+    "actionsSha" : "2511b9e00c00df122c35657f0b310ea7b67d2bd1",
     "index" : 1,
     "review" : 1,
     "run" : 1,
@@ -31,7 +31,7 @@
     "key" : 1,
     "comment" : 4,
     "issueComment" : 6,
-    "since" : "2026-10-31T10:41:26Z"
+    "since" : "2026-11-02T08:32:41Z"
   },
   "request_body" : null
 }

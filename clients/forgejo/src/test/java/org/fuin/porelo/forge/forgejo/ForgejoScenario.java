@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import org.fuin.porelo.forge.forgejo.ForgejoOperations.Context;
 import org.fuin.porelo.forge.forgejo.model.Comment;
-import org.fuin.porelo.forge.forgejo.model.ListActionRunResponse;
 import org.fuin.porelo.forge.forgejo.model.OrganizationPermissions;
 import org.fuin.porelo.forge.forgejo.model.PublicKey;
 import org.fuin.porelo.forge.forgejo.model.PullRequest;
@@ -98,6 +97,9 @@ final class ForgejoScenario {
             if (operation == ForgejoOperations.createIssueComment) {
                 since = afterAnEarlierComment();
             }
+            if (operation == ForgejoOperations.statusesFirstPage) {
+                secondStatus();
+            }
             JsonNode body = body(operation);
             String token =
                     operation == ForgejoOperations.createReview
@@ -148,6 +150,23 @@ final class ForgejoScenario {
             throw new IllegalStateException(missing);
         }
         return id;
+    }
+
+    /** Gives the commit a second status, so one per page makes a next page and a full last one. */
+    private void secondStatus() {
+        fixture.api(
+                "POST",
+                ForgejoContainer.repoPath() + "/statuses/" + sha,
+                json.valueToTree(
+                        Map.of(
+                                "state",
+                                "success",
+                                "context",
+                                "fixture/second",
+                                "description",
+                                "Second status",
+                                "target_url",
+                                "https://example.org/build/2")));
     }
 
     /**
@@ -256,16 +275,26 @@ final class ForgejoScenario {
                     .contains(EDITED_COMMENT)
                     .doesNotContain(EARLIER_COMMENT);
         }
-        if (result instanceof Collection<?> collection) {
+        if (operation == ForgejoOperations.statusesFirstPage) {
+            assertThat(((Page<?>) result).more())
+                    .as("a page with a next link says a further page follows")
+                    .isTrue();
+        }
+        if (operation == ForgejoOperations.statusesLastPage) {
+            assertThat(((Page<?>) result).more())
+                    .as("a full last page says nothing follows")
+                    .isFalse();
+        }
+        if (result instanceof Page<?> page) {
+            assertThat(page.items())
+                    .as("%s must exercise a seeded item, not only an empty page", operation)
+                    .isNotEmpty();
+        } else if (result instanceof Collection<?> collection) {
             assertThat(collection)
                     .as("%s must exercise a seeded item, not only an empty array", operation)
                     .isNotEmpty();
-        } else if (result instanceof ListActionRunResponse runs) {
-            assertThat(runs.workflowRuns())
-                    .as("the live fixture must produce a real Actions run")
-                    .isNotEmpty();
-        } else if (result instanceof String logs) {
-            assertThat(logs)
+        } else if (result instanceof JobLog logs) {
+            assertThat(logs.text())
                     .as("the live job must execute and produce its expected output")
                     .contains("fixture-complete");
         } else if (result instanceof OrganizationPermissions permissions) {

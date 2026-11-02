@@ -74,7 +74,7 @@ class ForgejoClientTest {
                                 Map.of("Location", List.of(BASE.resolve("logs").toString())),
                                 "")
                         .answer(200, Map.of(), "done");
-        assertThat(new ForgejoClient(BASE, http).jobLogs(TOKEN, "owner", "repo", 1))
+        assertThat(new ForgejoClient(BASE, http).jobLogs(TOKEN, "owner", "repo", 1).text())
                 .as("a return to the API still delivers the log")
                 .isEqualTo("done");
         assertThat(http.requests).as("the complete redirect chain was followed").hasSize(3);
@@ -244,7 +244,7 @@ class ForgejoClientTest {
                         .answer(302, Map.of("Location", List.of(location)), "")
                         .answer(200, Map.of(), "finished");
         var client = new ForgejoClient(URI.create("http://example.org/api/v1/"), http);
-        assertThat(client.jobLogs(TOKEN, "owner", "repo", 1))
+        assertThat(client.jobLogs(TOKEN, "owner", "repo", 1).text())
                 .as("redirected log content is returned")
                 .isEqualTo("finished");
         assertThat(http.requests.getFirst().headers().firstValue("Authorization"))

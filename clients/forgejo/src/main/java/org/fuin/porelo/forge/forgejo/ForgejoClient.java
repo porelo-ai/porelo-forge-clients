@@ -4,14 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
+import java.net.http.HttpConnectTimeoutException;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -20,9 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.Flow;
+import java.util.regex.Pattern;
 import org.fuin.porelo.forge.forgejo.model.*;
 import org.jspecify.annotations.Nullable;
 
@@ -31,6 +30,8 @@ import org.jspecify.annotations.Nullable;
  */
 public final class ForgejoClient {
     private static final int MAX_PLAIN_KEYS_BYTES = 256 * 1024;
+    private static final Pattern NEXT_LINK =
+            Pattern.compile("rel=\"?next\"?(\\s|;|,|$)", Pattern.CASE_INSENSITIVE);
     private final URI base;
     private final HttpClient http;
     private final ObjectMapper json;
@@ -55,14 +56,14 @@ public final class ForgejoClient {
     }
 
     /** Lists one page of pull requests in the requested state. */
-    public List<PullRequest> pulls(
+    public Page<PullRequest> pulls(
             String token, String owner, String repo, String state, int page, int limit) {
-        return call(
+        return page(
                 token,
-                "GET",
                 repo(owner, repo) + "/pulls?state=" + segment(state) + paging(page, limit),
-                null,
-                listType(PullRequest.class));
+                PullRequest.class,
+                page,
+                limit);
     }
 
     /** Creates a pull request. */
@@ -88,14 +89,14 @@ public final class ForgejoClient {
     }
 
     /** Lists one page of reviews. */
-    public List<PullReview> reviews(
+    public Page<PullReview> reviews(
             String token, String owner, String repo, long index, int page, int limit) {
-        return call(
+        return page(
                 token,
-                "GET",
                 pullPath(owner, repo, index) + "/reviews?" + pageQuery(page, limit),
-                null,
-                listType(PullReview.class));
+                PullReview.class,
+                page,
+                limit);
     }
 
     /** Creates a review with its optional inline comments. */
@@ -243,14 +244,14 @@ public final class ForgejoClient {
     }
 
     /** Lists one page of commit statuses. */
-    public List<CommitStatus> statuses(
+    public Page<CommitStatus> statuses(
             String token, String owner, String repo, String sha, int page, int limit) {
-        return call(
+        return page(
                 token,
-                "GET",
                 repo(owner, repo) + "/statuses/" + segment(sha) + "?" + pageQuery(page, limit),
-                null,
-                listType(CommitStatus.class));
+                CommitStatus.class,
+                page,
+                limit);
     }
 
     /** Creates a commit status. */
@@ -266,14 +267,24 @@ public final class ForgejoClient {
     }
 
     /** Lists one page of Actions runs for a commit. */
-    public ListActionRunResponse runs(
+    public Page<ActionRun> runs(
             String token, String owner, String repo, String sha, int page, int limit) {
-        return call(
-                token,
-                "GET",
-                repo(owner, repo) + "/actions/runs?head_sha=" + segment(sha) + paging(page, limit),
-                null,
-                json.constructType(ListActionRunResponse.class));
+        Answered<ListActionRunResponse> answer =
+                exchange(
+                        token,
+                        "GET",
+                        repo(owner, repo)
+                                + "/actions/runs?head_sha="
+                                + segment(sha)
+                                + paging(page, limit),
+                        null,
+                        json.constructType(ListActionRunResponse.class));
+        List<ActionRun> runs = answer.value().workflowRuns();
+        Long total = answer.value().totalCount();
+        return new Page<>(
+                runs == null ? List.of() : runs,
+                more(answer.headers(), page, limit)
+                        || (total != null && (long) page * limit < total));
     }
 
     /** Reads the jobs of an Actions run; Forgejo returns a JSON array. */
@@ -297,13 +308,13 @@ public final class ForgejoClient {
     }
 
     /** Lists one page of repository webhooks. */
-    public List<Hook> hooks(String token, String owner, String repo, int page, int limit) {
-        return call(
+    public Page<Hook> hooks(String token, String owner, String repo, int page, int limit) {
+        return page(
                 token,
-                "GET",
                 repo(owner, repo) + "/hooks?" + pageQuery(page, limit),
-                null,
-                listType(Hook.class));
+                Hook.class,
+                page,
+                limit);
     }
 
     /** Creates a repository webhook. */
@@ -319,23 +330,18 @@ public final class ForgejoClient {
     }
 
     /** Lists one page of the authenticated account’s organizations. */
-    public List<Organization> organizations(String token, int page, int limit) {
-        return call(
-                token,
-                "GET",
-                "user/orgs?" + pageQuery(page, limit),
-                null,
-                listType(Organization.class));
+    public Page<Organization> organizations(String token, int page, int limit) {
+        return page(token, "user/orgs?" + pageQuery(page, limit), Organization.class, page, limit);
     }
 
     /** Lists one page of an account's public SSH keys; Forgejo asks for a token for it too. */
-    public List<PublicKey> keys(String token, String login, int page, int limit) {
-        return call(
+    public Page<PublicKey> keys(String token, String login, int page, int limit) {
+        return page(
                 token,
-                "GET",
                 "users/" + segment(login) + "/keys?" + pageQuery(page, limit),
-                null,
-                listType(PublicKey.class));
+                PublicKey.class,
+                page,
+                limit);
     }
 
     /**
@@ -364,11 +370,11 @@ public final class ForgejoClient {
                             .body();
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new ForgejoException(0, "Forgejo request interrupted");
+            throw interrupted();
         } catch (IOException | IllegalArgumentException ex) {
             // A transport may fail the exchange once the page stops reading; its verdict stands.
             ForgejoException verdict = page.verdict;
-            throw verdict != null ? verdict : new ForgejoException(0, "Forgejo request failed");
+            throw verdict != null ? verdict : failed(ex);
         }
         ForgejoException verdict = page.verdict;
         if (verdict != null) {
@@ -399,102 +405,31 @@ public final class ForgejoClient {
         public HttpResponse.BodySubscriber<byte[]> apply(HttpResponse.ResponseInfo info) {
             if (info.statusCode() != 200) {
                 verdict =
-                        new ForgejoException(info.statusCode(), "Forgejo key page request failed");
-                return new BoundedBytes(0, this);
+                        new ForgejoException(
+                                info.statusCode(),
+                                "Forgejo key page request failed",
+                                Delivery.ANSWERED,
+                                rateLimit(info.headers()));
+                return BoundedBytes.refusing();
             }
             if (!isPlainText(info.headers().firstValue("Content-Type").orElse(""))) {
                 verdict = new ForgejoException(200, "Forgejo key page is not plain text");
-                return new BoundedBytes(0, this);
+                return BoundedBytes.refusing();
             }
             // A transport that retries may call again; only this answer's verdict counts.
             verdict = null;
-            return new BoundedBytes(MAX_PLAIN_KEYS_BYTES, this);
-        }
-    }
-
-    /**
-     * Collects at most its bound, one buffer at a time. One byte more, or any byte when the page
-     * already has a verdict, stops the reading; a bound of zero for a refused page stops it at
-     * once.
-     */
-    private static final class BoundedBytes implements HttpResponse.BodySubscriber<byte[]> {
-        private final int bound;
-        private final KeyPage page;
-        private final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        private final CompletableFuture<byte[]> result = new CompletableFuture<>();
-        private volatile Flow.@Nullable Subscription subscription;
-
-        BoundedBytes(int bound, KeyPage page) {
-            this.bound = bound;
-            this.page = page;
-        }
-
-        @Override
-        public CompletionStage<byte[]> getBody() {
-            return result;
-        }
-
-        @Override
-        public void onSubscribe(Flow.Subscription subscription) {
-            Objects.requireNonNull(subscription);
-            if (this.subscription != null || result.isDone()) {
-                subscription.cancel();
-                return;
-            }
-            this.subscription = subscription;
-            if (page.verdict != null) {
-                stop(subscription);
-            } else {
-                subscription.request(1);
-            }
-        }
-
-        @Override
-        public void onNext(List<ByteBuffer> items) {
-            Objects.requireNonNull(items);
-            Flow.Subscription current = subscription;
-            if (result.isDone() || current == null) {
-                return;
-            }
-            for (ByteBuffer item : items) {
-                int take = Math.min(item.remaining(), bound + 1 - bytes.size());
-                byte[] chunk = new byte[take];
-                item.get(chunk);
-                bytes.writeBytes(chunk);
-                if (bytes.size() > bound) {
-                    page.verdict = new ForgejoException(200, "Forgejo key page exceeds its bound");
-                    stop(current);
-                    return;
-                }
-            }
-            current.request(1);
-        }
-
-        /** Completes before cancelling, since a transport may fail the exchange on the cancel. */
-        private void stop(Flow.Subscription current) {
-            result.complete(new byte[0]);
-            current.cancel();
-        }
-
-        @Override
-        public void onError(Throwable error) {
-            result.completeExceptionally(error);
-        }
-
-        @Override
-        public void onComplete() {
-            result.complete(bytes.toByteArray());
+            return BoundedBytes.whole(
+                    MAX_PLAIN_KEYS_BYTES,
+                    () ->
+                            verdict =
+                                    new ForgejoException(
+                                            200, "Forgejo key page exceeds its bound"));
         }
     }
 
     /** Lists one page of the authenticated account's own SSH keys. */
-    public List<PublicKey> ownKeys(String token, int page, int limit) {
-        return call(
-                token,
-                "GET",
-                "user/keys?" + pageQuery(page, limit),
-                null,
-                listType(PublicKey.class));
+    public Page<PublicKey> ownKeys(String token, int page, int limit) {
+        return page(token, "user/keys?" + pageQuery(page, limit), PublicKey.class, page, limit);
     }
 
     /** Adds an SSH key to the authenticated account; a key Forgejo already has is refused. */
@@ -549,13 +484,15 @@ public final class ForgejoClient {
     }
 
     /**
-     * Reads a job log, following at most five redirects and stripping authentication off origin.
+     * Reads a job log, following at most five redirects and stripping authentication off origin. A
+     * log is read up to 64 MiB, of which its last 1 MiB is kept, since a build reads a log's tail.
      */
-    public String jobLogs(String token, String owner, String repo, long jobId) {
+    public JobLog jobLogs(String token, String owner, String repo, long jobId) {
         URI uri = base.resolve(repo(owner, repo) + "/actions/jobs/" + positive(jobId) + "/logs");
         boolean authenticate = true;
         for (int redirects = 0; redirects <= 5; redirects++) {
-            HttpResponse<String> response = send(token, "GET", uri, null, authenticate);
+            BoundedAnswer answer = BoundedAnswer.log();
+            HttpResponse<String> response = send(token, "GET", uri, null, authenticate, answer);
             if (List.of(301, 302, 303, 307, 308).contains(response.statusCode())) {
                 if (redirects == 5) {
                     throw new ForgejoException(response.statusCode(), "Too many log redirects");
@@ -592,7 +529,7 @@ public final class ForgejoClient {
                 }
             } else {
                 check(response, List.of(token));
-                return response.body();
+                return new JobLog(response.body(), answer.cut());
             }
         }
         throw new ForgejoException(0, "Too many log redirects");
@@ -600,7 +537,33 @@ public final class ForgejoClient {
 
     private <T> T call(
             String token, String method, String path, @Nullable Object body, JavaType type) {
-        HttpResponse<String> response = send(token, method, base.resolve(path), body, true);
+        Answered<T> answer = exchange(token, method, path, body, type);
+        return answer.value();
+    }
+
+    private <T> Page<T> page(String token, String path, Class<T> element, int page, int limit) {
+        Answered<List<T>> answer = exchange(token, "GET", path, null, listType(element));
+        return new Page<>(answer.value(), more(answer.headers(), page, limit));
+    }
+
+    /**
+     * Forgejo links a next page when there is one and counts the whole list; a full page without
+     * either is the last one.
+     */
+    private static boolean more(HttpHeaders headers, int page, int limit) {
+        for (String value : headers.allValues("link")) {
+            if (NEXT_LINK.matcher(value).find()) {
+                return true;
+            }
+        }
+        String total = headers.firstValue("x-total-count").orElse("").strip();
+        return total.matches("[0-9]{1,18}") && (long) page * limit < Long.parseLong(total);
+    }
+
+    private <T> Answered<T> exchange(
+            String token, String method, String path, @Nullable Object body, JavaType type) {
+        HttpResponse<String> response =
+                send(token, method, base.resolve(path), body, true, BoundedAnswer.json());
         List<String> credentials = new ArrayList<>();
         credentials.add(token);
         if (body != null) {
@@ -608,14 +571,29 @@ public final class ForgejoClient {
         }
         credentials.sort(java.util.Comparator.comparingInt(String::length).reversed());
         check(response, credentials);
-        return ForgejoJson.read(json, response.body(), type, credentials);
+        try {
+            T value = ForgejoJson.read(json, response.body(), type, credentials);
+            return new Answered<>(value, response.headers());
+        } catch (ForgejoException undecodable) {
+            throw new ForgejoException(
+                    undecodable.status(),
+                    Objects.requireNonNull(undecodable.getMessage()),
+                    Delivery.ANSWERED,
+                    null);
+        }
     }
 
     private HttpResponse<String> send(
-            String token, String method, URI uri, @Nullable Object body, boolean authenticate) {
+            String token,
+            String method,
+            URI uri,
+            @Nullable Object body,
+            boolean authenticate,
+            BoundedAnswer answer) {
         if (token.isBlank() || token.chars().anyMatch(c -> c < 33 || c > 126)) {
             throw new IllegalArgumentException("Invalid access token");
         }
+        HttpResponse<String> response;
         try {
             HttpRequest.Builder request =
                     HttpRequest.newBuilder(uri)
@@ -631,16 +609,59 @@ public final class ForgejoClient {
             } else {
                 request.method(method, HttpRequest.BodyPublishers.noBody());
             }
-            return http.send(
-                    request.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            response = http.send(request.build(), answer);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new ForgejoException(0, "Forgejo request interrupted");
+            throw interrupted();
+        } catch (JsonProcessingException unwritable) {
+            throw new ForgejoException(
+                    0, "Forgejo request could not be written", Delivery.NOT_SENT, null);
         } catch (IOException | IllegalArgumentException ex) {
-            // Transport exceptions can include URLs, headers and credential-bearing input.
-            throw new ForgejoException(0, "Forgejo request failed");
+            // A transport may fail the exchange once the answer stops reading; its verdict stands.
+            ForgejoException exceeded = answer.exceeded();
+            throw exceeded != null ? exceeded : failed(ex);
         }
+        ForgejoException exceeded = answer.exceeded();
+        if (exceeded != null) {
+            throw exceeded;
+        }
+        return response;
     }
+
+    private static ForgejoException interrupted() {
+        return new ForgejoException(
+                0, "Forgejo request interrupted", Delivery.SENT_UNANSWERED, null);
+    }
+
+    /**
+     * The JDK does not say whether bytes left before a failure, so anything after the connection
+     * opened counts as sent. The message stays fixed: transport exceptions can include URLs,
+     * headers and credential-bearing input.
+     */
+    private static ForgejoException failed(Exception ex) {
+        boolean notSent = ex instanceof IllegalArgumentException || neverConnected(ex);
+        return new ForgejoException(
+                0,
+                "Forgejo request failed",
+                notSent ? Delivery.NOT_SENT : Delivery.SENT_UNANSWERED,
+                null);
+    }
+
+    private static boolean neverConnected(Throwable failure) {
+        for (Throwable t = failure; t != null; t = t.getCause()) {
+            if (t instanceof ConnectException || t instanceof HttpConnectTimeoutException) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Reads what an answer says of a rate limit. */
+    static @Nullable RateLimit rateLimit(HttpHeaders headers) {
+        return RateLimit.read(headers, Instant.now());
+    }
+
+    private record Answered<T>(T value, HttpHeaders headers) {}
 
     private void check(HttpResponse<String> response, List<String> credentials) {
         if (response.statusCode() < 200 || response.statusCode() >= 300) {
@@ -653,7 +674,11 @@ public final class ForgejoClient {
             } catch (JsonProcessingException ex) {
                 // A non-JSON error page is not safe to include in an exception.
             }
-            throw new ForgejoException(response.statusCode(), message);
+            throw new ForgejoException(
+                    response.statusCode(),
+                    message,
+                    Delivery.ANSWERED,
+                    rateLimit(response.headers()));
         }
     }
 
@@ -681,7 +706,8 @@ public final class ForgejoClient {
     }
 
     private void delete(String token, String path) {
-        HttpResponse<String> response = send(token, "DELETE", base.resolve(path), null, true);
+        HttpResponse<String> response =
+                send(token, "DELETE", base.resolve(path), null, true, BoundedAnswer.json());
         check(response, List.of(token));
     }
 

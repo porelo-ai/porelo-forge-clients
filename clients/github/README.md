@@ -18,7 +18,10 @@ List<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
 
 - The base is required. The caller supplies a token per call; requests use Bearer authentication,
   `Accept: application/vnd.github+json` and API version `2026-03-10`.
-- List calls take `page` and `perPage`. Callers advance pages. GraphQL exposes cursors for threads and comments.
+- A paged list call takes `page` and `perPage` and returns a `Page` with its `items` and `more`, whether a further
+  page follows, read from GitHub's `Link` header or an envelope's `total_count`; a full page without a next link is the
+  last one. `status` keeps its envelope, which says a commit's `state` and `sha` beside the page, and its `total_count`
+  tells the end. Callers advance pages. GraphQL exposes cursors for threads and comments.
 - The transport must use `Redirect.NEVER`. Log redirects are followed manually, at most five times;
   authentication stays removed after leaving the base's scheme, host and port. HTTPS never downgrades to HTTP.
 - Reading defaults to `Strictness.LENIENT`; `Strictness.STRICT` rejects unknown fields. Both reject missing
@@ -35,7 +38,16 @@ List<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
   `createRepository` read a repository and create one in an organization, and `status` reads a commit's combined
   status with a page of its statuses.
 - `GitHubException.status()` is the HTTP status, or zero for transport and payload failures.
-  Diagnostics scrub credentials and do not attach raw payloads or transport causes.
+  Diagnostics scrub credentials and do not attach raw payloads or transport causes. `delivery()` says whether the
+  request may have reached GitHub: `NOT_SENT`, `SENT_UNANSWERED`, or `ANSWERED`, the answer perhaps undecodable or over
+  its bound. The JDK does not say whether bytes left before a failure, so a failure after the connection opened counts
+  as sent.
+- `rateLimited()` is true on a 429, on a 403 with `x-ratelimit-remaining: 0`, a `Retry-After` or a message naming a rate
+  limit, and on a GraphQL answer whose first error has type `RATE_LIMITED`; any other 403 is a refusal. `rateLimit()`
+  holds what the answer said, and `delay()` is its `Retry-After`, else the time until its reset, else one minute.
+- Every answer is read up to a bound: 16 MiB, an error answer 64 KiB, past which the reading stops and the failure says
+  `GitHub answer exceeds <n> bytes`, with no part of the answer. `jobLogs` returns a `JobLog`, read up to 64 MiB and
+  keeping its last 1 MiB, with `cut` saying whether it was longer.
 
 ## Replay in other repositories
 

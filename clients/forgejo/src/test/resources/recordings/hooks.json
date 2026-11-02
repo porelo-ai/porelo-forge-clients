@@ -4,9 +4,12 @@
   "headers" : {
     "content-type" : [
       "application/json;charset=utf-8"
+    ],
+    "x-total-count" : [
+      "1"
     ]
   },
-  "body" : "[{\"id\":1,\"type\":\"forgejo\",\"branch_filter\":\"\",\"url\":\"http://example.org/delivery\",\"config\":{\"content_type\":\"json\",\"url\":\"http://example.org/delivery\"},\"events\":[\"pull_request\",\"pull_request_assign\",\"pull_request_label\",\"pull_request_milestone\",\"pull_request_comment\",\"pull_request_review_approved\",\"pull_request_review_rejected\",\"pull_request_review_comment\",\"pull_request_sync\",\"pull_request_review_request\",\"action_run_failure\",\"action_run_success\"],\"authorization_header\":\"[redacted]\",\"content_type\":\"json\",\"metadata\":null,\"active\":true,\"updated_at\":\"2026-10-31T10:41:26Z\",\"created_at\":\"2026-10-31T10:41:25Z\"}]",
+  "body" : "[{\"id\":1,\"type\":\"forgejo\",\"branch_filter\":\"\",\"url\":\"http://example.org/delivery\",\"config\":{\"content_type\":\"json\",\"url\":\"http://example.org/delivery\"},\"events\":[\"pull_request\",\"pull_request_assign\",\"pull_request_label\",\"pull_request_milestone\",\"pull_request_comment\",\"pull_request_review_approved\",\"pull_request_review_rejected\",\"pull_request_review_comment\",\"pull_request_sync\",\"pull_request_review_request\",\"action_run_failure\",\"action_run_success\"],\"authorization_header\":\"[redacted]\",\"content_type\":\"json\",\"metadata\":null,\"active\":true,\"updated_at\":\"2026-11-02T08:32:43Z\",\"created_at\":\"2026-11-02T08:32:40Z\"}]",
   "exchanges" : [
     {
       "request_uri" : "/api/v1/repos/review-org/review-fixture/hooks?page=1&limit=50",
@@ -14,16 +17,19 @@
       "headers" : {
         "content-type" : [
           "application/json;charset=utf-8"
+        ],
+        "x-total-count" : [
+          "1"
         ]
       },
-      "body" : "[{\"id\":1,\"type\":\"forgejo\",\"branch_filter\":\"\",\"url\":\"http://example.org/delivery\",\"config\":{\"content_type\":\"json\",\"url\":\"http://example.org/delivery\"},\"events\":[\"pull_request\",\"pull_request_assign\",\"pull_request_label\",\"pull_request_milestone\",\"pull_request_comment\",\"pull_request_review_approved\",\"pull_request_review_rejected\",\"pull_request_review_comment\",\"pull_request_sync\",\"pull_request_review_request\",\"action_run_failure\",\"action_run_success\"],\"authorization_header\":\"[redacted]\",\"content_type\":\"json\",\"metadata\":null,\"active\":true,\"updated_at\":\"2026-10-31T10:41:26Z\",\"created_at\":\"2026-10-31T10:41:25Z\"}]"
+      "body" : "[{\"id\":1,\"type\":\"forgejo\",\"branch_filter\":\"\",\"url\":\"http://example.org/delivery\",\"config\":{\"content_type\":\"json\",\"url\":\"http://example.org/delivery\"},\"events\":[\"pull_request\",\"pull_request_assign\",\"pull_request_label\",\"pull_request_milestone\",\"pull_request_comment\",\"pull_request_review_approved\",\"pull_request_review_rejected\",\"pull_request_review_comment\",\"pull_request_sync\",\"pull_request_review_request\",\"action_run_failure\",\"action_run_success\"],\"authorization_header\":\"[redacted]\",\"content_type\":\"json\",\"metadata\":null,\"active\":true,\"updated_at\":\"2026-11-02T08:32:43Z\",\"created_at\":\"2026-11-02T08:32:40Z\"}]"
     }
   ],
   "context" : {
     "owner" : "review-org",
     "repo" : "review-fixture",
-    "sha" : "637c633c7543ae77d2cd41b835db4f7af6aa0bfa",
-    "actionsSha" : "db2a5c2a9a7bdd09e4e5b6dc2ec4e86d6c1be70b",
+    "sha" : "f76b00f8a18b88b37410d71cd9bd902add8aeff7",
+    "actionsSha" : "2511b9e00c00df122c35657f0b310ea7b67d2bd1",
     "index" : 1,
     "review" : 1,
     "run" : 1,
@@ -31,7 +37,7 @@
     "key" : 1,
     "comment" : 4,
     "issueComment" : 6,
-    "since" : "2026-10-31T10:41:26Z"
+    "since" : "2026-11-02T08:32:41Z"
   },
   "request_body" : null
 }

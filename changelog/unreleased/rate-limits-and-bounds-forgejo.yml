@@ -1,0 +1,2 @@
+title: Tell a Forgejo rate limit from a refusal with the delay to wait, say whether a failed request may have been sent, return paged lists as a Page that knows the end of the list and job logs as a JobLog keeping their tail, and read every answer up to a bound.
+type: changed

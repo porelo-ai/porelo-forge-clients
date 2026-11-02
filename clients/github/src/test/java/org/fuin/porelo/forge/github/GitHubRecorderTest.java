@@ -406,6 +406,25 @@ class GitHubRecorderTest {
         }
     }
 
+    // Prevents a page's link from keeping a real account or a signed query in a recording, and the
+    // scrubbing from taking away the next link a replayed page is read by.
+    @Test
+    void aPagesLinkKeepsItsNextAndLosesItsQueryAndItsAccount() throws Exception {
+        var scrubber = new RecordingScrubber(List.of(), Map.of("actual-user", "fixture-user"));
+        var input =
+                new ObjectMapper()
+                        .readTree(
+                                "{\"headers\":{\"link\":[\"<https://api.github.com/repos/"
+                                        + "actual-user/r/pulls/1/comments?page=2&sig=hidden>; "
+                                        + "rel=\\\"next\\\"\"]}}");
+        String link = scrubber.scrub(input).path("headers").path("link").path(0).asText();
+        assertThat(link)
+                .as("the link still names the next page, on the fixture host and account")
+                .isEqualTo(
+                        "<https://example.org/repos/fixture-user/r/pulls/1/comments>; "
+                                + "rel=\"next\"");
+    }
+
     // Prevents the recorder from crashing on the URI templates every GitHub account object carries,
     // and a log redirect that left the API origin from staying on it when replayed.
     @Test

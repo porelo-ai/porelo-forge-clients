@@ -27,7 +27,9 @@ List<PullRequest> open = forgejo.pulls(token, "owner", "repo", "open", 1, 50);
   and delete the authenticated account's own, and a key Forgejo already has is refused with its status.
   `organizationPermissions` reads an account's permissions in an organization; Forgejo 17 leaves out `is_owner`
   for anyone but an owner, so it reads as null then. `repository` reads a repository, and `createRepository`
-  creates one in an organization. List calls take a page and a limit, and the caller advances the page.
+  creates one in an organization. A paged list call takes a page and a limit and returns a `Page` with its `items`
+  and `more`, whether a further page follows, read from Forgejo's `Link` and `X-Total-Count` headers or a run list's
+  `total_count`; a full page without them is the last one. The caller advances the page.
 - `pullOfBranches(base, head)` reads the open pull request from one branch into another, or fails with status 404.
   `issueComments` reads a pull request's general comments, only those updated since a time when one is given;
   Forgejo pages none, so all come in one answer, and review comments are not among them. `createIssueComment`,
@@ -42,8 +44,16 @@ List<PullRequest> open = forgejo.pulls(token, "owner", "repo", "open", 1, 50);
   no reply to a review comment.
 - Reading is lenient by default, ignoring fields Forgejo adds within its API version; `Strictness.STRICT` refuses
   them, as the tests do. In both, a required field may not be missing or null.
-- A failure is a `ForgejoException` with the HTTP status, or 0 when nothing was answered; its message carries no
-  token, header or body.
+- A failure is a `ForgejoException` with the HTTP status, or 0 when none applies; its message carries no token,
+  header or body. `delivery()` says whether the request may have reached Forgejo: `NOT_SENT`, `SENT_UNANSWERED`, or
+  `ANSWERED`, the answer perhaps undecodable or over its bound. The JDK does not say whether bytes left before a
+  failure, so a failure after the connection opened counts as sent.
+- Forgejo 17 has no limiter for its API, measured with 6000 requests in 4 s, none refused and no rate-limit header; a
+  429 can only come from what stands before it. `rateLimited()` is true on a 429, `rateLimit()` holds what the answer
+  said, and `delay()` is its `Retry-After`, else the time until its reset, else one minute.
+- Every answer is read up to a bound: 16 MiB, an error answer 64 KiB, past which the reading stops and the failure
+  says `Forgejo answer exceeds <n> bytes`, with no part of the answer. `jobLogs` returns a `JobLog`, read up to 64 MiB
+  and keeping its last 1 MiB, with `cut` saying whether it was longer.
 - `ForgejoWebhook.read(body, signature, event, secret)` reads at most its bound, checks `X-Forgejo-Signature`
   before parsing, and gives a `PullRequestEvent` for `pull_request`, a `ReviewEvent` for `pull_request_approved`,
   `_rejected` and `_comment`, and an `ActionsRunEvent` for `action_run_success` and `_failure`.
