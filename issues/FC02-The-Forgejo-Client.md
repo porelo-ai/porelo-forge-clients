@@ -1,6 +1,6 @@
 # FC02 — The Forgejo Client
 
-**Status:** Implementing.
+**Status:** Review.
 **Size:** M - one module of nineteen operations, records generated, its answers recorded from and checked live
 against a Forgejo container on every build.
 
@@ -61,8 +61,8 @@ file describes no webhook payloads.
   approving review by the second user and a comment, a commit status, a hook, and an Actions run with its job - and
   runs every call in strict reading, failing when a call it checks answers an empty list. It removes the container
   and volume it made, after a failure and on an interrupt too, refuses to start over a container or volume of its
-  prefix left behind, and exits non-zero naming anything it could not remove. It takes 7 s on a workstation, the
-  images already pulled. The Build runs it as its own step after the unit tests.
+  prefix left behind, and exits non-zero naming anything it could not remove. The Build runs it as its own step after
+  the unit tests, where the step takes 43 s, pulling the images and building the module included.
 - **Steps:** the module and its extract; the build calls the adapters use first; then pull requests and reviews;
   then statuses, hooks and the account.
 - **Red first:** `ForgejoClientTest` builds the client strict and calls `runs(owner, repo, sha)` against the
@@ -80,8 +80,3 @@ file describes no webhook payloads.
   body read only up to a bound.
 - A redirect to another origin carries no token, seen in a test that fails when it does; an `HttpClient` that
   follows redirects itself is refused when the client is built.
-
-## To be checked
-
-- How long the live check takes on a GitHub runner, from start of the containers to their removal, with podman
-  and the images pulled there; it takes 7 s on a workstation with the images present.

@@ -30,7 +30,7 @@ jobs:
         name: Build and test
         # Pinned, not ubuntu-latest.
         runs-on: ubuntu-24.04
-        # A guess, not yet measured on a runner: a slow runner must end, not run for GitHub's six hours.
+        # A run takes about 3 minutes; a slow runner must end, not run for GitHub's six hours.
         timeout-minutes: 20
         steps:
             # Every commit, so the pushed range can be read.
