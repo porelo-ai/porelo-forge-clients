@@ -1,6 +1,6 @@
 # FC09 — Rate Limits And Bounds Of The Clients' Answers
 
-**Status:** Backlog.
+**Status:** Implementing.
 **Size:** M - small changes in both modules, but every list call changes its return type, and both forges are
 recorded again, GitHub's in a session with the operator.
 
@@ -30,8 +30,8 @@ check runs, runs and jobs; the recorders keep only the `content-type` and `locat
   sent; a `ConnectException` counts as not sent.
 - **The end of a list.** Every paged list call returns `Page<T>(List<T> items, boolean more)`, a record of each
   module. `more` comes from the `Link` header's `rel="next"`; GitHub's envelope calls also read `total_count`,
-  Forgejo's calls `X-Total-Count`. A full page without a next link is the last one. No caller breaks: the adapters
-  do not use the clients yet, and will move onto them with `Page`.
+  Forgejo's calls `X-Total-Count`. A full page without a next link is the last one. The adapters already read
+  lists through the GitHub client, so they change with this call in the same push round.
 - **Bounded answers.** Both clients read through one bounded body handler, made from Forgejo's `BoundedBytes`: an
   answer 16 MiB, an error answer 64 KiB (only its `message` is read). Past the bound the reading stops and the
   client throws `"<forge> answer exceeds <n> bytes"`, with no part of the answer. A job log is read up to 64 MiB and
