@@ -1,6 +1,6 @@
 # FC06 — Keys, Repositories And Commit Statuses On GitHub
 
-**Status:** Review (Estimated and Backlog by the operator, 2026-10-30, sprint 6m).
+**Status:** Review.
 **Size:** M - thirteen calls added to the `github` module, its recordings and its live check; no existing call changes.
 
 **What must be true.** A caller reads a GitHub user's public SSH authentication keys, through the API and as the
@@ -42,7 +42,7 @@ commit's statuses, through the `github` module, in GitHub's own terms.
 - **`clients/github/README.md`:** names the thirteen, and says that the three key reads take no token.
 - **Red first:** `GitHubClientTest` calls `signingKeys` against the replayed answer with one field renamed, which must
   fail naming it in the strict reading, and asserts that the request carried no `Authorization` header.
-- **Built so far:** all of the above, recorded against the test organization on 2026-10-31 and replayed with no
+- **Built so far:** all of the above, recorded against the test organization and replayed with no
   network. The recording found one field GitHub sends and its description lacks, a repository's
   `security_and_analysis.secret_scanning_validity_checks`, added to the extract with the `status` its siblings have.
   The fixture owns the repository, the authentication keys and the signing keys each on its own, only once prepared,

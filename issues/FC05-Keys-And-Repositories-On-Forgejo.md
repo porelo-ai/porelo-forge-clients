@@ -1,7 +1,6 @@
 # FC05 — Keys And Repositories On Forgejo
 
-**Status:** Review (Estimated and Backlog by the operator, 2026-10-30, sprint 6m);
-blocked by [FC02](README.md#fc02).
+**Status:** Review; blocked by [FC02](README.md#fc02).
 **Size:** S - seven calls added to the `forgejo` module and its tests; no existing call changes.
 
 **What must be true.** A caller reads a Forgejo user's public SSH keys, lists, adds and deletes the

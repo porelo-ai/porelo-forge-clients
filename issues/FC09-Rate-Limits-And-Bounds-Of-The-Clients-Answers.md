@@ -1,6 +1,6 @@
 # FC09 — Rate Limits And Bounds Of The Clients' Answers
 
-**Status:** Backlog (Estimated and Backlog by the operator, 2026-10-31); blocked by [FC02](README.md#fc02).
+**Status:** Backlog; blocked by [FC02](README.md#fc02).
 **Size:** M - small changes in both modules, but every list call changes its return type, and both forges are
 recorded again, GitHub's in a session with the operator.
 
@@ -35,8 +35,7 @@ check runs, runs and jobs; the recorders keep only the `content-type` and `locat
 - **Bounded answers.** Both clients read through one bounded body handler, made from Forgejo's `BoundedBytes`: an
   answer 16 MiB, an error answer 64 KiB (only its `message` is read). Past the bound the reading stops and the
   client throws `"<forge> answer exceeds <n> bytes"`, with no part of the answer. A job log is read up to 64 MiB and
-  keeps its last 1 MiB, since a build reads a log's tail; `jobLogs` then returns a `JobLog(String text, boolean cut)`
-  (operator, 2026-10-31).
+  keeps its last 1 MiB, since a build reads a log's tail; `jobLogs` then returns a `JobLog(String text, boolean cut)`.
 - **Recordings.** Both recorders also keep `link`, `x-total-count`, `retry-after` and `x-ratelimit-*`, scrubbed like
   any address. Review comments are recorded one per page as well, so a full last page is recorded. A rate-limited
   answer is not provoked from GitHub; it is made by hand from GitHub's documented headers.
