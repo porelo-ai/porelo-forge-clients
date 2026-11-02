@@ -5,12 +5,6 @@ issue, and who sets which state, are in [AGENTS.md](../AGENTS.md). *Open questio
 waits on the operator: the items under an issue's own *Open questions*. Its prefix is `FC`. A group with nothing in it
 is left out.
 
-## Review
-
-| # | Size | Blocked by | What it covers |
-|---|---|---|---|
-| <a id="fc09"></a>[FC09](FC09-Rate-Limits-And-Bounds-Of-The-Clients-Answers.md) | M | - | A rate limit told from a refusal with the delay to wait, the end of a paged list known, whether a failed request was sent, and every answer read up to a bound, on both forges |
-
 ## Accepted
 
 | # | Size | Blocked by | What it covers |
@@ -37,6 +31,7 @@ is left out.
 
 | # | What was built |
 |---|---|
+| <a id="fc09"></a>FC09 — Rate Limits And Bounds Of The Clients' Answers | A rate limit told from a refusal with the delay to wait, the end of a paged list known, whether a failed request was sent, and every answer read up to a bound, on both forges; described in their READMEs |
 | <a id="fc14"></a>FC14 — The GitHub Recorder's Ownership Of What It Made | The GitHub recorder keeps owning what an earlier request made when a later one of its kind is refused, and the key page refusal test fails when the page does not stop. |
 | <a id="fc12"></a>FC12 — GitHub's Recorded Answers For Other Repositories | GitHub's recorded answers and the replaying `HttpClient` in a `tests` jar of the github module, published beside the main jar for the adapters' tests; described in [clients/github/README.md](../clients/github/README.md). |
 | <a id="fc06"></a>FC06 — Keys, Repositories And Commit Statuses On GitHub | A GitHub user's public SSH authentication and signing keys and key page read without a token, the signed-in user's own keys of both kinds listed, added and deleted, whether a user owns an organization, a repository read and created in an organization and a commit's combined status, recorded live; described in [clients/github/README.md](../clients/github/README.md). |
