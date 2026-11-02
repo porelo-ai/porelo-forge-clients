@@ -1,6 +1,6 @@
 # FC09 — Rate Limits And Bounds Of The Clients' Answers
 
-**Status:** Backlog; blocked by [FC02](README.md#fc02).
+**Status:** Backlog.
 **Size:** M - small changes in both modules, but every list call changes its return type, and both forges are
 recorded again, GitHub's in a session with the operator.
 

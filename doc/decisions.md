@@ -10,6 +10,7 @@ What holds and why: one row per decision, and its full text below. How the recor
 | Records | [The extract is committed, the full description is not](#the-extract-is-committed-the-full-description-is-not) |
 | Records | [Strict in the tests, lenient at run time](#strict-in-the-tests-lenient-at-run-time) |
 | Recordings | [A cloud forge is recorded by hand and checked live on a schedule, never on a push](#a-cloud-forge-is-recorded-by-hand-and-checked-live-on-a-schedule-never-on-a-push) |
+| Recordings | [An open-source forge is recorded from a pinned container and checked live on every build](#an-open-source-forge-is-recorded-from-a-pinned-container-and-checked-live-on-every-build) |
 | GitHub | [Three credentials, since GitHub splits them](#three-credentials-since-github-splits-them) |
 
 ## The generator is pinned to a snapshot until `useRecords` is released
@@ -49,6 +50,14 @@ before it writes. A forge changes its answers without a new API version, which a
 runs the reading calls strictly against what the test repository keeps for it, daily outside the working day and by
 hand. A difference is answered by recording again and committing the diff with the change it needs. A forge that
 offered a test instance of its own, free of credentials, would change this.
+
+## An open-source forge is recorded from a pinned container and checked live on every build
+
+Forgejo runs anywhere without an account or a credential from outside, so its answers are recorded from a container
+pinned by digest, and the Build checks every call against that container strictly, with accounts and tokens made for
+the run and thrown away with it. The unit tests still replay the recordings alone, with no network. An Actions run
+needs a runner to get a job and a log, so a pinned runner joins the server. A forge that could not run in a container
+would be recorded as a cloud forge is.
 
 ## Three credentials, since GitHub splits them
 

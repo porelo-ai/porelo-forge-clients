@@ -4,7 +4,8 @@
 request's general comments, the server's version,
 review dismissal and undismissal, commit statuses, Actions runs, jobs and logs, branches, repository webhooks,
 the authenticated account, organizations and collaborator permissions, an account's public SSH keys, the
-authenticated account's own SSH keys, an account's permissions in an organization, and repositories. It uses the
+authenticated account's own SSH keys, an account's permissions in an organization, and repositories. Only Forgejo 17
+is served; another major release is not promised to work. It uses the
 caller's JDK `HttpClient`, Jackson and JSpecify, and knows nothing of Porelo contracts; its models are generated
 from the committed extract.
 
@@ -33,6 +34,8 @@ List<PullRequest> open = forgejo.pulls(token, "owner", "repo", "open", 1, 50);
   `editIssueComment` and `deleteIssueComment` write, edit and delete one. `createReviewComment` and
   `deleteReviewComment` add a comment to a review and delete one; a review that is already submitted, even another
   account's, takes a new comment. `version` reads the server's version, such as `17.0.1+gitea-1.22.0`.
+- `dismissReview` and `undismissReview` withdraw and restore a review's verdict and need the repository's
+  administration right.
 - What Forgejo 17 does not offer, measured against it: a review comment has no edit of its own, but
   `editIssueComment` with its id edits it; `DELETE .../issues/comments/{id}` answers 204 for a review comment and
   leaves it in place, so only `deleteReviewComment` deletes one; and there is no thread state to read or change, and
@@ -49,7 +52,8 @@ List<PullRequest> open = forgejo.pulls(token, "owner", "repo", "open", 1, 50);
 
 - The unit tests replay the answers and deliveries recorded in `src/test/resources/recordings/`, with no network.
 - `./mvnw -B -s settings.xml -Dforgejo.live verify` also runs `ForgejoLiveIT`, which needs podman: it starts a
-  Forgejo 17 server and a runner, seeds them, runs every call strictly and removes them again.
+  Forgejo 17 server and a runner, seeds them, runs every call strictly and removes them again. The Build runs it as a
+  step of its own after the unit tests.
 - `./mvnw -B -s settings.xml -pl clients/forgejo test-compile exec:java@record-forgejo` records anew from the same
   containers; the recordings are scrubbed to `example.org` and deliveries signed again with the test secret.
 - The extract is fetched again with `org.fuin.porelo.forge.openapi.OpenApiExtract` (see

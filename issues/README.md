@@ -10,22 +10,19 @@ is left out.
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="fc12"></a>[FC12](FC12-GitHubs-Recorded-Answers-For-Other-Repositories.md) | S | - | GitHub's recorded answers and the replaying `HttpClient` in a `tests` jar of the github module, for the adapters' tests |
-| <a id="fc06"></a>[FC06](FC06-Keys-Repositories-And-Commit-Statuses-On-GitHub.md) | M | - | A GitHub user's public SSH authentication and signing keys read without a token, the signed-in user's own keys of both kinds listed, added and deleted, whether a user owns an organization, a repository read and created in an organization, a commit's combined status |
 | <a id="fc14"></a>[FC14](FC14-The-GitHub-Recorders-Ownership-Of-What-It-Made.md) | S | - | The GitHub recorder keeps owning what an earlier request made when a later one of its kind is refused, and the key page refusal test fails when the page does not stop |
-| <a id="fc02"></a>[FC02](FC02-The-Forgejo-Client.md) | M | - | The `forgejo` module: 19 operations from Forgejo 17's MIT Swagger 2.0 description, its answers recorded from a real Forgejo |
-| <a id="fc05"></a>[FC05](FC05-Keys-And-Repositories-On-Forgejo.md) | S | [FC02](README.md#fc02) | A Forgejo user's public SSH keys read, the signed-in user's own keys listed, added and deleted, whether a user owns an organization, a repository read and created in an organization |
 
 ## Backlog
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="fc09"></a>[FC09](FC09-Rate-Limits-And-Bounds-Of-The-Clients-Answers.md) | M | [FC02](README.md#fc02) | A rate limit told from a refusal with the delay to wait, the end of a paged list known, whether a failed request was sent, and every answer read up to a bound, on both forges |
+| <a id="fc09"></a>[FC09](FC09-Rate-Limits-And-Bounds-Of-The-Clients-Answers.md) | M | - | A rate limit told from a refusal with the delay to wait, the end of a paged list known, whether a failed request was sent, and every answer read up to a bound, on both forges |
 
 ## Accepted
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="fc03"></a>[FC03](FC03-The-Forge-Calls-Of-The-Adapters-Move-Here.md) | - | [FC02](README.md#fc02) | The clients make every call Porelo's build adapters make to GitHub and Forgejo today, with the same requests and answers, published as snapshots |
+| <a id="fc03"></a>[FC03](FC03-The-Forge-Calls-Of-The-Adapters-Move-Here.md) | - | - | The clients make every call Porelo's build adapters make to GitHub and Forgejo today, with the same requests and answers, published as snapshots |
 
 ## Idea
 
@@ -40,12 +37,15 @@ is left out.
 |---|---|---|---|
 | <a id="fc13"></a>[FC13](FC13-GitHubs-Nulls-For-A-Deleted-Fork-And-An-Empty-Review.md) | M | - | A GitHub pull request from a deleted fork (`head.repo` null) and a review with a null `body` read instead of failing the read |
 | <a id="fc10"></a>[FC10](FC10-A-Pull-Requests-Commits-On-GitHub.md) | S | - | A GitHub pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and GitHub's signature verdict |
-| <a id="fc11"></a>[FC11](FC11-A-Pull-Requests-Commits-On-Forgejo.md) | S | [FC02](README.md#fc02) | A Forgejo pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and Forgejo's signature verdict, and any cap on the list |
+| <a id="fc11"></a>[FC11](FC11-A-Pull-Requests-Commits-On-Forgejo.md) | S | - | A Forgejo pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and Forgejo's signature verdict, and any cap on the list |
 
 ## Finished
 
 | # | What was built |
 |---|---|
+| <a id="fc06"></a>FC06 — Keys, Repositories And Commit Statuses On GitHub | A GitHub user's public SSH authentication and signing keys and key page read without a token, the signed-in user's own keys of both kinds listed, added and deleted, whether a user owns an organization, a repository read and created in an organization and a commit's combined status, recorded live; described in [clients/github/README.md](../clients/github/README.md). |
+| <a id="fc05"></a>FC05 — Keys And Repositories On Forgejo | A Forgejo user's public SSH keys read, the signed-in user's own keys listed, added and deleted, whether a user owns an organization, a repository read and created in an organization; described in [clients/forgejo/README.md](../clients/forgejo/README.md). |
+| <a id="fc02"></a>FC02 — The Forgejo Client | The `forgejo` module: REST operations from Forgejo 17's MIT Swagger 2.0 description and signed webhook deliveries, its answers recorded from a real Forgejo and every call checked live against one in the Build; described in [clients/forgejo/README.md](../clients/forgejo/README.md). |
 | <a id="fc08"></a>FC08 — Comments, Threads And Versions Through The Clients | GitHub's general comments, review comment edits and deletes, one review's comments, the merge base, pull requests by head branch and one review thread by its id with its resolver; Forgejo's general comments, review comments, the pull request of two branches and the server version, with what Forgejo cannot do measured; recorded live and from the container; described in both clients' READMEs. |
 | <a id="fc01"></a>FC01 — The GitHub Client | The `github` module: 18 REST operations from GitHub's OpenAPI description and review threads over GraphQL, tested strictly against answers recorded live and scrubbed, with the hand-run recorder and the live check; described in [clients/github/README.md](../clients/github/README.md). |
 | <a id="fc07"></a>FC07 — Plain Key Lists On Forgejo | `ForgejoClient.plainKeys` reads an account's public SSH keys from its `<login>.keys` page without a token, and a missing login is told apart from any other failure. |

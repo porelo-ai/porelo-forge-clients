@@ -1,6 +1,6 @@
 # FC11 — A Pull Request's Commits On Forgejo
 
-**Status:** Estimated; blocked by [FC02](README.md#fc02).
+**Status:** Estimated.
 **Size:** S - one call added to the `forgejo` module, recorded against a Forgejo in podman; no record other
 repositories read changes.
 
