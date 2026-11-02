@@ -47,6 +47,16 @@ jobs:
             - name: Build, unit tests and the shared checks
               run: ./mvnw -B -U -s settings.xml verify
 
+            # Every Forgejo call against a real Forgejo 17 and its runner in podman, which the runner image carries; the
+            # containers reach the test's hook receiver through slirp4netns.
+            - name: Forgejo's calls against a real Forgejo in podman
+              timeout-minutes: 10
+              run: |
+                  set -eu
+                  podman --version
+                  command -v slirp4netns >/dev/null || { sudo apt-get update -q; sudo apt-get install -y --no-install-recommends slirp4netns; }
+                  ./mvnw -B -s settings.xml -pl clients/forgejo -am -Dforgejo.live verify
+
             # A direct push to main never meets the pull request's check, so the push's own range is read here, by the
             # rule this commit carries. A tag checks the commit it names alone, a first commit too. The push that creates main names no start (all
             # zeros), so main's whole history is read. Another new branch or a branch pushed over has no start this checkout
