@@ -19,6 +19,7 @@ enum GitHubOperations {
     pulls("GET", "/repos/{owner}/{repo}/pulls"),
     pullsOfHead("GET", "/repos/{owner}/{repo}/pulls"),
     pull("GET", "/repos/{owner}/{repo}/pulls/{pull_number}"),
+    pullCommits("GET", "/repos/{owner}/{repo}/pulls/{pull_number}/commits"),
     reviews("GET", "/repos/{owner}/{repo}/pulls/{pull_number}/reviews"),
     reviewComments("GET", "/repos/{owner}/{repo}/pulls/{pull_number}/comments"),
     // One to a page over the comment and its reply: a page GitHub links onward, then a full last.
@@ -163,6 +164,7 @@ enum GitHubOperations {
                             c.number(),
                             c.comment(),
                             JSON.treeToValue(body, PullsCreateReplyForReviewCommentRequest.class));
+            case pullCommits -> client.pullCommits(token, c.owner(), c.repo(), c.number(), 1, 50);
             case reviews -> client.reviews(token, c.owner(), c.repo(), c.number(), 1, 50);
             case createReview ->
                     client.createReview(
@@ -242,6 +244,7 @@ enum GitHubOperations {
                     "state=open&head=" + head(c).replace(":", "%3A") + "&page=1&per_page=50";
             case runs -> "head_sha=" + c.sha() + "&page=1&per_page=50";
             case reviews,
+                    pullCommits,
                     reviewComments,
                     reviewCommentsOf,
                     checkRuns,

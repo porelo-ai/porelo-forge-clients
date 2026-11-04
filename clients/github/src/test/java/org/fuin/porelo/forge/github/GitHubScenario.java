@@ -16,6 +16,7 @@ final class GitHubScenario {
             GitHubJson.mapper(Strictness.STRICT);
     private String username = "pending";
     private String thread = "pending";
+    private static final String EARLIER_COMMENT = "Fixture comment before the time read since";
     private String since = "pending";
     private long number;
     private long comment;
@@ -61,6 +62,25 @@ final class GitHubScenario {
                 signingKey);
     }
 
+    /**
+     * Writes a comment, then waits into the next whole second and returns it, so reading since then
+     * must leave the earlier comment out.
+     */
+    private String afterAnEarlierComment() throws Exception {
+        fixture.api(
+                "POST",
+                GitHubFixture.ROOT + "/issues/" + number + "/comments",
+                java.util.Map.of("body", EARLIER_COMMENT));
+        var next =
+                java.time.Instant.now()
+                        .plusSeconds(1)
+                        .truncatedTo(java.time.temporal.ChronoUnit.SECONDS);
+        Thread.sleep(
+                Math.max(0, java.time.Duration.between(java.time.Instant.now(), next).toMillis())
+                        + 50);
+        return next.toString();
+    }
+
     java.util.List<Capture> run() throws Exception {
         username = fixture.api("GET", "user", null).path("login").asText();
         if (!username.matches("[A-Za-z0-9-]{1,39}"))
@@ -78,13 +98,7 @@ final class GitHubScenario {
                 job = jobs.path(0).path("id").asLong();
                 if (job <= 0) throw new IllegalStateException("Dispatched workflow has no job");
             }
-            if (operation == GitHubOperations.createIssueComment)
-                // A second before the comment, in whole seconds, so reading since it finds it.
-                since =
-                        java.time.Instant.now()
-                                .minusSeconds(1)
-                                .truncatedTo(java.time.temporal.ChronoUnit.SECONDS)
-                                .toString();
+            if (operation == GitHubOperations.createIssueComment) since = afterAnEarlierComment();
             var body = body(operation);
             var context = context();
             String token =
@@ -227,6 +241,20 @@ final class GitHubScenario {
 
     static void requireUsefulResult(GitHubOperations operation, Object result) {
         assertThat(result).as("%s must return a payload", operation).isNotNull();
+        if (operation == GitHubOperations.issueComments)
+            assertThat(((Page<?>) result).items())
+                    .extracting(value -> ((IssueComment) value).body())
+                    .as("reading since a time leaves out the comment before it")
+                    .doesNotContain(EARLIER_COMMENT);
+        if (operation == GitHubOperations.pullCommits) {
+            var commits = ((Page<?>) result).items().stream().map(Commit.class::cast).toList();
+            assertThat(commits)
+                    .as("the fixture's commits include one by an account")
+                    .anyMatch(commit -> commit.author() != null);
+            assertThat(commits)
+                    .as("the fixture's commits include one by no account")
+                    .anyMatch(commit -> commit.author() == null);
+        }
         if (operation == GitHubOperations.reviewCommentsFirstPage)
             assertThat(((Page<?>) result).more())
                     .as("a page with a next link says a further page follows")

@@ -990,6 +990,7 @@ class GitHubRecorderTest {
                 .answer(200, Map.of(), "[]")
                 .answer(200, Map.of(), "{\"object\":{\"sha\":\"" + sha + "\"}}")
                 .answer(201, Map.of(), "{\"ref\":\"refs/heads/forge-client-unit\"}")
+                .answer(201, Map.of(), "{\"commit\":{\"sha\":\"" + "b".repeat(40) + "\"}}")
                 .answer(201, Map.of(), "{\"commit\":{\"sha\":\"" + sha + "\"}}")
                 .answer(201, Map.of(), "{\"state\":\"success\"}");
     }

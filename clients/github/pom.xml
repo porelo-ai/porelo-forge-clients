@@ -182,6 +182,16 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>kept-github</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.fuin.porelo.forge.github.GitHubKeptFixture</mainClass>
+                            <classpathScope>test</classpathScope>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>record-github</id>
                         <goals>
                             <goal>java</goal>

@@ -11,11 +11,6 @@ is left out.
 |---|---|---|---|
 | <a id="fc11"></a>[FC11](FC11-A-Pull-Requests-Commits-On-Forgejo.md) | S | - | A Forgejo pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and Forgejo's signature verdict, and any cap on the list |
 | <a id="fc13"></a>[FC13](FC13-GitHubs-Nulls-For-A-Deleted-Fork-And-An-Empty-Review.md) | M | - | A GitHub pull request from a deleted fork (`head.repo`, and with the account gone `head.user` and `head.label`, null) and a review with a null `body` read instead of failing the read |
-
-## Implementing
-
-| # | Size | Blocked by | What it covers |
-|---|---|---|---|
 | <a id="fc10"></a>[FC10](FC10-A-Pull-Requests-Commits-On-GitHub.md) | S | - | A GitHub pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and GitHub's signature verdict |
 
 ## Analyzed

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 import org.fuin.porelo.forge.github.model.Key;
 import org.fuin.porelo.forge.github.model.KeySimple;
+import org.fuin.porelo.forge.github.model.OrgMembership;
 import org.fuin.porelo.forge.github.model.PrivateUser;
 import org.fuin.porelo.forge.github.model.PublicUser;
 import org.fuin.porelo.forge.github.model.PullRequestSimple;
@@ -45,6 +46,12 @@ public final class GitHubLiveCheck {
                 .as("the reviewer's own signing keys are those it shows")
                 .containsExactlyInAnyOrderElementsOf(
                         signing.stream().map(SshSigningKey::id).toList());
+    }
+
+    /** Whether a membership is that of an owner who has accepted it. */
+    static boolean isActiveOwner(OrgMembership membership) {
+        return "admin".equals(membership.role().getValue())
+                && "active".equals(membership.state().getValue());
     }
 
     /** Checks the retained fixture and dispatches a fresh log-producing workflow. */
@@ -106,6 +113,18 @@ public final class GitHubLiveCheck {
                                             GitHubFixture.OWNER,
                                             GitHubFixture.REPO,
                                             number));
+            var commits =
+                    read(
+                            "pullCommits",
+                            () ->
+                                    client.pullCommits(
+                                            token,
+                                            GitHubFixture.OWNER,
+                                            GitHubFixture.REPO,
+                                            number,
+                                            1,
+                                            100));
+            assertThat(commits.items()).as("the kept pull request has commits").isNotEmpty();
             var reviews =
                     read(
                             "reviews",
@@ -220,7 +239,7 @@ public final class GitHubLiveCheck {
                     read(
                             "orgMembership",
                             () -> client.orgMembership(token, GitHubFixture.OWNER, login));
-            assertThat(owner.role().equals("admin") && owner.state().equals("active"))
+            assertThat(isActiveOwner(owner))
                     .as("the test user owns the test organization")
                     .isTrue();
             readKeys(

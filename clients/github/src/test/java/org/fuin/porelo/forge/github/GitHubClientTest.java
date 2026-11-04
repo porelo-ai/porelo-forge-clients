@@ -806,7 +806,7 @@ class GitHubClientTest {
         var unsigned = page.items().getFirst();
         assertThat(unsigned.sha())
                 .as("the revision is read")
-                .isEqualTo("106a418ba376232cacc2e934a78a2e0e6d74e96d");
+                .isEqualTo(recordedCommits().get(0).path("sha").asText());
         assertThat(unsigned.commit().verification().verified())
                 .as("an unsigned commit is not verified")
                 .isFalse();

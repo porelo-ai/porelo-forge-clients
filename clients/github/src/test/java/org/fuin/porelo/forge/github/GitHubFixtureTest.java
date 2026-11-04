@@ -25,6 +25,50 @@ class GitHubFixtureTest {
     private static final String RUNS = "/" + GitHubFixture.ROOT + "/actions/runs";
     private static final String NONE = "{\"workflow_runs\":[]}";
 
+    // Prevents a second kept pull request, which the live check refuses, on a run after the first.
+    @Test
+    void aKeptPullRequestThatIsThereIsNotMadeAgain() throws Exception {
+        var http =
+                new ReplayHttpClient()
+                        .answer(
+                                200,
+                                Map.of(),
+                                "[{\"number\":7,\"labels\":[{\"name\":\"forge-client-live\"}]}]");
+        var fixture = fixture(http, "unit");
+
+        long number =
+                GitHubKeptFixture.ensure(fixture, new GitHubGraphQl(GitHubFixture.BASE, http));
+
+        assertThat(number).as("the one that is there is named").isEqualTo(7L);
+        assertThat(http.requests()).as("nothing is written").hasSize(1);
+    }
+
+    // Prevents a half-made pull request from staying behind, which the next run would refuse.
+    @Test
+    void aKeptPullRequestThatFailsHalfwayRemovesItsBranch() throws Exception {
+        var http =
+                new ReplayHttpClient()
+                        .answer(200, Map.of(), "[]")
+                        .answer(200, Map.of(), "{\"object\":{\"sha\":\"" + "a".repeat(40) + "\"}}")
+                        .answer(201, Map.of(), "{}")
+                        .answer(403, Map.of(), "{\"message\":\"refused\"}")
+                        .answer(204, Map.of(), "");
+        var fixture = fixture(http, "unit");
+
+        assertThatExceptionOfType(GitHubException.class)
+                .as("the failure is the caller's")
+                .isThrownBy(
+                        () ->
+                                GitHubKeptFixture.ensure(
+                                        fixture, new GitHubGraphQl(GitHubFixture.BASE, http)));
+
+        var last = http.requests().getLast();
+        assertThat(last.method()).as("the last call removes").isEqualTo("DELETE");
+        assertThat(last.uri().getPath())
+                .as("exactly the branch it made")
+                .endsWith("/git/refs/heads/forge-client-kept");
+    }
+
     // Prevents a refused setup call from hiding why GitHub refused it, or from leaking a token.
     @Test
     void aRefusedSetupCallNamesGitHubsStatusAndReasonWithoutCredentials() throws Exception {

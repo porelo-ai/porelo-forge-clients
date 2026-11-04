@@ -1,6 +1,6 @@
 # FC10 — A Pull Request's Commits On GitHub
 
-**Status:** Implementing.
+**Status:** Review.
 **Size:** S - one call added to the `github` module, its recording and live check; no record other repositories read
 changes.
 
@@ -22,9 +22,12 @@ terms.
 - **Recording and live check:** `GitHubOperations.pullCommits` after `pull`, on the fixture's pull request;
   `GitHubScenario.requireUsefulResult` wants at least one commit. `GitHubLiveCheck` reads the kept pull request's
   commits.
-- **What the fixture holds:** its pull request has one commit, by the test user and unsigned. The commit with GitHub's
-  own committer, recorded as `fixture-committer-1`, and with `verified` `true` is the base commit in the `compare`
-  recording, not one of the pull request's.
+- **What the fixture holds:** its pull request has a commit by the test user and one by an address no account has, both
+  unsigned. A commit with `verified` `true` is the base commit in the `compare` recording, not one of the pull request's.
+- **Measured live:** `GET /user` with an installation token answers 403; `compare` takes a branch with `%2F`; reading
+  general comments since a time leaves out the one written before it.
+- **The kept pull request:** the live check reads one that stays open, which `GitHubKeptFixture` makes unless it is
+  there, its label last, removing its branch if it fails.
 - **Red first:** `GitHubClientTest` reads the commits of the recorded `compare` answer, with a commit's `author` as
   `null` and as `{}`, and with `verification.verified` renamed, which fails naming the missing field in both readings.
 - **Extract:** fetching again from the kept source and digest, with its kept settings, reproduces the extract byte for
@@ -38,14 +41,5 @@ terms.
 
 ## To be checked
 
-- The live part is built once GitHub's API answers normally, since an answer recorded while it is degraded proves
-  nothing: `pullCommits` in `GitHubOperations`, with its `GitHubScenario.requireUsefulResult` use, its recording, and
-  its read in `GitHubLiveCheck`. Without a recording the `GitHubOperations` entry fails `GitHubRecordingTest`, so it
-  comes with the recording.
-- At this issue's live recording, left open by [FC08](README.md#fc08): whether GitHub answers `GET /user` for a GitHub
-  App's installation token; whether `compare` takes a branch with a slash as the client encodes it, `%2F`; a `Bot`
-  author's `databaseId` in GraphQL; and general comments read since a time, seen with one written before it and one
-  after.
-- How the recording comes to hold a verified and an unverified signature, and a commit by an account the scrubber was
-  not told about, since the fixture's commit made through the contents API reads `verified` `false`, reason `unsigned`.
+- A `Bot` author's `databaseId` in GraphQL, which needs a comment by a Bot that nothing here makes.
 - Whether a page past the 250 commits is empty, which GitHub's description does not say.

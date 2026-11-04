@@ -37,6 +37,7 @@ List<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
   has role `admin` and state `active`; an invited owner who has not accepted is `pending`. `repository` and
   `createRepository` read a repository and create one in an organization, and `status` reads a commit's combined
   status with a page of its statuses.
+- `user` is refused with 403 for a GitHub App's installation token.
 - `pullCommits` reads a pull request's commits, each with its revision, the author's and committer's accounts as GitHub
   links them, none when it links no account (`null` or an empty object), and GitHub's verdict on its signature in
   `commit.verification`. GitHub's description says the list stops at 250 commits, so a caller that needs more reads the
@@ -114,7 +115,9 @@ The two-step workflow must already be installed in that repository as `two-step.
 The `github-live` profile runs the strict reading scenario against the kept review fixture and a newly
 dispatched Actions run. Workflow proposals are delivered separately for installation by the repository owner.
 The live fixture requires an open pull request labeled `forge-client-live`, an approving review, inline
-comments and a resolved thread, and a check run and a commit status on its head commit; the approving reviewer
+comments and a resolved thread, and a check run and a commit status on its head commit, which
+`./mvnw -B -s settings.xml -pl clients/github test-compile exec:java@kept-github` makes from the recorder's environment
+unless it is there; the approving reviewer
 keeps one SSH key and one signing key made for the test, read without a token, and with
 `LIVE_GITHUB_REVIEWER_KEYS_TOKEN` as its own.
 

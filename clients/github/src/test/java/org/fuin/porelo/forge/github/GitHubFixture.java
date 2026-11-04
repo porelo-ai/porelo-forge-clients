@@ -181,6 +181,25 @@ final class GitHubFixture implements AutoCloseable {
             if (ex.status() >= 400 && ex.status() < 500) creationUnconfirmed = false;
             throw ex;
         }
+        // Before the commit the fixture reviews, so a pull request holds a commit by no account.
+        var nobody = Map.of("name", "Nobody", "email", "nobody@example.org");
+        api(
+                "PUT",
+                ROOT + "/contents/" + prefix + "-no-account.txt",
+                Map.of(
+                        "message",
+                        prefix + " by no account",
+                        "content",
+                        java.util.Base64.getEncoder()
+                                .encodeToString(
+                                        "by no account\n"
+                                                .getBytes(java.nio.charset.StandardCharsets.UTF_8)),
+                        "branch",
+                        prefix,
+                        "author",
+                        nobody,
+                        "committer",
+                        nobody));
         var content =
                 Map.of(
                         "message",
@@ -475,6 +494,11 @@ final class GitHubFixture implements AutoCloseable {
         } catch (IOException | RuntimeException ex) {
             return "";
         }
+    }
+
+    JsonNode apiAs(String token, String method, String path, @Nullable Object body)
+            throws Exception {
+        return locked(() -> apiWith(token, method, path, body));
     }
 
     private JsonNode apiWith(String token, String method, String path, @Nullable Object body)

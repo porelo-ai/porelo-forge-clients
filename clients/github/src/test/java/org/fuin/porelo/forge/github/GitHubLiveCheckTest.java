@@ -203,4 +203,33 @@ class GitHubLiveCheckTest {
                         .path("user"),
                 org.fuin.porelo.forge.github.model.SimpleUser.class);
     }
+
+    // Prevents the check of who owns the test organization from failing for every owner, as a
+    // comparison of the generated enum with its text does.
+    @Test
+    void theRecordedOwnerIsAnActiveOwnerAndAPendingOneIsNot() throws Exception {
+        var json = GitHubJson.mapper(Strictness.STRICT);
+        var body =
+                (com.fasterxml.jackson.databind.node.ObjectNode)
+                        json.readTree(
+                                GitHubRecordingTest.recording("orgMembership")
+                                        .path("body")
+                                        .asText());
+
+        assertThat(
+                        GitHubLiveCheck.isActiveOwner(
+                                json.treeToValue(
+                                        body,
+                                        org.fuin.porelo.forge.github.model.OrgMembership.class)))
+                .as("the recorded owner has accepted")
+                .isTrue();
+        body.put("state", "pending");
+        assertThat(
+                        GitHubLiveCheck.isActiveOwner(
+                                json.treeToValue(
+                                        body,
+                                        org.fuin.porelo.forge.github.model.OrgMembership.class)))
+                .as("an invited owner has not")
+                .isFalse();
+    }
 }
