@@ -5,14 +5,6 @@ issue, and who sets which state, are in [AGENTS.md](../AGENTS.md). *Open questio
 waits on the operator: the items under an issue's own *Open questions*. Its prefix is `FC`. A group with nothing in it
 is left out.
 
-## Review
-
-| # | Size | Blocked by | What it covers |
-|---|---|---|---|
-| <a id="fc11"></a>[FC11](FC11-A-Pull-Requests-Commits-On-Forgejo.md) | S | - | A Forgejo pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and Forgejo's signature verdict, and any cap on the list |
-| <a id="fc13"></a>[FC13](FC13-GitHubs-Nulls-For-A-Deleted-Fork-And-An-Empty-Review.md) | M | - | A GitHub pull request from a deleted fork (`head.repo`, and with the account gone `head.user` and `head.label`, null) and a review with a null `body` read instead of failing the read |
-| <a id="fc10"></a>[FC10](FC10-A-Pull-Requests-Commits-On-GitHub.md) | S | - | A GitHub pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and GitHub's signature verdict |
-
 ## Analyzed
 
 | # | Size | Blocked by | Open questions | What it covers |
@@ -36,6 +28,9 @@ is left out.
 
 | # | What was built |
 |---|---|
+| <a id="fc10"></a>FC10 — A Pull Request's Commits On GitHub | A GitHub pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and GitHub's signature verdict, recorded and checked live. Not checked: a `Bot` author's `databaseId` in GraphQL, and whether a page past the 250 commits is empty. |
+| <a id="fc11"></a>FC11 — A Pull Request's Commits On Forgejo | A Forgejo pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and Forgejo's signature verdict, and a cap on the list said through `X-HasMore`. |
+| <a id="fc13"></a>FC13 — GitHub's Nulls For A Deleted Fork And An Empty Review | A GitHub pull request from a deleted fork (`head.repo`, and with the account gone `head.user` and `head.label`, null) and a review with a null `body` read instead of failing the read. |
 | <a id="fc09"></a>FC09 — Rate Limits And Bounds Of The Clients' Answers | A rate limit told from a refusal with the delay to wait, the end of a paged list known, whether a failed request was sent, and every answer read up to a bound, on both forges; described in their READMEs |
 | <a id="fc14"></a>FC14 — The GitHub Recorder's Ownership Of What It Made | The GitHub recorder keeps owning what an earlier request made when a later one of its kind is refused, and the key page refusal test fails when the page does not stop. |
 | <a id="fc12"></a>FC12 — GitHub's Recorded Answers For Other Repositories | GitHub's recorded answers and the replaying `HttpClient` in a `tests` jar of the github module, published beside the main jar for the adapters' tests; described in [clients/github/README.md](../clients/github/README.md). |
