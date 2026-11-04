@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class ForgejoClientTest {
@@ -480,5 +481,71 @@ class ForgejoClientTest {
                                         .as("the unread page keeps its status")
                                         .isEqualTo(200));
         assertThat(xml.delivered).as("the refused page is not read").containsExactly(0);
+    }
+
+    // Prevents a limit above Forgejo's maximum from ending the list early, which would leave the
+    // caller's review without the later commits.
+    @Test
+    void aLimitAboveTheMaximumStillSaysMoreFollows() {
+        var http =
+                new ReplayHttpClient()
+                        .answer(
+                                200,
+                                Map.of(
+                                        "x-hasmore",
+                                        List.of("true"),
+                                        "x-total-count",
+                                        List.of("51")),
+                                "[]");
+
+        var page = new ForgejoClient(BASE, http).pullCommits(TOKEN, "owner", "repo", 7, 1, 100);
+
+        assertThat(page.more()).as("Forgejo says more follows").isTrue();
+        assertThat(page.total()).as("the whole list is counted").isEqualTo(51L);
+    }
+
+    // Prevents a commit by no Forgejo account from failing the whole list.
+    @ParameterizedTest
+    @EnumSource(Strictness.class)
+    void aCommitByNoAccountReadsWithNoAccount(Strictness strictness) throws Exception {
+        var http = new ReplayHttpClient().recording("pullCommits");
+
+        var commits =
+                new ForgejoClient(BASE, http, strictness)
+                        .pullCommits(TOKEN, "owner", "repo", 1, 1, 50)
+                        .items();
+
+        assertThat(http.requests.getFirst().uri().getRawQuery())
+                .as("the verdict is asked for and the files are not")
+                .isEqualTo("verification=true&files=false&page=1&limit=50");
+        assertThat(commits.getFirst().author().id())
+                .as("an account has its stable ID")
+                .isEqualTo(1L);
+        assertThat(commits.getFirst().commit().verification().verified())
+                .as("an unsigned commit is not verified")
+                .isFalse();
+        assertThat(commits.getLast().author()).as("no account wrote the first commit").isNull();
+        assertThat(commits.getLast().committer()).as("no account committed it").isNull();
+    }
+
+    // Prevents a signature verdict Forgejo stopped sending under its name from going unnoticed.
+    @Test
+    void theStrictReadingRefusesARenamedVerdictByName() throws Exception {
+        var json = ForgejoJson.mapper(Strictness.STRICT);
+        String body;
+        try (var stream = getClass().getResourceAsStream("/recordings/pullCommits.json")) {
+            assertThat(stream).as("the commits recording must exist").isNotNull();
+            body = json.readTree(stream).path("body").asText();
+        }
+        assertThat(body).as("the rename must hit a real field").contains("\"verified\"");
+        var http =
+                new ReplayHttpClient()
+                        .answer(200, Map.of(), body.replace("\"verified\"", "\"verdict\""));
+        var client = new ForgejoClient(BASE, http, Strictness.STRICT);
+
+        assertThatExceptionOfType(ForgejoException.class)
+                .as("the read fails rather than losing the verdict")
+                .isThrownBy(() -> client.pullCommits(TOKEN, "owner", "repo", 1, 1, 50))
+                .withMessageContaining("verdict");
     }
 }

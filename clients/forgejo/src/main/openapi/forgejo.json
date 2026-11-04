@@ -1045,6 +1045,74 @@
         }
       }
     },
+    "/repos/{owner}/{repo}/pulls/{index}/commits": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repository"
+        ],
+        "summary": "Get commits for a pull request",
+        "operationId": "repoGetPullRequestCommits",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "index of the pull request to get",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "page number of results to return (1-based)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "page size of results",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "include verification for every commit (disable for speedup, default 'true')",
+            "name": "verification",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "include a list of affected files for every commit (disable for speedup, default 'true')",
+            "name": "files",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/CommitList"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      }
+    },
     "/repos/{owner}/{repo}/pulls/{index}/reviews": {
       "get": {
         "produces": [
@@ -2383,6 +2451,113 @@
       },
       "x-go-package": "forgejo.org/modules/structs"
     },
+    "Commit": {
+      "type": "object",
+      "title": "Commit contains information generated from a Git commit.",
+      "properties": {
+        "author": {
+          "$ref": "#/definitions/User"
+        },
+        "commit": {
+          "$ref": "#/definitions/RepoCommit"
+        },
+        "committer": {
+          "$ref": "#/definitions/User"
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Created"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CommitAffectedFiles"
+          },
+          "x-go-name": "Files"
+        },
+        "html_url": {
+          "type": "string",
+          "x-go-name": "HTMLURL"
+        },
+        "parents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CommitMeta"
+          },
+          "x-go-name": "Parents"
+        },
+        "sha": {
+          "type": "string",
+          "x-go-name": "SHA"
+        },
+        "stats": {
+          "$ref": "#/definitions/CommitStats"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "CommitAffectedFiles": {
+      "description": "CommitAffectedFiles store information about files affected by the commit",
+      "type": "object",
+      "properties": {
+        "filename": {
+          "type": "string",
+          "x-go-name": "Filename"
+        },
+        "status": {
+          "type": "string",
+          "x-go-name": "Status"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "CommitMeta": {
+      "type": "object",
+      "title": "CommitMeta contains meta information of a commit in terms of API.",
+      "properties": {
+        "created": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "Created"
+        },
+        "sha": {
+          "type": "string",
+          "x-go-name": "SHA"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "CommitStats": {
+      "description": "CommitStats is statistics for a RepoCommit",
+      "type": "object",
+      "properties": {
+        "additions": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Additions"
+        },
+        "deletions": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Deletions"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
     "CommitStatus": {
       "description": "CommitStatus holds a single status of a single Commit",
       "type": "object",
@@ -2430,6 +2605,26 @@
     "CommitStatusState": {
       "description": "CommitStatusState holds the state of a CommitStatus\nIt can be \"pending\", \"success\", \"error\", \"failure\", \"warning\", or \"skipped\"",
       "type": "string",
+      "x-go-package": "forgejo.org/modules/structs"
+    },
+    "CommitUser": {
+      "type": "object",
+      "title": "CommitUser contains information of a user in the context of a commit.",
+      "properties": {
+        "date": {
+          "type": "string",
+          "x-go-name": "Date"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "x-go-name": "Email"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
       "x-go-package": "forgejo.org/modules/structs"
     },
     "CreateHookOption": {
@@ -3660,6 +3855,33 @@
       },
       "x-go-package": "forgejo.org/modules/structs"
     },
+    "RepoCommit": {
+      "type": "object",
+      "title": "RepoCommit contains information of a commit in the context of a repository.",
+      "properties": {
+        "author": {
+          "$ref": "#/definitions/CommitUser"
+        },
+        "committer": {
+          "$ref": "#/definitions/CommitUser"
+        },
+        "message": {
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "tree": {
+          "$ref": "#/definitions/CommitMeta"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        },
+        "verification": {
+          "$ref": "#/definitions/PayloadCommitVerification"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
     "RepoTransfer": {
       "description": "RepoTransfer represents a pending repo transfer",
       "type": "object",
@@ -4239,6 +4461,15 @@
           "type": "integer",
           "format": "int64",
           "description": "The total number of comments"
+        }
+      }
+    },
+    "CommitList": {
+      "description": "CommitList",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/Commit"
         }
       }
     },

@@ -1,6 +1,6 @@
 # FC11 — A Pull Request's Commits On Forgejo
 
-**Status:** Backlog.
+**Status:** Review.
 **Size:** S - one call added to the `forgejo` module, recorded against a Forgejo in podman; no record other
 repositories read changes.
 
@@ -19,12 +19,12 @@ own terms; a cap Forgejo puts on the list is said.
   `files=false`, since the caller reads the signature and not the files, and returns a `Page<Commit>` that also brings
   the caller the page's `X-Total-Count` and `X-HasMore`, so the cap is said: Forgejo answers at most its configured
   maximum per page, 50 by default, whatever `limit` asks.
-- **What `Page` does today:** it holds only `items` and `more`. `ForgejoClient` reads `more` from `Link` and
-  `X-Total-Count`, reckoning `page * limit` from the `limit` asked, so with no next link a `limit` above the cap can
-  report the end too early, which has been read and not measured. It reads `X-HasMore` nowhere, and neither header
-  reaches a caller.
+- **`Page`:** gets a `total` from `X-Total-Count`, with its two-argument constructor kept, and `more` is true on
+  `X-HasMore: true`. Reckoning `page * limit` from a `limit` above the cap alone would report the end too early; measured
+  on this list, Forgejo 17 also links a next page there, so a caller sees the end wrongly only where neither is sent.
 - **Recording:** the Forgejo recorder in podman opens a pull request with one commit by a Forgejo account and one by
-  an email no account has, and records its commits with a `limit` above the maximum, so the cap is seen.
+  an email no account has, and a second of 51 commits read with `limit=100`, so the cap is seen. A signature check needs
+  no key set up: an unsigned commit reads `verified` false, reason `gpg.error.not_signed_commit`.
 - **Red first:** `ForgejoClientTest` reads the recorded answer with one field of `verification` renamed, which must
   fail naming it in the strict reading, and a commit with `author` `null` reads with no account.
 
@@ -32,8 +32,3 @@ own terms; a cap Forgejo puts on the list is said.
 
 - `pullCommits` is tested against Forgejo's recorded answer, with no network, and live against a Forgejo in podman.
 - A `limit` above Forgejo's maximum is seen to come back capped, and the client says so through `X-HasMore`.
-
-## To be checked
-
-- Whether Forgejo 17 sends `X-HasMore` on this list, and whether a signature check needs a key the recorder must set
-  up first; without one every commit reads unverified, which the recording then shows.

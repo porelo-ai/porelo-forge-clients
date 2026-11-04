@@ -29,7 +29,13 @@ List<PullRequest> open = forgejo.pulls(token, "owner", "repo", "open", 1, 50);
   for anyone but an owner, so it reads as null then. `repository` reads a repository, and `createRepository`
   creates one in an organization. A paged list call takes a page and a limit and returns a `Page` with its `items`
   and `more`, whether a further page follows, read from Forgejo's `Link` and `X-Total-Count` headers or a run list's
-  `total_count`; a full page without them is the last one. The caller advances the page.
+  `total_count`; a full page without them is the last one. The caller advances the page. `Page.total` is what
+  `X-Total-Count` says, when Forgejo sends it.
+- `pullCommits` reads a pull request's commits with `verification=true` and `files=false`, each with its revision, the
+  author's and committer's accounts as Forgejo links them, none when it links no account, and Forgejo's verdict on its
+  signature in `commit.verification`. Forgejo 17 answers at most 50 per page by default, whatever `limit` asks, and
+  `X-HasMore` says more follows; an unsigned commit reads `verified` false, reason `gpg.error.not_signed_commit`. Forgejo's description requires no
+  field, so in `Strictness.LENIENT` a verdict Forgejo stops sending reads as `null`: only `true` means verified.
 - `pullOfBranches(base, head)` reads the open pull request from one branch into another, or fails with status 404.
   `issueComments` reads a pull request's general comments, only those updated since a time when one is given;
   Forgejo pages none, so all come in one answer, and review comments are not among them. `createIssueComment`,

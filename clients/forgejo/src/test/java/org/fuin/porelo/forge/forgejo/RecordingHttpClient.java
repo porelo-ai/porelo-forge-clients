@@ -61,6 +61,7 @@ final class RecordingHttpClient extends HttpClient {
                         "location",
                         "link",
                         "x-total-count",
+                        "x-hasmore",
                         "retry-after",
                         "x-ratelimit-limit",
                         "x-ratelimit-remaining",

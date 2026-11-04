@@ -88,6 +88,23 @@ public final class ForgejoClient {
                 json.constructType(PullRequest.class));
     }
 
+    /**
+     * Lists one page of a pull request's commits with their signature verdicts and without their
+     * files. Forgejo answers at most its configured maximum per page, 50 by default, whatever the
+     * limit asks; the page's {@code more} and {@code total} still tell the rest.
+     */
+    public Page<Commit> pullCommits(
+            String token, String owner, String repo, long index, int page, int limit) {
+        return page(
+                token,
+                pullPath(owner, repo, index)
+                        + "/commits?verification=true&files=false"
+                        + paging(page, limit),
+                Commit.class,
+                page,
+                limit);
+    }
+
     /** Lists one page of reviews. */
     public Page<PullReview> reviews(
             String token, String owner, String repo, long index, int page, int limit) {
@@ -284,7 +301,8 @@ public final class ForgejoClient {
         return new Page<>(
                 runs == null ? List.of() : runs,
                 more(answer.headers(), page, limit)
-                        || (total != null && (long) page * limit < total));
+                        || (total != null && (long) page * limit < total),
+                total);
     }
 
     /** Reads the jobs of an Actions run; Forgejo returns a JSON array. */
@@ -543,21 +561,31 @@ public final class ForgejoClient {
 
     private <T> Page<T> page(String token, String path, Class<T> element, int page, int limit) {
         Answered<List<T>> answer = exchange(token, "GET", path, null, listType(element));
-        return new Page<>(answer.value(), more(answer.headers(), page, limit));
+        return new Page<>(
+                answer.value(), more(answer.headers(), page, limit), total(answer.headers()));
     }
 
     /**
-     * Forgejo links a next page when there is one and counts the whole list; a full page without
-     * either is the last one.
+     * Forgejo says when more follows, links a next page when there is one and counts the whole
+     * list; a full page without any of them is the last one. The count alone reckons with the limit
+     * asked, which a limit above Forgejo's maximum makes too large.
      */
     private static boolean more(HttpHeaders headers, int page, int limit) {
+        if (headers.firstValue("x-hasmore").orElse("").strip().equals("true")) {
+            return true;
+        }
         for (String value : headers.allValues("link")) {
             if (NEXT_LINK.matcher(value).find()) {
                 return true;
             }
         }
+        Long total = total(headers);
+        return total != null && (long) page * limit < total;
+    }
+
+    private static @Nullable Long total(HttpHeaders headers) {
         String total = headers.firstValue("x-total-count").orElse("").strip();
-        return total.matches("[0-9]{1,18}") && (long) page * limit < Long.parseLong(total);
+        return total.matches("[0-9]{1,18}") ? Long.valueOf(total) : null;
     }
 
     private <T> Answered<T> exchange(

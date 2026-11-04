@@ -63,6 +63,9 @@ class ForgejoRecordingTest {
                         case runs -> "head_sha=" + context.actionsSha() + "&page=1&limit=50";
                         case reviews, statuses, hooks, organizations, keys, ownKeys ->
                                 "page=1&limit=50";
+                        case pullCommits -> "verification=true&files=false&page=1&limit=50";
+                        case pullCommitsAboveMaximum ->
+                                "verification=true&files=false&page=1&limit=100";
                         case statusesFirstPage -> "page=1&limit=1";
                         case statusesLastPage -> "page=2&limit=1";
                         default -> null;

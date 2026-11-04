@@ -26,6 +26,7 @@ final class ForgejoContainer implements AutoCloseable {
     // Supply the reviewed tag and digest before running either live entry point.
     static final String RUNNER_IMAGE =
             "code.forgejo.org/forgejo/runner:13.2.0@sha256:ca3d5eea46004789a175d1369eec6829d3ea9bfbe2011a06625b4bdaa55f7552";
+    static final int FORGEJO_MAXIMUM = 50;
     static final String OWNER = "review-org";
     static final String REPO = "review-fixture";
     static final String ADMIN = "fixture-admin";
@@ -250,7 +251,38 @@ final class ForgejoContainer implements AutoCloseable {
                 "POST",
                 repoPath() + "/branches",
                 Map.of("new_branch_name", "feature", "old_branch_name", "main"));
+        contentByNoAccount("feature", "no-account.txt", "Written by no account.\n");
         content("feature", "review.txt", "Review this line.\n");
+    }
+
+    /**
+     * Opens a pull request of more commits than Forgejo answers on one page, and says its number.
+     */
+    long longPull() {
+        api(
+                "POST",
+                repoPath() + "/branches",
+                Map.of("new_branch_name", "long", "old_branch_name", "main"));
+        for (int commit = 0; commit <= FORGEJO_MAXIMUM; commit++) {
+            content("long", "long-" + commit + ".txt", "Commit " + commit + ".\n");
+        }
+        long number =
+                api(
+                                "POST",
+                                repoPath() + "/pulls",
+                                Map.of(
+                                        "base",
+                                        "main",
+                                        "head",
+                                        "long",
+                                        "title",
+                                        "Above the maximum"))
+                        .path("number")
+                        .asLong();
+        if (number < 1) {
+            throw new IllegalStateException("The long pull request has no number");
+        }
+        return number;
     }
 
     private void startRunner() throws IOException {
@@ -375,6 +407,25 @@ final class ForgejoContainer implements AutoCloseable {
                         branch,
                         "message",
                         "Add live fixture",
+                        "content",
+                        Base64.getEncoder()
+                                .encodeToString(content.getBytes(StandardCharsets.UTF_8))));
+    }
+
+    private void contentByNoAccount(String branch, String path, String content) {
+        Map<String, String> nobody = Map.of("name", "Nobody", "email", "nobody@example.org");
+        api(
+                "POST",
+                repoPath() + "/contents/" + path,
+                Map.of(
+                        "branch",
+                        branch,
+                        "message",
+                        "Add a commit by no account",
+                        "author",
+                        nobody,
+                        "committer",
+                        nobody,
                         "content",
                         Base64.getEncoder()
                                 .encodeToString(content.getBytes(StandardCharsets.UTF_8))));

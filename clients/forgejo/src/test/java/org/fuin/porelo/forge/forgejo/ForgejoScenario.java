@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import org.fuin.porelo.forge.forgejo.ForgejoOperations.Context;
 import org.fuin.porelo.forge.forgejo.model.Comment;
+import org.fuin.porelo.forge.forgejo.model.Commit;
 import org.fuin.porelo.forge.forgejo.model.OrganizationPermissions;
 import org.fuin.porelo.forge.forgejo.model.PublicKey;
 import org.fuin.porelo.forge.forgejo.model.PullRequest;
@@ -48,6 +49,7 @@ final class ForgejoScenario {
     private long key = 1;
     private long comment = 1;
     private long issueComment = 1;
+    private long longIndex = 1;
     private String since = "1970-01-01T00:00:00Z";
 
     /**
@@ -82,7 +84,8 @@ final class ForgejoScenario {
                 key,
                 comment,
                 issueComment,
-                since);
+                since,
+                longIndex);
     }
 
     List<Capture> run() throws Exception {
@@ -99,6 +102,9 @@ final class ForgejoScenario {
             }
             if (operation == ForgejoOperations.statusesFirstPage) {
                 secondStatus();
+            }
+            if (operation == ForgejoOperations.pullCommitsAboveMaximum) {
+                longIndex = fixture.longPull();
             }
             JsonNode body = body(operation);
             String token =
@@ -274,6 +280,31 @@ final class ForgejoScenario {
                     .as("reading since a time finds the comment after it and not the one before")
                     .contains(EDITED_COMMENT)
                     .doesNotContain(EARLIER_COMMENT);
+        }
+        if (operation == ForgejoOperations.pullCommits) {
+            var commits = ((Page<?>) result).items().stream().map(Commit.class::cast).toList();
+            assertThat(commits)
+                    .as("the fixture's commits are one by an account and one by none")
+                    .hasSize(2);
+            assertThat(commits.getFirst().author())
+                    .as("the last commit's author is linked")
+                    .isNotNull();
+            assertThat(commits.getLast().author())
+                    .as("no account has the first commit's address")
+                    .isNull();
+            assertThat(commits.getLast().commit().verification())
+                    .as("the verdict is asked for")
+                    .isNotNull();
+        }
+        if (operation == ForgejoOperations.pullCommitsAboveMaximum) {
+            var capped = (Page<?>) result;
+            assertThat(capped.items())
+                    .as("a limit above the maximum comes back capped")
+                    .hasSize(ForgejoContainer.FORGEJO_MAXIMUM);
+            assertThat(capped.more()).as("the capped page says more follows").isTrue();
+            assertThat(capped.total())
+                    .as("the page counts the whole list")
+                    .isEqualTo(ForgejoContainer.FORGEJO_MAXIMUM + 1L);
         }
         if (operation == ForgejoOperations.statusesFirstPage) {
             assertThat(((Page<?>) result).more())

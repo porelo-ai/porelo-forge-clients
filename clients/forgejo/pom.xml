@@ -103,6 +103,8 @@
                                 <argument>--operation</argument>
                                 <argument>get /repos/{owner}/{repo}/pulls/{index}</argument>
                                 <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/pulls/{index}/commits</argument>
+                                <argument>--operation</argument>
                                 <argument>get /repos/{owner}/{repo}/pulls/{index}/reviews</argument>
                                 <argument>--operation</argument>
                                 <argument>post /repos/{owner}/{repo}/pulls/{index}/reviews</argument>

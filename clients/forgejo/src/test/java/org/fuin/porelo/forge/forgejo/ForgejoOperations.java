@@ -13,6 +13,9 @@ enum ForgejoOperations {
     pulls("GET"),
     pullOfBranches("GET"),
     pull("GET"),
+    pullCommits("GET"),
+    // Asks more than Forgejo's maximum of a pull request holding more than it.
+    pullCommitsAboveMaximum("GET"),
     reviews("GET"),
     reviewComments("GET"),
     deleteReviewComment("DELETE"),
@@ -133,6 +136,9 @@ enum ForgejoOperations {
             case version -> client.version(token);
             case pulls -> client.pulls(token, c.owner(), c.repo(), "open", 1, 50);
             case pull -> client.pull(token, c.owner(), c.repo(), c.index());
+            case pullCommits -> client.pullCommits(token, c.owner(), c.repo(), c.index(), 1, 50);
+            case pullCommitsAboveMaximum ->
+                    client.pullCommits(token, c.owner(), c.repo(), c.longIndex(), 1, 100);
             case reviews -> client.reviews(token, c.owner(), c.repo(), c.index(), 1, 50);
             case reviewComments ->
                     client.reviewComments(token, c.owner(), c.repo(), c.index(), c.review());
@@ -179,6 +185,8 @@ enum ForgejoOperations {
                     repo + "/issues/comments/" + c.issueComment();
             case version -> "/api/v1/version";
             case pull -> pull;
+            case pullCommits -> pull + "/commits";
+            case pullCommitsAboveMaximum -> repo + "/pulls/" + c.longIndex() + "/commits";
             case createReview, reviews -> pull + "/reviews";
             case reviewComments -> pull + "/reviews/" + c.review() + "/comments";
             case dismissReview -> pull + "/reviews/" + c.review() + "/dismissals";
@@ -220,5 +228,6 @@ enum ForgejoOperations {
             long key,
             long comment,
             long issueComment,
-            String since) {}
+            String since,
+            long longIndex) {}
 }

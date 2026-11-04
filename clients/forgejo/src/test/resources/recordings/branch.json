@@ -6,7 +6,7 @@
       "application/json;charset=utf-8"
     ]
   },
-  "body" : "{\"name\":\"feature\",\"commit\":{\"id\":\"f76b00f8a18b88b37410d71cd9bd902add8aeff7\",\"message\":\"Add live fixture\\n\",\"url\":\"http://example.org/review-org/review-fixture/commit/f76b00f8a18b88b37410d71cd9bd902add8aeff7\",\"author\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"committer\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"verification\":{\"verified\":false,\"reason\":\"gpg.error.not_signed_commit\",\"signature\":\"\",\"signer\":null,\"payload\":\"\"},\"timestamp\":\"2026-11-02T08:32:40Z\",\"added\":null,\"removed\":null,\"modified\":null},\"protected\":false,\"required_approvals\":0,\"enable_status_check\":false,\"status_check_contexts\":[],\"user_can_push\":true,\"user_can_merge\":true,\"effective_branch_protection_name\":\"\"}",
+  "body" : "{\"name\":\"feature\",\"commit\":{\"id\":\"02282e6c4c100027f421595909d9cff4bc114aee\",\"message\":\"Add live fixture\\n\",\"url\":\"http://example.org/review-org/review-fixture/commit/02282e6c4c100027f421595909d9cff4bc114aee\",\"author\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"committer\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"verification\":{\"verified\":false,\"reason\":\"gpg.error.not_signed_commit\",\"signature\":\"\",\"signer\":null,\"payload\":\"\"},\"timestamp\":\"2026-11-04T10:44:11Z\",\"added\":null,\"removed\":null,\"modified\":null},\"protected\":false,\"required_approvals\":0,\"enable_status_check\":false,\"status_check_contexts\":[],\"user_can_push\":true,\"user_can_merge\":true,\"effective_branch_protection_name\":\"\"}",
   "exchanges" : [
     {
       "request_uri" : "/api/v1/repos/review-org/review-fixture/branches/feature",
@@ -16,22 +16,23 @@
           "application/json;charset=utf-8"
         ]
       },
-      "body" : "{\"name\":\"feature\",\"commit\":{\"id\":\"f76b00f8a18b88b37410d71cd9bd902add8aeff7\",\"message\":\"Add live fixture\\n\",\"url\":\"http://example.org/review-org/review-fixture/commit/f76b00f8a18b88b37410d71cd9bd902add8aeff7\",\"author\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"committer\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"verification\":{\"verified\":false,\"reason\":\"gpg.error.not_signed_commit\",\"signature\":\"\",\"signer\":null,\"payload\":\"\"},\"timestamp\":\"2026-11-02T08:32:40Z\",\"added\":null,\"removed\":null,\"modified\":null},\"protected\":false,\"required_approvals\":0,\"enable_status_check\":false,\"status_check_contexts\":[],\"user_can_push\":true,\"user_can_merge\":true,\"effective_branch_protection_name\":\"\"}"
+      "body" : "{\"name\":\"feature\",\"commit\":{\"id\":\"02282e6c4c100027f421595909d9cff4bc114aee\",\"message\":\"Add live fixture\\n\",\"url\":\"http://example.org/review-org/review-fixture/commit/02282e6c4c100027f421595909d9cff4bc114aee\",\"author\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"committer\":{\"name\":\"fixture-admin\",\"email\":\"fixture@example.org\",\"username\":\"fixture-admin\"},\"verification\":{\"verified\":false,\"reason\":\"gpg.error.not_signed_commit\",\"signature\":\"\",\"signer\":null,\"payload\":\"\"},\"timestamp\":\"2026-11-04T10:44:11Z\",\"added\":null,\"removed\":null,\"modified\":null},\"protected\":false,\"required_approvals\":0,\"enable_status_check\":false,\"status_check_contexts\":[],\"user_can_push\":true,\"user_can_merge\":true,\"effective_branch_protection_name\":\"\"}"
     }
   ],
   "context" : {
     "owner" : "review-org",
     "repo" : "review-fixture",
-    "sha" : "f76b00f8a18b88b37410d71cd9bd902add8aeff7",
-    "actionsSha" : "2511b9e00c00df122c35657f0b310ea7b67d2bd1",
+    "sha" : "02282e6c4c100027f421595909d9cff4bc114aee",
+    "actionsSha" : "14ec7f49f59a9293a20254fbacaf1507d4097945",
     "index" : 1,
     "review" : 1,
     "run" : 1,
     "job" : 1,
     "key" : 1,
     "comment" : 4,
-    "issueComment" : 6,
-    "since" : "2026-11-02T08:32:41Z"
+    "issueComment" : 7,
+    "since" : "2026-11-04T10:44:33Z",
+    "longIndex" : 2
   },
   "request_body" : null
 }

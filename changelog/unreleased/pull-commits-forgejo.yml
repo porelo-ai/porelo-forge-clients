@@ -1,0 +1,2 @@
+title: Read a Forgejo pull request's commits page by page, each with its revision, the author's and committer's accounts and Forgejo's verdict on its signature, say a limit above Forgejo's maximum from X-HasMore, and tell the whole list's length in a Page.
+type: added

@@ -5,6 +5,12 @@ issue, and who sets which state, are in [AGENTS.md](../AGENTS.md). *Open questio
 waits on the operator: the items under an issue's own *Open questions*. Its prefix is `FC`. A group with nothing in it
 is left out.
 
+## Review
+
+| # | Size | Blocked by | What it covers |
+|---|---|---|---|
+| <a id="fc11"></a>[FC11](FC11-A-Pull-Requests-Commits-On-Forgejo.md) | S | - | A Forgejo pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and Forgejo's signature verdict, and any cap on the list |
+
 ## Implementing
 
 | # | Size | Blocked by | What it covers |
@@ -15,7 +21,6 @@ is left out.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="fc11"></a>[FC11](FC11-A-Pull-Requests-Commits-On-Forgejo.md) | S | - | A Forgejo pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and Forgejo's signature verdict, and any cap on the list |
 | <a id="fc13"></a>[FC13](FC13-GitHubs-Nulls-For-A-Deleted-Fork-And-An-Empty-Review.md) | M | - | A GitHub pull request from a deleted fork (`head.repo` null) and a review with a null `body` read instead of failing the read |
 
 ## Accepted
