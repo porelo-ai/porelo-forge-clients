@@ -790,6 +790,90 @@ class GitHubClientTest {
                 .isEqualTo(comparison.path("merge_base_commit").path("sha").asText());
     }
 
+    // Prevents a caller reading another list than the commits, or a commit's revision, account or
+    // signature verdict wrongly, from basing a review on the wrong authorship.
+    @Test
+    void aPullRequestsCommitsReadWithTheirAccountsAndVerdicts() throws Exception {
+        var http = new ReplayHttpClient().answer(200, Map.of(), recordedCommits().toString());
+
+        var page =
+                new GitHubClient(BASE, http, Strictness.STRICT)
+                        .pullCommits(TOKEN, "owner", "repo", 7, 2, 30);
+
+        assertThat(http.requests().getFirst().uri().toString())
+                .as("the commits of that pull request are asked for, by page")
+                .isEqualTo(BASE + "repos/owner/repo/pulls/7/commits?page=2&per_page=30");
+        var unsigned = page.items().getFirst();
+        assertThat(unsigned.sha())
+                .as("the revision is read")
+                .isEqualTo("106a418ba376232cacc2e934a78a2e0e6d74e96d");
+        assertThat(unsigned.commit().verification().verified())
+                .as("an unsigned commit is not verified")
+                .isFalse();
+        assertThat(unsigned.commit().verification().reason())
+                .as("GitHub's reason is read")
+                .isEqualTo("unsigned");
+        var signed = page.items().get(1);
+        assertThat(signed.commit().verification().verified())
+                .as("a signed commit is verified")
+                .isTrue();
+        assertThat(signed.author()).as("the author is an account").isInstanceOf(SimpleUser.class);
+        assertThat(((SimpleUser) signed.committer()).login())
+                .as("the committer is its own account")
+                .isEqualTo("fixture-committer-1");
+        assertThat(((SimpleUser) signed.committer()).id())
+                .as("the committer's stable ID differs from the author's")
+                .isNotEqualTo(((SimpleUser) signed.author()).id());
+    }
+
+    // Prevents a commit by no GitHub account from failing the whole list.
+    @ParameterizedTest
+    @EnumSource(Strictness.class)
+    void aCommitByNoAccountReadsWithNoAccount(Strictness strictness) throws Exception {
+        var commits = recordedCommits();
+        ((com.fasterxml.jackson.databind.node.ObjectNode) commits.get(0)).putNull("author");
+        ((com.fasterxml.jackson.databind.node.ObjectNode) commits.get(0)).putObject("committer");
+        var http = new ReplayHttpClient().answer(200, Map.of(), commits.toString());
+
+        var commit =
+                new GitHubClient(BASE, http, strictness)
+                        .pullCommits(TOKEN, "owner", "repo", 7, 1, 30)
+                        .items()
+                        .getFirst();
+
+        assertThat(commit.author()).as("null is no account").isNull();
+        assertThat(commit.committer()).as("an empty object is no account").isNull();
+    }
+
+    // Prevents a signature verdict GitHub stopped sending under its name from reading as unsigned.
+    @ParameterizedTest
+    @EnumSource(Strictness.class)
+    void aRenamedVerdictFailsNamingIt(Strictness strictness) throws Exception {
+        var commits = recordedCommits();
+        var verification =
+                (com.fasterxml.jackson.databind.node.ObjectNode)
+                        commits.get(0).path("commit").path("verification");
+        verification.set("verdict", verification.remove("verified"));
+        var http = new ReplayHttpClient().answer(200, Map.of(), commits.toString());
+        var client = new GitHubClient(BASE, http, strictness);
+
+        assertThatExceptionOfType(GitHubException.class)
+                .as("the read fails rather than guessing a verdict")
+                .isThrownBy(() -> client.pullCommits(TOKEN, "owner", "repo", 7, 1, 30))
+                .withMessageContaining("commit.verification.verified");
+    }
+
+    /** The commits GitHub answered in the recorded comparison: an unsigned and a verified one. */
+    private static com.fasterxml.jackson.databind.node.ArrayNode recordedCommits()
+            throws Exception {
+        var mapper = GitHubJson.mapper(Strictness.STRICT);
+        var comparison =
+                mapper.readTree(GitHubRecordingTest.recording("compare").path("body").asText());
+        return mapper.createArrayNode()
+                .add(comparison.path("commits").path(0))
+                .add(comparison.path("base_commit"));
+    }
+
     // Prevents a thread ID GitHub does not know, which it answers with a null node and a NOT_FOUND
     // error for it, from failing as a broken answer instead of reading as no thread.
     @Test

@@ -118,6 +118,18 @@ public final class GitHubClient {
                 json.constructType(PullRequest.class));
     }
 
+    /**
+     * Lists one page of a pull request's commits. GitHub's description says the list stops at 250
+     * commits, so a caller that needs more reads the branch's commits instead.
+     */
+    public Page<Commit> pullCommits(
+            String token, String owner, String repo, long number, int page, int perPage) {
+        return page(
+                token,
+                pullPath(owner, repo, number) + "/commits?" + pageQuery(page, perPage),
+                Commit.class);
+    }
+
     /** Lists one page of reviews. */
     public Page<PullRequestReview> reviews(
             String token, String owner, String repo, long number, int page, int perPage) {

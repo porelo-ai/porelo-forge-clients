@@ -143,6 +143,8 @@
                                 <argument
                             >post /repos/{owner}/{repo}/pulls/{pull_number}/comments/{comment_id}/replies</argument>
                                 <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/pulls/{pull_number}/commits</argument>
+                                <argument>--operation</argument>
                                 <argument>get /repos/{owner}/{repo}/pulls/{pull_number}/reviews</argument>
                                 <argument>--operation</argument>
                                 <argument>post /repos/{owner}/{repo}/pulls/{pull_number}/reviews</argument>

@@ -25,8 +25,10 @@ terms.
 - **What the fixture holds:** its pull request has one commit, by the test user and unsigned. The commit with GitHub's
   own committer, recorded as `fixture-committer-1`, and with `verified` `true` is the base commit in the `compare`
   recording, not one of the pull request's.
-- **Red first:** `GitHubClientTest` reads the recorded answer with a commit's `author` as `null` and as `{}`, and with
-  one field of `verification` renamed, which must fail naming it in the strict reading.
+- **Red first:** `GitHubClientTest` reads the commits of the recorded `compare` answer, with a commit's `author` as
+  `null` and as `{}`, and with `verification.verified` renamed, which fails naming the missing field in both readings.
+- **Extract:** fetching again from the kept source and digest, with its kept settings, reproduces the extract byte for
+  byte; the only change is the one path.
 
 ## Acceptance
 
@@ -36,6 +38,10 @@ terms.
 
 ## To be checked
 
+- The live part is built once GitHub's API answers normally, since an answer recorded while it is degraded proves
+  nothing: `pullCommits` in `GitHubOperations`, with its `GitHubScenario.requireUsefulResult` use, its recording, and
+  its read in `GitHubLiveCheck`. Without a recording the `GitHubOperations` entry fails `GitHubRecordingTest`, so it
+  comes with the recording.
 - At this issue's live recording, left open by [FC08](README.md#fc08): whether GitHub answers `GET /user` for a GitHub
   App's installation token; whether `compare` takes a branch with a slash as the client encodes it, `%2F`; a `Bot`
   author's `databaseId` in GraphQL; and general comments read since a time, seen with one written before it and one

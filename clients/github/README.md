@@ -37,6 +37,10 @@ List<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
   has role `admin` and state `active`; an invited owner who has not accepted is `pending`. `repository` and
   `createRepository` read a repository and create one in an organization, and `status` reads a commit's combined
   status with a page of its statuses.
+- `pullCommits` reads a pull request's commits, each with its revision, the author's and committer's accounts as GitHub
+  links them, none when it links no account (`null` or an empty object), and GitHub's verdict on its signature in
+  `commit.verification`. GitHub's description says the list stops at 250 commits, so a caller that needs more reads the
+  branch's commits instead.
 - `GitHubException.status()` is the HTTP status, or zero for transport and payload failures.
   Diagnostics scrub credentials and do not attach raw payloads or transport causes. `delivery()` says whether the
   request may have reached GitHub: `NOT_SENT`, `SENT_UNANSWERED`, or `ANSWERED`, the answer perhaps undecodable or over
