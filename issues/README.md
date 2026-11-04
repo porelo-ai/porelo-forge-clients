@@ -18,11 +18,16 @@ is left out.
 |---|---|---|---|
 | <a id="fc10"></a>[FC10](FC10-A-Pull-Requests-Commits-On-GitHub.md) | S | - | A GitHub pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and GitHub's signature verdict |
 
+## Analyzed
+
+| # | Size | Blocked by | Open questions | What it covers |
+|---|---|---|---|---|
+| <a id="fc03"></a>[FC03](FC03-The-Forge-Calls-Of-The-Adapters-Move-Here.md) | M | - | 3 | The clients make every call Porelo's build adapters make to GitHub and Forgejo today, with the same requests and answers, published as snapshots |
+
 ## Accepted
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="fc03"></a>[FC03](FC03-The-Forge-Calls-Of-The-Adapters-Move-Here.md) | - | - | The clients make every call Porelo's build adapters make to GitHub and Forgejo today, with the same requests and answers, published as snapshots |
 | <a id="fc17"></a>[FC17](FC17-Mutation-Testing-With-PIT.md) | - | - | A `pit` profile run by hand, with PIT and its JUnit 5 plugin pinned, and a report sorting the survivors into real gaps and harmless ones |
 
 ## Idea
