@@ -12,16 +12,19 @@ terms.
 ## Plan
 
 - **The operation:** `GET /repos/{owner}/{repo}/pulls/{pull_number}/commits`, added to the extract's operations in
-  the `check-extract` execution of `clients/github/pom.xml` and to the recorded args; its answer is a list of the
+  the `check-extract` execution of `clients/github/pom.xml`; its answer is a list of the
   extract's `commit`, which `compare` already reads, so no schema is added: `sha`, `author` and `committer` as the
   `oneOf` of `null`, `simple-user` and an empty object that a commit by no GitHub account needs, with the account's
   `id`, and `commit.verification` with `verified`, `reason`, `signature`, `payload` and `verified_at`.
-- **`GitHubClient.pullCommits(token, owner, repo, number, page, perPage)`:** returns `List<Commit>`, read in the
-  client's strictness. Its Javadoc and `clients/github/README.md` say what GitHub's description says: the list stops at
-  250 commits, and a page past them is empty, so a caller that needs more reads the branch's commits instead.
-- **Recording and live check:** `GitHubOperations.pullCommits` after `pull`, on the fixture's pull request, whose
-  commits include the one by an unknown account that `compare` already records; `requireUsefulResult` wants at least
-  one commit. `GitHubLiveCheck` reads the kept pull request's commits.
+- **`GitHubClient.pullCommits(token, owner, repo, number, page, perPage)`:** returns `Page<Commit>`, like every paged
+  list of the client, read in the client's strictness. Its Javadoc and `clients/github/README.md` say what GitHub's
+  description says: the list stops at 250 commits, so a caller that needs more reads the branch's commits instead.
+- **Recording and live check:** `GitHubOperations.pullCommits` after `pull`, on the fixture's pull request;
+  `GitHubScenario.requireUsefulResult` wants at least one commit. `GitHubLiveCheck` reads the kept pull request's
+  commits.
+- **What the fixture holds:** its pull request has one commit, by the test user and unsigned. The commit with GitHub's
+  own committer, recorded as `fixture-committer-1`, and with `verified` `true` is the base commit in the `compare`
+  recording, not one of the pull request's.
 - **Red first:** `GitHubClientTest` reads the recorded answer with a commit's `author` as `null` and as `{}`, and with
   one field of `verification` renamed, which must fail naming it in the strict reading.
 
@@ -37,5 +40,6 @@ terms.
   App's installation token; whether `compare` takes a branch with a slash as the client encodes it, `%2F`; a `Bot`
   author's `databaseId` in GraphQL; and general comments read since a time, seen with one written before it and one
   after.
-- Whether GitHub signs the fixture's commits made through the contents API (`verified` `true`, reason `valid`), so the
-  recording holds a verified and an unverified signature.
+- How the recording comes to hold a verified and an unverified signature, and a commit by an account the scrubber was
+  not told about, since the fixture's commit made through the contents API reads `verified` `false`, reason `unsigned`.
+- Whether a page past the 250 commits is empty, which GitHub's description does not say.

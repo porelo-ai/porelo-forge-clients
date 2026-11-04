@@ -16,9 +16,13 @@ own terms; a cap Forgejo puts on the list is said.
   `Commit`: `sha`, `author` and `committer` as Forgejo's `User` with its `id` (none when Forgejo links no account), and
   `commit.verification` as `PayloadCommitVerification` with `verified`, `reason`, `signature` and `signer`.
 - **`ForgejoClient.pullCommits(token, owner, repo, index, page, limit)`:** sends `verification=true` and
-  `files=false`, since the caller reads the signature and not the files, and returns the commits with the page's
-  `X-Total-Count` and `X-HasMore`, so the cap is said: Forgejo answers at most its configured maximum per page, 50 by
-  default, whatever `limit` asks.
+  `files=false`, since the caller reads the signature and not the files, and returns a `Page<Commit>` that also brings
+  the caller the page's `X-Total-Count` and `X-HasMore`, so the cap is said: Forgejo answers at most its configured
+  maximum per page, 50 by default, whatever `limit` asks.
+- **What `Page` does today:** it holds only `items` and `more`. `ForgejoClient` reads `more` from `Link` and
+  `X-Total-Count`, reckoning `page * limit` from the `limit` asked, so with no next link a `limit` above the cap can
+  report the end too early, which has been read and not measured. It reads `X-HasMore` nowhere, and neither header
+  reaches a caller.
 - **Recording:** the Forgejo recorder in podman opens a pull request with one commit by a Forgejo account and one by
   an email no account has, and records its commits with a `limit` above the maximum, so the cap is seen.
 - **Red first:** `ForgejoClientTest` reads the recorded answer with one field of `verification` renamed, which must
