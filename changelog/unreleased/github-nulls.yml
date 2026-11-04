@@ -1,0 +1,2 @@
+title: Read a GitHub pull request from a deleted fork and a review with no text, with head.repo, head.user, head.label and body null, instead of failing the whole read; callers now check them for null.
+type: changed

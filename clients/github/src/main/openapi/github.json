@@ -59,7 +59,13 @@
         "simple-commit-status#/properties/id/format",
         "ssh-signing-key#/properties/id/format",
         "key-simple#/properties/id/format",
-        "#/paths/~1orgs~1{org}~1repos/post/requestBody/content/application~1json/schema/properties/team_id/format"
+        "#/paths/~1orgs~1{org}~1repos/post/requestBody/content/application~1json/schema/properties/team_id/format",
+        "pull-request#/properties/head/properties/repo",
+        "pull-request-simple#/properties/head/properties/repo",
+        "pull-request-review#/properties/body/type",
+        "pull-request#/properties/head/properties/user",
+        "pull-request#/properties/head/properties/label/type",
+        "pull-request-simple#/properties/head/properties/label/type"
       ]
     }
   },
@@ -7234,13 +7240,23 @@
             "type": "object",
             "properties": {
               "label": {
-                "type": "string"
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "ref": {
                 "type": "string"
               },
               "repo": {
-                "$ref": "#/components/schemas/repository"
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/repository"
+                  }
+                ]
               },
               "sha": {
                 "type": "string"
@@ -10654,19 +10670,36 @@
             "type": "object",
             "properties": {
               "label": {
-                "type": "string"
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "ref": {
                 "type": "string"
               },
               "repo": {
-                "$ref": "#/components/schemas/repository"
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/repository"
+                  }
+                ]
               },
               "sha": {
                 "type": "string"
               },
               "user": {
-                "$ref": "#/components/schemas/simple-user"
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/simple-user"
+                  }
+                ]
               }
             },
             "required": [
@@ -10914,7 +10947,10 @@
           },
           "body": {
             "description": "The text of the review.",
-            "type": "string",
+            "type": [
+              "string",
+              "null"
+            ],
             "examples": [
               "This looks great."
             ]

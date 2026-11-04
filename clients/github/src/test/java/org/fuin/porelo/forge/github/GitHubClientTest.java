@@ -866,12 +866,70 @@ class GitHubClientTest {
     /** The commits GitHub answered in the recorded comparison: an unsigned and a verified one. */
     private static com.fasterxml.jackson.databind.node.ArrayNode recordedCommits()
             throws Exception {
-        var mapper = GitHubJson.mapper(Strictness.STRICT);
-        var comparison =
-                mapper.readTree(GitHubRecordingTest.recording("compare").path("body").asText());
-        return mapper.createArrayNode()
+        var comparison = recordedBody("compare");
+        return GitHubJson.mapper(Strictness.STRICT)
+                .createArrayNode()
                 .add(comparison.path("commits").path(0))
                 .add(comparison.path("base_commit"));
+    }
+
+    // Prevents one pull request from a deleted fork, or from a fork whose account is gone too, from
+    // failing the whole list, so that a caller loses every other pull request.
+    @ParameterizedTest
+    @EnumSource(Strictness.class)
+    void aPullRequestFromADeletedForkReadsWithWhatGitHubStillSays(Strictness strictness)
+            throws Exception {
+        var pull = withNoFork(recordedBody("pull"));
+        var pulls = recordedBody("pulls");
+        withNoFork(pulls.get(0));
+        var http =
+                new ReplayHttpClient()
+                        .answer(200, Map.of(), pull.toString())
+                        .answer(200, Map.of(), pulls.toString());
+        var client = new GitHubClient(BASE, http, strictness);
+
+        var head = client.pull(TOKEN, "owner", "repo", 1).head();
+        var listed = client.pulls(TOKEN, "owner", "repo", "open", 1, 50).items().getFirst().head();
+
+        assertThat(head.repo()).as("the fork is gone").isNull();
+        assertThat(head.user()).as("its account is gone").isNull();
+        assertThat(head.label()).as("nothing names it").isNull();
+        assertThat(head.sha()).as("the revision stays").isNotEmpty();
+        assertThat(listed.repo()).as("the listed fork is gone").isNull();
+        assertThat(listed.user()).as("the listed account is gone").isNull();
+        assertThat(listed.label()).as("nothing names the listed one").isNull();
+    }
+
+    // Prevents one review without text from failing the whole list of reviews.
+    @ParameterizedTest
+    @EnumSource(Strictness.class)
+    void aReviewWithANullBodyReadsWithNoBody(Strictness strictness) throws Exception {
+        var reviews = recordedBody("reviews");
+        ((com.fasterxml.jackson.databind.node.ObjectNode) reviews.get(0)).putNull("body");
+        var http = new ReplayHttpClient().answer(200, Map.of(), reviews.toString());
+
+        var read =
+                new GitHubClient(BASE, http, strictness)
+                        .reviews(TOKEN, "owner", "repo", 1, 1, 50)
+                        .items()
+                        .getFirst();
+
+        assertThat(read.body()).as("the review has no text").isNull();
+    }
+
+    private static com.fasterxml.jackson.databind.JsonNode recordedBody(String name)
+            throws Exception {
+        return GitHubJson.mapper(Strictness.STRICT)
+                .readTree(GitHubRecordingTest.recording(name).path("body").asText());
+    }
+
+    private static com.fasterxml.jackson.databind.JsonNode withNoFork(
+            com.fasterxml.jackson.databind.JsonNode pull) {
+        ((com.fasterxml.jackson.databind.node.ObjectNode) pull.path("head"))
+                .putNull("repo")
+                .putNull("user")
+                .putNull("label");
+        return pull;
     }
 
     // Prevents a thread ID GitHub does not know, which it answers with a null node and a NOT_FOUND

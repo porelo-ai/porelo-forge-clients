@@ -127,7 +127,11 @@ integer identifier of a record that the description gives no format (`id`, a nam
 comment's `in_reply_to`) is `int64`, since GitHub's identifiers have passed the 32-bit range; and a check run's
 `conclusion` also takes `stale` and `startup_failure`, which only GitHub sets and its check run request bodies list;
 a commit's `author` and `committer` are a `oneOf` that starts with `null`, since a commit whose author is no GitHub
-account comes as `null`, and the client reads an empty object as none too.
+account comes as `null`, and the client reads an empty object as none too. In both of a pull request's schemas `head.repo` and `head.user` are
+an `anyOf` of `null` and their schema and `head.label` is `["string", "null"]`: a pull request from a deleted fork has no
+`repo`, and when the fork's account is gone too it has no `user` and no `label`, while `ref` and `sha` stay. A review's
+`body` is `["string", "null"]`, so a review with no text reads the same. All of them read as `null`, so a caller checks
+them.
 Its `--add-property` additions are named in `info.x-extracted-from.added`: reviews and review comments (both of
 GitHub's review comment schemas) carry `is_copilot_code_review`, a review `copilot_code_review_effort` and a review
 comment `copilot_code_review_sources`, and a repository's `security_and_analysis` carries
