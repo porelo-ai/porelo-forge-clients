@@ -1,6 +1,6 @@
 # FC10 — A Pull Request's Commits On GitHub
 
-**Status:** Estimated.
+**Status:** Implementing.
 **Size:** S - one call added to the `github` module, its recording and live check; no record other repositories read
 changes.
 

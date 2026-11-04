@@ -5,6 +5,19 @@ issue, and who sets which state, are in [AGENTS.md](../AGENTS.md). *Open questio
 waits on the operator: the items under an issue's own *Open questions*. Its prefix is `FC`. A group with nothing in it
 is left out.
 
+## Implementing
+
+| # | Size | Blocked by | What it covers |
+|---|---|---|---|
+| <a id="fc10"></a>[FC10](FC10-A-Pull-Requests-Commits-On-GitHub.md) | S | - | A GitHub pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and GitHub's signature verdict |
+
+## Backlog
+
+| # | Size | Blocked by | What it covers |
+|---|---|---|---|
+| <a id="fc11"></a>[FC11](FC11-A-Pull-Requests-Commits-On-Forgejo.md) | S | - | A Forgejo pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and Forgejo's signature verdict, and any cap on the list |
+| <a id="fc13"></a>[FC13](FC13-GitHubs-Nulls-For-A-Deleted-Fork-And-An-Empty-Review.md) | M | - | A GitHub pull request from a deleted fork (`head.repo` null) and a review with a null `body` read instead of failing the read |
+
 ## Accepted
 
 | # | Size | Blocked by | What it covers |
@@ -18,14 +31,6 @@ is left out.
 |---|---|---|---|
 | <a id="fc15"></a>[FC15](FC15-Sources-And-Javadoc-Jars-In-A-Release.md) | - | - | A release carries each client's sources and javadoc jars, which Maven Central requires and the release build does not make |
 | <a id="fc16"></a>[FC16](FC16-GitHubs-Live-Tests-Through-The-App-Token.md) | - | - | The GitHub recorder and live check run with the App's installation token and the reviewer test account's tokens, with no person's own token |
-
-## Estimated
-
-| # | Size | Blocked by | What it covers |
-|---|---|---|---|
-| <a id="fc13"></a>[FC13](FC13-GitHubs-Nulls-For-A-Deleted-Fork-And-An-Empty-Review.md) | M | - | A GitHub pull request from a deleted fork (`head.repo` null) and a review with a null `body` read instead of failing the read |
-| <a id="fc10"></a>[FC10](FC10-A-Pull-Requests-Commits-On-GitHub.md) | S | - | A GitHub pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and GitHub's signature verdict |
-| <a id="fc11"></a>[FC11](FC11-A-Pull-Requests-Commits-On-Forgejo.md) | S | - | A Forgejo pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and Forgejo's signature verdict, and any cap on the list |
 
 ## Finished
 

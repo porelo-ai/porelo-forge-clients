@@ -1,6 +1,6 @@
 # FC11 — A Pull Request's Commits On Forgejo
 
-**Status:** Estimated.
+**Status:** Backlog.
 **Size:** S - one call added to the `forgejo` module, recorded against a Forgejo in podman; no record other
 repositories read changes.
 

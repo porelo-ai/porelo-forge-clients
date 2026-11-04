@@ -1,6 +1,6 @@
 # FC13 — GitHub's Nulls For A Deleted Fork And An Empty Review
 
-**Status:** Estimated.
+**Status:** Backlog.
 **Size:** M - two schema corrections in the `github` extract, whose generated records other repositories read: a
 field that was never null becomes nullable.
 
