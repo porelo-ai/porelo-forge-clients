@@ -39,6 +39,9 @@ runs:
         # Spotless refuses an shfmt of another version than the parent pins, so a moved pin fails here loudly.
         - name: Install the pinned shfmt
           shell: bash
+          env:
+              # The job's token, for a download from https://github.com alone; none on a host's forge.
+              PORELO_PINNED_GITHUB_TOKEN: ${{ github.server_url == 'https://github.com' && github.token || '' }}
           run: |
               set -eu
               . "$GITHUB_ACTION_PATH/pinned.sh"
@@ -85,6 +88,9 @@ runs:
 
         - name: Install the pinned GraalVM
           shell: bash
+          env:
+              # The job's token, for a download from https://github.com alone; none on a host's forge.
+              PORELO_PINNED_GITHUB_TOKEN: ${{ github.server_url == 'https://github.com' && github.token || '' }}
           run: |
               set -eu
               export JAVA_HOME="$JAVA_HOME_25_X64"
