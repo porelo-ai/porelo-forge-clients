@@ -68,8 +68,13 @@ runs:
               # The wrapper fetches its Maven once, checks it against distributionSha256Sum and installs it only whole,
               # so asking it again after a failed fetch is a retry; a cached one answers at once.
               pinned_retry "the wrapper's Maven" ./mvnw -B -q --version >/dev/null
-              sha256=$(./mvnw -B -q -U -s settings.xml -N exec:exec@machines -Dmachines.args="jdk --print-sha256")
-              [[ $sha256 =~ ^[0-9a-f]{64}$ ]] || { echo "::error::porelo-machines named no pinned digest"; exit 1; }
+              # Maven's log, the command's own output among it, goes to a file shown on failure: -q would hide why.
+              log="$RUNNER_TEMP/graalvm-pin.log"
+              ./mvnw -B -U -l "$log" -s settings.xml -N exec:exec@machines -Dmachines.args="jdk --print-sha256" \
+                  || { cat "$log"; echo "::error::porelo-machines could not name the pinned digest"; exit 1; }
+              sha256=$(command grep -xE '[0-9a-f]{64}' "$log" || true)
+              [[ $sha256 =~ ^[0-9a-f]{64}$ ]] \
+                  || { cat "$log"; echo "::error::porelo-machines named no single pinned digest"; exit 1; }
               echo "sha256=$sha256" >> "$GITHUB_OUTPUT"
 
         - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -83,7 +88,7 @@ runs:
           run: |
               set -eu
               export JAVA_HOME="$JAVA_HOME_25_X64"
-              ./mvnw -B -q -s settings.xml -N exec:exec@machines \
+              ./mvnw -B -s settings.xml -N exec:exec@machines \
                   -Dmachines.args="jdk --github --cache $HOME/.cache/porelo-pinned/graalvm"
 
         - if: steps.graalvm-cache.outputs.cache-hit != 'true'
