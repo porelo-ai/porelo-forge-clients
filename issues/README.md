@@ -9,7 +9,7 @@ is left out.
 
 | # | Size | Blocked by | Open questions | What it covers |
 |---|---|---|---|---|
-| <a id="fc03"></a>[FC03](FC03-The-Forge-Calls-Of-The-Adapters-Move-Here.md) | M | - | 3 | The clients make every call Porelo's build adapters make to GitHub and Forgejo today, with the same requests and answers, published as snapshots |
+| <a id="fc03"></a>[FC03](FC03-The-Forge-Calls-Of-The-Adapters-Move-Here.md) | M | - | 0 | The clients make every call Porelo's build adapters make to GitHub and Forgejo today, with the same requests and answers, published as snapshots |
 
 ## Accepted
 
