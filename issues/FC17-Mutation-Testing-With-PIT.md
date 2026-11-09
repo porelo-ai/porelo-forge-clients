@@ -34,7 +34,8 @@ survivors into real gaps and harmless ones.
 
 - **The report.** One run on the build's commit, its numbers per module (mutants, killed, survived, not covered) and
   each survivor sorted as a real gap - a fault that can do harm, by `AGENTS.md`'s list - or harmless, with one line
-  why, written into this issue's *Acceptance* when done.
+  why, written into this issue's *Acceptance* when done. This issue only measures: each real gap becomes an issue of
+  its own in this repository, filed as Idea with the survivor that shows it, and none is fixed here.
 - **No changelog entry**: the profile changes nothing that ships or that the default build produces.
 
 ## Acceptance
@@ -42,13 +43,8 @@ survivors into real gaps and harmless ones.
 - `./mvnw -s settings.xml -Ppit test-compile org.pitest:pitest-maven:mutationCoverage` runs on the host from a clean
   checkout and writes a report per module under `target/pit-reports/`; the default `verify` and the workflow never run
   PIT, checked by a search of `.github/` and a default build's log.
-- The report above, with every survivor sorted.
+- The report above, with every survivor sorted, and one issue filed for each real gap.
 - Seen to work: a test of a mutated class deleted on purpose leaves a mutant survived that was killed before.
-
-## Open questions
-
-- Are the real gaps the run finds fixed within this issue, each with a test seen red first, or filed as issues of
-  their own? Fixing them here can grow the size past S by an amount only the run shows.
 
 ## To be checked
 
