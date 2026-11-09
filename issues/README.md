@@ -15,6 +15,7 @@ is left out.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
+| <a id="fc18"></a>[FC18](FC18-The-Tests-By-Level.md) | - | - | The tests by level, measured: the Forgejo fixture's clean-up proven over a fake podman and the GitHub fixture's waits taken off the wall clock |
 | <a id="fc17"></a>[FC17](FC17-Mutation-Testing-With-PIT.md) | - | - | A `pit` profile run by hand, with PIT and its JUnit 5 plugin pinned, and a report sorting the survivors into real gaps and harmless ones |
 
 ## Idea
