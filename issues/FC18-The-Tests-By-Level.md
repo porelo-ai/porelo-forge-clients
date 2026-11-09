@@ -1,6 +1,7 @@
 # FC18 — The Tests By Level
 
-**Status:** Accepted.
+**Status:** Analyzed.
+**Size:** M - two modules' test fixtures, each about S, with no main code and no contract.
 
 **What must be true.** The clients' tests follow the pyramid: every flow of the clients and of their test fixtures that
 can do harm is proven by a unit test over fakes in seconds, the real Forgejo in podman shows only what nothing lower can,
@@ -47,8 +48,10 @@ recordings still match the forge, not the clients' own logic.
 
 ## Plan
 
-- **The Forgejo fixture's clean-up over a fake podman (S).** `Podman`'s calls go behind a small interface that
-  `ForgejoContainer` takes; unit tests over a fake prove that a start refuses leftovers and names them, that `close`
+- **The Forgejo fixture's clean-up over a fake podman (S).** `Podman.run` is static and `ForgejoContainer` calls it
+  in thirteen places (`clients/forgejo/src/test/.../ForgejoContainer.java`); those calls go behind a small interface
+  that `ForgejoContainer` takes, the real one wrapping `Podman`, and the shutdown hook's `Runtime.halt(1)` behind a
+  halter the test can replace. Unit tests over a fake prove that a start refuses leftovers and names them, that `close`
   removes exactly what the run made, also after a failed start, and throws naming what it could not remove, and that
   the shutdown hook halts non-zero then. Red first: a `close` that skips the runner's container.
 - **The GitHub fixture's waits through an injected sleeper and clock (S).** `GitHubFixture` takes a sleeper and a
@@ -62,3 +65,8 @@ recordings still match the forge, not the clients' own logic.
   wall-clock time; checked by a search of `src/test` outside the integration fixtures.
 - A `ForgejoContainer.close` broken to keep one resource fails a unit test that names it.
 - `ForgejoLiveIT` still passes in the Build, unchanged in what it proves.
+
+## To be checked
+
+- That `ForgejoContainer`'s constructor, which registers the hook and starts creating resources, can take the fake
+  without starting anything real; if it cannot, the start moves into a method of its own, said in this plan first.
