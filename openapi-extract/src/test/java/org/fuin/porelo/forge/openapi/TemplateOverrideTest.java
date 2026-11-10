@@ -42,7 +42,7 @@ class TemplateOverrideTest {
                     "pojo.mustache",
                             "c77509816ea11b734ef971e10e501a2f8aeb82fb3b48933924e1d74327ceef21",
                     "record.mustache",
-                            "055b94116ae72c8e1fef104c190b31578b59c3756a6f3e8bd801b89c0bd345bb");
+                            "b5ffed7837c04cb5a6000a513bb5bb278daa3703a88c35ef560312bda814b900");
 
     @Test
     void everyOverrideIsListedWithTheTemplateItWasCopiedFrom() throws IOException {

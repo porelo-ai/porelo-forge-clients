@@ -49,8 +49,7 @@
     <properties>
         <!-- The command line 'exec:exec@machines' gives porelo-machines, such as 'jdk'. -->
         <machines.args></machines.args>
-        <!-- Merged useRecords is in no release yet; moved to the first release that has it. -->
-        <openapi-generator.version>7.27.0-20261030.081701-149</openapi-generator.version>
+        <openapi-generator.version>7.27.0</openapi-generator.version>
     </properties>
 
     <dependencyManagement>

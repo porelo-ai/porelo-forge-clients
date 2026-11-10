@@ -5,7 +5,7 @@ What holds and why: one row per decision, and its full text below. How the recor
 
 | Covers | Decision |
 |---|---|
-| Records | [The generator is pinned to a snapshot until `useRecords` is released](#the-generator-is-pinned-to-a-snapshot-until-userecords-is-released) |
+| Records | [The generator is pinned to a release](#the-generator-is-pinned-to-a-release) |
 | Records | [What the generator gets wrong is fixed in its configuration and templates, never in its output](#what-the-generator-gets-wrong-is-fixed-in-its-configuration-and-templates-never-in-its-output) |
 | Records | [The extract is committed, the full description is not](#the-extract-is-committed-the-full-description-is-not) |
 | Records | [Strict in the tests, lenient at run time](#strict-in-the-tests-lenient-at-run-time) |
@@ -13,12 +13,11 @@ What holds and why: one row per decision, and its full text below. How the recor
 | Recordings | [An open-source forge is recorded from a pinned container and checked live on every build](#an-open-source-forge-is-recorded-from-a-pinned-container-and-checked-live-on-every-build) |
 | GitHub | [Three credentials, since GitHub splits them](#three-credentials-since-github-splits-them) |
 
-## The generator is pinned to a snapshot until `useRecords` is released
+## The generator is pinned to a release
 
-No release of openapi-generator has `useRecords` yet, so the plugin is pinned to a timestamped snapshot from
-Sonatype's snapshot repository, which `settings.xml` names; the root's `pom.xml` holds the pin. The first release that
-has `useRecords` replaces it, and no release of this repository is made before. A pinned snapshot that Sonatype
-has removed fails the build, naming it, and is moved to a newer one.
+openapi-generator is pinned to a release from Maven Central, never a snapshot, which its repository may delete and
+which a release of the clients cannot depend on; the root's `pom.xml` holds the pin. A move of the pin copies again
+every overridden template whose original the new release changed, and redoes its change.
 
 ## What the generator gets wrong is fixed in its configuration and templates, never in its output
 

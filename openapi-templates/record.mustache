@@ -6,6 +6,9 @@
 {{#vars}}
  * @param {{name}} {{#description}}{{{.}}}{{/description}}{{^description}}Get {{name}}{{/description}}
 {{/vars}}
+{{#additionalPropertiesType}}
+ * @param additionalProperties the additional (undeclared) properties, by name
+{{/additionalPropertiesType}}
 {{#isDeprecated}}
  * @deprecated
 {{/isDeprecated}}
@@ -75,11 +78,19 @@ public record {{classname}}(
     {{#jackson}}
   {{>jackson_annotations}}
     {{/jackson}}
-  {{>nullableAnnotation}}{{>nullableDataTypeBeanValidation}} {{name}}{{^-last}},{{/-last}}
+  {{>nullableAnnotation}}{{>nullableDataTypeBeanValidation}} {{name}}{{^-last}},{{/-last}}{{#-last}}{{#additionalPropertiesType}},{{/additionalPropertiesType}}{{/-last}}
 {{^-last}}
 
 {{/-last}}
 {{/vars}}
+{{#additionalPropertiesType}}
+{{#hasVars}}
+
+{{/hasVars}}
+    @JsonAnySetter
+    @JsonAnyGetter
+    Map<String, {{{.}}}> additionalProperties
+{{/additionalPropertiesType}}
 ){{#vendorExtensions.x-implements}}{{#-first}} implements {{{.}}}{{/-first}}{{^-first}}, {{{.}}}{{/-first}}{{/vendorExtensions.x-implements}} {
 {{#serializableModel}}
 
@@ -116,6 +127,11 @@ public record {{classname}}(
     }
     {{/vendorExtensions.x-record-initial-value}}
     {{/vars}}
+    {{#additionalPropertiesType}}
+    if (additionalProperties == null) {
+      additionalProperties = new LinkedHashMap<>();
+    }
+    {{/additionalPropertiesType}}
   }
   {{/vendorExtensions.x-record-has-initial-values}}
   {{^vendorExtensions.x-record-has-initial-values}}
@@ -132,6 +148,15 @@ public record {{classname}}(
   }
   {{/hasRequired}}
   {{/vendorExtensions.x-record-has-initial-values}}
+  {{#additionalPropertiesType}}
+
+  /**
+   * Return the additional (undeclared) property with the specified name.
+   */
+  public {{{.}}} getAdditionalProperty(String key) {
+    return additionalProperties.get(key);
+  }
+  {{/additionalPropertiesType}}
   {{#vendorExtensions.x-record-discriminator-accessors}}
 
   {{#jackson}}
@@ -149,6 +174,9 @@ public record {{classname}}(
         {{#vars}}
         + "{{^-first}}, {{/-first}}{{name}}=" + {{#isPassword}}"*"{{/isPassword}}{{^isPassword}}{{name}}{{/isPassword}}
         {{/vars}}
+        {{#additionalPropertiesType}}
+        + ", additionalProperties=" + additionalProperties
+        {{/additionalPropertiesType}}
         + "]";
   }
   {{/vendorExtensions.x-record-masks-password}}
