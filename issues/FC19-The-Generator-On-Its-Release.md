@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "FC19",
   "title": "The Generator On Its Release",
-  "state": "Implementing",
+  "state": "Review",
   "size": "XS",
   "priority": "Medium",
   "rank": 1,
@@ -35,3 +35,11 @@ no longer held back by it.
 
 - The full build passes with `7.27.0`, the template test included, and the generated records of both clients and of
   `openapi-records` compile under NullAway and pass their tests.
+
+## Reading
+
+- The reading by another model found the release's new `additionalProperties` branch of `record.mustache` returning
+  an unmarked nullable from `getAdditionalProperty` and letting a null map value through. Declined here: the branch
+  is reached only under `useSpringBoot4`, which no execution of this repository sets, so no generated record here
+  takes it. It is closed where a consumer on Spring Boot 4 would reach it, with the published templates.
+- A comment in the root `pom.xml` still named the snapshot; fixed.

@@ -84,9 +84,8 @@
         <pluginManagement>
             <plugins>
 
-                <!-- Records from a client module's committed extract, models only. The snapshot pins the first build with
-                     useRecords; a release of these clients waits for the generator's release that has it. The
-                     overridden templates leave out Spring and Jakarta, check required fields and keep NullAway green;
+                <!-- Records from a client module's committed extract, models only. The overridden templates leave out
+                     Spring and Jakarta, check required fields and keep NullAway green;
                      the normalizer drops a oneOf or anyOf that only narrows its schema's own properties. -->
                 <plugin>
                     <groupId>org.openapitools</groupId>
