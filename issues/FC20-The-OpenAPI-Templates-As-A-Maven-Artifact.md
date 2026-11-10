@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "FC20",
   "title": "The OpenAPI Templates As A Maven Artifact",
-  "state": "Backlog",
+  "state": "Implementing",
   "size": "M",
   "priority": "Medium",
   "rank": 1,

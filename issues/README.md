@@ -11,7 +11,7 @@ is left out.
 |---|---|---|---|
 | <a id="fc19"></a>[FC19](FC19-The-Generator-On-Its-Release.md) | XS | - | openapi-generator pinned to its release 7.27.0, which has `useRecords`, instead of a timestamped snapshot that Sonatype may delete |
 
-## Backlog
+## Implementing
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
