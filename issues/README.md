@@ -15,7 +15,7 @@ is left out.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="fc20"></a>[FC20](FC20-The-OpenAPI-Templates-As-A-Maven-Artifact.md) | M | - | The overridden openapi-generator templates published as a jar another repository adds to the generator plugin, read by `templateResourcePath`, with the check that names a template whose original moved; the clients use the same jar |
+| <a id="fc20"></a>[FC20](FC20-The-OpenAPI-Templates-As-A-Maven-Artifact.md) | M | - | The overridden openapi-generator templates published as a jar another repository adds to the generator plugin, read by `templateResourcePath`, with the check that names a template whose original moved; the clients use the same files |
 
 ## Idea
 
