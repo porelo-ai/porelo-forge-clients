@@ -11,6 +11,12 @@ is left out.
 |---|---|---|---|
 | <a id="fc19"></a>[FC19](FC19-The-Generator-On-Its-Release.md) | XS | - | openapi-generator pinned to its release 7.27.0, which has `useRecords`, instead of a timestamped snapshot that Sonatype may delete |
 
+## Backlog
+
+| # | Size | Blocked by | What it covers |
+|---|---|---|---|
+| <a id="fc20"></a>[FC20](FC20-The-OpenAPI-Templates-As-A-Maven-Artifact.md) | M | - | The overridden openapi-generator templates published as a jar another repository adds to the generator plugin, read by `templateResourcePath`, with the check that names a template whose original moved; the clients use the same jar |
+
 ## Idea
 
 | # | Size | Blocked by | What it covers |
