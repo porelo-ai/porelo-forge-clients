@@ -5,6 +5,12 @@ issue, and who sets which state, are in [AGENTS.md](../AGENTS.md). *Open questio
 waits on the operator: the items under an issue's own *Open questions*. Its prefix is `FC`. A group with nothing in it
 is left out.
 
+## Implementing
+
+| # | Size | Blocked by | What it covers |
+|---|---|---|---|
+| <a id="fc19"></a>[FC19](FC19-The-Generator-On-Its-Release.md) | XS | - | openapi-generator pinned to its release 7.27.0, which has `useRecords`, instead of a timestamped snapshot that Sonatype may delete |
+
 ## Idea
 
 | # | Size | Blocked by | What it covers |
