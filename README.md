@@ -27,7 +27,8 @@ The records of each client are generated at build time by openapi-generator, wit
 
 JDK 25. At run time a client needs only the JDK's `java.net.http.HttpClient` and Jackson; its tests run against its
 forge's recorded answers, with no network. A dependency on any Porelo artifact fails the build. How to contribute is
-in [CONTRIBUTING.md](CONTRIBUTING.md), and the conventions in [AGENTS.md](AGENTS.md).
+in [CONTRIBUTING.md](CONTRIBUTING.md), how to report a vulnerability in [SECURITY.md](SECURITY.md), and the conventions
+in [AGENTS.md](AGENTS.md).
 
 ## License
 
