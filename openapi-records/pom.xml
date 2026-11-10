@@ -50,6 +50,23 @@
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
+                <executions>
+                    <!-- The same fixture as a consumer on Spring Boot 4 generates it, where a schema with
+                         additionalProperties becomes a record instead of a class. -->
+                    <execution>
+                        <id>records-spring-boot-4</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <modelPackage>${openapi.package}.boot4</modelPackage>
+                            <configOptions>
+                                <useSpringBoot3>false</useSpringBoot3>
+                                <useSpringBoot4>true</useSpringBoot4>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.sonatype.central</groupId>

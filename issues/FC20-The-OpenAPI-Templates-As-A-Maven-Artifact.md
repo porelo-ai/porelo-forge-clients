@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "FC20",
   "title": "The OpenAPI Templates As A Maven Artifact",
-  "state": "Implementing",
+  "state": "Review",
   "size": "M",
   "priority": "Medium",
   "rank": 1,
@@ -27,10 +27,10 @@ original fails this repository's build, naming the template.
 
 - **The module.** `openapi-templates/` becomes a Maven module, `porelo-forge-client-openapi-templates`, packaging
   `jar`, published with the clients. The `*.mustache` files move to
-  `src/main/resources/org/fuin/porelo/forge/openapi/templates/`, read by the plugin's `templateResourcePath`; whether
-  the path takes a leading `/` is measured, not assumed. The jar has no runtime dependency. A `@NullMarked`
-  `package-info.java` with one public constant, the generator release the templates fit, gives the release build
-  sources and javadoc to package, and the NullMarked test holds it.
+  `src/main/resources/org/fuin/porelo/forge/openapi/templates/`, read by the plugin's `templateResourcePath` as
+  `org/fuin/porelo/forge/openapi/templates`, without a leading `/`, which fails the generation (measured). The jar has no runtime dependency. A class `OpenApiTemplates`
+  names the generator release the templates fit and their resource path, in a `@NullMarked` package a test holds;
+  the sources and javadoc jars a release needs are [FC15](README.md#fc15)'s, as for every module.
 - **The check moves with them.** `TemplateOverrideTest` moves from `openapi-extract` into the new module with the test
   dependencies `openapi-generator`, JUnit and AssertJ; `openapi-extract` loses those and its `openapi.templates`
   property. The listing test reads the template directory of the module's own sources, ignoring `META-INF`, and a new
@@ -50,14 +50,13 @@ original fails this repository's build, naming the template.
   directory of one's own, that the generated code needs `jackson-annotations` and `jspecify` and is meant to compile
   under NullAway, which catches the shapes the templates do not cover. It links `doc/records.md` for the plugin
   configuration instead of copying it. The root `README.md` links the module. A changelog entry under *added*.
-- **License** (operator, decided). The module is Apache-2.0, its pom's `licenses` overriding the root's; the jar
+- **License** (operator's decision). The module is Apache-2.0, its pom's `licenses` overriding the root's; the jar
   carries `META-INF/LICENSE` with Apache-2.0's text and `META-INF/NOTICE` naming openapi-generator as the origin of
   every template and saying each was changed. `doc/decisions.md` records it, and this repository's part of
   `AGENTS.md` says that this module alone is Apache-2.0 and that its two license files are the third kind of
   non-Java file.
-- **Red first.** The client build with the generator's own templates fails to compile, since they write
-  `@DateTimeFormat`; and the throwaway project's record without the jar on the plugin's class path lets a null
-  through where the compact constructor refuses it with the jar.
+- **Red first.** The `useSpringBoot4` execution of `openapi-records` fails NullAway on `getAdditionalProperty` and,
+  once that is marked, reads `{"added": null}`; the template test fails on a wrong digest, version or resource path.
 
 ## Acceptance
 
@@ -66,9 +65,14 @@ original fails this repository's build, naming the template.
 - A throwaway project outside this repository, with the installed jar on the plugin's class path and
   `templateResourcePath`, generates a record from a description with a required non-nullable property and a
   `date-time` one; it compiles with `jackson-annotations` and `jspecify` alone, and its constructor refuses null in
-  the required property. Without the jar the null goes through.
+  the required property. Without the jar the generation fails, naming the resource path (measured).
 - `TemplateOverrideTest` fails, naming the template, when one original's digest is changed by hand.
 
-## To be checked
+## Reading
 
-- That the release profile packages the module's sources and javadoc jars and the flattened pom names Apache-2.0.
+- The reading by another model found the consumer's configuration incomplete in the documents (supporting files,
+  the Spring Boot option, the date import), `SpringBoot4RecordTest` passing for a class and for any refusal, a record's
+  open map changeable after the null check, a trailing slash in the resource path unseen in the tests, the template
+  directory named twice, and the artifact's coordinates missing; each is fixed, the map and the slash with a test seen
+  red first. Its claim that the release packages sources and javadoc for this module is left to [FC15](README.md#fc15), as for every
+  module.

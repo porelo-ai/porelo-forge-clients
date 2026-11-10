@@ -1,0 +1,9 @@
+Porelo OpenAPI Templates
+
+Every template under org/fuin/porelo/forge/openapi/templates/ is a copy of the template of the same name in
+OpenAPI Generator's JavaSpring templates (https://github.com/OpenAPITools/openapi-generator), licensed under the
+Apache License, Version 2.0, at the release named in OpenApiTemplates.GENERATOR_VERSION. Each copy was changed:
+Spring's and Jakarta's annotations are left out, required fields are checked, and values that can be null are
+marked for NullAway.
+
+The templates are distributed under the Apache License, Version 2.0; see META-INF/LICENSE.

@@ -23,11 +23,23 @@ module's `README.md` carries the description's license notice.
 
 ## The generator
 
-openapi-generator's `spring` generator, models only, is configured once in the root's `pluginManagement` (execution
-`records`) and run in a client module's `generate-sources`, which names its extract and package. It reads OpenAPI
-3.1 with its `webhooks`, and Swagger 2.0, as they are. Among its options are `useRecords`, `useJspecify`,
-`openApiNullable=false`, `useBeanValidation=false`, `annotationLibrary=none`, `documentationProvider=none` and
-`generateApis=false`; the root's `pom.xml` holds them all. Of the supporting files it writes only
+openapi-generator's `spring` generator, models only, is configured once at the plugin's level in the root's
+`pluginManagement` and run by the execution `records` in a client module's `generate-sources`, which names its extract
+and package. It reads OpenAPI 3.1 with its `webhooks`, and Swagger 2.0, as they are. Another project using the
+[templates](../openapi-templates/README.md) copies all of these options, since each one left out writes code that needs
+Spring or skips the null checks:
+
+- `generatorName=spring`, `library=spring-boot`, `generateApis=false`, `generateModelTests=false`,
+  `generateModelDocumentation=false`, and `supportingFilesToGenerate=package-info.java`: without it the generator
+  writes Spring's application classes; with supporting files turned off it writes no `@NullMarked` `package-info.java`,
+  and NullAway checks nothing.
+- `importMapping DateTimeFormat=java.time.OffsetDateTime` and `openapiNormalizer
+  REMOVE_ANYOF_ONEOF_AND_KEEP_PROPERTIES_ONLY=true`.
+- configOptions `useRecords=true`, `useJspecify=true`, `useSpringBoot3=true` or `useSpringBoot4=true` (records need
+  one of them), `useJakartaEe=true`, `openApiNullable=false`, `useBeanValidation=false`, `annotationLibrary=none`,
+  `documentationProvider=none` and `hideGenerationTimestamp=true`.
+
+The root's `pom.xml` holds them all. Of the supporting files it writes only
 `package-info.java`, marked `@NullMarked`, so NullAway checks the code that reads the records.
 
 The generated code compiles with only `jackson-annotations` and `jspecify` on the class path, nothing of Spring or
@@ -35,8 +47,10 @@ Jakarta; [openapi-records](../openapi-records/README.md) holds that with a small
 
 ## The overridden templates
 
-`openapi-templates/` is the generator's `templateDirectory`. Each file in it is a copy of the pinned generator's own
-template with the changes listed here. A test fails, naming the template, when the pinned generator's template differs
+The module [openapi-templates](../openapi-templates/README.md) holds them, published under Apache-2.0 for other
+projects; the clients' build reads them from its sources by `templateDirectory`, so a build that stops before
+`package` reads the templates of the working tree, and another project from its jar by `templateResourcePath`. Each
+file is a copy of the pinned generator's own template with the changes listed here. A test fails, naming the template, when the pinned generator's template differs
 from the one an override was copied from, so moving the pin re-copies each.
 
 - `model.mustache`, `record.mustache`, `pojo.mustache` and an empty `generatedAnnotation.mustache` leave out
@@ -48,7 +62,9 @@ from the one an override was copied from, so moving the pin re-copies each.
 - `enumClass.mustache`, `enumOuterClass.mustache`, `additionalProperties.mustache`, `oneof_interface.mustache` and the
   record's discriminator accessor say `@Nullable` where the generator's code returns null.
 - `additionalProperties.mustache` refuses a null for an undeclared property, which Jackson hands to the setter past
-  the mapper's setting for nulls in a map.
+  the mapper's setting for nulls in a map. Under `useSpringBoot4` such a schema becomes a record instead, whose
+  compact constructor refuses the null the same way and whose `getAdditionalProperty` is `@Nullable`;
+  `openapi-records` generates its fixture a second time that way.
 - The normalizer `REMOVE_ANYOF_ONEOF_AND_KEEP_PROPERTIES_ONLY` drops a `oneOf` or `anyOf` that only narrows its
   schema's own properties, and `fetch` drops that schema's `discriminator`, since without its `oneOf` the generator
   would make it a class. A schema that keeps `additionalProperties` stays a class.

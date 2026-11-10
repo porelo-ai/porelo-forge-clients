@@ -131,6 +131,13 @@ public record {{classname}}(
     if (additionalProperties == null) {
       additionalProperties = new LinkedHashMap<>();
     }
+    // Jackson fills this map with a JSON null past the mapper's setting for nulls in a map.
+    for (Map.Entry<String, {{{.}}}> entry : additionalProperties.entrySet()) {
+      if (entry.getValue() == null) {
+        throw new IllegalArgumentException("Additional property " + entry.getKey() + " is null");
+      }
+    }
+    additionalProperties = Collections.unmodifiableMap(new LinkedHashMap<>(additionalProperties));
     {{/additionalPropertiesType}}
   }
   {{/vendorExtensions.x-record-has-initial-values}}
@@ -153,7 +160,7 @@ public record {{classname}}(
   /**
    * Return the additional (undeclared) property with the specified name.
    */
-  public {{{.}}} getAdditionalProperty(String key) {
+  public @org.jspecify.annotations.Nullable {{{.}}} getAdditionalProperty(String key) {
     return additionalProperties.get(key);
   }
   {{/additionalPropertiesType}}

@@ -1,4 +1,4 @@
-package org.fuin.porelo.forge.openapi;
+package org.fuin.porelo.forge.openapi.templates;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -9,15 +9,14 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.HexFormat;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 /**
- * Each template in {@code openapi-templates/} is a copy of the pinned generator's own with a
- * change; this fails when the generator's template is no longer the one the override was copied
- * from, so moving the pin re-copies it.
+ * Each template of this module is a copy of the pinned generator's own with a change; this fails
+ * when the generator's template is no longer the one the override was copied from, so moving the
+ * pin re-copies it.
  */
 class TemplateOverrideTest {
     /**
@@ -44,12 +43,10 @@ class TemplateOverrideTest {
                     "record.mustache",
                             "b5ffed7837c04cb5a6000a513bb5bb278daa3703a88c35ef560312bda814b900");
 
+    // Prevents an override whose original nobody checks from drifting from the generator unseen.
     @Test
     void everyOverrideIsListedWithTheTemplateItWasCopiedFrom() throws IOException {
-        Path directory =
-                Path.of(
-                        Objects.requireNonNull(
-                                System.getProperty("openapi.templates"), "openapi.templates"));
+        Path directory = Path.of("src/main/resources", OpenApiTemplates.RESOURCE_PATH);
         try (Stream<Path> files = Files.list(directory)) {
             assertThat(files.map(file -> file.getFileName().toString()).collect(Collectors.toSet()))
                     .as("an override without its original's digest could drift unseen")
@@ -57,6 +54,7 @@ class TemplateOverrideTest {
         }
     }
 
+    // Prevents a moved pin from generating with overrides of templates the generator changed.
     @Test
     void thePinnedGeneratorStillHasTheTemplatesTheOverridesWereCopiedFrom() throws Exception {
         for (Map.Entry<String, String> copied : COPIED_FROM.entrySet()) {
@@ -70,10 +68,36 @@ class TemplateOverrideTest {
                                                 .digest(original.readAllBytes()));
                 assertThat(digest)
                         .as(
-                                "%s changed in the generator; copy it again into openapi-templates and redo the change",
+                                "%s changed in the generator; copy it again into this module and redo the change",
                                 copied.getKey())
                         .isEqualTo(copied.getValue());
             }
+        }
+    }
+
+    // Prevents a consumer from pinning a generator the templates were not copied from.
+    @Test
+    void theTemplatesNameTheGeneratorReleaseTheBuildPins() {
+        assertThat(OpenApiTemplates.GENERATOR_VERSION)
+                .as("a consumer reads which generator release the templates fit from here")
+                .isEqualTo(System.getProperty("openapi.generator.version"));
+    }
+
+    // Prevents a consumer's generation from missing the templates in the jar.
+    @Test
+    void theResourcePathHoldsTheTemplates() {
+        assertThat(OpenApiTemplates.RESOURCE_PATH)
+                .as(
+                        "the generator resolves a template in a jar only without a leading or trailing slash")
+                .doesNotStartWith("/")
+                .doesNotEndWith("/");
+        for (String template : COPIED_FROM.keySet()) {
+            assertThat(
+                            getClass()
+                                    .getClassLoader()
+                                    .getResource(OpenApiTemplates.RESOURCE_PATH + "/" + template))
+                    .as("a consumer's templateResourcePath finds %s", template)
+                    .isNotNull();
         }
     }
 }

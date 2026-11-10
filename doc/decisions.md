@@ -9,6 +9,7 @@ What holds and why: one row per decision, and its full text below. How the recor
 | Records | [What the generator gets wrong is fixed in its configuration and templates, never in its output](#what-the-generator-gets-wrong-is-fixed-in-its-configuration-and-templates-never-in-its-output) |
 | Records | [The extract is committed, the full description is not](#the-extract-is-committed-the-full-description-is-not) |
 | Records | [Strict in the tests, lenient at run time](#strict-in-the-tests-lenient-at-run-time) |
+| Records | [The templates are published under Apache-2.0](#the-templates-are-published-under-apache-20) |
 | Recordings | [A cloud forge is recorded by hand and checked live on a schedule, never on a push](#a-cloud-forge-is-recorded-by-hand-and-checked-live-on-a-schedule-never-on-a-push) |
 | Recordings | [An open-source forge is recorded from a pinned container and checked live on every build](#an-open-source-forge-is-recorded-from-a-pinned-container-and-checked-live-on-every-build) |
 | GitHub | [Three credentials, since GitHub splits them](#three-credentials-since-github-splits-them) |
@@ -22,7 +23,7 @@ every overridden template whose original the new release changed, and redoes its
 ## What the generator gets wrong is fixed in its configuration and templates, never in its output
 
 Generated code is never edited or committed. A fix goes into the generator's configuration or into an overridden
-template in `openapi-templates/`, a copy of the pinned generator's own with the change, so every client and every
+template in [openapi-templates](../openapi-templates/README.md), a copy of the pinned generator's own with the change, so every client and every
 regeneration gets it, and a test notices when the generator's own template moves.
 
 ## The extract is committed, the full description is not
@@ -38,6 +39,13 @@ keeps working. The tests read strictly and refuse an unknown field, so a recorde
 extract is seen. In both readings a required field that is missing, or null where the description does not allow
 it, is refused; forges send null for optional fields their descriptions do not mark, so an optional field may be
 absent or null.
+
+## The templates are published under Apache-2.0
+
+Other projects generate records with the same templates as the clients, so the templates are published as a module of
+their own. Each is a copy of openapi-generator's Apache-2.0 template with a change, and others build against them, so
+that module is Apache-2.0, its jar carrying the license's text and a notice naming the origin and that each copy was
+changed; the clients stay LGPL-3.0-or-later.
 
 ## A cloud forge is recorded by hand and checked live on a schedule, never on a push
 

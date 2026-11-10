@@ -1,0 +1,2 @@
+title: Publish the OpenAPI templates the clients' records are generated with as porelo-forge-client-openapi-templates, under Apache-2.0, for other projects to generate records that need only Jackson's annotations and JSpecify; with Spring Boot 4's option, a record with undeclared properties refuses a null among them.
+type: added

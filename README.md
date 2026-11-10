@@ -12,11 +12,13 @@ complete clients of any API. They know nothing of Porelo: Porelo's adapters use 
 - [clients](clients/README.md) - the published forge clients.
 - [openapi-extract](openapi-extract/README.md) - the command that keeps a client's extract of a forge's pinned
   OpenAPI description, built here and never published.
+- [openapi-templates](openapi-templates/README.md) - the overridden openapi-generator templates the records are
+  generated with, published under Apache-2.0 for other projects to generate the same records.
 - [openapi-records](openapi-records/README.md) - the check that the records every client generates compile under
   NullAway and read JSON as the clients need, built here and never published.
 
 The records of each client are generated at build time by openapi-generator, with the templates in
-`openapi-templates/` overriding its own, as [doc/records.md](doc/records.md) describes; the decisions behind it are in
+[openapi-templates](openapi-templates/README.md) overriding its own, as [doc/records.md](doc/records.md) describes; the decisions behind it are in
 [doc/decisions.md](doc/decisions.md). `github` and `forgejo` come first.
 
 ## Building
@@ -32,4 +34,5 @@ in [AGENTS.md](AGENTS.md).
 
 ## License
 
-LGPL-3.0-or-later, see [LICENSE](LICENSE).
+LGPL-3.0-or-later, see [LICENSE](LICENSE); `openapi-templates` alone is Apache-2.0, as the generator's templates it
+copies are.

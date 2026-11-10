@@ -555,7 +555,8 @@ adapters, in another repository, call them and translate what they return into P
   generated at build time from a forge's published OpenAPI description, filtered to the paths used; the calls are
   written by hand.
 - **Every module is tested against its forge's recorded answers alone**, with no network and no Porelo running.
-- **Every module is published to Maven Central, under `LGPL-3.0-or-later`**, all modules in one release.
+- **Every module is published to Maven Central, under `LGPL-3.0-or-later`**, all modules in one release; only
+  `openapi-templates`, copies of openapi-generator's own templates, is Apache-2.0.
 
 ## Work in this repository
 
@@ -564,7 +565,8 @@ adapters, in another repository, call them and translate what they return into P
   so one forge never waits for the other's recording.
 - **Only two kinds of file are not Java**: `mvnw`, the Maven wrapper's script, as Maven generates it, since Maven
   must be fetched before any Java of the build runs; and openapi-generator's templates that are overridden, each
-  a copy of the pinned generator's own with the change, since the generator reads nothing else.
+  a copy of the pinned generator's own with the change, since the generator reads nothing else, and the `LICENSE`
+  and `NOTICE` that `openapi-templates`' jar carries for those copies.
 
 ## Skills
 
