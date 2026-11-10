@@ -1,6 +1,18 @@
 # FC15 — Sources And Javadoc Jars In A Release
 
-**Status:** Idea
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "FC15",
+  "title": "Sources And Javadoc Jars In A Release",
+  "state": "Idea",
+  "size": "-",
+  "priority": "Medium",
+  "rank": 1,
+  "blockedBy": [],
+  "covers": "A release carries each client's sources and javadoc jars, which Maven Central requires and the release build does not make"
+}
+```
 
 **What must be true.** A release of the clients carries a sources jar and a javadoc jar beside each client's jar, as
 Maven Central requires, so a tag `v<version>` passes Central's validation instead of failing it once the release is

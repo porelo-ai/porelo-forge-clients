@@ -1,7 +1,21 @@
 # FC18 — The Tests By Level
 
-**Status:** Analyzed.
-**Size:** M - two modules' test fixtures, each about S, with no main code and no contract.
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "FC18",
+  "title": "The Tests By Level",
+  "state": "Analyzed",
+  "size": "M",
+  "priority": "Medium",
+  "rank": 2,
+  "blockedBy": [],
+  "covers": "The tests by level, measured: the Forgejo fixture's clean-up proven over a fake podman and the GitHub fixture's waits taken off the wall clock",
+  "openQuestions": 0
+}
+```
+
+**Why this size.** two modules' test fixtures, each about S, with no main code and no contract.
 
 **What must be true.** The clients' tests follow the pyramid: every flow of the clients and of their test fixtures that
 can do harm is proven by a unit test over fakes in seconds, the real Forgejo in podman shows only what nothing lower can,

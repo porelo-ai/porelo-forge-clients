@@ -1,7 +1,21 @@
 # FC03 — The Forge Calls Of The Adapters Move Here
 
-**Status:** Analyzed.
-**Size:** M - tests in both client modules from answers of another repository, one workflow step and two small client
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "FC03",
+  "title": "The Forge Calls Of The Adapters Move Here",
+  "state": "Analyzed",
+  "size": "M",
+  "priority": "Medium",
+  "rank": 1,
+  "blockedBy": [],
+  "covers": "The clients make every call Porelo's build adapters make to GitHub and Forgejo today, with the same requests and answers, published as snapshots",
+  "openQuestions": 0
+}
+```
+
+**Why this size.** tests in both client modules from answers of another repository, one workflow step and two small client
 gaps; no client record changes, and the adapters' own move is theirs.
 
 **What must be true.** The `github` and `forgejo` clients make every call to GitHub and Forgejo that Porelo's build

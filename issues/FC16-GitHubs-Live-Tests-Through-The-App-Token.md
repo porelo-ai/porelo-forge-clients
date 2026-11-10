@@ -1,6 +1,18 @@
 # FC16 — GitHub's Live Tests Through The App Token
 
-**Status:** Idea
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "FC16",
+  "title": "GitHub's Live Tests Through The App Token",
+  "state": "Idea",
+  "size": "-",
+  "priority": "Medium",
+  "rank": 2,
+  "blockedBy": [],
+  "covers": "The GitHub recorder and live check run with the App's installation token and the reviewer test account's tokens, with no person's own token"
+}
+```
 
 **What must be true.** The GitHub recorder and the live check run with the App's installation token and the
 reviewer test account's tokens only, from the environment, so no person's own token is needed for them:

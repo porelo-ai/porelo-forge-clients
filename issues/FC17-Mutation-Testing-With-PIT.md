@@ -1,7 +1,21 @@
 # FC17 — Mutation Testing With PIT
 
-**Status:** Analyzed.
-**Size:** S - one profile in the root `pom.xml`, a paragraph in the `README.md` and one run read; no code, no contract.
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "FC17",
+  "title": "Mutation Testing With PIT",
+  "state": "Analyzed",
+  "size": "S",
+  "priority": "Medium",
+  "rank": 3,
+  "blockedBy": [],
+  "covers": "A `pit` profile run by hand on the host, with PIT and its JUnit 5 plugin pinned, and a report sorting the survivors into real gaps and harmless ones",
+  "openQuestions": 0
+}
+```
+
+**Why this size.** one profile in the root `pom.xml`, a paragraph in the `README.md` and one run read; no code, no contract.
 
 **What must be true.** Whoever works on the clients can see which faults in their code no test notices: a `pit` profile,
 run by hand, not in CI and with no threshold, with PIT and its JUnit 5 plugin pinned, and a report that sorts the
