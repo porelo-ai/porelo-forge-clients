@@ -47,6 +47,69 @@ jobs:
             - name: Build, unit tests and the shared checks
               run: ./mvnw -B -U -s settings.xml verify
 
+            # The live test's two images, pinned by digest in ForgejoContainer, the only place they are named: the cache's
+            # key is the hash of both references, so a moved pin misses it and fetches anew. GitHub deletes an entry no
+            # run has read for 7 days, so the old pin's entry goes by itself.
+            - name: The Forgejo images' references
+              id: forgejo-images
+              run: |
+                  set -eu
+                  sed -n 's/^ *"\([a-z0-9.-]*\.[a-z]*\/[^"@ ]*@sha256:[0-9a-f]\{64\}\)";$/\1/p' \
+                      clients/forgejo/src/test/java/org/fuin/porelo/forge/forgejo/ForgejoContainer.java \
+                      >"$RUNNER_TEMP/forgejo-images"
+                  cat "$RUNNER_TEMP/forgejo-images"
+                  if [ "$(wc -l <"$RUNNER_TEMP/forgejo-images")" -ne 2 ]; then
+                      echo "::error::ForgejoContainer.java names other than two images pinned by digest"
+                      exit 1
+                  fi
+                  echo "key=forgejo-images-$(sha256sum "$RUNNER_TEMP/forgejo-images" | cut -d' ' -f1)" >>"$GITHUB_OUTPUT"
+
+            - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+              id: forgejo-images-cache
+              with:
+                  path: ~/.cache/porelo-pinned/forgejo-images
+                  key: ${{ steps.forgejo-images.outputs.key }}
+
+            # An archive of podman save loses the digest, so podman would pull again: skopeo's OCI archive of the whole
+            # index keeps it, and once loaded and named the image is found by its pinned reference. The fetch is tried
+            # again by the rule of pinned.sh; a loaded image that is not the pinned one fails here.
+            - name: The pinned Forgejo images
+              run: |
+                  set -eu
+                  . .github/actions/pinned-jdk/pinned.sh
+                  command -v skopeo >/dev/null || { echo "::error::skopeo is missing from the runner image"; exit 1; }
+                  dir=$HOME/.cache/porelo-pinned/forgejo-images
+                  mkdir -p "$dir"
+                  fetch() { # <repository>@<digest> <archive>
+                      rm -f "$2.part"
+                      skopeo copy --quiet --all "docker://$1" "oci-archive:$2.part"
+                      mv "$2.part" "$2"
+                  }
+                  while read -r ref; do
+                      name=${ref%@*}
+                      digest=${ref##*@}
+                      repository=${name%:*}
+                      [ "$name" != "$repository" ] || name=$repository:pinned
+                      archive=$dir/${digest#sha256:}.tar
+                      if [ -s "$archive" ]; then
+                          echo "$ref taken from the cache" >&2
+                      else
+                          pinned_retry "the image $ref" fetch "$repository@$digest" "$archive"
+                      fi
+                      id=$(podman load -q -i "$archive" | sed -n 's/^Loaded image: //p' | tail -n 1)
+                      podman tag "$id" "$name"
+                      if ! podman image exists "$ref"; then
+                          echo "::error::$archive does not hold $ref"
+                          exit 1
+                      fi
+                  done <"$RUNNER_TEMP/forgejo-images"
+
+            - if: steps.forgejo-images-cache.outputs.cache-hit != 'true'
+              uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+              with:
+                  path: ~/.cache/porelo-pinned/forgejo-images
+                  key: ${{ steps.forgejo-images.outputs.key }}
+
             # Every Forgejo call against a real Forgejo 17 and its runner in podman, which the runner image carries; the
             # containers reach the test's hook receiver through slirp4netns.
             - name: Forgejo's calls against a real Forgejo in podman

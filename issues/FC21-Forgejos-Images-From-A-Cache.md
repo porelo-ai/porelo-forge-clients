@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "FC21",
   "title": "Forgejo's Images From A Cache",
-  "state": "Implementing",
+  "state": "Review",
   "size": "S",
   "priority": "High",
   "rank": 1,

@@ -20,16 +20,11 @@ is left out.
 | <a id="fc18"></a>[FC18](FC18-The-Tests-By-Level.md) | M | - | The tests by level, measured: the Forgejo fixture's clean-up proven over a fake podman and the GitHub fixture's waits taken off the wall clock | 0 |
 | <a id="fc17"></a>[FC17](FC17-Mutation-Testing-With-PIT.md) | S | - | A `pit` profile run by hand on the host, with PIT and its JUnit 5 plugin pinned, and a report sorting the survivors into real gaps and harmless ones | 0 |
 
-## Implementing
-
-| # | Size | Blocked by | What it covers |
-|---|---|---|---|
-| <a id="fc21"></a>[FC21](FC21-Forgejos-Images-From-A-Cache.md) | S | - | The Build's live Forgejo step loads Forgejo's server and runner images from the Actions cache, keyed by their digests, instead of pulling them from codeberg.org and code.forgejo.org on every run |
-
 ## Review
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
+| <a id="fc21"></a>[FC21](FC21-Forgejos-Images-From-A-Cache.md) | S | - | The Build's live Forgejo step loads Forgejo's server and runner images from the Actions cache, keyed by their digests, instead of pulling them from codeberg.org and code.forgejo.org on every run |
 | <a id="fc19"></a>[FC19](FC19-The-Generator-On-Its-Release.md) | XS | - | openapi-generator pinned to its release 7.27.0, which has `useRecords`, instead of a timestamped snapshot that Sonatype may delete |
 | <a id="fc20"></a>[FC20](FC20-The-OpenAPI-Templates-As-A-Maven-Artifact.md) | M | - | The overridden openapi-generator templates published as a jar another repository adds to the generator plugin, read by `templateResourcePath`, with the check that names a template whose original moved; the clients use the same files |
 
