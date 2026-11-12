@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "FC18",
   "title": "The Tests By Level",
-  "state": "Analyzed",
+  "state": "Estimated",
   "size": "M",
   "priority": "Medium",
   "rank": 2,

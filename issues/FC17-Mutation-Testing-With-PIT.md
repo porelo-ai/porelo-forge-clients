@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "FC17",
   "title": "Mutation Testing With PIT",
-  "state": "Analyzed",
+  "state": "Estimated",
   "size": "S",
   "priority": "Medium",
   "rank": 3,

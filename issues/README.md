@@ -17,6 +17,11 @@ is left out.
 | # | Size | Blocked by | What it covers | Open questions |
 |---|---|---|---|---|
 | <a id="fc03"></a>[FC03](FC03-The-Forge-Calls-Of-The-Adapters-Move-Here.md) | M | - | The clients make every call Porelo's build adapters make to GitHub and Forgejo today, with the same requests and answers, published as snapshots | 0 |
+
+## Estimated
+
+| # | Size | Blocked by | What it covers | Open questions |
+|---|---|---|---|---|
 | <a id="fc18"></a>[FC18](FC18-The-Tests-By-Level.md) | M | - | The tests by level, measured: the Forgejo fixture's clean-up proven over a fake podman and the GitHub fixture's waits taken off the wall clock | 0 |
 | <a id="fc17"></a>[FC17](FC17-Mutation-Testing-With-PIT.md) | S | - | A `pit` profile run by hand on the host, with PIT and its JUnit 5 plugin pinned, and a report sorting the survivors into real gaps and harmless ones | 0 |
 
