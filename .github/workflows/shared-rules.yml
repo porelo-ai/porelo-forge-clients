@@ -33,6 +33,11 @@ jobs:
             - name: The documents
               run: ./mvnw -B -U -s settings.xml -Pdocuments test
 
+            # Every issue head read by the issue schema and the index held to the heads: the Build ignores issues/.
+            - name: The issue heads
+              if: ${{ !cancelled() }}
+              run: ./mvnw -B -s settings.xml -N exec:exec@release -Drelease.args="issues check issues"
+
             # A pull request's own commits held to the shared rule on commit messages. One from outside - from another
             # repository, or opened by someone not a member - also carries its author's Signed-off-by: on each commit,
             # the Developer Certificate of Origin; Dependabot's and GitHub's own commits are exempt by the author and

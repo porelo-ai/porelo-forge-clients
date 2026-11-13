@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "FC22",
   "title": "The Issue Heads Checked Every Day",
-  "state": "Implementing",
+  "state": "Review",
   "size": "XS",
   "priority": "Low",
   "rank": 1,
