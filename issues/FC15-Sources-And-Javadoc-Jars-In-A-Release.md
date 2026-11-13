@@ -7,7 +7,7 @@
   "title": "Sources And Javadoc Jars In A Release",
   "state": "Idea",
   "size": "-",
-  "priority": "Medium",
+  "priority": "Low",
   "rank": 1,
   "blockedBy": [],
   "covers": "A release carries each client's sources and javadoc jars, which Maven Central requires and the release build does not make"

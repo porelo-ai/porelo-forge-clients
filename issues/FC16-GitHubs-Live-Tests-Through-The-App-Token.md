@@ -7,7 +7,7 @@
   "title": "GitHub's Live Tests Through The App Token",
   "state": "Idea",
   "size": "-",
-  "priority": "Medium",
+  "priority": "Low",
   "rank": 2,
   "blockedBy": [],
   "covers": "The GitHub recorder and live check run with the App's installation token and the reviewer test account's tokens, with no person's own token"
