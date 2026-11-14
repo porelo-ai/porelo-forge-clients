@@ -63,8 +63,9 @@ offered a test instance of its own, free of credentials, would change this.
 Forgejo runs anywhere without an account or a credential from outside, so its answers are recorded from a container
 pinned by digest, and the Build checks every call against that container strictly, with accounts and tokens made for
 the run and thrown away with it. The unit tests still replay the recordings alone, with no network. An Actions run
-needs a runner to get a job and a log, so a pinned runner joins the server. A forge that could not run in a container
-would be recorded as a cloud forge is.
+needs a runner to get a job and a log, so a pinned runner joins the server. Both images come from the Actions cache,
+keyed by their digests, so a registry that is down or slow fails no Build once they were fetched. A forge that could
+not run in a container would be recorded as a cloud forge is.
 
 ## Three credentials, since GitHub splits them
 
