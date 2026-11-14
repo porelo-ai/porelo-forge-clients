@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "FC23",
   "title": "The Docs Say What The Code Does",
-  "state": "Backlog",
+  "state": "Implementing",
   "size": "S",
   "priority": "Highest",
   "rank": 1,
