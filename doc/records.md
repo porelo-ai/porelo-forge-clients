@@ -12,7 +12,7 @@ A client keeps a filtered extract of its forge's description in `src/main/openap
 module's `README.md` carries the description's license notice.
 
 - `fetch` downloads the pinned source. It follows redirects but never from HTTPS to HTTP, sends no credential, and
-  refuses an answer other than 200 and a body over 64 MB, naming the source. It refuses the body, before anything is
+  refuses an answer other than 200, naming the source, and a body over 64 MB. It refuses the body, before anything is
   written, when its digest differs.
 - `fetch` then replaces a template's placeholders (`--replace`), keeps the listed operations and webhooks and the
   components they reach, and nothing else. A property a forge sends but its description lacks is added by name

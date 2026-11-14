@@ -25,18 +25,13 @@ is left out.
 | <a id="fc18"></a>[FC18](FC18-The-Tests-By-Level.md) | M | - | The tests by level, measured: the Forgejo fixture's clean-up proven over a fake podman and the GitHub fixture's waits taken off the wall clock | 0 |
 | <a id="fc17"></a>[FC17](FC17-Mutation-Testing-With-PIT.md) | S | - | A `pit` profile run by hand on the host, with PIT and its JUnit 5 plugin pinned, and a report sorting the survivors into real gaps and harmless ones | 0 |
 
-## Implementing
+## Review
 
 | # | Size | Blocked by | What it covers | Open questions |
 |---|---|---|---|---|
 | <a id="fc23"></a>[FC23](FC23-The-Docs-Say-What-The-Code-Does.md) | S | - | Every sentence of the user-facing documentation checked against the code on main; what the code does not bear out is corrected, and a code fault the docs describe rightly filed as its own bug | 0 |
-
-## Review
-
-| # | Size | Blocked by | What it covers |
-|---|---|---|---|
-| <a id="fc19"></a>[FC19](FC19-The-Generator-On-Its-Release.md) | XS | - | openapi-generator pinned to its release 7.27.0, which has `useRecords`, instead of a timestamped snapshot that Sonatype may delete |
-| <a id="fc20"></a>[FC20](FC20-The-OpenAPI-Templates-As-A-Maven-Artifact.md) | M | - | The overridden openapi-generator templates published as a jar another repository adds to the generator plugin, read by `templateResourcePath`, with the check that names a template whose original moved; the clients use the same files |
+| <a id="fc19"></a>[FC19](FC19-The-Generator-On-Its-Release.md) | XS | - | openapi-generator pinned to its release 7.27.0, which has `useRecords`, instead of a timestamped snapshot that Sonatype may delete | - |
+| <a id="fc20"></a>[FC20](FC20-The-OpenAPI-Templates-As-A-Maven-Artifact.md) | M | - | The overridden openapi-generator templates published as a jar another repository adds to the generator plugin, read by `templateResourcePath`, with the check that names a template whose original moved; the clients use the same files | - |
 
 ## Finished
 

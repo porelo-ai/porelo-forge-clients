@@ -14,11 +14,13 @@ from the committed extract.
 ```java
 HttpClient http = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build();
 ForgejoClient forgejo = new ForgejoClient(URI.create("https://forgejo.example.org/api/v1/"), http);
-List<PullRequest> open = forgejo.pulls(token, "owner", "repo", "open", 1, 50);
+Page<PullRequest> open = forgejo.pulls(token, "owner", "repo", "open", 1, 50);
 ```
 
-- The base ends in `/api/v1/`. The caller owns the `HttpClient` and its certificate trust; one that follows
-  redirects itself is refused, since the client sends the token only to the base's own scheme, host and port.
+- The base is the API's, such as `https://forgejo.example.org/api/v1/`; `plainKeys` refuses one that does not end
+  in `/api/v1/`, since it finds the web root from there. The caller owns the `HttpClient` and its certificate
+  trust; one that follows redirects itself is refused, since the client sends the token only to the base's own
+  scheme, host and port.
   A job log's redirect is followed by hand, at most five times, without the token to another origin.
 - Every API call takes a token, passed with the call and never stored; Forgejo 17 asks for one even for an
   account's public keys. `plainKeys(login)` is the one call without a token: it reads the page `<login>.keys`

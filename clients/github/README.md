@@ -13,7 +13,7 @@ the committed extract.
 ```java
 HttpClient http = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build();
 GitHubClient github = new GitHubClient(URI.create("https://api.github.com/"), http);
-List<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 50);
+Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 50);
 ```
 
 - The base is required. The caller supplies a token per call; requests use Bearer authentication,
