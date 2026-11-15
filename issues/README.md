@@ -27,16 +27,16 @@ is left out.
 
 ## Review
 
-| # | Size | Blocked by | What it covers | Open questions |
-|---|---|---|---|---|
-| <a id="fc23"></a>[FC23](FC23-The-Docs-Say-What-The-Code-Does.md) | S | - | Every sentence of the user-facing documentation checked against the code on main; what the code does not bear out is corrected, and a code fault the docs describe rightly filed as its own bug | 0 |
-| <a id="fc19"></a>[FC19](FC19-The-Generator-On-Its-Release.md) | XS | - | openapi-generator pinned to its release 7.27.0, which has `useRecords`, instead of a timestamped snapshot that Sonatype may delete | - |
-| <a id="fc20"></a>[FC20](FC20-The-OpenAPI-Templates-As-A-Maven-Artifact.md) | M | - | The overridden openapi-generator templates published as a jar another repository adds to the generator plugin, read by `templateResourcePath`, with the check that names a template whose original moved; the clients use the same files | - |
+| # | Size | Blocked by | What it covers |
+|---|---|---|---|
+| <a id="fc19"></a>[FC19](FC19-The-Generator-On-Its-Release.md) | XS | - | openapi-generator pinned to its release 7.27.0, which has `useRecords`, instead of a timestamped snapshot that Sonatype may delete |
+| <a id="fc20"></a>[FC20](FC20-The-OpenAPI-Templates-As-A-Maven-Artifact.md) | M | - | The overridden openapi-generator templates published as a jar another repository adds to the generator plugin, read by `templateResourcePath`, with the check that names a template whose original moved; the clients use the same files |
 
 ## Finished
 
 | # | What was built |
 |---|---|
+| <a id="fc23"></a>FC23 — The Docs Say What The Code Does | Every page of the user-facing documentation checked against the code; the client READMEs and the records page corrected where the code did not bear them out. |
 | <a id="fc21"></a>FC21 — Forgejo's Images From A Cache | The Build's live Forgejo step loads Forgejo's server and runner images from the Actions cache, keyed by their digests, instead of pulling them on every run. |
 | <a id="fc22"></a>FC22 — The Issue Heads Checked Every Day | The daily Shared rules check runs `issues check issues`, so an issue head the schema refuses, or an index out of the heads' order, turns it red naming the file and the field. |
 | <a id="fc10"></a>FC10 — A Pull Request's Commits On GitHub | A GitHub pull request's commits read page by page, each with its revision, the author's and committer's linked accounts and GitHub's signature verdict, recorded and checked live. Not checked: a `Bot` author's `databaseId` in GraphQL, and whether a page past the 250 commits is empty. |
