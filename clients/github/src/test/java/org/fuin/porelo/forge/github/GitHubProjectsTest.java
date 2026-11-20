@@ -305,12 +305,12 @@ class GitHubProjectsTest {
         var items =
                 answering(
                         "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"nodes\":["
-                                + "{\"id\":\"PVTI_1\",\"content\":"
+                                + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":"
                                 + issue("I_1")
                                 + "},\"fieldValues\":{\"nodes\":[],"
                                 + PAGE
                                 + "}},"
-                                + "{\"id\":\"PVTI_2\",\"content\":{\"__typename\":\"DraftIssue\"},\"fieldValues\":{\"nodes\":[],"
+                                + "{\"id\":\"PVTI_2\",\"isArchived\":true,\"content\":{\"__typename\":\"DraftIssue\"},\"fieldValues\":{\"nodes\":[],"
                                 + PAGE
                                 + "}}],"
                                 + PAGE
@@ -321,6 +321,8 @@ class GitHubProjectsTest {
         assertThat(page.items()).as("both items").hasSize(2);
         assertThat(page.items().get(0).issue()).as("an issue item").isNotNull();
         assertThat(page.items().get(1).issue()).as("a draft has no issue").isNull();
+        assertThat(page.items().get(0).archived()).as("a live item").isFalse();
+        assertThat(page.items().get(1).archived()).as("an archived item").isTrue();
     }
 
     // Prevents an answer missing a part from reading as a board with that part empty.
@@ -372,7 +374,7 @@ class GitHubProjectsTest {
                                         .projectItems(TOKEN, "o", 1, null));
         String valueWithoutField =
                 "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"nodes\":["
-                        + "{\"id\":\"PVTI_1\",\"content\":{\"__typename\":\"DraftIssue\"},\"fieldValues\":{\"nodes\":["
+                        + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":{\"__typename\":\"DraftIssue\"},\"fieldValues\":{\"nodes\":["
                         + "{\"__typename\":\"ProjectV2ItemFieldTextValue\",\"text\":\"x\",\"field\":null}],"
                         + PAGE
                         + "}}],"
@@ -386,6 +388,28 @@ class GitHubProjectsTest {
                         () ->
                                 graphQl(answering(valueWithoutField))
                                         .projectItems(TOKEN, "o", 1, null));
+    }
+
+    // Prevents an item whose archived state GitHub did not say from reading as one on the board.
+    @Test
+    void anItemWithoutItsArchivedStateFails() {
+        for (String archived : List.of("", "\"isArchived\":null,", "\"isArchived\":\"false\",")) {
+            String answer =
+                    "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"nodes\":["
+                            + "{\"id\":\"PVTI_1\","
+                            + archived
+                            + "\"content\":{\"__typename\":\"DraftIssue\"},\"fieldValues\":{\"nodes\":[],"
+                            + PAGE
+                            + "}}],"
+                            + PAGE
+                            + "}}},"
+                            + COST
+                            + "}}";
+            assertThatExceptionOfType(GitHubException.class)
+                    .as("an item with %s", archived.isEmpty() ? "no archived state" : archived)
+                    .isThrownBy(() -> graphQl(answering(answer)).projectItems(TOKEN, "o", 1, null))
+                    .withMessageContaining("isArchived");
+        }
     }
 
     // Prevents a part with a blank id or a number GitHub cannot store from being sent.

@@ -789,10 +789,12 @@ public final class GitHubGraphQl {
      * A project's item.
      *
      * @param id the item's id, which a field value names
+     * @param archived whether GitHub archived it, so it no longer shows on the board
      * @param issue its issue, or null for a draft or a pull request
      * @param values its single-select, text and number field values
      */
-    public record ProjectItem(String id, @Nullable BoardIssue issue, List<ItemValue> values) {
+    public record ProjectItem(
+            String id, boolean archived, @Nullable BoardIssue issue, List<ItemValue> values) {
         /** Requires every part. */
         public ProjectItem {
             Objects.requireNonNull(id, "id");

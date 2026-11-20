@@ -83,12 +83,12 @@ Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
 variables; the document holds only fixed text and, in a batch, each part's index.
 
 - `projectFields` reads the project's id, title, last change and its fields, a single-select field with its options;
-  `projectItems` reads 100 items a page with their issues and their single-select, text and number values, an item
-  that is a draft or a pull request without an issue; `issueBoard` reads up to 100 issues by node id, each with its
-  item and values in the given project, null in the place of an id GitHub does not know or of no issue.
-  `statusChanges` reads an issue's moves on a project's own `Status` field; a change of any other single-select field
-  appears in no timeline. A variant of a union the board does not model, such as an iteration field or a date
-  value, is left out. Each query's answer carries its `GraphQlCost`.
+  `projectItems` reads 100 items a page with whether GitHub archived each, their issues and their single-select, text
+  and number values, an item that is a draft or a pull request without an issue; `issueBoard` reads up to 100 issues
+  by node id, each with its item and values in the given project, null in the place of an id GitHub does not know or
+  of no issue. `statusChanges` reads an issue's moves on a project's own `Status` field; a change of any other
+  single-select field appears in no timeline. A variant of a union the board does not model, such as an iteration
+  field or a date value, is left out. Each query's answer carries its `GraphQlCost`.
 - `setFieldOptions` replaces a single-select field's options; GitHub gives every option a new id, one whose name stays
   included, so a caller takes the ids from the answer. As measured, an item's value in that field is gone afterwards,
   even for an option whose name stayed, so the options are set before any value.

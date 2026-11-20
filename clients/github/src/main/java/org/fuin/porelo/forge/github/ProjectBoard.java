@@ -85,7 +85,7 @@ final class ProjectBoard {
     static final String PROJECT_ITEMS =
             "query ProjectItems($org: String!, $number: Int!, $after: String) {"
                     + " organization(login: $org) { projectV2(number: $number) {"
-                    + " items(first: 100, after: $after) { nodes { id"
+                    + " items(first: 100, after: $after) { nodes { id isArchived"
                     + " content { __typename ... on Issue { "
                     + ISSUE
                     + " } } "
@@ -258,7 +258,9 @@ final class ProjectBoard {
             JsonNode content = node.path("content");
             BoardIssue issue =
                     content.path("__typename").asText().equals("Issue") ? issue(content) : null;
-            read.add(new ProjectItem(text(node, "id"), issue, values(node)));
+            read.add(
+                    new ProjectItem(
+                            text(node, "id"), flag(node, "isArchived"), issue, values(node)));
         }
         return new ProjectItems(read, pageInfo(items), cost(data));
     }
@@ -496,6 +498,12 @@ final class ProjectBoard {
             elements.add(element);
         }
         return elements;
+    }
+
+    private static boolean flag(JsonNode node, String name) {
+        JsonNode value = node.path(name);
+        if (!value.isBoolean()) throw new UnreadableAnswer(name);
+        return value.asBoolean();
     }
 
     private static String fieldOf(JsonNode value) {
