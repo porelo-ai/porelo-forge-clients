@@ -25,17 +25,12 @@ is left out.
 | <a id="fc18"></a>[FC18](FC18-The-Tests-By-Level.md) | M | - | The tests by level, measured: the Forgejo fixture's clean-up proven over a fake podman and the GitHub fixture's waits taken off the wall clock | 0 |
 | <a id="fc17"></a>[FC17](FC17-Mutation-Testing-With-PIT.md) | S | - | A `pit` profile run by hand on the host, with PIT and its JUnit 5 plugin pinned, and a report sorting the survivors into real gaps and harmless ones | 0 |
 
-## Backlog
-
-| # | Size | Blocked by | What it covers |
-|---|---|---|---|
-| <a id="fc25"></a>[FC25](FC25-A-Projects-Fields-On-GitHub-Over-GraphQL.md) | M | - | An organization project's fields read, its items paged with their issues and field values, issues read by id, added to it, their field values and a field's options set, an issue's status moves read, and several issues created in one mutation, each batch saying what was saved, over GraphQL, with each answer's cost |
-
 ## Implementing
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="fc24"></a>[FC24](FC24-Issues-Sub-Issues-And-Dependencies-On-GitHub.md) | M | - | A repository's issues listed, read, created and updated, an issue's sub-issues and parent, and its blocked-by and blocking dependencies on GitHub, over REST, recorded live |
+| <a id="fc25"></a>[FC25](FC25-A-Projects-Fields-On-GitHub-Over-GraphQL.md) | M | - | An organization project's fields read, its items paged with their issues and field values, issues read by id, added to it, their field values and a field's options set, an issue's status moves read, and several issues created in one mutation, each batch saying what was saved, over GraphQL, with each answer's cost |
 | <a id="fc26"></a>[FC26](FC26-Conditional-Reads-With-ETag-On-GitHub.md) | S | - | A repository's issue list and a project's item list read with a known ETag, a 304 answered as not changed instead of a failure, the new ETag and the rate limit returned with each answer, and a refusal naming the permissions GitHub accepts |
 
 ## Review
