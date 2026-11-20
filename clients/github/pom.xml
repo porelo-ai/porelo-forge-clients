@@ -178,6 +178,34 @@
                                 <argument>post /user/keys</argument>
                                 <argument>--operation</argument>
                                 <argument>post /user/ssh_signing_keys</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/issues</argument>
+                                <argument>--operation</argument>
+                                <argument>post /repos/{owner}/{repo}/issues</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/issues/{issue_number}</argument>
+                                <argument>--operation</argument>
+                                <argument>patch /repos/{owner}/{repo}/issues/{issue_number}</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/issues/{issue_number}/parent</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/issues/{issue_number}/sub_issues</argument>
+                                <argument>--operation</argument>
+                                <argument>post /repos/{owner}/{repo}/issues/{issue_number}/sub_issues</argument>
+                                <argument>--operation</argument>
+                                <argument>delete /repos/{owner}/{repo}/issues/{issue_number}/sub_issue</argument>
+                                <argument>--operation</argument>
+                                <argument>patch /repos/{owner}/{repo}/issues/{issue_number}/sub_issues/priority</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/issues/{issue_number}/dependencies/blocked_by</argument>
+                                <argument>--operation</argument>
+                                <argument>post /repos/{owner}/{repo}/issues/{issue_number}/dependencies/blocked_by</argument>
+                                <argument>--operation</argument>
+                                <argument>delete /repos/{owner}/{repo}/issues/{issue_number}/dependencies/blocked_by/{issue_id}</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/issues/{issue_number}/dependencies/blocking</argument>
+                                <argument>--operation</argument>
+                                <argument>get /orgs/{org}/projectsV2/{project_number}/items</argument>
                             </arguments>
                         </configuration>
                     </execution>

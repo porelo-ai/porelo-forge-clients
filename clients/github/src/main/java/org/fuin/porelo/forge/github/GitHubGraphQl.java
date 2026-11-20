@@ -2,6 +2,7 @@ package org.fuin.porelo.forge.github;
 
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -9,7 +10,12 @@ import java.util.Map;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
-/** GitHub review thread queries and resolution mutations, with explicit cursor pagination. */
+/**
+ * GitHub review thread queries and resolution mutations, and an organization project's board: its
+ * fields, its items with their issues, and aliased mutations that save several parts at once.
+ * Paging is by explicit cursor. Every caller value travels in the request's variables, never in its
+ * text.
+ */
 public final class GitHubGraphQl {
     /** Reads a page of threads and the first page of each thread's comments. */
     public static final String REVIEW_THREADS =
@@ -157,6 +163,95 @@ public final class GitHubGraphQl {
                 token,
                 Map.of("query", UNRESOLVE_REVIEW_THREAD, "variables", Map.of("id", id)),
                 UnresolveResponse.class);
+    }
+
+    /** At most this many parts go into one aliased mutation. */
+    public static final int MAX_BATCH = 50;
+
+    /** At most this many issues are read by id in one query. */
+    public static final int MAX_ISSUES = 100;
+
+    /**
+     * Reads an organization project's id, title, last change and a page of its fields, each
+     * single-select field with its options.
+     *
+     * @param after the cursor of the page of fields to read, null for the first
+     */
+    public ProjectFields projectFields(
+            String token, String org, int projectNumber, @Nullable String after) {
+        throw notBuilt("projectFields");
+    }
+
+    /**
+     * Reads a page of 100 of an organization project's items, each with its issue and its field
+     * values; an item that is a draft or a pull request has no issue.
+     *
+     * @param after the cursor of the page to read, null for the first
+     */
+    public ProjectItems projectItems(
+            String token, String org, int projectNumber, @Nullable String after) {
+        throw notBuilt("projectItems");
+    }
+
+    /**
+     * Reads issues by their node ids, each with its item and field values in the given project. An
+     * id GitHub does not know, or one of no issue, reads as null in its place.
+     *
+     * @param issueIds one to {@value #MAX_ISSUES} distinct issue node ids
+     */
+    public IssueBoard issueBoard(String token, List<String> issueIds, String projectId) {
+        throw notBuilt("issueBoard");
+    }
+
+    /**
+     * Adds issues to a project in one mutation; each saved part is the new item's id.
+     *
+     * @param contentIds one to {@value #MAX_BATCH} distinct issue node ids
+     */
+    public Batch<String> addProjectItems(String token, String projectId, List<String> contentIds) {
+        throw notBuilt("addProjectItems");
+    }
+
+    /**
+     * Sets or clears several field values of a project's items in one mutation; each saved part is
+     * the item's id.
+     *
+     * @param values one to {@value #MAX_BATCH}, no two for the same item and field
+     */
+    public Batch<String> setFieldValues(String token, String projectId, List<FieldValue> values) {
+        throw notBuilt("setFieldValues");
+    }
+
+    /**
+     * Replaces a single-select field's options with the given ones, in their order. GitHub gives
+     * every option a new id, one whose name stays included, so a caller takes the ids from the
+     * answer.
+     */
+    public FieldOptions setFieldOptions(String token, String fieldId, List<NewOption> options) {
+        throw notBuilt("setFieldOptions");
+    }
+
+    /**
+     * Reads a page of 100 of an issue's moves on a project's own {@code Status} field, oldest
+     * first. A change of any other single-select field appears in no timeline.
+     *
+     * @param after the cursor of the page to read, null for the first
+     */
+    public StatusChanges statusChanges(String token, String issueId, @Nullable String after) {
+        throw notBuilt("statusChanges");
+    }
+
+    /**
+     * Creates several issues, in repositories of one owner, in one mutation.
+     *
+     * @param issues one to {@value #MAX_BATCH}
+     */
+    public Batch<CreatedIssue> createIssues(String token, List<NewIssue> issues) {
+        throw notBuilt("createIssues");
+    }
+
+    private static UnsupportedOperationException notBuilt(String method) {
+        return new UnsupportedOperationException("GitHubGraphQl." + method + " is not built yet");
     }
 
     private static void requireId(String id) {
@@ -344,6 +439,383 @@ public final class GitHubGraphQl {
         /** Requires mutation data. */
         public UnresolveResponse {
             Objects.requireNonNull(data, "data");
+        }
+    }
+
+    /**
+     * A single-select field's option.
+     *
+     * @param id the option's id, which a value names
+     * @param name its name
+     * @param color its color, such as {@code GRAY}
+     * @param description its description
+     */
+    public record FieldOption(
+            String id, String name, @Nullable String color, @Nullable String description) {
+        /** Requires the id and name. */
+        public FieldOption {
+            Objects.requireNonNull(id, "id");
+            Objects.requireNonNull(name, "name");
+        }
+    }
+
+    /**
+     * A project's field.
+     *
+     * @param id the field's id
+     * @param name its name
+     * @param dataType GitHub's kind of field, such as {@code SINGLE_SELECT}, {@code TEXT} or {@code
+     *     NUMBER}
+     * @param options a single-select field's options, empty for any other
+     */
+    public record ProjectField(String id, String name, String dataType, List<FieldOption> options) {
+        /** Requires every part. */
+        public ProjectField {
+            Objects.requireNonNull(id, "id");
+            Objects.requireNonNull(name, "name");
+            Objects.requireNonNull(dataType, "dataType");
+            options = List.copyOf(options);
+        }
+    }
+
+    /**
+     * An organization project and a page of its fields.
+     *
+     * @param id the project's node id
+     * @param title its title
+     * @param updatedAt its last change, a field value's included
+     * @param fields this page of its fields
+     * @param pageInfo the cursor of the next page of fields
+     * @param cost what the query cost
+     */
+    public record ProjectFields(
+            String id,
+            String title,
+            Instant updatedAt,
+            List<ProjectField> fields,
+            PageInfo pageInfo,
+            GraphQlCost cost) {
+        /** Requires every part. */
+        public ProjectFields {
+            Objects.requireNonNull(id, "id");
+            Objects.requireNonNull(title, "title");
+            Objects.requireNonNull(updatedAt, "updatedAt");
+            fields = List.copyOf(fields);
+            Objects.requireNonNull(pageInfo, "pageInfo");
+            Objects.requireNonNull(cost, "cost");
+        }
+    }
+
+    /**
+     * Another issue an issue names, as a sub-issue or a blocking one.
+     *
+     * @param id its node id
+     * @param databaseId its {@code id} in REST, which REST's sub-issue and dependency calls take
+     * @param number its number in its repository
+     * @param repository its repository, {@code owner/name}
+     */
+    public record IssueRef(String id, long databaseId, int number, String repository) {
+        /** Requires every part. */
+        public IssueRef {
+            Objects.requireNonNull(id, "id");
+            Objects.requireNonNull(repository, "repository");
+        }
+    }
+
+    /**
+     * The first page of issues an issue names.
+     *
+     * @param nodes the issues
+     * @param pageInfo whether more follow
+     */
+    public record IssueRefs(List<IssueRef> nodes, PageInfo pageInfo) {
+        /** Requires every part. */
+        public IssueRefs {
+            nodes = List.copyOf(nodes);
+            Objects.requireNonNull(pageInfo, "pageInfo");
+        }
+    }
+
+    /**
+     * An issue as the board shows it.
+     *
+     * @param id its node id
+     * @param databaseId its {@code id} in REST
+     * @param number its number in its repository
+     * @param title its title
+     * @param body its text
+     * @param state {@code OPEN} or {@code CLOSED}
+     * @param stateReason why it is in its state, such as {@code COMPLETED} or {@code NOT_PLANNED}
+     * @param updatedAt its last change
+     * @param repository its repository, {@code owner/name}
+     * @param labels the names of its first 100 labels
+     * @param parentId its parent's node id, or null when it has none
+     * @param subIssues its first 100 sub-issues
+     * @param blockedBy the first 100 issues it is blocked by
+     */
+    public record BoardIssue(
+            String id,
+            long databaseId,
+            int number,
+            String title,
+            @Nullable String body,
+            String state,
+            @Nullable String stateReason,
+            Instant updatedAt,
+            String repository,
+            List<String> labels,
+            @Nullable String parentId,
+            IssueRefs subIssues,
+            IssueRefs blockedBy) {
+        /** Requires every part GitHub always sends. */
+        public BoardIssue {
+            Objects.requireNonNull(id, "id");
+            Objects.requireNonNull(title, "title");
+            Objects.requireNonNull(state, "state");
+            Objects.requireNonNull(updatedAt, "updatedAt");
+            Objects.requireNonNull(repository, "repository");
+            labels = List.copyOf(labels);
+            Objects.requireNonNull(subIssues, "subIssues");
+            Objects.requireNonNull(blockedBy, "blockedBy");
+        }
+    }
+
+    /**
+     * One field value of a project item; which of option, text and number is set follows the
+     * field's kind.
+     *
+     * @param fieldId the field's id
+     * @param optionId a single-select value's option id
+     * @param name a single-select value's option name
+     * @param text a text value
+     * @param number a number value
+     */
+    public record ItemValue(
+            String fieldId,
+            @Nullable String optionId,
+            @Nullable String name,
+            @Nullable String text,
+            @Nullable Double number) {
+        /** Requires the field. */
+        public ItemValue {
+            Objects.requireNonNull(fieldId, "fieldId");
+        }
+    }
+
+    /**
+     * A project's item.
+     *
+     * @param id the item's id, which a field value names
+     * @param issue its issue, or null for a draft or a pull request
+     * @param values its single-select, text and number field values
+     */
+    public record ProjectItem(String id, @Nullable BoardIssue issue, List<ItemValue> values) {
+        /** Requires every part. */
+        public ProjectItem {
+            Objects.requireNonNull(id, "id");
+            values = List.copyOf(values);
+        }
+    }
+
+    /**
+     * A page of a project's items.
+     *
+     * @param items the items
+     * @param pageInfo the cursor of the next page
+     * @param cost what the query cost
+     */
+    public record ProjectItems(List<ProjectItem> items, PageInfo pageInfo, GraphQlCost cost) {
+        /** Requires every part. */
+        public ProjectItems {
+            items = List.copyOf(items);
+            Objects.requireNonNull(pageInfo, "pageInfo");
+            Objects.requireNonNull(cost, "cost");
+        }
+    }
+
+    /**
+     * An issue read by id, with its place in one project.
+     *
+     * @param issue the issue
+     * @param itemId its item in the project, or null when it is not in it
+     * @param values its field values in the project
+     */
+    public record IssueOnBoard(BoardIssue issue, @Nullable String itemId, List<ItemValue> values) {
+        /** Requires every part. */
+        public IssueOnBoard {
+            Objects.requireNonNull(issue, "issue");
+            values = List.copyOf(values);
+        }
+    }
+
+    /**
+     * Issues read by id, in the order asked.
+     *
+     * @param issues one per id asked, null where GitHub knows no issue by it
+     * @param cost what the query cost
+     */
+    public record IssueBoard(List<@Nullable IssueOnBoard> issues, GraphQlCost cost) {
+        /** Keeps the issues from changing; a null stays in its place. */
+        public IssueBoard {
+            issues = java.util.Collections.unmodifiableList(new java.util.ArrayList<>(issues));
+            Objects.requireNonNull(cost, "cost");
+        }
+    }
+
+    /**
+     * A field value to set or clear on a project's item; at most one of option, text and number is
+     * given, and none clears the value.
+     *
+     * @param itemId the item's id
+     * @param fieldId the field's id
+     * @param optionId the option of a single-select field
+     * @param text the text of a text field
+     * @param number the number of a number field
+     */
+    public record FieldValue(
+            String itemId,
+            String fieldId,
+            @Nullable String optionId,
+            @Nullable String text,
+            @Nullable Double number) {
+        /** Requires the item and field and at most one value. */
+        public FieldValue {
+            Objects.requireNonNull(itemId, "itemId");
+            Objects.requireNonNull(fieldId, "fieldId");
+            int given =
+                    (optionId != null ? 1 : 0) + (text != null ? 1 : 0) + (number != null ? 1 : 0);
+            if (given > 1) throw new IllegalArgumentException("A field value is of one kind");
+        }
+
+        /** Sets a single-select field to an option. */
+        public static FieldValue option(String itemId, String fieldId, String optionId) {
+            return new FieldValue(itemId, fieldId, Objects.requireNonNull(optionId), null, null);
+        }
+
+        /** Sets a text field. */
+        public static FieldValue text(String itemId, String fieldId, String text) {
+            return new FieldValue(itemId, fieldId, null, Objects.requireNonNull(text), null);
+        }
+
+        /** Sets a number field. */
+        public static FieldValue number(String itemId, String fieldId, double number) {
+            return new FieldValue(itemId, fieldId, null, null, number);
+        }
+
+        /** Clears a field. */
+        public static FieldValue clear(String itemId, String fieldId) {
+            return new FieldValue(itemId, fieldId, null, null, null);
+        }
+
+        /** Returns whether this clears the field. */
+        public boolean clears() {
+            return optionId == null && text == null && number == null;
+        }
+    }
+
+    /**
+     * An option a single-select field is to have; GitHub requires all three parts.
+     *
+     * @param name its name
+     * @param color its color, one of GitHub's: {@code GRAY}, {@code BLUE}, {@code GREEN}, {@code
+     *     YELLOW}, {@code ORANGE}, {@code RED}, {@code PINK} or {@code PURPLE}
+     * @param description its description, empty for none
+     */
+    public record NewOption(String name, String color, String description) {
+        /** Requires every part. */
+        public NewOption {
+            Objects.requireNonNull(name, "name");
+            Objects.requireNonNull(color, "color");
+            Objects.requireNonNull(description, "description");
+        }
+    }
+
+    /**
+     * A single-select field's options after they were replaced.
+     *
+     * @param options the options with their new ids, in their order
+     * @param rateLimit what the answer's headers said of the rate limit
+     */
+    public record FieldOptions(List<FieldOption> options, @Nullable RateLimit rateLimit) {
+        /** Keeps the options from changing. */
+        public FieldOptions {
+            options = List.copyOf(options);
+        }
+    }
+
+    /**
+     * One move of an issue on a project's own {@code Status} field.
+     *
+     * @param createdAt when it moved
+     * @param previousStatus the status before, null when it had none
+     * @param status the status after, null when it was cleared
+     * @param actor the login of who moved it, null when GitHub names nobody
+     * @param projectId the project's node id, null when GitHub no longer shows it
+     */
+    public record StatusChange(
+            Instant createdAt,
+            @Nullable String previousStatus,
+            @Nullable String status,
+            @Nullable String actor,
+            @Nullable String projectId) {
+        /** Requires the time. */
+        public StatusChange {
+            Objects.requireNonNull(createdAt, "createdAt");
+        }
+    }
+
+    /**
+     * A page of an issue's status moves.
+     *
+     * @param changes the moves, oldest first
+     * @param pageInfo the cursor of the next page
+     * @param cost what the query cost
+     */
+    public record StatusChanges(List<StatusChange> changes, PageInfo pageInfo, GraphQlCost cost) {
+        /** Requires every part. */
+        public StatusChanges {
+            changes = List.copyOf(changes);
+            Objects.requireNonNull(pageInfo, "pageInfo");
+            Objects.requireNonNull(cost, "cost");
+        }
+    }
+
+    /**
+     * An issue to create.
+     *
+     * @param repositoryId the repository's node id
+     * @param title its title
+     * @param body its text, null for none
+     * @param parentIssueId the node id of the issue to make it a sub-issue of, null for none
+     * @param labelIds the node ids of its labels
+     */
+    public record NewIssue(
+            String repositoryId,
+            String title,
+            @Nullable String body,
+            @Nullable String parentIssueId,
+            List<String> labelIds) {
+        /** Requires the repository and title. */
+        public NewIssue {
+            Objects.requireNonNull(repositoryId, "repositoryId");
+            Objects.requireNonNull(title, "title");
+            labelIds = List.copyOf(labelIds);
+        }
+    }
+
+    /**
+     * An issue GitHub created.
+     *
+     * @param id its node id
+     * @param databaseId its {@code id} in REST
+     * @param number its number in its repository
+     * @param url its page
+     */
+    public record CreatedIssue(String id, long databaseId, int number, URI url) {
+        /** Requires every part. */
+        public CreatedIssue {
+            Objects.requireNonNull(id, "id");
+            Objects.requireNonNull(url, "url");
         }
     }
 }

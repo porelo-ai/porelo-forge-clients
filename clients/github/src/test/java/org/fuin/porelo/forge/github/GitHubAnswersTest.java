@@ -80,6 +80,27 @@ class GitHubAnswersTest {
                 .satisfies(ex -> assertThat(ex.rateLimited()).as("makes it a limit").isTrue());
     }
 
+    // Prevents a refusal for a missing right from leaving the person unable to name the right.
+    @Test
+    void aRefusalNamesThePermissionsGitHubWouldAccept() {
+        var named = failure(403, Map.of("x-accepted-github-permissions", List.of("issues=write")));
+        assertThat(named.acceptedPermissions())
+                .as("GitHub's header reaches the caller")
+                .isEqualTo("issues=write");
+        assertThat(failure(403, Map.of()).acceptedPermissions())
+                .as("a refusal without the header names none")
+                .isNull();
+        assertThat(
+                        failure(
+                                        403,
+                                        Map.of(
+                                                "x-accepted-github-permissions",
+                                                List.of(SECRET_BODY + " " + TOKEN)))
+                                .acceptedPermissions())
+                .as("a header that is no list of permissions is not passed on")
+                .isNull();
+    }
+
     // Prevents GraphQL's rate limit, answered with a 200, from reading as an ordinary failure.
     @Test
     void aRateLimitedGraphQlAnswerIsARateLimit() {

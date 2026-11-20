@@ -54,6 +54,28 @@ Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
   `GitHub answer exceeds <n> bytes`, with no part of the answer. `jobLogs` returns a `JobLog`, read up to 64 MiB and
   keeping its last 1 MiB, with `cut` saying whether it was longer.
 
+- `acceptedPermissions()` of a refusal is GitHub's `X-Accepted-GitHub-Permissions` header, such as `issues=write`,
+  when it is a plain list of permissions, else null.
+
+## Issues and projects, published before they are built
+
+These calls stand with their final signatures and records, so a caller builds against them; each throws
+`UnsupportedOperationException` saying `<Class>.<method> is not built yet` until it is built:
+
+- `GitHubClient`: a repository's `issues`, newest change first, and `issue`, `createIssue`, `updateIssue`; an issue's
+  `parentIssue`, `subIssues`, `addSubIssue`, `removeSubIssue`, `reprioritizeSubIssue`, `blockedBy`, `addBlockedBy`,
+  `removeBlockedBy` and `blocking`, which name the other issue by its `id`, not its number; and the conditional reads
+  `issuesIfChanged` and `projectItemsIfChanged`, which return a `Conditional`, either the value with its entity tag or
+  no value after a 304, with the rate limit of the answer.
+- `GitHubGraphQl`: an organization project's `projectFields` and `projectItems`, issues read by id in `issueBoard`, an
+  issue's `statusChanges`, `setFieldOptions`, and the batches `addProjectItems`, `setFieldValues` and
+  `createIssues`, at most 50 parts each, which return a `Batch` with one outcome per part, saved or refused with
+  GitHub's message. A query's answer carries its `GraphQlCost`; a mutation cannot ask for one.
+
+The extract's `--set` corrections for these: an issue's labels read as label objects and are sent as names, its title
+is sent as text, every identifier is `int64`, a project item's `id` is an integer, and the value GitHub suggests in an
+issue update's answer is left open.
+
 ## Replay in other repositories
 
 The `tests` jar of this module holds GitHub's recorded answers and

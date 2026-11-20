@@ -37,7 +37,7 @@ GitHub's own records.
 
   That step is committed, pushed and published as a snapshot on its own, so the planner builds against it with its
   own fakes. A test, `NotBuiltYetTest`, calls each new method and expects that exception; it is red first against
-  a method that returns null. Then this issue's calls are built behind the fixed surface, before FC25. FC26 is built
+  a method that returns null. Then this issue's calls are built behind the fixed surface, before [FC25](README.md#fc25). [FC26](README.md#fc26) is built
   beside them by a sub-agent in a worktree of its own, rebased onto this issue's work before its hand-over. A
   signature found wrong while building changes only after it is agreed with the planner's agent.
 
@@ -57,13 +57,18 @@ Read in today's code: `GitHubClient`, `GitHubOperations`, `GitHubRecorder`, `Git
 - **`GitHubClient`** gains `issues` (paged, with `state`, `labels`, `since`, sorted by `updated`), `issue`,
   `createIssue`, `updateIssue`, `parentIssue`, `subIssues` (paged), `addSubIssue` (with `replace_parent`),
   `removeSubIssue`, `reprioritizeSubIssue`, `blockedBy` (paged), `addBlockedBy`, `removeBlockedBy` and `blocking`
-  (paged), on the existing `call`, `page` and `delete`. A sub-issue and a dependency are named by the other issue's
+  (paged), on the existing `call` and `page`; `removeSubIssue` sends `DELETE` with a body naming `sub_issue_id`, since
+  GitHub's path does not, so it goes through `call`, not `delete`. Every number and id is checked positive, and
+  `labels` is left out when null or empty, a blank name or one holding a comma refused. `parentIssue` answers as
+  GitHub does: 404 for an issue without a parent, which its `parentIssueUrl` shows beforehand. A sub-issue and a dependency are named by the other issue's
   `id`, not its number, as GitHub asks; the README says so. `issues` returns pull requests too, as GitHub does; the
   README says the caller tells them by `pull_request`.
 - **Recorder and live check.** `GitHubOperations` gets one entry per call. The recorder opens two issues in its
   run's repository and one in the kept fixture repository, links one as the other's sub-issue and blocked-by, reads
   them, removes the links and closes the issues, owning what it made as it does for keys; the live check reads the
-  kept fixture's issue strictly.
+  kept fixture's issue strictly. The recorder and the live check make the issue and project calls with `LIVE_GITHUB_REVIEWER_TOKEN`, the test
+  organization member's token, which holds Issues and organization Projects read and write on all of the organization's
+  repositories; a member may create projects there, as measured, and administers the projects it creates.
 - **Tests.** `GitHubClientTest` replays each recording, asserting the path, the method, the body and each field read;
   `GitHubExtractTest` lists the new operations. Red first: `issueIsRead` against `issue.json` with `number` changed,
   which must fail by that field, and `addSubIssueSendsTheIssueId` with the request body's `sub_issue_id` taken out.

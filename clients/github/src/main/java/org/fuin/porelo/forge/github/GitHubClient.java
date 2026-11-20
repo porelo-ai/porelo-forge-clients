@@ -32,6 +32,9 @@ public final class GitHubClient {
     private static final Pattern NEXT_LINK =
             Pattern.compile("rel=\"?next\"?(\\s|;|,|$)", Pattern.CASE_INSENSITIVE);
 
+    private static final Pattern ACCEPTED_PERMISSIONS =
+            Pattern.compile("[a-z_]+=[a-z_]+(\\s*[;,]\\s*[a-z_]+=[a-z_]+)*");
+
     private final URI base;
     private final URI web;
     private final HttpClient http;
@@ -567,6 +570,181 @@ public final class GitHubClient {
                 json.constructType(RepositoryCollaboratorPermission.class));
     }
 
+    /**
+     * Reads a page of a repository's issues, sorted by their last update, newest first. GitHub
+     * lists pull requests here too; a caller tells them by {@code pullRequest}.
+     *
+     * @param state {@code open}, {@code closed} or {@code all}; null reads GitHub's default, open
+     * @param labels label names an issue must all carry; null or empty asks for none, and a name
+     *     may not be blank or hold a comma, which GitHub would split
+     * @param since only issues updated at or after this moment; null asks for all
+     */
+    public Page<Issue> issues(
+            String token,
+            String owner,
+            String repo,
+            @Nullable String state,
+            @Nullable List<String> labels,
+            @Nullable Instant since,
+            int page,
+            int perPage) {
+        throw notBuilt("issues");
+    }
+
+    /**
+     * Reads a page of a repository's issues as {@link #issues} does, sent with the entity tag of
+     * the caller's last read, so GitHub answers 304 when nothing changed.
+     *
+     * @param etag the tag the last answer carried, or null for a first read
+     */
+    public Conditional<Page<Issue>> issuesIfChanged(
+            String token,
+            String owner,
+            String repo,
+            @Nullable String state,
+            @Nullable List<String> labels,
+            @Nullable Instant since,
+            int page,
+            int perPage,
+            @Nullable String etag) {
+        throw notBuilt("issuesIfChanged");
+    }
+
+    /** Reads one issue by its number. */
+    public Issue issue(String token, String owner, String repo, long issueNumber) {
+        throw notBuilt("issue");
+    }
+
+    /**
+     * Creates an issue. GitHub drops labels in silence for an account without push access to the
+     * repository.
+     */
+    public Issue createIssue(String token, String owner, String repo, IssuesCreateRequest body) {
+        throw notBuilt("createIssue");
+    }
+
+    /**
+     * Changes an issue; a field left null stays as it is. Closing takes {@code state} {@code
+     * closed} with {@code stateReason} {@code completed} or {@code not_planned}.
+     */
+    public IssuesUpdate200Response updateIssue(
+            String token, String owner, String repo, long issueNumber, IssuesUpdateRequest body) {
+        throw notBuilt("updateIssue");
+    }
+
+    /**
+     * Reads an issue's parent. GitHub answers 404 for an issue without one, as for a missing issue;
+     * an issue's {@code parentIssueUrl} says beforehand whether it has one.
+     */
+    public Issue parentIssue(String token, String owner, String repo, long issueNumber) {
+        throw notBuilt("parentIssue");
+    }
+
+    /** Reads a page of an issue's sub-issues, in their order. */
+    public Page<Issue> subIssues(
+            String token, String owner, String repo, long issueNumber, int page, int perPage) {
+        throw notBuilt("subIssues");
+    }
+
+    /**
+     * Makes an issue of the same owner, named by its {@code id}, not its number, a sub-issue of
+     * this one.
+     *
+     * @param replaceParent whether to move it from a parent it already has, which GitHub refuses
+     *     otherwise
+     * @return the parent issue
+     */
+    public Issue addSubIssue(
+            String token,
+            String owner,
+            String repo,
+            long issueNumber,
+            long subIssueId,
+            boolean replaceParent) {
+        throw notBuilt("addSubIssue");
+    }
+
+    /**
+     * Removes a sub-issue, named by its {@code id}, from this issue.
+     *
+     * @return the parent issue
+     */
+    public Issue removeSubIssue(
+            String token, String owner, String repo, long issueNumber, long subIssueId) {
+        throw notBuilt("removeSubIssue");
+    }
+
+    /**
+     * Moves a sub-issue, named by its {@code id}, after or before another sub-issue of this issue;
+     * exactly one of {@code afterId} and {@code beforeId} is given.
+     *
+     * @return the parent issue
+     */
+    public Issue reprioritizeSubIssue(
+            String token,
+            String owner,
+            String repo,
+            long issueNumber,
+            long subIssueId,
+            @Nullable Long afterId,
+            @Nullable Long beforeId) {
+        throw notBuilt("reprioritizeSubIssue");
+    }
+
+    /** Reads a page of the issues this issue is blocked by. */
+    public Page<Issue> blockedBy(
+            String token, String owner, String repo, long issueNumber, int page, int perPage) {
+        throw notBuilt("blockedBy");
+    }
+
+    /**
+     * Marks this issue as blocked by another, named by its {@code id}, not its number.
+     *
+     * @return the blocking issue
+     */
+    public Issue addBlockedBy(
+            String token, String owner, String repo, long issueNumber, long blockingIssueId) {
+        throw notBuilt("addBlockedBy");
+    }
+
+    /**
+     * Removes the issue named by its {@code id} from those this issue is blocked by.
+     *
+     * @return the issue no longer blocking
+     */
+    public Issue removeBlockedBy(
+            String token, String owner, String repo, long issueNumber, long blockingIssueId) {
+        throw notBuilt("removeBlockedBy");
+    }
+
+    /** Reads a page of the issues this issue blocks. */
+    public Page<Issue> blocking(
+            String token, String owner, String repo, long issueNumber, int page, int perPage) {
+        throw notBuilt("blocking");
+    }
+
+    /**
+     * Reads a page of an organization project's items, sent with the entity tag of the caller's
+     * last read, so GitHub answers 304 when nothing changed. A caller polls the first page to learn
+     * whether the project changed; the board itself is read through GraphQL.
+     *
+     * @param after the cursor of the page to read, null for the first
+     * @param etag the tag the last answer carried, or null for a first read
+     */
+    public Conditional<CursorPage<ProjectsV2ItemWithContent>> projectItemsIfChanged(
+            String token,
+            String org,
+            int projectNumber,
+            @Nullable String after,
+            int perPage,
+            @Nullable String etag) {
+        throw notBuilt("projectItemsIfChanged");
+    }
+
+    private static UnsupportedOperationException notBuilt(String method) {
+        return new UnsupportedOperationException("GitHubClient." + method + " is not built yet");
+    }
+
     <T> T graphQl(String token, Object body, Class<T> type) {
         return graphQl(token, body, type, false);
     }
@@ -844,7 +1022,12 @@ public final class GitHubClient {
     static GitHubException refusal(int status, String message, HttpHeaders headers) {
         RateLimit limit = RateLimit.read(headers, Instant.now());
         return new GitHubException(
-                status, message, Delivery.ANSWERED, limit, isRateLimit(status, message, limit));
+                status,
+                message,
+                Delivery.ANSWERED,
+                limit,
+                isRateLimit(status, message, limit),
+                acceptedPermissions(headers));
     }
 
     /**
@@ -862,6 +1045,16 @@ public final class GitHubClient {
                         && (Long.valueOf(0).equals(limit.remaining())
                                 || limit.retryAfter() != null))
                 || message.toLowerCase(Locale.ROOT).contains("rate limit");
+    }
+
+    /**
+     * GitHub's header, kept only when it is a plain list such as {@code issues=write; pulls=read}.
+     */
+    private static @Nullable String acceptedPermissions(HttpHeaders headers) {
+        return headers.firstValue("x-accepted-github-permissions")
+                .map(String::strip)
+                .filter(value -> !value.isEmpty() && ACCEPTED_PERMISSIONS.matcher(value).matches())
+                .orElse(null);
     }
 
     private record Answered<T>(T value, HttpHeaders headers) {}

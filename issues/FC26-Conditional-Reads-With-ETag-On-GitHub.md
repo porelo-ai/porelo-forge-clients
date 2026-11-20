@@ -26,7 +26,7 @@ a refusal for a missing permission says which permissions GitHub would have acce
 
 - **Order.** `Conditional`, the two conditional reads and `acceptedPermissions()` are published first by the
   first step of [FC24](README.md#fc24), the reads failing loud and `acceptedPermissions()` built. This issue's
-  calls are built by a sub-agent in a worktree of its own, beside FC24 and FC25, and rebased onto them before its
+  calls are built by a sub-agent in a worktree of its own, beside [FC24](README.md#fc24) and [FC25](README.md#fc25), and rebased onto them before its
   hand-over, since all three change `GitHubClient`. A signature found wrong while building changes only after it is
   agreed with the planner's agent.
 
@@ -35,8 +35,12 @@ Read in today's code: `GitHubClient.exchange`, `send` and `check`, `RateLimit.re
 
 - **The call.** `send` takes an optional `If-None-Match` value; `exchange` treats a 304 as an answer, not a
   failure, reading no body. A new record `Conditional<T>(@Nullable T value, @Nullable String etag, boolean changed,
-  @Nullable RateLimit rateLimit)` carries it; `changed` is false on a 304, when `value` is null.
-- **Which reads.** `issuesIfChanged`, the conditional twin of FC24's issue list (sorted by `updated`, with
+  @Nullable RateLimit rateLimit)` carries it; `changed` is false on a 304, exactly when `value` is null, as its
+  constructor holds. On a 304 its `etag` is the answer's, weak prefix kept, or else the one the caller sent. An `etag`
+  argument that is blank or holds anything outside visible ASCII is an `IllegalArgumentException` before sending.
+- **Cursor pages.** `projectItemsIfChanged` returns a `CursorPage`, whose `after` is read from the `after` parameter
+  of the `Link` header's next link, null on the last page.
+- **Which reads.** `issuesIfChanged`, the conditional twin of [FC24](README.md#fc24)'s issue list (sorted by `updated`, with
   `since`), and `projectItemsIfChanged`, over `get /orgs/{org}/projectsV2/{project_number}/items`, which the pinned
   description answers with 200 or 304, paged by `before`, `after` and `per_page`; the operation goes into the
   extract and its record is generated. Each takes the ETag it last got or none. The plain reads stay as they are.
