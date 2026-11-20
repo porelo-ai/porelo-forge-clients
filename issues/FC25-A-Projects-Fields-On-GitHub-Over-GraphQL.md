@@ -5,13 +5,12 @@
   "$schema": "issue-1.json",
   "id": "FC25",
   "title": "A Project's Fields On GitHub Over GraphQL",
-  "state": "Analyzed",
+  "state": "Backlog",
   "size": "M",
   "priority": "High",
   "rank": 2,
   "blockedBy": [],
-  "covers": "An organization project's fields read, its items paged with their issues and field values, issues read by id, added to it, their field values and a field's options set, an issue's status moves read, and several issues created in one mutation, each batch saying what was saved, over GraphQL, with each answer's cost",
-  "openQuestions": 0
+  "covers": "An organization project's fields read, its items paged with their issues and field values, issues read by id, added to it, their field values and a field's options set, an issue's status moves read, and several issues created in one mutation, each batch saying what was saved, over GraphQL, with each answer's cost"
 }
 ```
 

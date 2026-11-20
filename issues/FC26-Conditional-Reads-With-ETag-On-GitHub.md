@@ -5,13 +5,12 @@
   "$schema": "issue-1.json",
   "id": "FC26",
   "title": "Conditional Reads With ETag On GitHub",
-  "state": "Analyzed",
+  "state": "Backlog",
   "size": "S",
   "priority": "High",
   "rank": 3,
   "blockedBy": [],
-  "covers": "A repository's issue list and a project's item list read with a known ETag, a 304 answered as not changed instead of a failure, the new ETag and the rate limit returned with each answer, and a refusal naming the permissions GitHub accepts",
-  "openQuestions": 0
+  "covers": "A repository's issue list and a project's item list read with a known ETag, a 304 answered as not changed instead of a failure, the new ETag and the rate limit returned with each answer, and a refusal naming the permissions GitHub accepts"
 }
 ```
 

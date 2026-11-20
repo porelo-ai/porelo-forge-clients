@@ -5,13 +5,12 @@
   "$schema": "issue-1.json",
   "id": "FC24",
   "title": "Issues, Sub-Issues And Dependencies On GitHub",
-  "state": "Analyzed",
+  "state": "Backlog",
   "size": "M",
   "priority": "High",
   "rank": 1,
   "blockedBy": [],
-  "covers": "A repository's issues listed, read, created and updated, an issue's sub-issues and parent, and its blocked-by and blocking dependencies on GitHub, over REST, recorded live",
-  "openQuestions": 0
+  "covers": "A repository's issues listed, read, created and updated, an issue's sub-issues and parent, and its blocked-by and blocking dependencies on GitHub, over REST, recorded live"
 }
 ```
 
