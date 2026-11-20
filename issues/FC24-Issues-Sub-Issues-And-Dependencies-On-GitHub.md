@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "FC24",
   "title": "Issues, Sub-Issues And Dependencies On GitHub",
-  "state": "Implementing",
+  "state": "Review",
   "size": "M",
   "priority": "High",
   "rank": 1,
@@ -81,8 +81,3 @@ Read in today's code: `GitHubClient`, `GitHubOperations`, `GitHubRecorder`, `Git
 - The recorder records every call against the test organization and leaves nothing behind; the live check reads the
   kept issue strictly.
 - `./mvnw -B -s settings.xml verify` passes with no network.
-
-## To be checked
-
-- Whether GitHub answers a sub-issue from another repository of the same owner, and a dependency across
-  repositories, with the same records; measured by the recorder.

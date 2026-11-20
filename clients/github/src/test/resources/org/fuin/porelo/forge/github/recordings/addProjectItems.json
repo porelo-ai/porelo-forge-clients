@@ -1,0 +1,58 @@
+{
+  "request_uri" : "/graphql",
+  "status" : 200,
+  "headers" : {
+    "content-type" : [ "application/json; charset=utf-8" ],
+    "x-ratelimit-limit" : [ "5000" ],
+    "x-ratelimit-remaining" : [ "4847" ],
+    "x-ratelimit-reset" : [ "1795177434" ]
+  },
+  "body" : "{\"data\":{\"a0\":{\"item\":{\"id\":\"PVTI_lADOFN-d0c4BsepwzhKdcKE\"}},\"a1\":{\"item\":{\"id\":\"PVTI_lADOFN-d0c4BsepwzhKdcKo\"}}}}",
+  "exchanges" : [ {
+    "request_uri" : "/graphql",
+    "status" : 200,
+    "headers" : {
+      "content-type" : [ "application/json; charset=utf-8" ],
+      "x-ratelimit-limit" : [ "5000" ],
+      "x-ratelimit-remaining" : [ "4847" ],
+      "x-ratelimit-reset" : [ "1795177434" ]
+    },
+    "body" : "{\"data\":{\"a0\":{\"item\":{\"id\":\"PVTI_lADOFN-d0c4BsepwzhKdcKE\"}},\"a1\":{\"item\":{\"id\":\"PVTI_lADOFN-d0c4BsepwzhKdcKo\"}}}}"
+  } ],
+  "context" : {
+    "owner" : "fixture-org",
+    "repo" : "fixture-repo",
+    "prefix" : "forge-client-issues-c4c51505",
+    "number" : 35,
+    "other" : 36,
+    "subIssueId" : 6510778917,
+    "thirdIssueId" : 6510779112,
+    "since" : "2026-11-20T11:35:57Z",
+    "etag" : "\"475aa4fa039d951f9ac1585565dcacbdb1e024b80b9bf38baaa08dcede7328b4\"",
+    "itemsEtag" : "pending",
+    "projectNumber" : 13,
+    "projectId" : "PVT_kwDOFN-d0c4Bsepw",
+    "repositoryId" : "R_kgDOVc0D8w",
+    "issueIds" : [ "I_kwDOVc0D888AAAABhBKZbQ", "I_kwDOVc0D888AAAABhBKaJQ" ],
+    "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
+    "itemIds" : [ ],
+    "fieldId" : "PVTSSF_lADOFN-d0c4BsepwzhqsoxA",
+    "statusFieldId" : "PVTSSF_lADOFN-d0c4BsepwzhqsouU",
+    "statusOptionId" : "f75ad846",
+    "textFieldId" : "PVTF_lADOFN-d0c4Bsepwzhqsoxs",
+    "numberFieldId" : "PVTF_lADOFN-d0c4BsepwzhqsoyQ"
+  },
+  "request_body" : {
+    "variables" : {
+      "v0" : {
+        "contentId" : "I_kwDOVc0D888AAAABhBKZbQ",
+        "projectId" : "PVT_kwDOFN-d0c4Bsepw"
+      },
+      "v1" : {
+        "contentId" : "I_kwDOVc0D888AAAABhBKaJQ",
+        "projectId" : "PVT_kwDOFN-d0c4Bsepw"
+      }
+    },
+    "query" : "mutation AddProjectItems($v0: AddProjectV2ItemByIdInput!, $v1: AddProjectV2ItemByIdInput!) { a0: addProjectV2ItemById(input: $v0) { item { id } } a1: addProjectV2ItemById(input: $v1) { item { id } } }"
+  }
+}

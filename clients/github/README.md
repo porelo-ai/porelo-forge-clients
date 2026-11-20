@@ -56,25 +56,59 @@ Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
 
 - `acceptedPermissions()` of a refusal is GitHub's `X-Accepted-GitHub-Permissions` header, such as `issues=write`,
   when it is a plain list of permissions, else null.
+- The conditional reads `issuesIfChanged`, a repository's issues newest change first, and `projectItemsIfChanged`,
+  an organization project's items, send the entity tag the caller last got as `If-None-Match`, none when it gives
+  none; a tag that is blank or holds anything but visible ASCII and inner spaces is refused before sending. Each
+  returns a `Conditional`: after a 304, `changed` false, no value, and GitHub's tag or else the one sent; after a 200,
+  the value and the answer's `ETag` exactly as sent, weak prefix `W/` kept. Both carry the answer's rate limit. Any
+  other status fails as every call does. The project's items come as a `CursorPage`, whose `after` is the `after`
+  parameter of the `Link` header's next link, null on the last page. An item's `content` and `fields` are untyped
+  maps that GitHub fills with nulls; a key whose value is null is dropped there before reading, as if absent, so no
+  null reaches the caller. GraphQL has no ETag, so the board itself is never read conditionally. As measured, GitHub
+  sends strong tags for both, a 304 leaves `x-ratelimit-remaining` as it was, and the items' tag changes when only a
+  field value of an item changes, so the REST items read is the probe for a change on the board.
+- `issues` lists a repository's issues newest change first, with `state`, `labels` (left out when none; a blank name
+  or one holding a comma is refused, since GitHub splits at commas) and `since`; it lists pull requests too, told by
+  `pullRequest`. `issue`, `createIssue` and `updateIssue` read, create and change one; GitHub drops labels in silence
+  for an account without push access. Closing is `state` `closed` with `stateReason` `completed` or `not_planned`.
+- `parentIssue`, `subIssues`, `addSubIssue`, `removeSubIssue`, `reprioritizeSubIssue`, `blockedBy`, `addBlockedBy`,
+  `removeBlockedBy` and `blocking` name the other issue by its `id`, not its number. `parentIssue` is a 404 for an
+  issue without a parent, as for a missing one; `parentIssueUrl` shows it beforehand. A sub-issue and a blocking
+  issue may be in another repository of the same owner, as recorded. GitHub's issue list shows a new issue some
+  seconds after it is made.
 
-## Issues and projects, published before they are built
+## An organization project's board over GraphQL
 
-These calls stand with their final signatures and records, so a caller builds against them; each throws
-`UnsupportedOperationException` saying `<Class>.<method> is not built yet` until it is built:
+`GitHubGraphQl` reads and writes an organization project's board. Every caller value travels in the request's
+variables; the document holds only fixed text and, in a batch, each part's index.
 
-- `GitHubClient`: a repository's `issues`, newest change first, and `issue`, `createIssue`, `updateIssue`; an issue's
-  `parentIssue`, `subIssues`, `addSubIssue`, `removeSubIssue`, `reprioritizeSubIssue`, `blockedBy`, `addBlockedBy`,
-  `removeBlockedBy` and `blocking`, which name the other issue by its `id`, not its number; and the conditional reads
-  `issuesIfChanged` and `projectItemsIfChanged`, which return a `Conditional`, either the value with its entity tag or
-  no value after a 304, with the rate limit of the answer.
-- `GitHubGraphQl`: an organization project's `projectFields` and `projectItems`, issues read by id in `issueBoard`, an
-  issue's `statusChanges`, `setFieldOptions`, and the batches `addProjectItems`, `setFieldValues` and
-  `createIssues`, at most 50 parts each, which return a `Batch` with one outcome per part, saved or refused with
-  GitHub's message. A query's answer carries its `GraphQlCost`; a mutation cannot ask for one.
+- `projectFields` reads the project's id, title, last change and its fields, a single-select field with its options;
+  `projectItems` reads 100 items a page with their issues and their single-select, text and number values, an item
+  that is a draft or a pull request without an issue; `issueBoard` reads up to 100 issues by node id, each with its
+  item and values in the given project, null in the place of an id GitHub does not know or of no issue.
+  `statusChanges` reads an issue's moves on a project's own `Status` field; a change of any other single-select field
+  appears in no timeline. A variant of a union the board does not model, such as an iteration field or a date
+  value, is left out. Each query's answer carries its `GraphQlCost`.
+- `setFieldOptions` replaces a single-select field's options; GitHub gives every option a new id, one whose name stays
+  included, so a caller takes the ids from the answer. As measured, an item's value in that field is gone afterwards,
+  even for an option whose name stayed, so the options are set before any value.
+- `addProjectItems`, `setFieldValues` and `createIssues` send up to 50 parts in one mutation, each aliased `a<i>` with
+  its input in `$v<i>`, and return a `Batch`: one outcome per part, in order, the value GitHub saved or its message,
+  scrubbed of credentials, for a part it refused; `complete()` says whether every part was saved. A `RATE_LIMITED`
+  error anywhere, an error naming no part sent, or a part with neither value nor error fails the whole call. An empty
+  list, a blank or repeated id, more parts than the bound, or two values for one item and field are refused before
+  sending. A mutation cannot ask its cost, so a `Batch` carries the rate limit of the answer's headers. As measured,
+  GitHub saves the parts before and after a refused one; and it once answered a whole batch with an internal error
+  naming no part, which fails the call, as above, and was not seen again.
+- `createIssues` takes a `parentIssueId`, as recorded. `statusChanges` listed only an item's first status, set either by
+  `setFieldValues` or by the project's own automation, whichever came first, which the actor's `__typename` `Bot` tells;
+  a later move by `setFieldValues`, read at once, was not listed.
 
 The extract's `--set` corrections for these: an issue's labels read as label objects and are sent as names, its title
 is sent as text, every identifier is `int64`, a project item's `id` is an integer, and the value GitHub suggests in an
-issue update's answer is left open.
+issue update's answer is left open; an issue's label carries `archived_at` and `archived_by`, as a pull request's
+does. Its `--add-property` addition: an issue carries `assignee`, a nullable account,
+which GitHub sends beside `assignees`.
 
 ## Replay in other repositories
 
@@ -133,6 +167,16 @@ refuses a keys token of any other account. It refuses matching leftovers and clo
 including on interrupt: its branch, a repository named after the run, and keys titled after it, each made for that
 run only.
 The two-step workflow must already be installed in that repository as `two-step.yml`.
+
+The issue and project calls are recorded by
+`./mvnw -B -s settings.xml -pl clients/github test-compile exec:java@record-github-issues`, which reads only
+`LIVE_GITHUB_REVIEWER_TOKEN`, the token of a test organization member that holds Issues and organization Projects
+read and write and may create projects. It makes two issues in `porelo-ai-test/forge-clients-live` and one in
+`porelo-ai-test/forge-clients-live-2`, a second repository kept for links across repositories, and a project of its
+own, records each call, and deletes the project at the end and on interrupt. Deleting an issue takes the repository's
+administrator, so the run closes its five issues as `not_planned`, and they stay. `exec:java@kept-github-issues` makes
+the kept issue, its sub-issue, which also blocks it, and the kept project with their values, unless they are there,
+and `exec:java@live-github-issues` reads them strictly, both with the same token.
 
 The `github-live` profile runs the strict reading scenario against the kept review fixture and a newly
 dispatched Actions run. Workflow proposals are delivered separately for installation by the repository owner.

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpConnectTimeoutException;
@@ -22,6 +23,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.fuin.porelo.forge.github.model.*;
 import org.jspecify.annotations.Nullable;
@@ -31,6 +34,11 @@ public final class GitHubClient {
     private static final URI WEB = URI.create("https://github.com/");
     private static final Pattern NEXT_LINK =
             Pattern.compile("rel=\"?next\"?(\\s|;|,|$)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern LINK = Pattern.compile("<([^>]*)>([^,<]*)");
+
+    /** Visible ASCII, with spaces only inside, as a weak tag such as {@code W/"abc"} allows. */
+    private static final Pattern ENTITY_TAG =
+            Pattern.compile("[\\x21-\\x7e]([\\x20-\\x7e]*[\\x21-\\x7e])?");
 
     private static final Pattern ACCEPTED_PERMISSIONS =
             Pattern.compile("[a-z_]+=[a-z_]+(\\s*[;,]\\s*[a-z_]+=[a-z_]+)*");
@@ -588,7 +596,8 @@ public final class GitHubClient {
             @Nullable Instant since,
             int page,
             int perPage) {
-        throw notBuilt("issues");
+        return page(
+                token, issuesPath(owner, repo, state, labels, since, page, perPage), Issue.class);
     }
 
     /**
@@ -607,12 +616,59 @@ public final class GitHubClient {
             int page,
             int perPage,
             @Nullable String etag) {
-        throw notBuilt("issuesIfChanged");
+        return conditional(
+                token,
+                issuesPath(owner, repo, state, labels, since, page, perPage),
+                listType(Issue.class),
+                etag,
+                (List<Issue> items, HttpHeaders headers) -> new Page<>(items, nextLink(headers)));
+    }
+
+    /** Builds the issue list's path, sorted by the last update, newest first. */
+    private static String issuesPath(
+            String owner,
+            String repo,
+            @Nullable String state,
+            @Nullable List<String> labels,
+            @Nullable Instant since,
+            int page,
+            int perPage) {
+        StringBuilder path = new StringBuilder(repo(owner, repo)).append("/issues?");
+        if (state != null) {
+            path.append("state=").append(segment(state)).append('&');
+        }
+        if (labels != null && !labels.isEmpty()) {
+            path.append("labels=").append(labelNames(labels)).append('&');
+        }
+        if (since != null) {
+            path.append("since=").append(segment(since.toString())).append('&');
+        }
+        return path.append("sort=updated&direction=desc&")
+                .append(pageQuery(page, perPage))
+                .toString();
+    }
+
+    /** GitHub splits the list at commas, so a name holding one would become two filters. */
+    private static String labelNames(List<String> labels) {
+        List<String> encoded = new ArrayList<>();
+        for (String label : labels) {
+            if (label.isBlank() || label.contains(",")) {
+                throw new IllegalArgumentException(
+                        "A label name must not be blank or hold a comma");
+            }
+            encoded.add(segment(label));
+        }
+        return String.join(",", encoded);
     }
 
     /** Reads one issue by its number. */
     public Issue issue(String token, String owner, String repo, long issueNumber) {
-        throw notBuilt("issue");
+        return call(
+                token,
+                "GET",
+                issuePath(owner, repo, issueNumber),
+                null,
+                json.constructType(Issue.class));
     }
 
     /**
@@ -620,7 +676,13 @@ public final class GitHubClient {
      * repository.
      */
     public Issue createIssue(String token, String owner, String repo, IssuesCreateRequest body) {
-        throw notBuilt("createIssue");
+        Objects.requireNonNull(body, "body");
+        return call(
+                token,
+                "POST",
+                repo(owner, repo) + "/issues",
+                body,
+                json.constructType(Issue.class));
     }
 
     /**
@@ -629,7 +691,13 @@ public final class GitHubClient {
      */
     public IssuesUpdate200Response updateIssue(
             String token, String owner, String repo, long issueNumber, IssuesUpdateRequest body) {
-        throw notBuilt("updateIssue");
+        Objects.requireNonNull(body, "body");
+        return call(
+                token,
+                "PATCH",
+                issuePath(owner, repo, issueNumber),
+                body,
+                json.constructType(IssuesUpdate200Response.class));
     }
 
     /**
@@ -637,13 +705,21 @@ public final class GitHubClient {
      * an issue's {@code parentIssueUrl} says beforehand whether it has one.
      */
     public Issue parentIssue(String token, String owner, String repo, long issueNumber) {
-        throw notBuilt("parentIssue");
+        return call(
+                token,
+                "GET",
+                issuePath(owner, repo, issueNumber) + "/parent",
+                null,
+                json.constructType(Issue.class));
     }
 
     /** Reads a page of an issue's sub-issues, in their order. */
     public Page<Issue> subIssues(
             String token, String owner, String repo, long issueNumber, int page, int perPage) {
-        throw notBuilt("subIssues");
+        return page(
+                token,
+                issuePath(owner, repo, issueNumber) + "/sub_issues?" + pageQuery(page, perPage),
+                Issue.class);
     }
 
     /**
@@ -661,7 +737,12 @@ public final class GitHubClient {
             long issueNumber,
             long subIssueId,
             boolean replaceParent) {
-        throw notBuilt("addSubIssue");
+        return call(
+                token,
+                "POST",
+                issuePath(owner, repo, issueNumber) + "/sub_issues",
+                new IssuesAddSubIssueRequest(positive(subIssueId), replaceParent),
+                json.constructType(Issue.class));
     }
 
     /**
@@ -671,7 +752,13 @@ public final class GitHubClient {
      */
     public Issue removeSubIssue(
             String token, String owner, String repo, long issueNumber, long subIssueId) {
-        throw notBuilt("removeSubIssue");
+        // GitHub's path names no sub-issue, so the delete carries it in its body.
+        return call(
+                token,
+                "DELETE",
+                issuePath(owner, repo, issueNumber) + "/sub_issue",
+                new IssuesRemoveSubIssueRequest(positive(subIssueId)),
+                json.constructType(Issue.class));
     }
 
     /**
@@ -688,13 +775,29 @@ public final class GitHubClient {
             long subIssueId,
             @Nullable Long afterId,
             @Nullable Long beforeId) {
-        throw notBuilt("reprioritizeSubIssue");
+        if ((afterId == null) == (beforeId == null)) {
+            throw new IllegalArgumentException("Expected exactly one of afterId and beforeId");
+        }
+        return call(
+                token,
+                "PATCH",
+                issuePath(owner, repo, issueNumber) + "/sub_issues/priority",
+                new IssuesReprioritizeSubIssueRequest(
+                        positive(subIssueId),
+                        afterId == null ? null : positive(afterId),
+                        beforeId == null ? null : positive(beforeId)),
+                json.constructType(Issue.class));
     }
 
     /** Reads a page of the issues this issue is blocked by. */
     public Page<Issue> blockedBy(
             String token, String owner, String repo, long issueNumber, int page, int perPage) {
-        throw notBuilt("blockedBy");
+        return page(
+                token,
+                issuePath(owner, repo, issueNumber)
+                        + "/dependencies/blocked_by?"
+                        + pageQuery(page, perPage),
+                Issue.class);
     }
 
     /**
@@ -704,7 +807,12 @@ public final class GitHubClient {
      */
     public Issue addBlockedBy(
             String token, String owner, String repo, long issueNumber, long blockingIssueId) {
-        throw notBuilt("addBlockedBy");
+        return call(
+                token,
+                "POST",
+                issuePath(owner, repo, issueNumber) + "/dependencies/blocked_by",
+                new IssuesAddBlockedByDependencyRequest(positive(blockingIssueId)),
+                json.constructType(Issue.class));
     }
 
     /**
@@ -714,13 +822,25 @@ public final class GitHubClient {
      */
     public Issue removeBlockedBy(
             String token, String owner, String repo, long issueNumber, long blockingIssueId) {
-        throw notBuilt("removeBlockedBy");
+        return call(
+                token,
+                "DELETE",
+                issuePath(owner, repo, issueNumber)
+                        + "/dependencies/blocked_by/"
+                        + positive(blockingIssueId),
+                null,
+                json.constructType(Issue.class));
     }
 
     /** Reads a page of the issues this issue blocks. */
     public Page<Issue> blocking(
             String token, String owner, String repo, long issueNumber, int page, int perPage) {
-        throw notBuilt("blocking");
+        return page(
+                token,
+                issuePath(owner, repo, issueNumber)
+                        + "/dependencies/blocking?"
+                        + pageQuery(page, perPage),
+                Issue.class);
     }
 
     /**
@@ -738,11 +858,143 @@ public final class GitHubClient {
             @Nullable String after,
             int perPage,
             @Nullable String etag) {
-        throw notBuilt("projectItemsIfChanged");
+        return conditional(
+                token,
+                "orgs/"
+                        + segment(org)
+                        + "/projectsV2/"
+                        + positive(projectNumber)
+                        + "/items?per_page="
+                        + positive(perPage)
+                        + (after == null ? "" : "&after=" + segment(after)),
+                json.constructType(JsonNode.class),
+                etag,
+                (JsonNode items, HttpHeaders headers) ->
+                        new CursorPage<>(projectItems(items, token), nextCursor(headers, after)));
     }
 
-    private static UnsupportedOperationException notBuilt(String method) {
-        return new UnsupportedOperationException("GitHubClient." + method + " is not built yet");
+    /**
+     * Reads with the caller's entity tag; a 304 is no failure but an answer without a body, which
+     * keeps the tag the caller sent when GitHub names none.
+     */
+    private <T, R> Conditional<R> conditional(
+            String token,
+            String path,
+            JavaType type,
+            @Nullable String etag,
+            BiFunction<T, HttpHeaders, R> value) {
+        Objects.requireNonNull(token, "token");
+        HttpResponse<String> response =
+                send(token, "GET", base.resolve(path), null, true, BoundedAnswer.json(), etag);
+        HttpHeaders headers = response.headers();
+        RateLimit limit = RateLimit.read(headers, Instant.now());
+        // A tag that could not be sent back is not kept, so the caller's next read can be sent.
+        String answeredTag =
+                headers.firstValue("etag")
+                        .filter(tag -> ENTITY_TAG.matcher(tag).matches())
+                        .orElse(null);
+        if (response.statusCode() == 304) {
+            String kept = answeredTag != null ? answeredTag : etag;
+            if (kept == null) {
+                // GitHub answers 304 only to a tag, so a 304 to a first read is not an answer.
+                throw refusal(304, "GitHub answered 304 to a read without a tag", headers);
+            }
+            return new Conditional<>(null, kept, false, limit);
+        }
+        List<String> credentials = List.of(token);
+        check(response, credentials);
+        T read;
+        try {
+            read = GitHubJson.read(json, response.body(), type, credentials);
+        } catch (GitHubException undecodable) {
+            throw answered(undecodable);
+        }
+        return new Conditional<>(value.apply(read, headers), answeredTag, true, limit);
+    }
+
+    /**
+     * Reads project items whose {@code content} and {@code fields} GitHub describes only as objects
+     * and fills with nulls; a null there says no more than an absent key, so it is dropped before
+     * the items are read, and no null reaches the caller.
+     */
+    private List<ProjectsV2ItemWithContent> projectItems(JsonNode items, String token) {
+        for (JsonNode item : items) {
+            dropNulls(item.path("content"));
+            dropNulls(item.path("fields"));
+        }
+        try {
+            return GitHubJson.convert(
+                    json, items, listType(ProjectsV2ItemWithContent.class), List.of(token));
+        } catch (GitHubException undecodable) {
+            throw answered(undecodable);
+        }
+    }
+
+    private static void dropNulls(JsonNode node) {
+        if (node instanceof ObjectNode object) {
+            object.properties().removeIf(entry -> entry.getValue().isNull());
+            object.forEach(GitHubClient::dropNulls);
+        } else if (node instanceof com.fasterxml.jackson.databind.node.ArrayNode array) {
+            for (int index = array.size() - 1; index >= 0; index--) {
+                if (array.get(index).isNull()) array.remove(index);
+            }
+            array.forEach(GitHubClient::dropNulls);
+        }
+    }
+
+    /** The next page's cursor; one that names the page just read would read it forever. */
+    private static @Nullable String nextCursor(HttpHeaders headers, @Nullable String sent) {
+        String next = afterCursor(headers);
+        if (next != null && next.equals(sent)) {
+            throw new GitHubException(
+                    0,
+                    "GitHub's next link names the page just read",
+                    Delivery.ANSWERED,
+                    null,
+                    false);
+        }
+        return next;
+    }
+
+    /** The {@code after} parameter of the next link, or null when no next link follows. */
+    private static @Nullable String afterCursor(HttpHeaders headers) {
+        for (String value : headers.allValues("link")) {
+            Matcher link = LINK.matcher(value);
+            while (link.find()) {
+                if (NEXT_LINK.matcher(link.group(2)).find()) {
+                    return cursorOf(link.group(1));
+                }
+            }
+        }
+        return null;
+    }
+
+    /** A next link without a readable cursor would read the same page again, so it fails. */
+    private static String cursorOf(String next) {
+        try {
+            String query = URI.create(next).getRawQuery();
+            if (query != null) {
+                for (String parameter : query.split("&")) {
+                    if (parameter.startsWith("after=")) {
+                        String after =
+                                URLDecoder.decode(
+                                        parameter.substring("after=".length()),
+                                        StandardCharsets.UTF_8);
+                        if (!after.isBlank()) {
+                            return after;
+                        }
+                    }
+                }
+            }
+        } catch (IllegalArgumentException unreadable) {
+            // The failure below says so without quoting any part of the link.
+        }
+        throw new GitHubException(
+                0, "GitHub's next link names no readable cursor", Delivery.ANSWERED, null, false);
+    }
+
+    private static String issuePath(String owner, String repo, long issueNumber) {
+        return repo(owner, repo) + "/issues/" + positive(issueNumber);
     }
 
     <T> T graphQl(String token, Object body, Class<T> type) {
@@ -759,13 +1011,8 @@ public final class GitHubClient {
     }
 
     private <T> T graphQl(String token, Object body, Class<T> type, boolean node) {
-        JsonNode envelope =
-                call(
-                        token,
-                        "POST",
-                        "graphql",
-                        Objects.requireNonNull(body, "body"),
-                        json.constructType(JsonNode.class));
+        GraphQlAnswer answer = graphQlAnswer(token, body);
+        JsonNode envelope = answer.envelope();
         if (node && envelope.path("data") instanceof ObjectNode data) {
             JsonNode found = data.path("node");
             if (found.isObject() && found.isEmpty()) data.putNull("node");
@@ -780,28 +1027,84 @@ public final class GitHubClient {
                                         && error.path("path").path(0).asText().equals("node"));
             }
         }
+        answer.failOnErrors();
+        if (envelope instanceof ObjectNode object) object.remove("errors");
+        try {
+            return GitHubJson.convert(
+                    json, envelope, json.constructType(type), answer.credentials());
+        } catch (GitHubException undecodable) {
+            throw answered(undecodable);
+        }
+    }
+
+    /**
+     * Sends a GraphQL request and returns its envelope as GitHub answered it, errors included, with
+     * the answer's headers and the credentials its messages are scrubbed of.
+     */
+    GraphQlAnswer graphQlAnswer(String token, Object body) {
+        Objects.requireNonNull(body, "body");
+        Answered<JsonNode> answer =
+                exchange(
+                        Objects.requireNonNull(token, "token"),
+                        "POST",
+                        "graphql",
+                        body,
+                        json.constructType(JsonNode.class));
+        JsonNode envelope = answer.value();
         JsonNode errors = envelope.path("errors");
         // An empty or null list of errors is the absence of errors.
         if (envelope instanceof ObjectNode object
                 && (errors.isNull() || (errors.isArray() && errors.isEmpty()))) {
             object.remove("errors");
         }
-        if (envelope.has("errors")) {
-            JsonNode first = envelope.path("errors").path(0);
-            JsonNode message = first.path("message");
-            throw new GitHubException(
-                    200,
-                    GitHubJson.safe(
-                            message.isTextual() ? message.asText() : "GraphQL request failed",
-                            List.of(token)),
-                    Delivery.ANSWERED,
-                    null,
-                    first.path("type").asText().equals("RATE_LIMITED"));
+        return new GraphQlAnswer(
+                envelope,
+                RateLimit.read(answer.headers(), Instant.now()),
+                credentials(token, body));
+    }
+
+    /**
+     * A GraphQL answer: its envelope, what its headers said of the rate limit, and the credentials
+     * any message from it is scrubbed of.
+     */
+    record GraphQlAnswer(
+            JsonNode envelope, @Nullable RateLimit rateLimit, List<String> credentials) {
+        /** Keeps the credentials from changing. */
+        GraphQlAnswer {
+            credentials = List.copyOf(credentials);
         }
-        try {
-            return GitHubJson.convert(json, envelope, json.constructType(type), List.of(token));
-        } catch (GitHubException undecodable) {
-            throw answered(undecodable);
+
+        /** GitHub's message, scrubbed of every credential the request carried. */
+        String scrubbed(JsonNode error) {
+            JsonNode message = error.path("message");
+            return GitHubJson.safe(
+                    message.isTextual() ? message.asText() : "GraphQL request failed", credentials);
+        }
+
+        /** Whether any error, not only the first, says GitHub's rate limit was reached. */
+        boolean rateLimited() {
+            for (JsonNode error : envelope.path("errors")) {
+                if (error.path("type").asText().equals("RATE_LIMITED")) return true;
+            }
+            return false;
+        }
+
+        /** Fails with the rate limit's error, else the first, when the answer has any. */
+        void failOnErrors() {
+            // An error removed after reading, such as a known NOT_FOUND, leaves an empty list.
+            if (envelope.path("errors").isEmpty()) return;
+            JsonNode named = envelope.path("errors").path(0);
+            if (rateLimited()) {
+                for (JsonNode error : envelope.path("errors")) {
+                    if (error.path("type").asText().equals("RATE_LIMITED")) named = error;
+                }
+            }
+            throw failure(scrubbed(named));
+        }
+
+        /** A failure of the whole call, a rate limit when any error says so. */
+        GitHubException failure(String message) {
+            return new GitHubException(200, message, Delivery.ANSWERED, rateLimit, rateLimited());
         }
     }
 
@@ -815,7 +1118,8 @@ public final class GitHubClient {
         boolean authenticate = true;
         for (int redirects = 0; redirects <= 5; redirects++) {
             BoundedAnswer answer = BoundedAnswer.log();
-            HttpResponse<String> response = send(token, "GET", uri, null, authenticate, answer);
+            HttpResponse<String> response =
+                    send(token, "GET", uri, null, authenticate, answer, null);
             if (List.of(301, 302, 303, 307, 308).contains(response.statusCode())) {
                 if (redirects == 5) {
                     throw new GitHubException(response.statusCode(), "Too many log redirects");
@@ -909,7 +1213,19 @@ public final class GitHubClient {
             @Nullable Object body,
             JavaType type) {
         HttpResponse<String> response =
-                send(token, method, base.resolve(path), body, true, BoundedAnswer.json());
+                send(token, method, base.resolve(path), body, true, BoundedAnswer.json(), null);
+        List<String> credentials = credentials(token, body);
+        check(response, credentials);
+        try {
+            T value = GitHubJson.read(json, response.body(), type, credentials);
+            return new Answered<>(value, response.headers());
+        } catch (GitHubException undecodable) {
+            throw answered(undecodable);
+        }
+    }
+
+    /** The token and every credential the body carries, the longest first, to scrub messages of. */
+    private List<String> credentials(@Nullable String token, @Nullable Object body) {
         List<String> credentials = new ArrayList<>();
         if (token != null) {
             credentials.add(token);
@@ -918,13 +1234,7 @@ public final class GitHubClient {
             collectCredentials(json.valueToTree(body), credentials);
         }
         credentials.sort(java.util.Comparator.comparingInt(String::length).reversed());
-        check(response, credentials);
-        try {
-            T value = GitHubJson.read(json, response.body(), type, credentials);
-            return new Answered<>(value, response.headers());
-        } catch (GitHubException undecodable) {
-            throw answered(undecodable);
-        }
+        return credentials;
     }
 
     private static GitHubException answered(GitHubException undecodable) {
@@ -939,7 +1249,7 @@ public final class GitHubClient {
     private void delete(String token, String path) {
         Objects.requireNonNull(token, "token");
         HttpResponse<String> response =
-                send(token, "DELETE", base.resolve(path), null, true, BoundedAnswer.json());
+                send(token, "DELETE", base.resolve(path), null, true, BoundedAnswer.json(), null);
         check(response, List.of(token));
     }
 
@@ -949,9 +1259,14 @@ public final class GitHubClient {
             URI uri,
             @Nullable Object body,
             boolean authenticate,
-            BoundedAnswer answer) {
+            BoundedAnswer answer,
+            @Nullable String ifNoneMatch) {
         if (token != null && (token.isBlank() || token.chars().anyMatch(c -> c < 33 || c > 126))) {
             throw new IllegalArgumentException("Invalid access token");
+        }
+        // A tag holding a line break would add a header of its own to the request.
+        if (ifNoneMatch != null && !ENTITY_TAG.matcher(ifNoneMatch).matches()) {
+            throw new IllegalArgumentException("Invalid entity tag");
         }
         HttpResponse<String> response;
         try {
@@ -962,6 +1277,9 @@ public final class GitHubClient {
                             .header("X-GitHub-Api-Version", "2026-03-10");
             if (token != null && authenticate && sameOrigin(base, uri)) {
                 request.header("Authorization", "Bearer " + token);
+            }
+            if (ifNoneMatch != null) {
+                request.header("If-None-Match", ifNoneMatch);
             }
             if (body != null) {
                 request.header("Content-Type", "application/json");

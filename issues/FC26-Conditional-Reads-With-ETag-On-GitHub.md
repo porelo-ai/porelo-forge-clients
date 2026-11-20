@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "FC26",
   "title": "Conditional Reads With ETag On GitHub",
-  "state": "Implementing",
+  "state": "Review",
   "size": "S",
   "priority": "High",
   "rank": 3,
@@ -62,9 +62,3 @@ Read in today's code: `GitHubClient.exchange`, `send` and `check`, `RateLimit.re
 - The recorder records one 304 live for the issue list and the project's items, and the README states whether
   GitHub counted it against the limit, as measured from `x-ratelimit-remaining` before and after.
 - A 403 for a missing permission carries `acceptedPermissions()` as GitHub sent it; one without the header has null.
-
-## To be checked
-
-- Whether the project items' ETag changes when only a field value changes, which is what the probe is for;
-  measured by the recorder. If it does not, the README says so and the probe is `projectFields`' `updatedAt`.
-- Whether GitHub sends a weak ETag (`W/"…"`) and expects it back unchanged; measured by the recorder.

@@ -1,0 +1,66 @@
+{
+  "request_uri" : "/graphql",
+  "status" : 200,
+  "headers" : {
+    "content-type" : [ "application/json; charset=utf-8" ],
+    "x-ratelimit-limit" : [ "5000" ],
+    "x-ratelimit-remaining" : [ "4848" ],
+    "x-ratelimit-reset" : [ "1795177434" ]
+  },
+  "body" : "{\"data\":{\"updateProjectV2Field\":{\"projectV2Field\":{\"options\":[{\"id\":\"9116f61c\",\"name\":\"Story\",\"color\":\"BLUE\",\"description\":\"A story\"},{\"id\":\"095ef63a\",\"name\":\"Bug\",\"color\":\"RED\",\"description\":\"A bug\"},{\"id\":\"d7f6b80f\",\"name\":\"Task\",\"color\":\"GRAY\",\"description\":\"\"}]}}}}",
+  "exchanges" : [ {
+    "request_uri" : "/graphql",
+    "status" : 200,
+    "headers" : {
+      "content-type" : [ "application/json; charset=utf-8" ],
+      "x-ratelimit-limit" : [ "5000" ],
+      "x-ratelimit-remaining" : [ "4848" ],
+      "x-ratelimit-reset" : [ "1795177434" ]
+    },
+    "body" : "{\"data\":{\"updateProjectV2Field\":{\"projectV2Field\":{\"options\":[{\"id\":\"9116f61c\",\"name\":\"Story\",\"color\":\"BLUE\",\"description\":\"A story\"},{\"id\":\"095ef63a\",\"name\":\"Bug\",\"color\":\"RED\",\"description\":\"A bug\"},{\"id\":\"d7f6b80f\",\"name\":\"Task\",\"color\":\"GRAY\",\"description\":\"\"}]}}}}"
+  } ],
+  "context" : {
+    "owner" : "fixture-org",
+    "repo" : "fixture-repo",
+    "prefix" : "forge-client-issues-c4c51505",
+    "number" : 35,
+    "other" : 36,
+    "subIssueId" : 6510778917,
+    "thirdIssueId" : 6510779112,
+    "since" : "2026-11-20T11:35:57Z",
+    "etag" : "\"475aa4fa039d951f9ac1585565dcacbdb1e024b80b9bf38baaa08dcede7328b4\"",
+    "itemsEtag" : "pending",
+    "projectNumber" : 13,
+    "projectId" : "PVT_kwDOFN-d0c4Bsepw",
+    "repositoryId" : "R_kgDOVc0D8w",
+    "issueIds" : [ "I_kwDOVc0D888AAAABhBKZbQ", "I_kwDOVc0D888AAAABhBKaJQ" ],
+    "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
+    "itemIds" : [ ],
+    "fieldId" : "PVTSSF_lADOFN-d0c4BsepwzhqsoxA",
+    "statusFieldId" : "PVTSSF_lADOFN-d0c4BsepwzhqsouU",
+    "statusOptionId" : "f75ad846",
+    "textFieldId" : "PVTF_lADOFN-d0c4Bsepwzhqsoxs",
+    "numberFieldId" : "PVTF_lADOFN-d0c4BsepwzhqsoyQ"
+  },
+  "request_body" : {
+    "variables" : {
+      "input" : {
+        "fieldId" : "PVTSSF_lADOFN-d0c4BsepwzhqsoxA",
+        "singleSelectOptions" : [ {
+          "name" : "Story",
+          "color" : "BLUE",
+          "description" : "A story"
+        }, {
+          "name" : "Bug",
+          "color" : "RED",
+          "description" : "A bug"
+        }, {
+          "name" : "Task",
+          "color" : "GRAY",
+          "description" : ""
+        } ]
+      }
+    },
+    "query" : "mutation SetFieldOptions($input: UpdateProjectV2FieldInput!) { updateProjectV2Field(input: $input) { projectV2Field { ... on ProjectV2SingleSelectField { options { id name color description } } } } }"
+  }
+}

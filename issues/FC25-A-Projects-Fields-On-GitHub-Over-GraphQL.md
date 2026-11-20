@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "FC25",
   "title": "A Project's Fields On GitHub Over GraphQL",
-  "state": "Implementing",
+  "state": "Review",
   "size": "M",
   "priority": "High",
   "rank": 2,
@@ -106,10 +106,3 @@ Read in today's code: `GitHubGraphQl` (fixed query constants, `Map` variables, h
   error naming no alias, a 403 or a 429 fails the whole call, a rate limit with its delay, as for every call.
 - A batch with one refused alias returns the others' results and the refused one's message, in order.
 - The recorder records against a project it made and leaves no project behind; the live check reads the kept project.
-
-## To be checked
-
-- Whether `Issue.blockedBy` and `Issue.subIssues` in GraphQL return issues of other repositories as REST does, and
-  whether `createIssue` takes `parentIssueId` on GitHub.com today; measured by the recorder against the schema
-  GitHub serves.
-- What one `issueBoard` of 100 issues costs in points, measured.

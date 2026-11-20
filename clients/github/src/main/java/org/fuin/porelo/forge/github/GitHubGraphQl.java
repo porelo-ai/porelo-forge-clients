@@ -1,5 +1,6 @@
 package org.fuin.porelo.forge.github;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.time.Instant;
@@ -179,7 +180,15 @@ public final class GitHubGraphQl {
      */
     public ProjectFields projectFields(
             String token, String org, int projectNumber, @Nullable String after) {
-        throw notBuilt("projectFields");
+        ProjectBoard.requireId(org, "an organization");
+        positive(projectNumber);
+        return query(
+                token,
+                ProjectBoard.request(
+                        ProjectBoard.PROJECT_FIELDS,
+                        ProjectBoard.variables(
+                                "org", org, "number", projectNumber, "after", after)),
+                ProjectBoard::projectFields);
     }
 
     /**
@@ -190,7 +199,15 @@ public final class GitHubGraphQl {
      */
     public ProjectItems projectItems(
             String token, String org, int projectNumber, @Nullable String after) {
-        throw notBuilt("projectItems");
+        ProjectBoard.requireId(org, "an organization");
+        positive(projectNumber);
+        return query(
+                token,
+                ProjectBoard.request(
+                        ProjectBoard.PROJECT_ITEMS,
+                        ProjectBoard.variables(
+                                "org", org, "number", projectNumber, "after", after)),
+                ProjectBoard::projectItems);
     }
 
     /**
@@ -200,7 +217,24 @@ public final class GitHubGraphQl {
      * @param issueIds one to {@value #MAX_ISSUES} distinct issue node ids
      */
     public IssueBoard issueBoard(String token, List<String> issueIds, String projectId) {
-        throw notBuilt("issueBoard");
+        ProjectBoard.requireIds(issueIds, MAX_ISSUES, "issue id");
+        ProjectBoard.requireId(projectId, "a project id");
+        var answer =
+                client.graphQlAnswer(
+                        token,
+                        ProjectBoard.request(
+                                ProjectBoard.ISSUE_BOARD, ProjectBoard.variables("ids", issueIds)));
+        // An unknown id reads null in its place, with an error GitHub raises for that place alone.
+        if (answer.envelope().path("errors")
+                instanceof com.fasterxml.jackson.databind.node.ArrayNode errors) {
+            errors.removeIf(
+                    error ->
+                            error.path("type").asText().equals("NOT_FOUND")
+                                    && error.path("path").size() == 2
+                                    && error.path("path").path(0).asText().equals("nodes"));
+        }
+        answer.failOnErrors();
+        return read(answer, data -> ProjectBoard.issueBoard(data, issueIds.size(), projectId));
     }
 
     /**
@@ -209,7 +243,19 @@ public final class GitHubGraphQl {
      * @param contentIds one to {@value #MAX_BATCH} distinct issue node ids
      */
     public Batch<String> addProjectItems(String token, String projectId, List<String> contentIds) {
-        throw notBuilt("addProjectItems");
+        ProjectBoard.requireIds(contentIds, MAX_BATCH, "issue id");
+        ProjectBoard.requireId(projectId, "a project id");
+        List<Map<String, Object>> inputs = new java.util.ArrayList<>();
+        for (String id : contentIds) inputs.add(Map.of("projectId", projectId, "contentId", id));
+        return batch(
+                token,
+                ProjectBoard.batch(
+                        "AddProjectItems",
+                        "AddProjectV2ItemByIdInput",
+                        inputs,
+                        index -> "addProjectV2ItemById(input: $v" + index + ") { item { id } }"),
+                inputs.size(),
+                part -> ProjectBoard.itemId(part, "item"));
     }
 
     /**
@@ -219,7 +265,53 @@ public final class GitHubGraphQl {
      * @param values one to {@value #MAX_BATCH}, no two for the same item and field
      */
     public Batch<String> setFieldValues(String token, String projectId, List<FieldValue> values) {
-        throw notBuilt("setFieldValues");
+        ProjectBoard.requireSize(values, MAX_BATCH, "field values");
+        ProjectBoard.requireId(projectId, "a project id");
+        java.util.Set<String> targets = new java.util.HashSet<>();
+        List<Map<String, Object>> inputs = new java.util.ArrayList<>();
+        for (FieldValue value : values) {
+            ProjectBoard.requireId(value.itemId(), "an item id");
+            ProjectBoard.requireId(value.fieldId(), "a field id");
+            if (value.optionId() != null) ProjectBoard.requireId(value.optionId(), "an option id");
+            if (value.number() != null && !Double.isFinite(value.number()))
+                throw new IllegalArgumentException("Expected a finite number");
+            if (!targets.add(value.itemId() + "\n" + value.fieldId())) {
+                throw new IllegalArgumentException("Two values for one item and field");
+            }
+            inputs.add(ProjectBoard.fieldValueInput(projectId, value));
+        }
+        // Clearing takes another input type, so each part names its own variable's type.
+        StringBuilder header = new StringBuilder("mutation SetFieldValues(");
+        StringBuilder fields = new StringBuilder();
+        Map<String, Object> variables = new LinkedHashMap<>();
+        for (int index = 0; index < values.size(); index++) {
+            boolean clear = values.get(index).clears();
+            header.append(index == 0 ? "" : ", ")
+                    .append("$v")
+                    .append(index)
+                    .append(": ")
+                    .append(
+                            clear
+                                    ? "ClearProjectV2ItemFieldValueInput!"
+                                    : "UpdateProjectV2ItemFieldValueInput!");
+            fields.append(" a")
+                    .append(index)
+                    .append(": ")
+                    .append(
+                            clear
+                                    ? "clearProjectV2ItemFieldValue"
+                                    : "updateProjectV2ItemFieldValue")
+                    .append("(input: $v")
+                    .append(index)
+                    .append(") { projectV2Item { id } }");
+            variables.put("v" + index, inputs.get(index));
+        }
+        return batch(
+                token,
+                ProjectBoard.request(
+                        header.append(") {").append(fields).append(" }").toString(), variables),
+                inputs.size(),
+                part -> ProjectBoard.itemId(part, "projectV2Item"));
     }
 
     /**
@@ -228,7 +320,23 @@ public final class GitHubGraphQl {
      * answer.
      */
     public FieldOptions setFieldOptions(String token, String fieldId, List<NewOption> options) {
-        throw notBuilt("setFieldOptions");
+        ProjectBoard.requireId(fieldId, "a field id");
+        ProjectBoard.requireSize(options, MAX_BATCH, "options");
+        java.util.Set<String> names = new java.util.HashSet<>();
+        for (NewOption option : options) {
+            ProjectBoard.requireId(option.name(), "an option name");
+            ProjectBoard.requireId(option.color(), "an option color");
+            if (!names.add(option.name()))
+                throw new IllegalArgumentException("The same option name twice");
+        }
+        var answer =
+                client.graphQlAnswer(
+                        token,
+                        ProjectBoard.request(
+                                ProjectBoard.SET_FIELD_OPTIONS,
+                                ProjectBoard.optionsInput(fieldId, options)));
+        answer.failOnErrors();
+        return read(answer, data -> ProjectBoard.fieldOptions(data, answer.rateLimit()));
     }
 
     /**
@@ -238,7 +346,13 @@ public final class GitHubGraphQl {
      * @param after the cursor of the page to read, null for the first
      */
     public StatusChanges statusChanges(String token, String issueId, @Nullable String after) {
-        throw notBuilt("statusChanges");
+        ProjectBoard.requireId(issueId, "an issue id");
+        return query(
+                token,
+                ProjectBoard.request(
+                        ProjectBoard.STATUS_CHANGES,
+                        ProjectBoard.variables("id", issueId, "after", after)),
+                ProjectBoard::statusChanges);
     }
 
     /**
@@ -247,11 +361,80 @@ public final class GitHubGraphQl {
      * @param issues one to {@value #MAX_BATCH}
      */
     public Batch<CreatedIssue> createIssues(String token, List<NewIssue> issues) {
-        throw notBuilt("createIssues");
+        ProjectBoard.requireSize(issues, MAX_BATCH, "issues");
+        List<Map<String, Object>> inputs = new java.util.ArrayList<>();
+        for (NewIssue issue : issues) {
+            ProjectBoard.requireId(issue.repositoryId(), "a repository id");
+            ProjectBoard.requireId(issue.title(), "a title");
+            if (issue.parentIssueId() != null)
+                ProjectBoard.requireId(issue.parentIssueId(), "a parent issue id");
+            if (!issue.labelIds().isEmpty())
+                ProjectBoard.requireIds(issue.labelIds(), MAX_ISSUES, "label id");
+            inputs.add(ProjectBoard.issueInput(issue));
+        }
+        return batch(
+                token,
+                ProjectBoard.batch(
+                        "CreateIssues",
+                        "CreateIssueInput",
+                        inputs,
+                        index ->
+                                "createIssue(input: $v"
+                                        + index
+                                        + ") { issue { id databaseId number url } }"),
+                inputs.size(),
+                ProjectBoard::createdIssue);
     }
 
-    private static UnsupportedOperationException notBuilt(String method) {
-        return new UnsupportedOperationException("GitHubGraphQl." + method + " is not built yet");
+    private <T> T query(
+            String token,
+            Map<String, Object> request,
+            java.util.function.Function<JsonNode, T> reader) {
+        var answer = client.graphQlAnswer(token, request);
+        answer.failOnErrors();
+        return read(answer, reader);
+    }
+
+    private static <T> T read(
+            GitHubClient.GraphQlAnswer answer, java.util.function.Function<JsonNode, T> reader) {
+        try {
+            return reader.apply(answer.envelope().path("data"));
+        } catch (UnreadableAnswer
+                | NullPointerException
+                | IllegalArgumentException
+                | ArithmeticException unreadable) {
+            throw new GitHubException(
+                    200,
+                    "GitHub's GraphQL answer could not be read"
+                            + (unreadable instanceof UnreadableAnswer missing
+                                    ? ": " + missing.getMessage()
+                                    : ""),
+                    Delivery.ANSWERED,
+                    answer.rateLimit(),
+                    false);
+        }
+    }
+
+    private <T> Batch<T> batch(
+            String token,
+            Map<String, Object> request,
+            int parts,
+            java.util.function.Function<JsonNode, T> reader) {
+        var answer = client.graphQlAnswer(token, request);
+        if (answer.rateLimited()) answer.failOnErrors();
+        return read(answer, data -> ProjectBoard.batch(answer, parts, reader));
+    }
+
+    private static int positive(int value) {
+        if (value <= 0) throw new IllegalArgumentException("Expected a positive number");
+        return value;
+    }
+
+    /** A part of a GraphQL answer that is missing or of another kind; names only the field. */
+    static final class UnreadableAnswer extends RuntimeException {
+        UnreadableAnswer(String field) {
+            super(field, null, false, false);
+        }
     }
 
     private static void requireId(String id) {

@@ -9,6 +9,7 @@ is left out.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
+| <a id="fc27"></a>[FC27](FC27-Status-Moves-And-Board-Costs-Measured-On-GitHub.md) | - | - | Whether GitHub lists a project status move made over the API, later or at all, what a board read of 100 issues costs, and whether GraphQL lists sub-issues and blockers of other repositories |
 | <a id="fc15"></a>[FC15](FC15-Sources-And-Javadoc-Jars-In-A-Release.md) | - | - | A release carries each client's sources and javadoc jars, which Maven Central requires and the release build does not make |
 | <a id="fc16"></a>[FC16](FC16-GitHubs-Live-Tests-Through-The-App-Token.md) | - | - | The GitHub recorder and live check run with the App's installation token and the reviewer test account's tokens, with no person's own token |
 
@@ -25,18 +26,13 @@ is left out.
 | <a id="fc18"></a>[FC18](FC18-The-Tests-By-Level.md) | M | - | The tests by level, measured: the Forgejo fixture's clean-up proven over a fake podman and the GitHub fixture's waits taken off the wall clock | 0 |
 | <a id="fc17"></a>[FC17](FC17-Mutation-Testing-With-PIT.md) | S | - | A `pit` profile run by hand on the host, with PIT and its JUnit 5 plugin pinned, and a report sorting the survivors into real gaps and harmless ones | 0 |
 
-## Implementing
+## Review
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="fc24"></a>[FC24](FC24-Issues-Sub-Issues-And-Dependencies-On-GitHub.md) | M | - | A repository's issues listed, read, created and updated, an issue's sub-issues and parent, and its blocked-by and blocking dependencies on GitHub, over REST, recorded live |
 | <a id="fc25"></a>[FC25](FC25-A-Projects-Fields-On-GitHub-Over-GraphQL.md) | M | - | An organization project's fields read, its items paged with their issues and field values, issues read by id, added to it, their field values and a field's options set, an issue's status moves read, and several issues created in one mutation, each batch saying what was saved, over GraphQL, with each answer's cost |
 | <a id="fc26"></a>[FC26](FC26-Conditional-Reads-With-ETag-On-GitHub.md) | S | - | A repository's issue list and a project's item list read with a known ETag, a 304 answered as not changed instead of a failure, the new ETag and the rate limit returned with each answer, and a refusal naming the permissions GitHub accepts |
-
-## Review
-
-| # | Size | Blocked by | What it covers |
-|---|---|---|---|
 | <a id="fc19"></a>[FC19](FC19-The-Generator-On-Its-Release.md) | XS | - | openapi-generator pinned to its release 7.27.0, which has `useRecords`, instead of a timestamped snapshot that Sonatype may delete |
 | <a id="fc20"></a>[FC20](FC20-The-OpenAPI-Templates-As-A-Maven-Artifact.md) | M | - | The overridden openapi-generator templates published as a jar another repository adds to the generator plugin, read by `templateResourcePath`, with the check that names a template whose original moved; the clients use the same files |
 

@@ -11,6 +11,7 @@ import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,13 +23,17 @@ import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSession;
 import org.jspecify.annotations.Nullable;
 
-/** Fails a request, or hands an answer over in small buffers, counting what it handed over. */
+/**
+ * Fails a request, or hands an answer over in small buffers, counting what it handed over and
+ * keeping each request it was given.
+ */
 final class ChunkedTransport extends HttpClient {
     static final int SIZE = 8 * 1024;
     private final int status;
     private final Map<String, List<String>> headers;
     private final byte[] body;
     private final @Nullable Exception failure;
+    final List<HttpRequest> sent = new ArrayList<>();
     int delivered;
 
     ChunkedTransport(int status, Map<String, List<String>> headers, String body) {
@@ -48,6 +53,7 @@ final class ChunkedTransport extends HttpClient {
     @Override
     public <T> HttpResponse<T> send(HttpRequest request, HttpResponse.BodyHandler<T> handler)
             throws IOException, InterruptedException {
+        sent.add(request);
         if (failure instanceof IOException broken) {
             throw broken;
         }

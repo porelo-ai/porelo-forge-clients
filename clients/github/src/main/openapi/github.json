@@ -24,7 +24,8 @@
         "pull-request-review-comment.copilot_code_review_sources",
         "review-comment.is_copilot_code_review",
         "review-comment.copilot_code_review_sources",
-        "security-and-analysis.secret_scanning_validity_checks"
+        "security-and-analysis.secret_scanning_validity_checks",
+        "issue.assignee"
       ],
       "set": [
         "pull-request#/properties/labels/items/properties/archived_by",
@@ -7770,14 +7771,22 @@
                 },
                 "archived_by": {
                   "description": "The user who archived the label, or `null` if it has not been archived.",
-                  "allOf": [
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
                     {
                       "$ref": "#/components/schemas/simple-user"
                     }
-                  ],
-                  "type": [
-                    "null"
                   ]
+                },
+                "archived_at": {
+                  "description": "The time the label was archived, or `null` if it has not been archived.",
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
                 }
               }
             },
@@ -7954,6 +7963,16 @@
             "items": {
               "$ref": "#/components/schemas/issue-field-value"
             }
+          },
+          "assignee": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/simple-user"
+              }
+            ]
           }
         },
         "required": [

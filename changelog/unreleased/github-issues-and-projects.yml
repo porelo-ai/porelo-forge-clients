@@ -1,0 +1,2 @@
+title: Read, create, change and link GitHub issues, sub-issues and dependencies; read a repository's issues and an organization project's items with an entity tag, a 304 answered as not changed; read and write an organization project's board over GraphQL, saving several parts in one mutation with an outcome per part; and name, in a refusal, the permissions GitHub would have accepted.
+type: added

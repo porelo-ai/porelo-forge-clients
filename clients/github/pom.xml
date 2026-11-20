@@ -220,6 +220,45 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>kept-github-issues</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.fuin.porelo.forge.github.GitHubIssueLiveCheck</mainClass>
+                            <classpathScope>test</classpathScope>
+                            <arguments>
+                                <argument>keep</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>live-github-issues</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.fuin.porelo.forge.github.GitHubIssueLiveCheck</mainClass>
+                            <classpathScope>test</classpathScope>
+                            <arguments>
+                                <argument>check</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>record-github-issues</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.fuin.porelo.forge.github.GitHubIssueRecorder</mainClass>
+                            <classpathScope>test</classpathScope>
+                            <arguments>
+                                <argument>${project.basedir}/src/test/resources/org/fuin/porelo/forge/github/recordings</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>record-github</id>
                         <goals>
                             <goal>java</goal>

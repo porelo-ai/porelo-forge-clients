@@ -1,0 +1,51 @@
+{
+  "request_uri" : "/graphql",
+  "status" : 200,
+  "headers" : {
+    "content-type" : [ "application/json; charset=utf-8" ],
+    "x-ratelimit-limit" : [ "5000" ],
+    "x-ratelimit-remaining" : [ "4837" ],
+    "x-ratelimit-reset" : [ "1795177434" ]
+  },
+  "body" : "{\"data\":{\"nodes\":[{\"__typename\":\"Issue\",\"id\":\"I_kwDOVc0D888AAAABhBKZbQ\",\"databaseId\":6510778733,\"number\":35,\"title\":\"forge-client-issues-c4c51505-a\",\"body\":\"Fixture issue a, edited\",\"state\":\"OPEN\",\"stateReason\":null,\"updatedAt\":\"2026-11-20T11:46:10Z\",\"repository\":{\"nameWithOwner\":\"fixture-org/fixture-repo\"},\"labels\":{\"nodes\":[],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":null}},\"parent\":null,\"subIssues\":{\"nodes\":[{\"id\":\"I_kwDOVc0D888AAAABhBKaJQ\",\"databaseId\":6510778917,\"number\":36,\"repository\":{\"nameWithOwner\":\"fixture-org/fixture-repo\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"MQ\"}},\"blockedBy\":{\"nodes\":[{\"id\":\"I_kwDOV1dojc8AAAABhBKa6A\",\"databaseId\":6510779112,\"number\":4,\"repository\":{\"nameWithOwner\":\"fixture-org/fixture-other-repo\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"MQ\"}},\"projectItems\":{\"nodes\":[{\"id\":\"PVTI_lADOFN-d0c4BsepwzhKdcKE\",\"project\":{\"id\":\"PVT_kwDOFN-d0c4Bsepw\"},\"fieldValues\":{\"nodes\":[{\"__typename\":\"ProjectV2ItemFieldRepositoryValue\"},{\"__typename\":\"ProjectV2ItemFieldTextValue\",\"text\":\"forge-client-issues-c4c51505-a\",\"field\":{\"id\":\"PVTF_lADOFN-d0c4BsepwzhqsouA\"}},{\"__typename\":\"ProjectV2ItemFieldSingleSelectValue\",\"optionId\":\"f75ad846\",\"name\":\"Todo\",\"field\":{\"id\":\"PVTSSF_lADOFN-d0c4BsepwzhqsouU\"}},{\"__typename\":\"ProjectV2ItemFieldTextValue\",\"text\":\"partly\",\"field\":{\"id\":\"PVTF_lADOFN-d0c4Bsepwzhqsoxs\"}},{\"__typename\":\"ProjectV2ItemFieldNumberValue\",\"number\":11.0,\"field\":{\"id\":\"PVTF_lADOFN-d0c4BsepwzhqsoyQ\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"NQ\"}}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"MQ\"}}},{\"__typename\":\"Issue\",\"id\":\"I_kwDOVc0D888AAAABhBKaJQ\",\"databaseId\":6510778917,\"number\":36,\"title\":\"forge-client-issues-c4c51505-b\",\"body\":\"Fixture issue b\",\"state\":\"OPEN\",\"stateReason\":null,\"updatedAt\":\"2026-11-20T11:46:08Z\",\"repository\":{\"nameWithOwner\":\"fixture-org/fixture-repo\"},\"labels\":{\"nodes\":[],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":null}},\"parent\":{\"id\":\"I_kwDOVc0D888AAAABhBKZbQ\"},\"subIssues\":{\"nodes\":[],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":null}},\"blockedBy\":{\"nodes\":[],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":null}},\"projectItems\":{\"nodes\":[{\"id\":\"PVTI_lADOFN-d0c4BsepwzhKdcKo\",\"project\":{\"id\":\"PVT_kwDOFN-d0c4Bsepw\"},\"fieldValues\":{\"nodes\":[{\"__typename\":\"ProjectV2ItemFieldRepositoryValue\"},{\"__typename\":\"ProjectV2ItemFieldTextValue\",\"text\":\"forge-client-issues-c4c51505-b\",\"field\":{\"id\":\"PVTF_lADOFN-d0c4BsepwzhqsouA\"}},{\"__typename\":\"ProjectV2ItemFieldNumberValue\",\"number\":7.0,\"field\":{\"id\":\"PVTF_lADOFN-d0c4BsepwzhqsoyQ\"}},{\"__typename\":\"ProjectV2ItemFieldSingleSelectValue\",\"optionId\":\"f75ad846\",\"name\":\"Todo\",\"field\":{\"id\":\"PVTSSF_lADOFN-d0c4BsepwzhqsouU\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"NA\"}}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"MQ\"}}},null],\"rateLimit\":{\"cost\":2,\"remaining\":4837,\"resetAt\":\"2026-11-20T12:23:54Z\"}},\"errors\":[{\"type\":\"NOT_FOUND\",\"path\":[\"nodes\",2],\"locations\":[{\"line\":1,\"column\":34}],\"message\":\"Could not resolve to a node with the global id of 'I_kwDOAAAAAM4AAAAB'.\"}]}",
+  "exchanges" : [ {
+    "request_uri" : "/graphql",
+    "status" : 200,
+    "headers" : {
+      "content-type" : [ "application/json; charset=utf-8" ],
+      "x-ratelimit-limit" : [ "5000" ],
+      "x-ratelimit-remaining" : [ "4837" ],
+      "x-ratelimit-reset" : [ "1795177434" ]
+    },
+    "body" : "{\"data\":{\"nodes\":[{\"__typename\":\"Issue\",\"id\":\"I_kwDOVc0D888AAAABhBKZbQ\",\"databaseId\":6510778733,\"number\":35,\"title\":\"forge-client-issues-c4c51505-a\",\"body\":\"Fixture issue a, edited\",\"state\":\"OPEN\",\"stateReason\":null,\"updatedAt\":\"2026-11-20T11:46:10Z\",\"repository\":{\"nameWithOwner\":\"fixture-org/fixture-repo\"},\"labels\":{\"nodes\":[],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":null}},\"parent\":null,\"subIssues\":{\"nodes\":[{\"id\":\"I_kwDOVc0D888AAAABhBKaJQ\",\"databaseId\":6510778917,\"number\":36,\"repository\":{\"nameWithOwner\":\"fixture-org/fixture-repo\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"MQ\"}},\"blockedBy\":{\"nodes\":[{\"id\":\"I_kwDOV1dojc8AAAABhBKa6A\",\"databaseId\":6510779112,\"number\":4,\"repository\":{\"nameWithOwner\":\"fixture-org/fixture-other-repo\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"MQ\"}},\"projectItems\":{\"nodes\":[{\"id\":\"PVTI_lADOFN-d0c4BsepwzhKdcKE\",\"project\":{\"id\":\"PVT_kwDOFN-d0c4Bsepw\"},\"fieldValues\":{\"nodes\":[{\"__typename\":\"ProjectV2ItemFieldRepositoryValue\"},{\"__typename\":\"ProjectV2ItemFieldTextValue\",\"text\":\"forge-client-issues-c4c51505-a\",\"field\":{\"id\":\"PVTF_lADOFN-d0c4BsepwzhqsouA\"}},{\"__typename\":\"ProjectV2ItemFieldSingleSelectValue\",\"optionId\":\"f75ad846\",\"name\":\"Todo\",\"field\":{\"id\":\"PVTSSF_lADOFN-d0c4BsepwzhqsouU\"}},{\"__typename\":\"ProjectV2ItemFieldTextValue\",\"text\":\"partly\",\"field\":{\"id\":\"PVTF_lADOFN-d0c4Bsepwzhqsoxs\"}},{\"__typename\":\"ProjectV2ItemFieldNumberValue\",\"number\":11.0,\"field\":{\"id\":\"PVTF_lADOFN-d0c4BsepwzhqsoyQ\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"NQ\"}}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"MQ\"}}},{\"__typename\":\"Issue\",\"id\":\"I_kwDOVc0D888AAAABhBKaJQ\",\"databaseId\":6510778917,\"number\":36,\"title\":\"forge-client-issues-c4c51505-b\",\"body\":\"Fixture issue b\",\"state\":\"OPEN\",\"stateReason\":null,\"updatedAt\":\"2026-11-20T11:46:08Z\",\"repository\":{\"nameWithOwner\":\"fixture-org/fixture-repo\"},\"labels\":{\"nodes\":[],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":null}},\"parent\":{\"id\":\"I_kwDOVc0D888AAAABhBKZbQ\"},\"subIssues\":{\"nodes\":[],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":null}},\"blockedBy\":{\"nodes\":[],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":null}},\"projectItems\":{\"nodes\":[{\"id\":\"PVTI_lADOFN-d0c4BsepwzhKdcKo\",\"project\":{\"id\":\"PVT_kwDOFN-d0c4Bsepw\"},\"fieldValues\":{\"nodes\":[{\"__typename\":\"ProjectV2ItemFieldRepositoryValue\"},{\"__typename\":\"ProjectV2ItemFieldTextValue\",\"text\":\"forge-client-issues-c4c51505-b\",\"field\":{\"id\":\"PVTF_lADOFN-d0c4BsepwzhqsouA\"}},{\"__typename\":\"ProjectV2ItemFieldNumberValue\",\"number\":7.0,\"field\":{\"id\":\"PVTF_lADOFN-d0c4BsepwzhqsoyQ\"}},{\"__typename\":\"ProjectV2ItemFieldSingleSelectValue\",\"optionId\":\"f75ad846\",\"name\":\"Todo\",\"field\":{\"id\":\"PVTSSF_lADOFN-d0c4BsepwzhqsouU\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"NA\"}}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"MQ\"}}},null],\"rateLimit\":{\"cost\":2,\"remaining\":4837,\"resetAt\":\"2026-11-20T12:23:54Z\"}},\"errors\":[{\"type\":\"NOT_FOUND\",\"path\":[\"nodes\",2],\"locations\":[{\"line\":1,\"column\":34}],\"message\":\"Could not resolve to a node with the global id of 'I_kwDOAAAAAM4AAAAB'.\"}]}"
+  } ],
+  "context" : {
+    "owner" : "fixture-org",
+    "repo" : "fixture-repo",
+    "prefix" : "forge-client-issues-c4c51505",
+    "number" : 35,
+    "other" : 36,
+    "subIssueId" : 6510778917,
+    "thirdIssueId" : 6510779112,
+    "since" : "2026-11-20T11:35:57Z",
+    "etag" : "\"475aa4fa039d951f9ac1585565dcacbdb1e024b80b9bf38baaa08dcede7328b4\"",
+    "itemsEtag" : "\"296625f9dd87ead2568c964e8dc435db0e2f3741b565bdd348b1bfc4d3c59424\"",
+    "projectNumber" : 13,
+    "projectId" : "PVT_kwDOFN-d0c4Bsepw",
+    "repositoryId" : "R_kgDOVc0D8w",
+    "issueIds" : [ "I_kwDOVc0D888AAAABhBKZbQ", "I_kwDOVc0D888AAAABhBKaJQ" ],
+    "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
+    "itemIds" : [ "PVTI_lADOFN-d0c4BsepwzhKdcKE", "PVTI_lADOFN-d0c4BsepwzhKdcKo" ],
+    "fieldId" : "PVTSSF_lADOFN-d0c4BsepwzhqsoxA",
+    "statusFieldId" : "PVTSSF_lADOFN-d0c4BsepwzhqsouU",
+    "statusOptionId" : "f75ad846",
+    "textFieldId" : "PVTF_lADOFN-d0c4Bsepwzhqsoxs",
+    "numberFieldId" : "PVTF_lADOFN-d0c4BsepwzhqsoyQ"
+  },
+  "request_body" : {
+    "variables" : {
+      "ids" : [ "I_kwDOVc0D888AAAABhBKZbQ", "I_kwDOVc0D888AAAABhBKaJQ", "I_kwDOAAAAAM4AAAAB" ]
+    },
+    "query" : "query IssueBoard($ids: [ID!]!) { nodes(ids: $ids) { __typename ... on Issue { id databaseId number title body state stateReason updatedAt repository { nameWithOwner } labels(first: 100) { nodes { name } pageInfo { hasNextPage endCursor } } parent { id } subIssues(first: 100) { nodes { id databaseId number repository { nameWithOwner } } pageInfo { hasNextPage endCursor } } blockedBy(first: 100) { nodes { id databaseId number repository { nameWithOwner } } pageInfo { hasNextPage endCursor } } projectItems(first: 50) { nodes { id project { id } fieldValues(first: 50) { nodes { __typename ... on ProjectV2ItemFieldSingleSelectValue { optionId name field { ... on ProjectV2FieldCommon { id } } } ... on ProjectV2ItemFieldTextValue { text field { ... on ProjectV2FieldCommon { id } } } ... on ProjectV2ItemFieldNumberValue { number field { ... on ProjectV2FieldCommon { id } } } } pageInfo { hasNextPage endCursor } } } pageInfo { hasNextPage endCursor } } } } rateLimit { cost remaining resetAt } }"
+  }
+}
