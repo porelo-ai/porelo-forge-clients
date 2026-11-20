@@ -10,12 +10,12 @@
   "priority": "High",
   "rank": 2,
   "blockedBy": [],
-  "covers": "An organization project's fields read, its items paged with their issues and field values, issues read by id, added to it, their field values set and several issues created in one mutation, each batch saying what was saved, over GraphQL, with each answer's cost",
+  "covers": "An organization project's fields read, its items paged with their issues and field values, issues read by id, added to it, their field values and a field's options set, an issue's status moves read, and several issues created in one mutation, each batch saying what was saved, over GraphQL, with each answer's cost",
   "openQuestions": 0
 }
 ```
 
-**Why this size.** Seven GraphQL operations with hand-written records in `GitHubGraphQl`, two of them built from a
+**Why this size.** Eight GraphQL operations with hand-written records in `GitHubGraphQl`, two of them built from a
 fixed per-item fragment repeated under aliases, and the recorder extended by a project of its own; one module, no
 contract another repository reads.
 
@@ -37,8 +37,13 @@ Read in today's code: `GitHubGraphQl` (fixed query constants, `Map` variables, h
     `updatedAt` is also the cheap probe for a field change, if the REST probe of FC26's kind is not offered.
   - `setFieldOptions(fieldId, options)`: `updateProjectV2Field` with `singleSelectOptions`, each option a `name`,
     `color` and `description`, replacing the field's options in the caller's order and returning them with their
-    ids. Whether GitHub keeps an option's id when an option of the same name stays is measured by the recorder and
-    written in the README, and posted to the planner's agent; until then a caller reads the ids from this answer.
+    ids. GitHub gives every option a new id, one whose name stays included, as measured, so a caller takes the ids
+    from this answer; the README says so. Whether the items keep their values across the replacement is measured by
+    the recorder, written in the README and posted to the planner's agent.
+  - `statusChanges(id, after)`: one issue's timeline items of type `PROJECT_V2_ITEM_STATUS_CHANGED_EVENT`, paged by
+    100 with a cursor, each with `createdAt`, `previousStatus`, `status`, `actor { login }` and its project's `id`;
+    the moves of a project's own `Status` field. A custom single-select field's change appears in no timeline item,
+    and the README says so.
   - `projectItems(org, number, after)`: the board, one page of 100 items with a cursor, each item's `id`, its issue
     (the fields of `issueBoard` below) and its field values; a draft or pull request item is returned with no issue.
   - `addProjectItems(projectId, contentIds)`: `addProjectV2ItemById` once per issue under aliases `i0…in`,
@@ -70,7 +75,8 @@ Read in today's code: `GitHubGraphQl` (fixed query constants, `Map` variables, h
 - **Tests.** `GitHubClientTest` replays each recording, as it does the review threads, and asserts the query text sent, the variables and each field
   read. Red first: `setFieldValuesSendsOneAliasPerValue` against a mutation built with one alias for two values,
   `issueBoardReadsOptionIds` with `optionId` removed from the recording, `setFieldOptionsSendsEachOption` with one
-  option's `color` left out of the request, and `aBatchSaysWhichAliasFailed` against an
+  option's `color` left out of the request, `statusChangesReadsThePreviousStatus` with `previousStatus` removed
+  from the recording, and `aBatchSaysWhichAliasFailed` against an
   answer with `data` for `v0` and an error on `v1`.
 
 ## Acceptance
