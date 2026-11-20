@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "FC26",
   "title": "Conditional Reads With ETag On GitHub",
-  "state": "Backlog",
+  "state": "Implementing",
   "size": "S",
   "priority": "High",
   "rank": 3,
