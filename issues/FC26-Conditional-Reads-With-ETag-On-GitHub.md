@@ -25,6 +25,12 @@ a refusal for a missing permission says which permissions GitHub would have acce
 
 ## Plan
 
+- **Order.** `Conditional`, the two conditional reads and `acceptedPermissions()` are published first by the
+  first step of [FC24](README.md#fc24), the reads failing loud and `acceptedPermissions()` built. This issue's
+  calls are built by a sub-agent in a worktree of its own, beside FC24 and FC25, and rebased onto them before its
+  hand-over, since all three change `GitHubClient`. A signature found wrong while building changes only after it is
+  agreed with the planner's agent.
+
 Read in today's code: `GitHubClient.exchange`, `send` and `check`, `RateLimit.read` and `isRateLimit`,
 `Page`, and `GitHubAnswersTest`'s rate-limit tests.
 
@@ -36,8 +42,8 @@ Read in today's code: `GitHubClient.exchange`, `send` and `check`, `RateLimit.re
   description answers with 200 or 304, paged by `before`, `after` and `per_page`; the operation goes into the
   extract and its record is generated. Each takes the ETag it last got or none. The plain reads stay as they are.
   GraphQL has no ETag, so the board query is not conditional; the README says so.
-- **Permissions.** `GitHubException` gains `acceptedPermissions()`, the `X-Accepted-GitHub-Permissions` header of
-  a refused answer, or null; GitHub's own message reaches the caller already, scrubbed.
+- **Permissions.** `GitHubException.acceptedPermissions()`, the `X-Accepted-GitHub-Permissions` header of a
+  refused answer or null, comes built with the surface; this issue records it live.
 - **Rate limits.** The 403 and 429 rule from before stays and covers GitHub's secondary limits: a 403 or 429 with
   `Retry-After`, or with a message naming a rate limit and no headers, is a rate limit whose `delay()` is that
   header, else the reset, else one minute. New is only that `Conditional` carries the `RateLimit` of a successful

@@ -16,8 +16,8 @@
 ```
 
 **Why this size.** Thirteen REST operations in the one `github` module, their records generated from the pinned
-description, and the recorder and live check extended by one issue fixture; no contract another repository reads
-changes.
+description, and the recorder and live check extended by one issue fixture; the client's surface only grows, and the first step, publishing the surface of
+all three issues, fits within it.
 
 **What must be true.** A caller holding a person's token reads a repository's issues page by page, reads one,
 creates one with its labels and changes its title, body, labels, and state with the reason `completed` or
@@ -27,6 +27,20 @@ issues an issue is blocked by and lists the ones it blocks. Each call speaks Git
 GitHub's own records.
 
 ## Plan
+
+- **Order: the surface first.** The first step, about 30 minutes, builds no call. It publishes the whole new
+  surface of this issue, [FC25](README.md#fc25) and [FC26](README.md#fc26) as agreed with the planner's agent:
+  - the operations of all three in the extract, and their generated records;
+  - the hand-written GraphQL records and `Batch`, `GraphQlCost` and `Conditional`;
+  - every new method of `GitHubClient` and `GitHubGraphQl` with its final signature, each throwing
+    `UnsupportedOperationException` with the message `<Class>.<method> is not built yet`;
+  - `GitHubException.acceptedPermissions()`, which is small enough to build in this step.
+
+  That step is committed, pushed and published as a snapshot on its own, so the planner builds against it with its
+  own fakes. A test, `NotBuiltYetTest`, calls each new method and expects that exception; it is red first against
+  a method that returns null. Then this issue's calls are built behind the fixed surface, before FC25. FC26 is built
+  beside them by a sub-agent in a worktree of its own, rebased onto this issue's work before its hand-over. A
+  signature found wrong while building changes only after it is agreed with the planner's agent.
 
 Read in today's code: `GitHubClient`, `GitHubOperations`, `GitHubRecorder`, `GitHubScenario`, `GitHubLiveCheck`,
 `clients/github/pom.xml` (the `check-extract` execution) and `src/main/openapi/github.json`, and the pinned

@@ -27,6 +27,10 @@ saved and which it refused. Each answer says what it cost and what remains of th
 
 ## Plan
 
+- **Order.** Every method and record below is published first, failing loud, by the first step of
+  [FC24](README.md#fc24). This issue's calls are built after FC24's, behind that fixed surface; a signature
+  found wrong while building changes only after it is agreed with the planner's agent.
+
 Read in today's code: `GitHubGraphQl` (fixed query constants, `Map` variables, hand-written records),
 `GitHubClient.graphQl`, `graphQlNode` and its error and `RATE_LIMITED` handling, `GitHubOperations`,
 `GitHubRecorder` and `GitHubLiveCheck`.
