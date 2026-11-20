@@ -20,7 +20,8 @@ description, and the recorder and live check extended by one issue fixture; no c
 changes.
 
 **What must be true.** A caller holding a person's token reads a repository's issues page by page, reads one,
-creates one and changes its title, body, state, state reason and labels; lists an issue's sub-issues and reads its
+creates one with its labels and changes its title, body, labels, and state with the reason `completed` or
+`not_planned`; lists an issue's sub-issues and reads its
 parent, adds a sub-issue from any repository of the same owner and removes one; and lists, adds and removes the
 issues an issue is blocked by and lists the ones it blocks. Each call speaks GitHub's own terms and returns
 GitHub's own records.
@@ -65,9 +66,5 @@ Read in today's code: `GitHubClient`, `GitHubOperations`, `GitHubRecorder`, `Git
 
 ## To be checked
 
-- With the planner's agent: that these calls, and no others, are what its GitHub Issues store calls over REST, and
-  whether it reads issues per repository or only through GraphQL, so no call is built that nobody uses.
 - Whether GitHub answers a sub-issue from another repository of the same owner, and a dependency across
   repositories, with the same records; measured by the recorder.
-- Whether `issues` with `since` and sorted by `updated` is enough for the planner's cache, or it also needs the
-  repository's issue events.
