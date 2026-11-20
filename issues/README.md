@@ -26,6 +26,12 @@ is left out.
 | <a id="fc18"></a>[FC18](FC18-The-Tests-By-Level.md) | M | - | The tests by level, measured: the Forgejo fixture's clean-up proven over a fake podman and the GitHub fixture's waits taken off the wall clock | 0 |
 | <a id="fc17"></a>[FC17](FC17-Mutation-Testing-With-PIT.md) | S | - | A `pit` profile run by hand on the host, with PIT and its JUnit 5 plugin pinned, and a report sorting the survivors into real gaps and harmless ones | 0 |
 
+## Implementing
+
+| # | Size | Blocked by | What it covers |
+|---|---|---|---|
+| <a id="fc28"></a>[FC28](FC28-Archived-Project-Items-On-GitHub.md) | XS | - | A project item read over GraphQL says whether it is archived, so an archived item no longer reads as one on the board |
+
 ## Review
 
 | # | Size | Blocked by | What it covers |
