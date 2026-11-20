@@ -16,6 +16,9 @@ is left out.
 
 | # | Size | Blocked by | What it covers | Open questions |
 |---|---|---|---|---|
+| <a id="fc24"></a>[FC24](FC24-Issues-Sub-Issues-And-Dependencies-On-GitHub.md) | M | - | A repository's issues listed, read, created and updated, an issue's sub-issues and parent, and its blocked-by and blocking dependencies on GitHub, over REST, recorded live | 0 |
+| <a id="fc25"></a>[FC25](FC25-A-Projects-Fields-On-GitHub-Over-GraphQL.md) | M | - | An organization project's fields and options read, issues added to it, their field values read in one query and set several at a time in one mutation, and several issues created in one mutation, over GraphQL, with each answer's cost | 1 |
+| <a id="fc26"></a>[FC26](FC26-Conditional-Reads-With-ETag-On-GitHub.md) | S | - | GitHub's REST reads of issues sent with a known ETag, a 304 answered as not changed instead of a failure, the new ETag returned with each answer, and the rate limit read on success | 0 |
 | <a id="fc03"></a>[FC03](FC03-The-Forge-Calls-Of-The-Adapters-Move-Here.md) | M | - | The clients make every call Porelo's build adapters make to GitHub and Forgejo today, with the same requests and answers, published as snapshots | 0 |
 
 ## Estimated
