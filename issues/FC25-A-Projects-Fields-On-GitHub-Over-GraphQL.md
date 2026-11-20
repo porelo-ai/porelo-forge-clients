@@ -15,12 +15,12 @@
 }
 ```
 
-**Why this size.** Six GraphQL operations with hand-written records in `GitHubGraphQl`, two of them built from a
+**Why this size.** Seven GraphQL operations with hand-written records in `GitHubGraphQl`, two of them built from a
 fixed per-item fragment repeated under aliases, and the recorder extended by a project of its own; one module, no
 contract another repository reads.
 
 **What must be true.** A caller holding a person's token reads an organization project's fields with their
-single-select options, reads the project's items page by page with their issues and field values, reads chosen
+single-select options, replaces a single-select field's options once when a project is set up, reads the project's items page by page with their issues and field values, reads chosen
 issues by id the same way, adds issues to the project, sets several field values of several issues in one mutation,
 and creates several issues across repositories of one owner in one mutation. A batch says which of its parts GitHub
 saved and which it refused. Each answer says what it cost and what remains of the hour's points.
@@ -35,6 +35,10 @@ Read in today's code: `GitHubGraphQl` (fixed query constants, `Map` variables, h
   - `projectFields(org, number)`: the project's `id`, `title`, `updatedAt` and its fields, paged, with
     `ProjectV2Field` (`id`, `name`, `dataType`) and `ProjectV2SingleSelectField` (`id`, `name`, `options { id name }`).
     `updatedAt` is also the cheap probe for a field change, if the REST probe of FC26's kind is not offered.
+  - `setFieldOptions(fieldId, options)`: `updateProjectV2Field` with `singleSelectOptions`, each option a `name`,
+    `color` and `description`, replacing the field's options in the caller's order and returning them with their
+    ids. Whether GitHub keeps an option's id when an option of the same name stays is measured by the recorder and
+    written in the README, and posted to the planner's agent; until then a caller reads the ids from this answer.
   - `projectItems(org, number, after)`: the board, one page of 100 items with a cursor, each item's `id`, its issue
     (the fields of `issueBoard` below) and its field values; a draft or pull request item is returned with no issue.
   - `addProjectItems(projectId, contentIds)`: `addProjectV2ItemById` once per issue under aliases `i0…in`,
@@ -65,7 +69,8 @@ Read in today's code: `GitHubGraphQl` (fixed query constants, `Map` variables, h
   in the test organization for the live check, which `kept-github` makes unless it is there.
 - **Tests.** `GitHubClientTest` replays each recording, as it does the review threads, and asserts the query text sent, the variables and each field
   read. Red first: `setFieldValuesSendsOneAliasPerValue` against a mutation built with one alias for two values,
-  `issueBoardReadsOptionIds` with `optionId` removed from the recording, and `aBatchSaysWhichAliasFailed` against an
+  `issueBoardReadsOptionIds` with `optionId` removed from the recording, `setFieldOptionsSendsEachOption` with one
+  option's `color` left out of the request, and `aBatchSaysWhichAliasFailed` against an
   answer with `data` for `v0` and an error on `v1`.
 
 ## Acceptance
