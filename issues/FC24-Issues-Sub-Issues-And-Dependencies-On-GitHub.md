@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "FC24",
   "title": "Issues, Sub-Issues And Dependencies On GitHub",
-  "state": "Backlog",
+  "state": "Implementing",
   "size": "M",
   "priority": "High",
   "rank": 1,
