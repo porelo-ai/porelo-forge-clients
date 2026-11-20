@@ -11,7 +11,7 @@
   "rank": 2,
   "blockedBy": [],
   "covers": "An organization project's fields read, its items paged with their issues and field values, issues read by id, added to it, their field values set and several issues created in one mutation, each batch saying what was saved, over GraphQL, with each answer's cost",
-  "openQuestions": 1
+  "openQuestions": 0
 }
 ```
 
@@ -60,7 +60,9 @@ Read in today's code: `GitHubGraphQl` (fixed query constants, `Map` variables, h
 - **Recorder and live check.** The recorder creates a project of its own in the test organization per run
   (`createProjectV2`, two single-select fields, a text and a number field), records each call against two issues of its run,
   and deletes the project (`deleteProjectV2`) at the end and on interrupt; the live check reads a kept project
-  strictly.
+  strictly. The organization owner's test token, `LIVE_GITHUB_USER_TOKEN`, reads and writes organization projects
+  (`project` scope, or organization projects read and write for a fine-grained token), and one kept project stays
+  in the test organization for the live check, which `kept-github` makes unless it is there.
 - **Tests.** `GitHubClientTest` replays each recording, as it does the review threads, and asserts the query text sent, the variables and each field
   read. Red first: `setFieldValuesSendsOneAliasPerValue` against a mutation built with one alias for two values,
   `issueBoardReadsOptionIds` with `optionId` removed from the recording, and `aBatchSaysWhichAliasFailed` against an
@@ -74,12 +76,6 @@ Read in today's code: `GitHubGraphQl` (fixed query constants, `Map` variables, h
   limits with their delay, as for every call.
 - A batch with one refused alias returns the others' results and the refused one's message, in order.
 - The recorder records against a project it made and leaves no project behind; the live check reads the kept project.
-
-## Open questions
-
-- The recorder needs to create and delete organization projects in the test organization: may the organization
-  owner's test token be given read and write on organization projects (`project` scope), and may a kept project
-  for the live check stay there?
 
 ## To be checked
 
