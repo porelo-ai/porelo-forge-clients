@@ -1,0 +1,2 @@
+title: Read a project's items with the caller's sizes of each issue's labels, sub-issues and blockers and each item's values (GitHubGraphQl.ItemLimits), and say for labels and values too whether more follow (BoardIssue.labelsPage, ProjectItem.valuesPage, IssueOnBoard.valuesPage), so a label past the first 100 or a value past the first 50 is no longer dropped.
+type: fixed

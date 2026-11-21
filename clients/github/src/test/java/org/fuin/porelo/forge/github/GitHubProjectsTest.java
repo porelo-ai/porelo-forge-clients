@@ -358,6 +358,100 @@ class GitHubProjectsTest {
         }
     }
 
+    // Prevents a smaller nested list from losing what lies past it: the sizes reach GitHub, and a
+    // list with more to read says so with its cursor, for labels and values as for links.
+    @Test
+    void nestedListsHaveTheCallersSizesAndSayWhetherMoreFollow() throws Exception {
+        String more = "\"pageInfo\":{\"hasNextPage\":true,\"endCursor\":\"%s\"}";
+        String issue =
+                issue("I_1")
+                        .replace(
+                                "\"labels\":{\"nodes\":[{\"name\":\"story\"}]," + PAGE,
+                                "\"labels\":{\"nodes\":[{\"name\":\"story\"}],"
+                                        + more.formatted("L1"));
+        var http =
+                answering(
+                        "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"totalCount\":1,"
+                                + "\"nodes\":[{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":"
+                                + issue
+                                + "},\"fieldValues\":{\"nodes\":[],"
+                                + more.formatted("V1")
+                                + "}}],"
+                                + PAGE
+                                + "}}},"
+                                + COST
+                                + "}}");
+        var item =
+                graphQl(http)
+                        .projectItems(
+                                TOKEN,
+                                "o",
+                                1,
+                                null,
+                                50,
+                                new GitHubGraphQl.ItemLimits(20, 50, 20, 20))
+                        .items()
+                        .getFirst();
+        JsonNode variables = request(http).path("variables");
+        assertThat(
+                        List.of(
+                                variables.path("labels").asInt(),
+                                variables.path("subIssues").asInt(),
+                                variables.path("blockedBy").asInt(),
+                                variables.path("fieldValues").asInt()))
+                .as("each nested list's size sent")
+                .containsExactly(20, 50, 20, 20);
+        assertThat(item.issue().labelsPage())
+                .as("more labels follow, from their cursor")
+                .isEqualTo(new GitHubGraphQl.PageInfo(true, "L1"));
+        assertThat(item.valuesPage())
+                .as("more values follow, from their cursor")
+                .isEqualTo(new GitHubGraphQl.PageInfo(true, "V1"));
+
+        var board =
+                answering(
+                        "{\"data\":{\"nodes\":["
+                                + issue
+                                + ",\"projectItems\":{\"nodes\":[{\"id\":\"PVTI_1\",\"project\":{\"id\":\"P_1\"},"
+                                + "\"fieldValues\":{\"nodes\":[],"
+                                + more.formatted("V2")
+                                + "}}],"
+                                + PAGE
+                                + "}}],"
+                                + COST
+                                + "}}");
+        var onBoard = graphQl(board).issueBoard(TOKEN, List.of("I_1"), "P_1").issues().getFirst();
+        assertThat(onBoard.valuesPage())
+                .as("an issue read by id says too whether more values follow")
+                .isEqualTo(new GitHubGraphQl.PageInfo(true, "V2"));
+        assertThat(request(board).path("variables").path("fieldValues").asInt())
+                .as("an issue read by id takes the default sizes")
+                .isEqualTo(50);
+
+        var past =
+                answering(
+                        "{\"data\":{\"nodes\":["
+                                + issue
+                                + ",\"projectItems\":{\"nodes\":[{\"id\":\"PVTI_9\",\"project\":{\"id\":\"P_2\"},"
+                                + "\"fieldValues\":{\"nodes\":[],"
+                                + PAGE
+                                + "}}],"
+                                + more.formatted("P1")
+                                + "}}],"
+                                + COST
+                                + "}}");
+        assertThatExceptionOfType(GitHubException.class)
+                .as(
+                        "an issue whose item may lie past its first projects is not read as off the board")
+                .isThrownBy(() -> graphQl(past).issueBoard(TOKEN, List.of("I_1"), "P_1"));
+
+        for (int size : new int[] {0, 101}) {
+            assertThatExceptionOfType(IllegalArgumentException.class)
+                    .as("a list size of %d is refused", size)
+                    .isThrownBy(() -> new GitHubGraphQl.ItemLimits(size, 1, 1, 1));
+        }
+    }
+
     // Prevents a caller from reading GitHub's end of a too costly query as any other failure, so
     // it can read the same board in smaller pages instead of stopping.
     @Test

@@ -4,49 +4,49 @@
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4283" ],
-    "x-ratelimit-reset" : [ "1795279791" ]
+    "x-ratelimit-remaining" : [ "4978" ],
+    "x-ratelimit-reset" : [ "1795283895" ]
   },
-  "body" : "{\"data\":{\"node\":{\"timelineItems\":{\"nodes\":[{\"__typename\":\"ProjectV2ItemStatusChangedEvent\",\"createdAt\":\"2026-11-21T16:47:16Z\",\"previousStatus\":\"\",\"status\":\"Todo\",\"actor\":{\"__typename\":\"User\",\"login\":\"fixture-reviewer\"},\"project\":{\"id\":\"PVT_kwDOFN-d0c4Bsov1\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"Y3Vyc29yOnYyOpPPAAABof8BRiABqzM2ODcxODQ3MzUz\"}}},\"rateLimit\":{\"cost\":1,\"remaining\":4283,\"resetAt\":\"2026-11-21T16:49:51Z\"}}}",
+  "body" : "{\"data\":{\"node\":{\"timelineItems\":{\"nodes\":[{\"__typename\":\"ProjectV2ItemStatusChangedEvent\",\"createdAt\":\"2026-11-21T16:58:42Z\",\"previousStatus\":\"\",\"status\":\"Todo\",\"actor\":{\"__typename\":\"User\",\"login\":\"fixture-reviewer\"},\"project\":{\"id\":\"PVT_kwDOFN-d0c4Bso0w\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"Y3Vyc29yOnYyOpPPAAABof8LvdABqzM2ODcyNDg2ODg0\"}}},\"rateLimit\":{\"cost\":1,\"remaining\":4978,\"resetAt\":\"2026-11-21T17:58:15Z\"}}}",
   "exchanges" : [ {
     "request_uri" : "/graphql",
     "status" : 200,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4283" ],
-      "x-ratelimit-reset" : [ "1795279791" ]
+      "x-ratelimit-remaining" : [ "4978" ],
+      "x-ratelimit-reset" : [ "1795283895" ]
     },
-    "body" : "{\"data\":{\"node\":{\"timelineItems\":{\"nodes\":[{\"__typename\":\"ProjectV2ItemStatusChangedEvent\",\"createdAt\":\"2026-11-21T16:47:16Z\",\"previousStatus\":\"\",\"status\":\"Todo\",\"actor\":{\"__typename\":\"User\",\"login\":\"fixture-reviewer\"},\"project\":{\"id\":\"PVT_kwDOFN-d0c4Bsov1\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"Y3Vyc29yOnYyOpPPAAABof8BRiABqzM2ODcxODQ3MzUz\"}}},\"rateLimit\":{\"cost\":1,\"remaining\":4283,\"resetAt\":\"2026-11-21T16:49:51Z\"}}}"
+    "body" : "{\"data\":{\"node\":{\"timelineItems\":{\"nodes\":[{\"__typename\":\"ProjectV2ItemStatusChangedEvent\",\"createdAt\":\"2026-11-21T16:58:42Z\",\"previousStatus\":\"\",\"status\":\"Todo\",\"actor\":{\"__typename\":\"User\",\"login\":\"fixture-reviewer\"},\"project\":{\"id\":\"PVT_kwDOFN-d0c4Bso0w\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"Y3Vyc29yOnYyOpPPAAABof8LvdABqzM2ODcyNDg2ODg0\"}}},\"rateLimit\":{\"cost\":1,\"remaining\":4978,\"resetAt\":\"2026-11-21T17:58:15Z\"}}}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "prefix" : "forge-client-issues-d1aec54d",
-    "number" : 122,
-    "other" : 123,
-    "subIssueId" : 6531629661,
-    "thirdIssueId" : 6531629840,
-    "since" : "2026-11-21T16:36:43Z",
-    "etag" : "\"7700b7a99b33c6d76b8e12c3dc672385c1d41ada7a36a7ffd0f5b3360372c47b\"",
-    "itemsEtag" : "\"faca544bb3a4b17ff80802d9e84fe50ebabc78c02ca94124c41babccbce4d5fe\"",
-    "projectNumber" : 54,
-    "projectId" : "PVT_kwDOFN-d0c4Bsov1",
+    "prefix" : "forge-client-issues-d699008a",
+    "number" : 126,
+    "other" : 127,
+    "subIssueId" : 6531769181,
+    "thirdIssueId" : 6531769289,
+    "since" : "2026-11-21T16:48:14Z",
+    "etag" : "\"d9981d1de47fa5668d932215db16018349f3f4b9576147c304ec90abd89e54ec\"",
+    "itemsEtag" : "\"507fe27dec9801bfcff95bee6c61903b7cf896abf271c076baad1a88f2afa790\"",
+    "projectNumber" : 55,
+    "projectId" : "PVT_kwDOFN-d0c4Bso0w",
     "repositoryId" : "R_kgDOVc0D8w",
-    "issueIds" : [ "I_kwDOVc0D888AAAABhVDBfQ", "I_kwDOVc0D888AAAABhVDCXQ" ],
+    "issueIds" : [ "I_kwDOVc0D888AAAABhVLitA", "I_kwDOVc0D888AAAABhVLjXQ" ],
     "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
-    "itemIds" : [ "PVTI_lADOFN-d0c4Bsov1zhKvfso", "PVTI_lADOFN-d0c4Bsov1zhKvftI" ],
-    "fieldId" : "PVTSSF_lADOFN-d0c4Bsov1zhq19rg",
-    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bsov1zhq19qU",
+    "itemIds" : [ "PVTI_lADOFN-d0c4Bso0wzhKvm4k", "PVTI_lADOFN-d0c4Bso0wzhKvm5Y" ],
+    "fieldId" : "PVTSSF_lADOFN-d0c4Bso0wzhq2COk",
+    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bso0wzhq2CKc",
     "statusOptionId" : "f75ad846",
-    "textFieldId" : "PVTF_lADOFN-d0c4Bsov1zhq19sA",
-    "numberFieldId" : "PVTF_lADOFN-d0c4Bsov1zhq19sc",
-    "fieldDatabaseIds" : [ 448132773, 448132792, 448132800, 448132807 ]
+    "textFieldId" : "PVTF_lADOFN-d0c4Bso0wzhq2COw",
+    "numberFieldId" : "PVTF_lADOFN-d0c4Bso0wzhq2CO0",
+    "fieldDatabaseIds" : [ 448137383, 448137449, 448137452, 448137453 ]
   },
   "request_body" : {
+    "query" : "query StatusChanges($id: ID!, $after: String) { node(id: $id) { ... on Issue { timelineItems(first: 100, after: $after, itemTypes: [PROJECT_V2_ITEM_STATUS_CHANGED_EVENT]) { nodes { __typename ... on ProjectV2ItemStatusChangedEvent { createdAt previousStatus status actor { __typename login } project { id } } } pageInfo { hasNextPage endCursor } } } } rateLimit { cost remaining resetAt } }",
     "variables" : {
-      "id" : "I_kwDOVc0D888AAAABhVDBfQ"
-    },
-    "query" : "query StatusChanges($id: ID!, $after: String) { node(id: $id) { ... on Issue { timelineItems(first: 100, after: $after, itemTypes: [PROJECT_V2_ITEM_STATUS_CHANGED_EVENT]) { nodes { __typename ... on ProjectV2ItemStatusChangedEvent { createdAt previousStatus status actor { __typename login } project { id } } } pageInfo { hasNextPage endCursor } } } } rateLimit { cost remaining resetAt } }"
+      "id" : "I_kwDOVc0D888AAAABhVLitA"
+    }
   }
 }

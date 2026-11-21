@@ -20,6 +20,7 @@ import org.fuin.porelo.forge.github.GitHubGraphQl.IssueBoard;
 import org.fuin.porelo.forge.github.GitHubGraphQl.IssueOnBoard;
 import org.fuin.porelo.forge.github.GitHubGraphQl.IssueRef;
 import org.fuin.porelo.forge.github.GitHubGraphQl.IssueRefs;
+import org.fuin.porelo.forge.github.GitHubGraphQl.ItemLimits;
 import org.fuin.porelo.forge.github.GitHubGraphQl.ItemValue;
 import org.fuin.porelo.forge.github.GitHubGraphQl.NewIssue;
 import org.fuin.porelo.forge.github.GitHubGraphQl.NewOption;
@@ -46,19 +47,19 @@ final class ProjectBoard {
     private static final String ISSUE =
             "id databaseId number title body state stateReason updatedAt"
                     + " repository { nameWithOwner }"
-                    + " labels(first: 100) { nodes { name } "
+                    + " labels(first: $labels) { nodes { name } "
                     + PAGE
                     + " }"
                     + " parent { id }"
-                    + " subIssues(first: 100) { "
+                    + " subIssues(first: $subIssues) { "
                     + REF
                     + " }"
-                    + " blockedBy(first: 100) { "
+                    + " blockedBy(first: $blockedBy) { "
                     + REF
                     + " }";
     private static final String FIELD = "field { ... on ProjectV2FieldCommon { id } }";
     private static final String VALUES =
-            "fieldValues(first: 50) { nodes { __typename"
+            "fieldValues(first: $fieldValues) { nodes { __typename"
                     + " ... on ProjectV2ItemFieldSingleSelectValue { optionId name "
                     + FIELD
                     + " }"
@@ -70,6 +71,10 @@ final class ProjectBoard {
                     + " } } "
                     + PAGE
                     + " }";
+
+    /** The sizes of an issue's and an item's nested lists, as {@link ItemLimits} gives them. */
+    private static final String LIMITS =
+            "$labels: Int!, $subIssues: Int!, $blockedBy: Int!, $fieldValues: Int!";
 
     static final String PROJECT_FIELDS =
             "query ProjectFields($org: String!, $number: Int!, $after: String) {"
@@ -83,7 +88,9 @@ final class ProjectBoard {
                     + " }";
 
     static final String PROJECT_ITEMS =
-            "query ProjectItems($org: String!, $number: Int!, $first: Int!, $after: String) {"
+            "query ProjectItems($org: String!, $number: Int!, $first: Int!, $after: String, "
+                    + LIMITS
+                    + ") {"
                     + " organization(login: $org) { projectV2(number: $number) {"
                     + " items(first: $first, after: $after) { totalCount nodes { id isArchived"
                     + " content { __typename ... on Issue { "
@@ -97,7 +104,9 @@ final class ProjectBoard {
                     + " }";
 
     static final String ISSUE_BOARD =
-            "query IssueBoard($ids: [ID!]!) { nodes(ids: $ids) { __typename ... on Issue { "
+            "query IssueBoard($ids: [ID!]!, "
+                    + LIMITS
+                    + ") { nodes(ids: $ids) { __typename ... on Issue { "
                     + ISSUE
                     + " projectItems(first: 50) { nodes { id project { id } "
                     + VALUES
@@ -134,6 +143,16 @@ final class ProjectBoard {
             if (value != null) variables.put((String) pairs[index], value);
         }
         return variables;
+    }
+
+    /** Adds the nested lists' sizes to a query's variables. */
+    static Map<String, Object> withLimits(Map<String, Object> variables, ItemLimits limits) {
+        Map<String, Object> all = new LinkedHashMap<>(variables);
+        all.put("labels", limits.labels());
+        all.put("subIssues", limits.subIssues());
+        all.put("blockedBy", limits.blockedBy());
+        all.put("fieldValues", limits.fieldValues());
+        return all;
     }
 
     static Map<String, Object> request(String query, Map<String, Object> variables) {
@@ -264,7 +283,11 @@ final class ProjectBoard {
                     content.path("__typename").asText().equals("Issue") ? issue(content) : null;
             read.add(
                     new ProjectItem(
-                            text(node, "id"), flag(node, "isArchived"), issue, values(node)));
+                            text(node, "id"),
+                            flag(node, "isArchived"),
+                            issue,
+                            values(node),
+                            pageInfo(node.path("fieldValues"))));
         }
         return new ProjectItems(
                 read, pageInfo(items), cost(data), Math.toIntExact(number(items, "totalCount")));
@@ -282,13 +305,20 @@ final class ProjectBoard {
             }
             String itemId = null;
             List<ItemValue> values = List.of();
-            for (JsonNode item : nodes(node.path("projectItems"), "projectItems")) {
+            PageInfo valuesPage = new PageInfo(false, null);
+            JsonNode projectItems = node.path("projectItems");
+            for (JsonNode item : nodes(projectItems, "projectItems")) {
                 if (projectId.equals(text(item.path("project"), "id"))) {
                     itemId = text(item, "id");
                     values = values(item);
+                    valuesPage = pageInfo(item.path("fieldValues"));
                 }
             }
-            read.add(new IssueOnBoard(issue(node), itemId, values));
+            // Past its first projects the issue may still have an item here; it is not off the
+            // board.
+            if (itemId == null && pageInfo(projectItems).hasNextPage())
+                throw new UnreadableAnswer("projectItems past the first page");
+            read.add(new IssueOnBoard(issue(node), itemId, values, valuesPage));
         }
         return new IssueBoard(read, cost(data));
     }
@@ -387,7 +417,8 @@ final class ProjectBoard {
                 labels,
                 parent.isObject() ? text(parent, "id") : null,
                 refs(node.path("subIssues")),
-                refs(node.path("blockedBy")));
+                refs(node.path("blockedBy")),
+                pageInfo(node.path("labels")));
     }
 
     private static IssueRefs refs(JsonNode connection) {

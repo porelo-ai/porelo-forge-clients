@@ -56,23 +56,25 @@ Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
 
 - `acceptedPermissions()` of a refusal is GitHub's `X-Accepted-GitHub-Permissions` header, such as `issues=write`,
   when it is a plain list of permissions, else null.
-- The conditional reads `issuesIfChanged`, a repository's issues newest change first, and `projectItemsIfChanged`,
-  an organization project's items, send the entity tag the caller last got as `If-None-Match`, none when it gives
-  none; a tag that is blank or holds anything but visible ASCII and inner spaces is refused before sending. Each
-  returns a `Conditional`: after a 304, `changed` false, no value, and GitHub's tag or else the one sent; after a 200,
-  the value and the answer's `ETag` exactly as sent, weak prefix `W/` kept. Both carry the answer's rate limit and
-  `date`, GitHub's time from its `Date` header, which a caller takes as the start of its next look, since its own
-  clock may run ahead; null when missing or unreadable, and then the next look is not narrowed. Any other status fails as every call does.
+- The conditional reads `issuesIfChanged`, a repository's issues newest change first, and `projectItemsIfChanged`, an
+  organization project's items, send the entity tag the caller last got as `If-None-Match`, none when it gives none; a
+  tag that is blank or holds anything but visible ASCII and inner spaces is refused before sending. Each returns a
+  `Conditional`: after a 304, `changed` false, no value, and GitHub's tag or else the one sent; after a 200, the value
+  and the answer's `ETag` exactly as sent, weak prefix `W/` kept. Both carry the answer's rate limit and `date`,
+  GitHub's time from its `Date` header, which a caller takes as the start of its next look, since its own clock may run
+  ahead; null when missing or unreadable, and then the next look is not narrowed. Any other status fails as every call
+  does.
 - The project's items come as a `CursorPage` of `ProjectItemSummary`, whose `after` is the `after` parameter of the
-  `Link` header's next link, null on the last page. An item carries its node id, time and whether it is archived;
-  its issue's node id, repository, number, time, state and how many sub-issues and blockers (closed ones included) it
-  has; and the values of the fields named by their numeric ids (`ProjectField.databaseId`, at most 50; GitHub
-  refuses its built-in `Created`, `Updated` and `Closed` there). An item missing a part GitHub always sends fails the
-  page, an `Issue` item without its issue included. Only single-select, text and number values are read; a value of
-  another kind carries none, so its change is not seen in the values. GraphQL has no ETag, so the board itself is never read conditionally. As measured, GitHub sends strong tags,
-  a 304 leaves `x-ratelimit-remaining` as it was, and the items' tag changes on any change of an item, its issue,
-  its links or its values; with the fields named, an unchanged board answers 304 on every look, without them it
-  sometimes answers 200. A link added moves neither the item's time nor its issue's, only the issue's counts.
+  `Link` header's next link, null on the last page. An item carries its node id, time and whether it is archived; its
+  issue's node id, repository, number, time, state and how many sub-issues and blockers (closed ones included) it has;
+  and the values of the fields named by their numeric ids (`ProjectField.databaseId`, at most 50; GitHub refuses its
+  built-in `Created`, `Updated` and `Closed` there). An item missing a part GitHub always sends fails the page, an
+  `Issue` item without its issue included. Only single-select, text and number values are read; a value of another kind
+  carries none, so its change is not seen in the values. GraphQL has no ETag, so the board itself is never read
+  conditionally. As measured, GitHub sends strong tags, a 304 leaves `x-ratelimit-remaining` as it was, and the items'
+  tag changes on any change of an item, its issue, its links or its values; with the fields named, an unchanged board
+  answers 304 on every look, without them it sometimes answers 200. A link added moves neither the item's time nor its
+  issue's, only the issue's counts.
 - `issues` lists a repository's issues newest change first, with `state`, `labels` (left out when none; a blank name
   or one holding a comma is refused, since GitHub splits at commas) and `since`; it lists pull requests too, told by
   `pullRequest`. `issue`, `createIssue` and `updateIssue` read, create and change one; GitHub drops labels in silence
@@ -89,13 +91,17 @@ Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
 variables; the document holds only fixed text and, in a batch, each part's index.
 
 - `projectFields` reads the project's id, title, last change and its fields, a single-select field with its options;
-  `projectItems` reads 100 items a page, or as many as its caller gives up to 100, with whether GitHub archived each, their issues and their single-select, text
-  and number values, an item that is a draft or a pull request without an issue, and on every page the project's whole
-  item count, `totalCount`. A page GitHub ends for the resources it used fails with `resourceLimited()` set on its
-  `GitHubException`, so a caller can read the board on in smaller pages; `issueBoard` reads up to 100 issues
-  by node id, each with its item and values in the given project, null in the place of an id GitHub does not know or
-  of no issue. `statusChanges` reads an issue's moves on a project's own `Status` field; a change of any other
-  single-select field appears in no timeline. A variant of a union the board does not model, such as an iteration
+  `projectItems` reads 100 items a page, or as many as its caller gives up to 100, with whether GitHub archived each,
+  their issues and their single-select, text and number values, an item that is a draft or a pull request without an
+  issue, and on every page the project's whole item count, `totalCount`. A page GitHub ends for the resources it used
+  fails with `resourceLimited()` set on its `GitHubException`, so a caller can read the board on in smaller pages. An
+  issue's labels, sub-issues and blockers and an item's values come at the sizes of `ItemLimits` (`DEFAULT` 100, 100,
+  100 and 50; each 1 to 100), and each of these lists carries its `PageInfo` (`labelsPage`, `valuesPage`), so what lies
+  past a list is read by its cursor, never dropped. `issueBoard` reads up to 100 issues by node id at the default sizes,
+  each with its item and values in the given project, null in the place of an id GitHub does not know or of no issue; an
+  issue on more than 50 projects whose item in the given one is not among its first 50 fails the read rather than
+  reading as off the board. `statusChanges` reads an issue's moves on a project's own `Status` field; a change of any
+  other single-select field appears in no timeline. A variant of a union the board does not model, such as an iteration
   field or a date value, is left out. Each query's answer carries its `GraphQlCost`.
 - `setFieldOptions` replaces a single-select field's options; GitHub gives every option a new id, one whose name stays
   included, so a caller takes the ids from the answer. As measured, an item's value in that field is gone afterwards,

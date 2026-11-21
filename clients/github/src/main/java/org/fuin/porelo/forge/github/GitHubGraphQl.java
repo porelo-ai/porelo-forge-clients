@@ -195,6 +195,28 @@ public final class GitHubGraphQl {
     public static final int MAX_ITEMS = 100;
 
     /**
+     * How many of an issue's labels, sub-issues and blockers and of an item's field values a read
+     * of the board takes; each list says whether more follow, and the rest is read by its cursor.
+     *
+     * @param labels 1 to 100
+     * @param subIssues 1 to 100
+     * @param blockedBy 1 to 100
+     * @param fieldValues 1 to 100
+     */
+    public record ItemLimits(int labels, int subIssues, int blockedBy, int fieldValues) {
+        /** The sizes a read takes when its caller names none. */
+        public static final ItemLimits DEFAULT = new ItemLimits(100, 100, 100, 50);
+
+        /** Requires each size within GitHub's bounds. */
+        public ItemLimits {
+            for (int size : new int[] {labels, subIssues, blockedBy, fieldValues}) {
+                if (size < 1 || size > 100)
+                    throw new IllegalArgumentException("Expected a list size of 1 to 100");
+            }
+        }
+    }
+
+    /**
      * Reads a page of {@value #MAX_ITEMS} of an organization project's items, each with its issue
      * and its field values; an item that is a draft or a pull request has no issue.
      *
@@ -215,6 +237,26 @@ public final class GitHubGraphQl {
      */
     public ProjectItems projectItems(
             String token, String org, int projectNumber, @Nullable String after, int first) {
+        return projectItems(token, org, projectNumber, after, first, ItemLimits.DEFAULT);
+    }
+
+    /**
+     * Reads a page of an organization project's items, as {@link #projectItems(String, String, int,
+     * String, int)} does, with each issue's and item's nested lists at the sizes given; a smaller
+     * size costs GitHub less, and every list says whether more follow.
+     *
+     * @param after the cursor of the page to read, null for the first
+     * @param first how many items the page holds, 1 to {@value #MAX_ITEMS}
+     * @param limits how many of each nested list the page takes
+     */
+    public ProjectItems projectItems(
+            String token,
+            String org,
+            int projectNumber,
+            @Nullable String after,
+            int first,
+            ItemLimits limits) {
+        Objects.requireNonNull(limits, "limits");
         ProjectBoard.requireId(org, "an organization");
         positive(projectNumber);
         if (first < 1 || first > MAX_ITEMS)
@@ -223,15 +265,17 @@ public final class GitHubGraphQl {
                 token,
                 ProjectBoard.request(
                         ProjectBoard.PROJECT_ITEMS,
-                        ProjectBoard.variables(
-                                "org",
-                                org,
-                                "number",
-                                projectNumber,
-                                "first",
-                                first,
-                                "after",
-                                after)),
+                        ProjectBoard.withLimits(
+                                ProjectBoard.variables(
+                                        "org",
+                                        org,
+                                        "number",
+                                        projectNumber,
+                                        "first",
+                                        first,
+                                        "after",
+                                        after),
+                                limits)),
                 ProjectBoard::projectItems);
     }
 
@@ -248,7 +292,10 @@ public final class GitHubGraphQl {
                 client.graphQlAnswer(
                         token,
                         ProjectBoard.request(
-                                ProjectBoard.ISSUE_BOARD, ProjectBoard.variables("ids", issueIds)));
+                                ProjectBoard.ISSUE_BOARD,
+                                ProjectBoard.withLimits(
+                                        ProjectBoard.variables("ids", issueIds),
+                                        ItemLimits.DEFAULT)));
         // An unknown id reads null in its place, with an error GitHub raises for that place alone.
         if (answer.envelope().path("errors")
                 instanceof com.fasterxml.jackson.databind.node.ArrayNode errors) {
@@ -759,10 +806,11 @@ public final class GitHubGraphQl {
      * @param stateReason why it is in its state, such as {@code COMPLETED} or {@code NOT_PLANNED}
      * @param updatedAt its last change
      * @param repository its repository, {@code owner/name}
-     * @param labels the names of its first 100 labels
+     * @param labels the names of its first labels, as many as the read asked for
      * @param parentId its parent's node id, or null when it has none
-     * @param subIssues its first 100 sub-issues
-     * @param blockedBy the first 100 issues it is blocked by
+     * @param subIssues its first sub-issues, as many as the read asked for
+     * @param blockedBy the first issues it is blocked by, as many as the read asked for
+     * @param labelsPage whether more labels follow, and from where
      */
     public record BoardIssue(
             String id,
@@ -777,9 +825,11 @@ public final class GitHubGraphQl {
             List<String> labels,
             @Nullable String parentId,
             IssueRefs subIssues,
-            IssueRefs blockedBy) {
+            IssueRefs blockedBy,
+            PageInfo labelsPage) {
         /** Requires every part GitHub always sends. */
         public BoardIssue {
+            Objects.requireNonNull(labelsPage, "labelsPage");
             Objects.requireNonNull(id, "id");
             Objects.requireNonNull(title, "title");
             Objects.requireNonNull(state, "state");
@@ -819,13 +869,20 @@ public final class GitHubGraphQl {
      * @param id the item's id, which a field value names
      * @param archived whether GitHub archived it, so it no longer shows on the board
      * @param issue its issue, or null for a draft or a pull request
-     * @param values its single-select, text and number field values
+     * @param values its first single-select, text and number field values, as many as the read
+     *     asked for
+     * @param valuesPage whether more values follow, and from where
      */
     public record ProjectItem(
-            String id, boolean archived, @Nullable BoardIssue issue, List<ItemValue> values) {
+            String id,
+            boolean archived,
+            @Nullable BoardIssue issue,
+            List<ItemValue> values,
+            PageInfo valuesPage) {
         /** Requires every part. */
         public ProjectItem {
             Objects.requireNonNull(id, "id");
+            Objects.requireNonNull(valuesPage, "valuesPage");
             values = List.copyOf(values);
         }
     }
@@ -854,12 +911,18 @@ public final class GitHubGraphQl {
      *
      * @param issue the issue
      * @param itemId its item in the project, or null when it is not in it
-     * @param values its field values in the project
+     * @param values its first field values in the project, as many as the read asked for
+     * @param valuesPage whether more values follow, and from where; none when it is not in it
      */
-    public record IssueOnBoard(BoardIssue issue, @Nullable String itemId, List<ItemValue> values) {
+    public record IssueOnBoard(
+            BoardIssue issue,
+            @Nullable String itemId,
+            List<ItemValue> values,
+            PageInfo valuesPage) {
         /** Requires every part. */
         public IssueOnBoard {
             Objects.requireNonNull(issue, "issue");
+            Objects.requireNonNull(valuesPage, "valuesPage");
             values = List.copyOf(values);
         }
     }
