@@ -1,0 +1,2 @@
+title: Carry a project's whole item count on every page GitHubGraphQl.projectItems reads, as ProjectItems.totalCount, so a caller knows from the first page how many items follow.
+type: added

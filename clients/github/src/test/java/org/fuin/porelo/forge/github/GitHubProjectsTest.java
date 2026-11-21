@@ -304,7 +304,7 @@ class GitHubProjectsTest {
 
         var items =
                 answering(
-                        "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"nodes\":["
+                        "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"totalCount\":205,\"nodes\":["
                                 + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":"
                                 + issue("I_1")
                                 + "},\"fieldValues\":{\"nodes\":[],"
@@ -323,6 +323,9 @@ class GitHubProjectsTest {
         assertThat(page.items().get(1).issue()).as("a draft has no issue").isNull();
         assertThat(page.items().get(0).archived()).as("a live item").isFalse();
         assertThat(page.items().get(1).archived()).as("an archived item").isTrue();
+        assertThat(page.totalCount())
+                .as("the whole project's item count, beyond this page")
+                .isEqualTo(205);
     }
 
     // Prevents an answer missing a part from reading as a board with that part empty.

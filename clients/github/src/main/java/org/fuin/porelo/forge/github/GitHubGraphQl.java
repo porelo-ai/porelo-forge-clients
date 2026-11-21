@@ -808,13 +808,16 @@ public final class GitHubGraphQl {
      * @param items the items
      * @param pageInfo the cursor of the next page
      * @param cost what the query cost
+     * @param totalCount how many items the whole project holds, on every page
      */
-    public record ProjectItems(List<ProjectItem> items, PageInfo pageInfo, GraphQlCost cost) {
+    public record ProjectItems(
+            List<ProjectItem> items, PageInfo pageInfo, GraphQlCost cost, int totalCount) {
         /** Requires every part. */
         public ProjectItems {
             items = List.copyOf(items);
             Objects.requireNonNull(pageInfo, "pageInfo");
             Objects.requireNonNull(cost, "cost");
+            if (totalCount < 0) throw new IllegalArgumentException("Expected a count of 0 or more");
         }
     }
 

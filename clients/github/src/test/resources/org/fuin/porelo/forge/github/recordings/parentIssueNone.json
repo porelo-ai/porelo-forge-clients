@@ -1,41 +1,41 @@
 {
-  "request_uri" : "/repos/fixture-org/fixture-repo/issues/39/parent",
+  "request_uri" : "/repos/fixture-org/fixture-repo/issues/114/parent",
   "status" : 404,
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
     "x-accepted-github-permissions" : [ "issues=read" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4964" ],
-    "x-ratelimit-reset" : [ "1795178774" ]
+    "x-ratelimit-remaining" : [ "4913" ],
+    "x-ratelimit-reset" : [ "1795277951" ]
   },
   "body" : "{\"message\":\"No parent issue found\",\"documentation_url\":\"https://host-3.example.org/rest/issues/sub-issues\",\"status\":\"404\"}",
   "exchanges" : [ {
-    "request_uri" : "/repos/fixture-org/fixture-repo/issues/39/parent",
+    "request_uri" : "/repos/fixture-org/fixture-repo/issues/114/parent",
     "status" : 404,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
       "x-accepted-github-permissions" : [ "issues=read" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4964" ],
-      "x-ratelimit-reset" : [ "1795178774" ]
+      "x-ratelimit-remaining" : [ "4913" ],
+      "x-ratelimit-reset" : [ "1795277951" ]
     },
     "body" : "{\"message\":\"No parent issue found\",\"documentation_url\":\"https://host-3.example.org/rest/issues/sub-issues\",\"status\":\"404\"}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "prefix" : "forge-client-issues-806a5425",
-    "number" : 39,
-    "other" : 40,
-    "subIssueId" : 6511176658,
-    "thirdIssueId" : 6511176865,
-    "since" : "2026-11-20T12:02:54Z",
-    "etag" : "\"fd86ec29b33967463cd342e01b61b18eee001827f8dff3ebcd122d44f82bfc5f\"",
+    "prefix" : "forge-client-issues-da11010b",
+    "number" : 114,
+    "other" : 115,
+    "subIssueId" : 6530778562,
+    "thirdIssueId" : 6530778817,
+    "since" : "2026-11-21T15:20:14Z",
+    "etag" : "\"06fbff19cdad82fdd5cc80de7a4f7f7ada6249161cc9a5bde1226cb9469b2b70\"",
     "itemsEtag" : "pending",
-    "projectNumber" : 14,
-    "projectId" : "PVT_kwDOFN-d0c4Bse1x",
+    "projectNumber" : 52,
+    "projectId" : "PVT_kwDOFN-d0c4BsoOt",
     "repositoryId" : "R_kgDOVc0D8w",
-    "issueIds" : [ "I_kwDOVc0D888AAAABhBiq4g", "I_kwDOVc0D888AAAABhBir0g" ],
+    "issueIds" : [ "I_kwDOVc0D888AAAABhUPE6A", "I_kwDOVc0D888AAAABhUPFwg" ],
     "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
     "itemIds" : [ ],
     "fieldId" : "pending",

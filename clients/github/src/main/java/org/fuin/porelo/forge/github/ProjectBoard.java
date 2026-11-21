@@ -85,7 +85,7 @@ final class ProjectBoard {
     static final String PROJECT_ITEMS =
             "query ProjectItems($org: String!, $number: Int!, $after: String) {"
                     + " organization(login: $org) { projectV2(number: $number) {"
-                    + " items(first: 100, after: $after) { nodes { id isArchived"
+                    + " items(first: 100, after: $after) { totalCount nodes { id isArchived"
                     + " content { __typename ... on Issue { "
                     + ISSUE
                     + " } } "
@@ -262,7 +262,8 @@ final class ProjectBoard {
                     new ProjectItem(
                             text(node, "id"), flag(node, "isArchived"), issue, values(node)));
         }
-        return new ProjectItems(read, pageInfo(items), cost(data));
+        return new ProjectItems(
+                read, pageInfo(items), cost(data), Math.toIntExact(number(items, "totalCount")));
     }
 
     /** Each id's issue in its place; an id of no issue, or one GitHub does not know, reads null. */
