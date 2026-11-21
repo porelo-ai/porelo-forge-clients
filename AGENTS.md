@@ -89,7 +89,9 @@ adapters, in another repository, call them and translate what they return into P
 
 ## Work in this repository
 
-- **Issue prefix: `FC`.**
+- **Issues are in the repository's GitHub Issues**, each named by its reference there
+  (`porelo-ai/porelo-forge-clients#<number>`); one carried over from the Markdown files keeps its old id (`FC`) as a
+  fixed alias.
 - **An issue covers one forge only**: work for both forges is two issues, each standing alone,
   so one forge never waits for the other's recording.
 - **Only two kinds of file are not Java**: `mvnw`, the Maven wrapper's script, as Maven generates it, since Maven

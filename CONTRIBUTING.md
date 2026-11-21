@@ -13,4 +13,4 @@ reviewed, and what a commit carries. It is one page for every Porelo repository:
 - **What each client covers** is in its own README, [github](clients/github/README.md) and
   [forgejo](clients/forgejo/README.md); how its records are generated is [doc/records.md](doc/records.md), and why
   it is built as it is, [the decisions](doc/decisions.md).
-- **Requirements** are in [issues/README.md](issues/README.md).
+- **Requirements** are in the repository's [GitHub Issues](https://github.com/porelo-ai/porelo-forge-clients/issues).
