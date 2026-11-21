@@ -1,0 +1,2 @@
+title: Read the rest of an issue's labels, sub-issues and blockers and of a project item's values from the cursor a board read gave, with GitHubGraphQl.issueLabels, issueSubIssues, issueBlockedBy and itemValues, each a ListPage.
+type: added

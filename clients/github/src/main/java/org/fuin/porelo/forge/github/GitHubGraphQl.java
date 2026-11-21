@@ -428,6 +428,86 @@ public final class GitHubGraphQl {
     }
 
     /**
+     * Reads the rest of an issue's labels, 100 a page, from the cursor its last page gave.
+     *
+     * @param issueId the issue's node id
+     * @param after the cursor, as a {@code labelsPage} or the last page names it
+     */
+    public ListPage<String> issueLabels(String token, String issueId, @Nullable String after) {
+        return rest(
+                token,
+                ProjectBoard.ISSUE_LABELS,
+                issueId,
+                "an issue id",
+                after,
+                ProjectBoard::labels);
+    }
+
+    /**
+     * Reads the rest of an issue's sub-issues, 100 a page, from the cursor its last page gave.
+     *
+     * @param issueId the issue's node id
+     * @param after the cursor, as the issue's {@code subIssues} or the last page names it
+     */
+    public ListPage<IssueRef> issueSubIssues(String token, String issueId, @Nullable String after) {
+        return rest(
+                token,
+                ProjectBoard.ISSUE_SUB_ISSUES,
+                issueId,
+                "an issue id",
+                after,
+                data -> ProjectBoard.refs(data, "subIssues"));
+    }
+
+    /**
+     * Reads the rest of the issues an issue is blocked by, 100 a page, from the cursor its last
+     * page gave.
+     *
+     * @param issueId the issue's node id
+     * @param after the cursor, as the issue's {@code blockedBy} or the last page names it
+     */
+    public ListPage<IssueRef> issueBlockedBy(String token, String issueId, @Nullable String after) {
+        return rest(
+                token,
+                ProjectBoard.ISSUE_BLOCKED_BY,
+                issueId,
+                "an issue id",
+                after,
+                data -> ProjectBoard.refs(data, "blockedBy"));
+    }
+
+    /**
+     * Reads the rest of a project item's single-select, text and number values, 100 a page, from
+     * the cursor its last page gave.
+     *
+     * @param itemId the item's node id
+     * @param after the cursor, as a {@code valuesPage} or the last page names it
+     */
+    public ListPage<ItemValue> itemValues(String token, String itemId, @Nullable String after) {
+        return rest(
+                token,
+                ProjectBoard.ITEM_VALUES,
+                itemId,
+                "an item id",
+                after,
+                ProjectBoard::itemValues);
+    }
+
+    private <T> ListPage<T> rest(
+            String token,
+            String query,
+            String id,
+            String what,
+            @Nullable String after,
+            java.util.function.Function<JsonNode, ListPage<T>> read) {
+        ProjectBoard.requireId(id, what);
+        return query(
+                token,
+                ProjectBoard.request(query, ProjectBoard.variables("id", id, "after", after)),
+                read);
+    }
+
+    /**
      * Creates several issues, in repositories of one owner, in one mutation.
      *
      * @param issues one to {@value #MAX_BATCH}
@@ -791,6 +871,22 @@ public final class GitHubGraphQl {
         public IssueRefs {
             nodes = List.copyOf(nodes);
             Objects.requireNonNull(pageInfo, "pageInfo");
+        }
+    }
+
+    /**
+     * A page of the rest of an issue's or an item's list.
+     *
+     * @param nodes this page's entries
+     * @param pageInfo whether more follow, and from where
+     * @param cost what the query cost
+     */
+    public record ListPage<T>(List<T> nodes, PageInfo pageInfo, GraphQlCost cost) {
+        /** Requires every part. */
+        public ListPage {
+            nodes = List.copyOf(nodes);
+            Objects.requireNonNull(pageInfo, "pageInfo");
+            Objects.requireNonNull(cost, "cost");
         }
     }
 

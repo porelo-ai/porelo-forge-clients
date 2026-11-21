@@ -628,6 +628,10 @@ final class GitHubIssueScenario implements AutoCloseable {
                             .isTrue();
             case setFieldValuesPartly ->
                     assertThat(((Batch<?>) result).complete()).as("a part was refused").isFalse();
+            case itemValues ->
+                    assertThat(((GitHubGraphQl.ListPage<?>) result).nodes())
+                            .as("the item's values are read by its id")
+                            .isNotEmpty();
             case projectItems ->
                     assertThat(((GitHubGraphQl.ProjectItems) result).items())
                             .as("the board has items")

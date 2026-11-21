@@ -22,6 +22,7 @@ import org.fuin.porelo.forge.github.GitHubGraphQl.IssueRef;
 import org.fuin.porelo.forge.github.GitHubGraphQl.IssueRefs;
 import org.fuin.porelo.forge.github.GitHubGraphQl.ItemLimits;
 import org.fuin.porelo.forge.github.GitHubGraphQl.ItemValue;
+import org.fuin.porelo.forge.github.GitHubGraphQl.ListPage;
 import org.fuin.porelo.forge.github.GitHubGraphQl.NewIssue;
 import org.fuin.porelo.forge.github.GitHubGraphQl.NewOption;
 import org.fuin.porelo.forge.github.GitHubGraphQl.PageInfo;
@@ -44,11 +45,12 @@ final class ProjectBoard {
     private static final String PAGE = "pageInfo { hasNextPage endCursor }";
     private static final String REF =
             "nodes { id databaseId number repository { nameWithOwner } } " + PAGE;
+    private static final String LABEL_NODES = "nodes { name } " + PAGE;
     private static final String ISSUE =
             "id databaseId number title body state stateReason updatedAt"
                     + " repository { nameWithOwner }"
-                    + " labels(first: $labels) { nodes { name } "
-                    + PAGE
+                    + " labels(first: $labels) { "
+                    + LABEL_NODES
                     + " }"
                     + " parent { id }"
                     + " subIssues(first: $subIssues) { "
@@ -58,8 +60,8 @@ final class ProjectBoard {
                     + REF
                     + " }";
     private static final String FIELD = "field { ... on ProjectV2FieldCommon { id } }";
-    private static final String VALUES =
-            "fieldValues(first: $fieldValues) { nodes { __typename"
+    private static final String VALUE_NODES =
+            "nodes { __typename"
                     + " ... on ProjectV2ItemFieldSingleSelectValue { optionId name "
                     + FIELD
                     + " }"
@@ -69,8 +71,8 @@ final class ProjectBoard {
                     + " ... on ProjectV2ItemFieldNumberValue { number "
                     + FIELD
                     + " } } "
-                    + PAGE
-                    + " }";
+                    + PAGE;
+    private static final String VALUES = "fieldValues(first: $fieldValues) { " + VALUE_NODES + " }";
 
     /** The sizes of an issue's and an item's nested lists, as {@link ItemLimits} gives them. */
     private static final String LIMITS =
@@ -116,6 +118,20 @@ final class ProjectBoard {
                     + " } } "
                     + COST
                     + " }";
+
+    private static final String REST =
+            "query %s($id: ID!, $after: String) { node(id: $id) { ... on %s {"
+                    + " %s(first: 100, after: $after) { %s } } } "
+                    + COST
+                    + " }";
+    static final String ISSUE_LABELS =
+            REST.formatted("IssueLabels", "Issue", "labels", LABEL_NODES);
+    static final String ISSUE_SUB_ISSUES =
+            REST.formatted("IssueSubIssues", "Issue", "subIssues", REF);
+    static final String ISSUE_BLOCKED_BY =
+            REST.formatted("IssueBlockedBy", "Issue", "blockedBy", REF);
+    static final String ITEM_VALUES =
+            REST.formatted("ItemValues", "ProjectV2Item", "fieldValues", VALUE_NODES);
 
     static final String STATUS_CHANGES =
             "query StatusChanges($id: ID!, $after: String) { node(id: $id) { ... on Issue {"
@@ -321,6 +337,33 @@ final class ProjectBoard {
             read.add(new IssueOnBoard(issue(node), itemId, values, valuesPage));
         }
         return new IssueBoard(read, cost(data));
+    }
+
+    /** The rest of an issue's labels from a cursor. */
+    static ListPage<String> labels(JsonNode data) {
+        JsonNode labels = connection(data, "labels");
+        List<String> names = new ArrayList<>();
+        for (JsonNode label : nodes(labels, "labels")) names.add(text(label, "name"));
+        return new ListPage<>(names, pageInfo(labels), cost(data));
+    }
+
+    /** The rest of an issue's sub-issues or blockers from a cursor. */
+    static ListPage<IssueRef> refs(JsonNode data, String name) {
+        IssueRefs refs = refs(connection(data, name));
+        return new ListPage<>(refs.nodes(), refs.pageInfo(), cost(data));
+    }
+
+    /** The rest of an item's field values from a cursor. */
+    static ListPage<ItemValue> itemValues(JsonNode data) {
+        JsonNode node = data.path("node");
+        return new ListPage<>(values(node), pageInfo(connection(data, "fieldValues")), cost(data));
+    }
+
+    /** A node's connection; a node of another kind, or none, has none and fails the read. */
+    private static JsonNode connection(JsonNode data, String name) {
+        JsonNode connection = data.path("node").path(name);
+        if (!connection.isObject()) throw new UnreadableAnswer("node." + name);
+        return connection;
     }
 
     static StatusChanges statusChanges(JsonNode data) {

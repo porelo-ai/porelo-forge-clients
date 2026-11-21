@@ -452,6 +452,78 @@ class GitHubProjectsTest {
         }
     }
 
+    private static String rest(String connection, String nodes) {
+        return "{\"data\":{\"node\":{\""
+                + connection
+                + "\":{\"nodes\":["
+                + nodes
+                + "],\"pageInfo\":{\"hasNextPage\":true,\"endCursor\":\"N2\"}}},"
+                + COST
+                + "}}";
+    }
+
+    // Prevents the rest of a list from being read from the wrong place or in part: each read asks
+    // for its node's own list from the cursor given, reads it with whether more follow, and a node
+    // of another kind fails instead of reading as an empty list.
+    @Test
+    void theRestOfAListIsReadByItsCursor() throws Exception {
+        String ref =
+                "{\"id\":\"I_2\",\"databaseId\":2,\"number\":2,\"repository\":{\"nameWithOwner\":\"o/r\"}}";
+        var labels = answering(rest("labels", "{\"name\":\"story\"}"));
+        var subs = answering(rest("subIssues", ref));
+        var blockers = answering(rest("blockedBy", ref));
+        var values =
+                answering(
+                        rest(
+                                "fieldValues",
+                                "{\"__typename\":\"ProjectV2ItemFieldTextValue\",\"text\":\"K-1\","
+                                        + "\"field\":{\"id\":\"F_ID\"}}"));
+        var more = new GitHubGraphQl.PageInfo(true, "N2");
+        assertThat(graphQl(labels).issueLabels(TOKEN, "I_1", "L1"))
+                .as("the labels after the cursor")
+                .isEqualTo(
+                        new GitHubGraphQl.ListPage<>(
+                                List.of("story"),
+                                more,
+                                new GraphQlCost(
+                                        1, 4999, java.time.Instant.parse("2026-01-01T01:00:00Z"))));
+        assertThat(graphQl(subs).issueSubIssues(TOKEN, "I_1", "S1").nodes())
+                .as("the sub-issues after the cursor")
+                .containsExactly(new GitHubGraphQl.IssueRef("I_2", 2, 2, "o/r"));
+        assertThat(graphQl(blockers).issueBlockedBy(TOKEN, "I_1", "B1").pageInfo())
+                .as("the blockers say more follow")
+                .isEqualTo(more);
+        assertThat(graphQl(values).itemValues(TOKEN, "PVTI_1", "V1").nodes())
+                .as("the values after the cursor")
+                .containsExactly(new GitHubGraphQl.ItemValue("F_ID", null, null, "K-1", null));
+        for (var sent :
+                List.of(
+                        List.of(labels, "labels", "I_1", "L1"),
+                        List.of(subs, "subIssues", "I_1", "S1"),
+                        List.of(blockers, "blockedBy", "I_1", "B1"),
+                        List.of(values, "fieldValues", "PVTI_1", "V1"))) {
+            JsonNode request = request((ReplayHttpClient) sent.get(0));
+            assertThat(request.path("query").asText())
+                    .as("the query asks for the node's own list")
+                    .contains(sent.get(1) + "(first: 100, after: $after)");
+            assertThat(
+                            List.of(
+                                    request.path("variables").path("id").asText(),
+                                    request.path("variables").path("after").asText()))
+                    .as("the node and cursor sent")
+                    .containsExactly((String) sent.get(2), (String) sent.get(3));
+        }
+
+        var otherKind = answering("{\"data\":{\"node\":{}," + COST + "}}");
+        assertThatExceptionOfType(GitHubException.class)
+                .as("a node that is no issue has no labels to read")
+                .isThrownBy(() -> graphQl(otherKind).issueLabels(TOKEN, "PVTI_1", null));
+        var none = answering("{\"data\":{\"node\":null," + COST + "}}");
+        assertThatExceptionOfType(GitHubException.class)
+                .as("no node, no values")
+                .isThrownBy(() -> graphQl(none).itemValues(TOKEN, "PVTI_1", null));
+    }
+
     // Prevents a caller from reading GitHub's end of a too costly query as any other failure, so
     // it can read the same board in smaller pages instead of stopping.
     @Test

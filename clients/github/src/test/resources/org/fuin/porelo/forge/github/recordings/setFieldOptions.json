@@ -4,64 +4,64 @@
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4991" ],
+    "x-ratelimit-remaining" : [ "4959" ],
     "x-ratelimit-reset" : [ "1795283895" ]
   },
-  "body" : "{\"data\":{\"updateProjectV2Field\":{\"projectV2Field\":{\"options\":[{\"id\":\"ba235dd1\",\"name\":\"Story\",\"color\":\"BLUE\",\"description\":\"A story\"},{\"id\":\"b4b19832\",\"name\":\"Bug\",\"color\":\"RED\",\"description\":\"A bug\"},{\"id\":\"7558b84b\",\"name\":\"Task\",\"color\":\"GRAY\",\"description\":\"\"}]}}}}",
+  "body" : "{\"data\":{\"updateProjectV2Field\":{\"projectV2Field\":{\"options\":[{\"id\":\"5d8cb4c5\",\"name\":\"Story\",\"color\":\"BLUE\",\"description\":\"A story\"},{\"id\":\"c516d8b1\",\"name\":\"Bug\",\"color\":\"RED\",\"description\":\"A bug\"},{\"id\":\"275643fe\",\"name\":\"Task\",\"color\":\"GRAY\",\"description\":\"\"}]}}}}",
   "exchanges" : [ {
     "request_uri" : "/graphql",
     "status" : 200,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4991" ],
+      "x-ratelimit-remaining" : [ "4959" ],
       "x-ratelimit-reset" : [ "1795283895" ]
     },
-    "body" : "{\"data\":{\"updateProjectV2Field\":{\"projectV2Field\":{\"options\":[{\"id\":\"ba235dd1\",\"name\":\"Story\",\"color\":\"BLUE\",\"description\":\"A story\"},{\"id\":\"b4b19832\",\"name\":\"Bug\",\"color\":\"RED\",\"description\":\"A bug\"},{\"id\":\"7558b84b\",\"name\":\"Task\",\"color\":\"GRAY\",\"description\":\"\"}]}}}}"
+    "body" : "{\"data\":{\"updateProjectV2Field\":{\"projectV2Field\":{\"options\":[{\"id\":\"5d8cb4c5\",\"name\":\"Story\",\"color\":\"BLUE\",\"description\":\"A story\"},{\"id\":\"c516d8b1\",\"name\":\"Bug\",\"color\":\"RED\",\"description\":\"A bug\"},{\"id\":\"275643fe\",\"name\":\"Task\",\"color\":\"GRAY\",\"description\":\"\"}]}}}}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "prefix" : "forge-client-issues-d699008a",
-    "number" : 126,
-    "other" : 127,
-    "subIssueId" : 6531769181,
-    "thirdIssueId" : 6531769289,
-    "since" : "2026-11-21T16:48:14Z",
-    "etag" : "\"d9981d1de47fa5668d932215db16018349f3f4b9576147c304ec90abd89e54ec\"",
+    "prefix" : "forge-client-issues-2ea4bb31",
+    "number" : 130,
+    "other" : 131,
+    "subIssueId" : 6531886933,
+    "thirdIssueId" : 6531887087,
+    "since" : "2026-11-21T16:58:49Z",
+    "etag" : "\"4ce7222b0b09477833e9b560cf262ad2677bd32e7e1f5b1054db0d43d7f62c84\"",
     "itemsEtag" : "pending",
-    "projectNumber" : 55,
-    "projectId" : "PVT_kwDOFN-d0c4Bso0w",
+    "projectNumber" : 56,
+    "projectId" : "PVT_kwDOFN-d0c4Bso6B",
     "repositoryId" : "R_kgDOVc0D8w",
-    "issueIds" : [ "I_kwDOVc0D888AAAABhVLitA", "I_kwDOVc0D888AAAABhVLjXQ" ],
+    "issueIds" : [ "I_kwDOVc0D888AAAABhVSupQ", "I_kwDOVc0D888AAAABhVSvVQ" ],
     "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
     "itemIds" : [ ],
-    "fieldId" : "PVTSSF_lADOFN-d0c4Bso0wzhq2COk",
-    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bso0wzhq2CKc",
+    "fieldId" : "PVTSSF_lADOFN-d0c4Bso6Bzhq2HD0",
+    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bso6Bzhq2HAI",
     "statusOptionId" : "f75ad846",
-    "textFieldId" : "PVTF_lADOFN-d0c4Bso0wzhq2COw",
-    "numberFieldId" : "PVTF_lADOFN-d0c4Bso0wzhq2CO0",
-    "fieldDatabaseIds" : [ 448137383, 448137449, 448137452, 448137453 ]
+    "textFieldId" : "PVTF_lADOFN-d0c4Bso6Bzhq2HHE",
+    "numberFieldId" : "PVTF_lADOFN-d0c4Bso6Bzhq2HIA",
+    "fieldDatabaseIds" : [ 448142338, 448142397, 448142449, 448142464 ]
   },
   "request_body" : {
-    "query" : "mutation SetFieldOptions($input: UpdateProjectV2FieldInput!) { updateProjectV2Field(input: $input) { projectV2Field { ... on ProjectV2SingleSelectField { options { id name color description } } } } }",
     "variables" : {
       "input" : {
-        "fieldId" : "PVTSSF_lADOFN-d0c4Bso0wzhq2COk",
         "singleSelectOptions" : [ {
           "name" : "Story",
-          "description" : "A story",
-          "color" : "BLUE"
+          "color" : "BLUE",
+          "description" : "A story"
         }, {
           "name" : "Bug",
-          "description" : "A bug",
-          "color" : "RED"
+          "color" : "RED",
+          "description" : "A bug"
         }, {
           "name" : "Task",
-          "description" : "",
-          "color" : "GRAY"
-        } ]
+          "color" : "GRAY",
+          "description" : ""
+        } ],
+        "fieldId" : "PVTSSF_lADOFN-d0c4Bso6Bzhq2HD0"
       }
-    }
+    },
+    "query" : "mutation SetFieldOptions($input: UpdateProjectV2FieldInput!) { updateProjectV2Field(input: $input) { projectV2Field { ... on ProjectV2SingleSelectField { options { id name color description } } } } }"
   }
 }

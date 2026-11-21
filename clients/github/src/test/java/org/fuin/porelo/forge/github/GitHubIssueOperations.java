@@ -47,6 +47,10 @@ enum GitHubIssueOperations {
     projectItemsNotModified("GET", "/orgs/{owner}/projectsV2/{projectNumber}/items"),
     issueBoard("POST", "/graphql"),
     statusChanges("POST", "/graphql"),
+    issueLabels("POST", "/graphql"),
+    issueSubIssues("POST", "/graphql"),
+    issueBlockedBy("POST", "/graphql"),
+    itemValues("POST", "/graphql"),
     createIssues("POST", "/graphql");
 
     /** The options the recorder sets on its single-select field, in this order. */
@@ -177,6 +181,10 @@ enum GitHubIssueOperations {
                             List.of(c.issueIds().get(0), c.issueIds().get(1), c.unknownIssueId()),
                             c.projectId());
             case statusChanges -> graphql.statusChanges(token, c.issueIds().get(0), null);
+            case issueLabels -> graphql.issueLabels(token, c.issueIds().get(0), null);
+            case issueSubIssues -> graphql.issueSubIssues(token, c.issueIds().get(0), null);
+            case issueBlockedBy -> graphql.issueBlockedBy(token, c.issueIds().get(0), null);
+            case itemValues -> graphql.itemValues(token, c.itemIds().get(0), null);
             case createIssues ->
                     graphql.createIssues(
                             token,
