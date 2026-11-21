@@ -75,7 +75,7 @@ final class ProjectBoard {
             "query ProjectFields($org: String!, $number: Int!, $after: String) {"
                     + " organization(login: $org) { projectV2(number: $number) { id title updatedAt"
                     + " fields(first: 100, after: $after) { nodes { __typename"
-                    + " ... on ProjectV2FieldCommon { id name dataType }"
+                    + " ... on ProjectV2FieldCommon { id databaseId name dataType }"
                     + " ... on ProjectV2SingleSelectField { options { id name color description } } } "
                     + PAGE
                     + " } } } "
@@ -239,7 +239,11 @@ final class ProjectBoard {
                     options.add(option(option));
             read.add(
                     new ProjectField(
-                            text(node, "id"), text(node, "name"), text(node, "dataType"), options));
+                            text(node, "id"),
+                            text(node, "name"),
+                            text(node, "dataType"),
+                            options,
+                            number(node, "databaseId")));
         }
         return new ProjectFields(
                 text(project, "id"),

@@ -675,14 +675,17 @@ public final class GitHubGraphQl {
      * @param dataType GitHub's kind of field, such as {@code SINGLE_SELECT}, {@code TEXT} or {@code
      *     NUMBER}
      * @param options a single-select field's options, empty for any other
+     * @param databaseId its numeric id, which REST's item list takes to name the fields it returns
      */
-    public record ProjectField(String id, String name, String dataType, List<FieldOption> options) {
+    public record ProjectField(
+            String id, String name, String dataType, List<FieldOption> options, long databaseId) {
         /** Requires every part. */
         public ProjectField {
             Objects.requireNonNull(id, "id");
             Objects.requireNonNull(name, "name");
             Objects.requireNonNull(dataType, "dataType");
             options = List.copyOf(options);
+            if (databaseId < 1) throw new IllegalArgumentException("Expected a positive field id");
         }
     }
 

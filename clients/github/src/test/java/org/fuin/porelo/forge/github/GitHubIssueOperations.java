@@ -155,10 +155,22 @@ enum GitHubIssueOperations {
             case projectItems -> graphql.projectItems(token, c.owner(), c.projectNumber(), null);
             case projectItemsIfChanged ->
                     client.projectItemsIfChanged(
-                            token, c.owner(), c.projectNumber(), null, 50, null);
+                            token,
+                            c.owner(),
+                            c.projectNumber(),
+                            null,
+                            50,
+                            c.fieldDatabaseIds(),
+                            null);
             case projectItemsNotModified ->
                     client.projectItemsIfChanged(
-                            token, c.owner(), c.projectNumber(), null, 50, c.itemsEtag());
+                            token,
+                            c.owner(),
+                            c.projectNumber(),
+                            null,
+                            50,
+                            c.fieldDatabaseIds(),
+                            c.itemsEtag());
             case issueBoard ->
                     graphql.issueBoard(
                             token,
@@ -230,11 +242,13 @@ enum GitHubIssueOperations {
             String statusFieldId,
             String statusOptionId,
             String textFieldId,
-            String numberFieldId) {
+            String numberFieldId,
+            List<Long> fieldDatabaseIds) {
         /** Keeps the lists from changing. */
         Context {
             issueIds = List.copyOf(issueIds);
             itemIds = List.copyOf(itemIds);
+            fieldDatabaseIds = List.copyOf(fieldDatabaseIds);
         }
     }
 }

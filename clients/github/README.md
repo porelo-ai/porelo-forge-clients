@@ -60,13 +60,19 @@ Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
   an organization project's items, send the entity tag the caller last got as `If-None-Match`, none when it gives
   none; a tag that is blank or holds anything but visible ASCII and inner spaces is refused before sending. Each
   returns a `Conditional`: after a 304, `changed` false, no value, and GitHub's tag or else the one sent; after a 200,
-  the value and the answer's `ETag` exactly as sent, weak prefix `W/` kept. Both carry the answer's rate limit. Any
-  other status fails as every call does. The project's items come as a `CursorPage`, whose `after` is the `after`
-  parameter of the `Link` header's next link, null on the last page. An item's `content` and `fields` are untyped
-  maps that GitHub fills with nulls; a key whose value is null is dropped there before reading, as if absent, so no
-  null reaches the caller. GraphQL has no ETag, so the board itself is never read conditionally. As measured, GitHub
-  sends strong tags for both, a 304 leaves `x-ratelimit-remaining` as it was, and the items' tag changes when only a
-  field value of an item changes, so the REST items read is the probe for a change on the board.
+  the value and the answer's `ETag` exactly as sent, weak prefix `W/` kept. Both carry the answer's rate limit and
+  `date`, GitHub's time from its `Date` header, which a caller takes as the start of its next look, since its own
+  clock may run ahead; null when missing or unreadable, and then the next look is not narrowed. Any other status fails as every call does.
+- The project's items come as a `CursorPage` of `ProjectItemSummary`, whose `after` is the `after` parameter of the
+  `Link` header's next link, null on the last page. An item carries its node id, time and whether it is archived;
+  its issue's node id, repository, number, time, state and how many sub-issues and blockers (closed ones included) it
+  has; and the values of the fields named by their numeric ids (`ProjectField.databaseId`, at most 50; GitHub
+  refuses its built-in `Created`, `Updated` and `Closed` there). An item missing a part GitHub always sends fails the
+  page, an `Issue` item without its issue included. Only single-select, text and number values are read; a value of
+  another kind carries none, so its change is not seen in the values. GraphQL has no ETag, so the board itself is never read conditionally. As measured, GitHub sends strong tags,
+  a 304 leaves `x-ratelimit-remaining` as it was, and the items' tag changes on any change of an item, its issue,
+  its links or its values; with the fields named, an unchanged board answers 304 on every look, without them it
+  sometimes answers 200. A link added moves neither the item's time nor its issue's, only the issue's counts.
 - `issues` lists a repository's issues newest change first, with `state`, `labels` (left out when none; a blank name
   or one holding a comma is refused, since GitHub splits at commas) and `since`; it lists pull requests too, told by
   `pullRequest`. `issue`, `createIssue` and `updateIssue` read, create and change one; GitHub drops labels in silence

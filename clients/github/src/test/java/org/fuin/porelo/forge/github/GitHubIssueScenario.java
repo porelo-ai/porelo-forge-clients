@@ -72,6 +72,7 @@ final class GitHubIssueScenario implements AutoCloseable {
     private String doneOptionId = "pending";
     private String textFieldId = "pending";
     private String numberFieldId = "pending";
+    private List<Long> fieldDatabaseIds = List.of();
 
     GitHubIssueScenario(HttpClient http, String token, String runId, Consumer<String> report) {
         this.token = token;
@@ -108,7 +109,8 @@ final class GitHubIssueScenario implements AutoCloseable {
                 statusFieldId,
                 statusOptionId,
                 textFieldId,
-                numberFieldId);
+                numberFieldId,
+                fieldDatabaseIds);
     }
 
     /** The account the token belongs to, which the recordings name as the reviewer. */
@@ -282,14 +284,26 @@ final class GitHubIssueScenario implements AutoCloseable {
                 var read = (Conditional<?>) result;
                 report("items 304 changed=" + read.changed() + " remaining=" + remaining(read));
                 setup.projectItemsIfChanged(
-                        token, GitHubFixture.OWNER, projectNumber, null, 50, itemsEtag);
+                        token,
+                        GitHubFixture.OWNER,
+                        projectNumber,
+                        null,
+                        50,
+                        fieldDatabaseIds,
+                        itemsEtag);
                 setupGraphql.setFieldValues(
                         token,
                         projectId,
                         List.of(FieldValue.number(itemIds.get(0), numberFieldId, 11)));
                 var again =
                         setup.projectItemsIfChanged(
-                                token, GitHubFixture.OWNER, projectNumber, null, 50, itemsEtag);
+                                token,
+                                GitHubFixture.OWNER,
+                                projectNumber,
+                                null,
+                                50,
+                                fieldDatabaseIds,
+                                itemsEtag);
                 report("items after only a field value changed: changed=" + again.changed());
             }
             case issueBoard ->
@@ -318,7 +332,10 @@ final class GitHubIssueScenario implements AutoCloseable {
     }
 
     private void readFields(ProjectFields fields) {
+        List<Long> named = new java.util.ArrayList<>();
         for (ProjectField field : fields.fields()) {
+            if (List.of("Kind", "Key", "Rank", "Status").contains(field.name()))
+                named.add(field.databaseId());
             switch (field.name()) {
                 case "Kind" -> fieldId = field.id();
                 case "Key" -> textFieldId = field.id();
@@ -333,6 +350,7 @@ final class GitHubIssueScenario implements AutoCloseable {
         }
         for (String id : List.of(fieldId, textFieldId, numberFieldId, statusFieldId))
             if (id.equals("pending")) throw new IllegalStateException("The project lacks a field");
+        fieldDatabaseIds = List.copyOf(named);
     }
 
     /**

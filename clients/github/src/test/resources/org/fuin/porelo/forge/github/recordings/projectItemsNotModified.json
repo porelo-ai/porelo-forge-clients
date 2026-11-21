@@ -1,46 +1,47 @@
 {
-  "request_uri" : "/orgs/fixture-org/projectsV2/53/items?per_page=50",
+  "request_uri" : "/orgs/fixture-org/projectsV2/54/items?per_page=50&fields=448132773,448132792,448132800,448132807",
   "status" : 304,
   "headers" : {
-    "etag" : [ "\"49d1e4c3a79f537db3cb4d585f1b81ff89bdc74244e7f7fd55703457447c1392\"" ],
+    "etag" : [ "\"faca544bb3a4b17ff80802d9e84fe50ebabc78c02ca94124c41babccbce4d5fe\"" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4883" ],
-    "x-ratelimit-reset" : [ "1795277951" ]
+    "x-ratelimit-remaining" : [ "4958" ],
+    "x-ratelimit-reset" : [ "1795282780" ]
   },
   "body" : "",
   "exchanges" : [ {
-    "request_uri" : "/orgs/fixture-org/projectsV2/53/items?per_page=50",
+    "request_uri" : "/orgs/fixture-org/projectsV2/54/items?per_page=50&fields=448132773,448132792,448132800,448132807",
     "status" : 304,
     "headers" : {
-      "etag" : [ "\"49d1e4c3a79f537db3cb4d585f1b81ff89bdc74244e7f7fd55703457447c1392\"" ],
+      "etag" : [ "\"faca544bb3a4b17ff80802d9e84fe50ebabc78c02ca94124c41babccbce4d5fe\"" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4883" ],
-      "x-ratelimit-reset" : [ "1795277951" ]
+      "x-ratelimit-remaining" : [ "4958" ],
+      "x-ratelimit-reset" : [ "1795282780" ]
     },
     "body" : ""
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "prefix" : "forge-client-issues-33dddb16",
-    "number" : 118,
-    "other" : 119,
-    "subIssueId" : 6531085726,
-    "thirdIssueId" : 6531085846,
-    "since" : "2026-11-21T15:49:37Z",
-    "etag" : "\"33e78c760cb96894846d4ac2bfc61deef70f41e8ff6ce7964118ea2b809bcf90\"",
-    "itemsEtag" : "\"49d1e4c3a79f537db3cb4d585f1b81ff89bdc74244e7f7fd55703457447c1392\"",
-    "projectNumber" : 53,
-    "projectId" : "PVT_kwDOFN-d0c4BsocK",
+    "prefix" : "forge-client-issues-d1aec54d",
+    "number" : 122,
+    "other" : 123,
+    "subIssueId" : 6531629661,
+    "thirdIssueId" : 6531629840,
+    "since" : "2026-11-21T16:36:43Z",
+    "etag" : "\"7700b7a99b33c6d76b8e12c3dc672385c1d41ada7a36a7ffd0f5b3360372c47b\"",
+    "itemsEtag" : "\"faca544bb3a4b17ff80802d9e84fe50ebabc78c02ca94124c41babccbce4d5fe\"",
+    "projectNumber" : 54,
+    "projectId" : "PVT_kwDOFN-d0c4Bsov1",
     "repositoryId" : "R_kgDOVc0D8w",
-    "issueIds" : [ "I_kwDOVc0D888AAAABhUh1Bw", "I_kwDOVc0D888AAAABhUh1ng" ],
+    "issueIds" : [ "I_kwDOVc0D888AAAABhVDBfQ", "I_kwDOVc0D888AAAABhVDCXQ" ],
     "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
-    "itemIds" : [ "PVTI_lADOFN-d0c4BsocKzhKvA3U", "PVTI_lADOFN-d0c4BsocKzhKvA3w" ],
-    "fieldId" : "PVTSSF_lADOFN-d0c4BsocKzhq1rpY",
-    "statusFieldId" : "PVTSSF_lADOFN-d0c4BsocKzhq1riw",
+    "itemIds" : [ "PVTI_lADOFN-d0c4Bsov1zhKvfso", "PVTI_lADOFN-d0c4Bsov1zhKvftI" ],
+    "fieldId" : "PVTSSF_lADOFN-d0c4Bsov1zhq19rg",
+    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bsov1zhq19qU",
     "statusOptionId" : "f75ad846",
-    "textFieldId" : "PVTF_lADOFN-d0c4BsocKzhq1rpc",
-    "numberFieldId" : "PVTF_lADOFN-d0c4BsocKzhq1rqI"
+    "textFieldId" : "PVTF_lADOFN-d0c4Bsov1zhq19sA",
+    "numberFieldId" : "PVTF_lADOFN-d0c4Bsov1zhq19sc",
+    "fieldDatabaseIds" : [ 448132773, 448132792, 448132800, 448132807 ]
   },
   "request_body" : { }
 }

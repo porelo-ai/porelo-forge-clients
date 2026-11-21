@@ -289,8 +289,8 @@ class GitHubProjectsTest {
                 answering(
                         "{\"data\":{\"organization\":{\"projectV2\":{\"id\":\"P_1\",\"title\":\"Board\",\"updatedAt\":\"2026-01-01T00:00:00Z\","
                                 + "\"fields\":{\"nodes\":["
-                                + "{\"__typename\":\"ProjectV2SingleSelectField\",\"id\":\"F_STATE\",\"name\":\"Status\",\"dataType\":\"SINGLE_SELECT\",\"options\":[{\"id\":\"OPT_1\",\"name\":\"Todo\",\"color\":\"GRAY\",\"description\":\"\"}]},"
-                                + "{\"__typename\":\"ProjectV2Field\",\"id\":\"F_ID\",\"name\":\"Id\",\"dataType\":\"TEXT\"},"
+                                + "{\"__typename\":\"ProjectV2SingleSelectField\",\"id\":\"F_STATE\",\"databaseId\":448097099,\"name\":\"Status\",\"dataType\":\"SINGLE_SELECT\",\"options\":[{\"id\":\"OPT_1\",\"name\":\"Todo\",\"color\":\"GRAY\",\"description\":\"\"}]},"
+                                + "{\"__typename\":\"ProjectV2Field\",\"id\":\"F_ID\",\"databaseId\":448097434,\"name\":\"Id\",\"dataType\":\"TEXT\"},"
                                 + "{\"__typename\":\"ProjectV2IterationField\"}],"
                                 + PAGE
                                 + "}}},"
@@ -301,6 +301,10 @@ class GitHubProjectsTest {
         assertThat(read.fields().get(0).options().get(0).id())
                 .as("an option id")
                 .isEqualTo("OPT_1");
+        assertThat(read.fields())
+                .extracting(GitHubGraphQl.ProjectField::databaseId)
+                .as("each field's numeric id, which the REST item list names fields by")
+                .containsExactly(448097099L, 448097434L);
 
         var items =
                 answering(

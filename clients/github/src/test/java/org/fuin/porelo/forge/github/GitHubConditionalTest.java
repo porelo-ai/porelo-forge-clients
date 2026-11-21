@@ -169,6 +169,50 @@ class GitHubConditionalTest {
         assertThat(http.sent).as("no refused list was sent").isEmpty();
     }
 
+    // Prevents a change look from missing a change: GitHub's own time is the next look's start,
+    // since the caller's clock may run ahead, and the fields named keep an unchanged board at 304.
+    @Test
+    void aChangeLookNamesItsFieldsAndCarriesGitHubsTime() {
+        var unchanged =
+                new ChunkedTransport(304, with("date", "Sat, 21 Nov 2026 16:40:05 GMT"), "");
+        var answer =
+                new GitHubClient(BASE, unchanged)
+                        .projectItemsIfChanged(TOKEN, "o", 1, null, 10, List.of(11L, 22L), "\"p\"");
+        assertThat(unchanged.sent.getLast().uri().getRawQuery())
+                .as("the field ids are sent as one list")
+                .isEqualTo("per_page=10&fields=11,22");
+        assertThat(answer.date())
+                .as("a 304 carries GitHub's time")
+                .isEqualTo(Instant.parse("2026-11-21T16:40:05Z"));
+        var changed =
+                new ChunkedTransport(200, with("date", "Sat, 21 Nov 2026 16:41:00 GMT"), "[]");
+        assertThat(
+                        new GitHubClient(BASE, changed)
+                                .issuesIfChanged(TOKEN, "o", "r", null, null, null, 1, 10, null)
+                                .date())
+                .as("a 200 carries GitHub's time")
+                .isEqualTo(Instant.parse("2026-11-21T16:41:00Z"));
+        for (String date : List.of("yesterday", "")) {
+            var unreadable = new ChunkedTransport(200, with("date", date), "[]");
+            assertThat(
+                            new GitHubClient(BASE, unreadable)
+                                    .projectItemsIfChanged(TOKEN, "o", 1, null, 10, null)
+                                    .date())
+                    .as("no time is made up from the date %s", date)
+                    .isNull();
+        }
+        var http = new ChunkedTransport(200, LIMIT, NO_ITEMS);
+        var client = new GitHubClient(BASE, http);
+        List<Long> tooMany = java.util.stream.LongStream.rangeClosed(1, 51).boxed().toList();
+        for (List<Long> ids : List.of(tooMany, List.of(0L), List.of(5L, -1L))) {
+            assertThatExceptionOfType(IllegalArgumentException.class)
+                    .as("the field ids %s are refused", ids)
+                    .isThrownBy(
+                            () -> client.projectItemsIfChanged(TOKEN, "o", 1, null, 10, ids, null));
+        }
+        assertThat(http.sent).as("no refused list was sent").isEmpty();
+    }
+
     // Prevents a poll from reading the first page forever, or a last page from looping back.
     @Test
     void theProjectItemsCursorIsReadFromTheNextLink() {
@@ -263,6 +307,113 @@ class GitHubConditionalTest {
                     .isThrownBy(() -> items.projectItemsIfChanged(TOKEN, "o", 1, null, 10, "\"e\""))
                     .satisfies(
                             ex -> assertThat(ex.status()).as("with its status").isEqualTo(status));
+        }
+    }
+
+    /** One item as GitHub's REST list sends it, cut to the parts read, with the given content. */
+    private static String restItem(String contentType, String content) {
+        return "{\"id\":7,\"node_id\":\"PVTI_1\",\"content_type\":\""
+                + contentType
+                + "\",\"updated_at\":\"2026-11-21T15:33:01Z\",\"archived_at\":null,"
+                + "\"content\":"
+                + content
+                + ",\"fields\":["
+                + "{\"id\":448097099,\"name\":\"Status\",\"data_type\":\"single_select\","
+                + "\"value\":{\"id\":\"98236657\",\"name\":{\"raw\":\"Done\",\"html\":\"Done\"},"
+                + "\"color\":\"PURPLE\"}},"
+                + "{\"id\":448097434,\"name\":\"Worker\",\"data_type\":\"text\","
+                + "\"value\":{\"raw\":\"planner\",\"html\":\"planner\"}},"
+                + "{\"id\":448097452,\"name\":\"Rank\",\"data_type\":\"number\",\"value\":0},"
+                + "{\"id\":448097220,\"name\":\"Priority\",\"data_type\":\"single_select\","
+                + "\"value\":null},"
+                + "{\"id\":448097100,\"name\":\"Labels\",\"data_type\":\"labels\",\"value\":[]}]}";
+    }
+
+    private static final String REST_ISSUE =
+            "{\"node_id\":\"I_1\",\"number\":46,\"state\":\"closed\","
+                    + "\"updated_at\":\"2026-11-21T15:32:31Z\","
+                    + "\"repository\":{\"full_name\":\"o/r\"},"
+                    + "\"sub_issues_summary\":{\"total\":5,\"completed\":5,\"percent_completed\":100},"
+                    + "\"issue_dependencies_summary\":{\"blocked_by\":0,\"total_blocked_by\":1,"
+                    + "\"blocking\":0,\"total_blocking\":0}}";
+
+    // Prevents a change of an item from going unseen after a changed page: each item carries what
+    // a caller compares with what it holds - its and its issue's times, its links' counts and its
+    // values - and a part GitHub always sends that is missing fails instead of reading as
+    // unchanged.
+    @Test
+    void eachItemOfAChangedPageCarriesWhatTellsItsChange() {
+        var http = new ChunkedTransport(200, LIMIT, "[" + restItem("Issue", REST_ISSUE) + "]");
+        var item =
+                new GitHubClient(BASE, http)
+                        .projectItemsIfChanged(TOKEN, "o", 1, null, 10, List.of(448097099L), null)
+                        .value()
+                        .items()
+                        .getFirst();
+        assertThat(item.id()).as("the item's node id").isEqualTo("PVTI_1");
+        assertThat(item.updatedAt())
+                .as("the item's time")
+                .isEqualTo(Instant.parse("2026-11-21T15:33:01Z"));
+        assertThat(item.archived()).as("not archived").isFalse();
+        assertThat(item.issue())
+                .as("its issue, with its links counted, closed blockers included")
+                .isEqualTo(
+                        new ProjectItemSummary.IssueSummary(
+                                "I_1",
+                                "o/r",
+                                46,
+                                Instant.parse("2026-11-21T15:32:31Z"),
+                                "closed",
+                                5,
+                                1));
+        assertThat(item.values())
+                .as("each field's value by its kind, an empty one and another kind without one")
+                .containsExactly(
+                        new ProjectItemSummary.ValueSummary(
+                                448097099L, "single_select", "98236657", null, null),
+                        new ProjectItemSummary.ValueSummary(
+                                448097434L, "text", null, "planner", null),
+                        new ProjectItemSummary.ValueSummary(448097452L, "number", null, null, 0.0),
+                        new ProjectItemSummary.ValueSummary(
+                                448097220L, "single_select", null, null, null),
+                        new ProjectItemSummary.ValueSummary(
+                                448097100L, "labels", null, null, null));
+
+        String uncounted = REST_ISSUE.replaceAll(",\"sub_issues_summary\".*}}$", "}");
+        var draft =
+                new GitHubClient(
+                                BASE,
+                                new ChunkedTransport(
+                                        200,
+                                        LIMIT,
+                                        "["
+                                                + restItem("DraftIssue", "{\"title\":\"d\"}")
+                                                + ","
+                                                + restItem("Issue", uncounted)
+                                                + "]"))
+                        .projectItemsIfChanged(TOKEN, "o", 1, null, 10, null)
+                        .value()
+                        .items();
+        assertThat(draft.get(0).issue()).as("a draft holds no issue").isNull();
+        assertThat(draft.get(1).issue().subIssues())
+                .as("no count is made up when GitHub sends none")
+                .isNull();
+        assertThat(draft.get(1).issue().blockedBy()).as("nor for blockers").isNull();
+
+        for (String broken :
+                List.of(
+                        restItem("Issue", REST_ISSUE).replace("\"node_id\":\"PVTI_1\",", ""),
+                        restItem(
+                                "Issue",
+                                REST_ISSUE.replace("\"updated_at\":\"2026-11-21T15:32:31Z\",", "")),
+                        restItem("Issue", REST_ISSUE).replace("\"value\":0", "\"value\":\"0\""),
+                        restItem("Issue", "null"),
+                        restItem("Issue", "\"I_1\""))) {
+            var client =
+                    new GitHubClient(BASE, new ChunkedTransport(200, LIMIT, "[" + broken + "]"));
+            assertThatExceptionOfType(GitHubException.class)
+                    .as("an item missing a part fails: %s", broken)
+                    .isThrownBy(() -> client.projectItemsIfChanged(TOKEN, "o", 1, null, 10, null));
         }
     }
 

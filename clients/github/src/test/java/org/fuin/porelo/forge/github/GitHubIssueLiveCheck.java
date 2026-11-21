@@ -214,18 +214,44 @@ public final class GitHubIssueLiveCheck {
                 .as("the kept issue has its values")
                 .hasSizeGreaterThanOrEqualTo(3);
         read("statusChanges", () -> graphql.statusChanges(token, issue.nodeId(), null));
+        // Only the project's own fields: REST refuses GitHub's built-in date fields by id.
+        List<Long> fieldIds =
+                fields.fields().stream()
+                        .filter(
+                                field ->
+                                        List.of("Kind", "Key", "Rank", "Status")
+                                                .contains(field.name()))
+                        .map(GitHubGraphQl.ProjectField::databaseId)
+                        .toList();
         var rest =
                 read(
                         "projectItemsIfChanged",
                         () ->
                                 client.projectItemsIfChanged(
-                                        token, GitHubFixture.OWNER, projectNumber, null, 50, null));
+                                        token,
+                                        GitHubFixture.OWNER,
+                                        projectNumber,
+                                        null,
+                                        50,
+                                        fieldIds,
+                                        null));
         assertThat(rest.value()).as("the board is read over REST").isNotNull();
-        read(
-                "projectItemsNotModified",
-                () ->
-                        client.projectItemsIfChanged(
-                                token, GitHubFixture.OWNER, projectNumber, null, 50, rest.etag()));
+        assertThat(rest.date()).as("GitHub's time comes with the answer").isNotNull();
+        var unchanged =
+                read(
+                        "projectItemsNotModified",
+                        () ->
+                                client.projectItemsIfChanged(
+                                        token,
+                                        GitHubFixture.OWNER,
+                                        projectNumber,
+                                        null,
+                                        50,
+                                        fieldIds,
+                                        rest.etag()));
+        assertThat(unchanged.changed())
+                .as("with its fields named, an unchanged board answers 304")
+                .isFalse();
         System.out.println("live check of the kept issue and project passed");
     }
 

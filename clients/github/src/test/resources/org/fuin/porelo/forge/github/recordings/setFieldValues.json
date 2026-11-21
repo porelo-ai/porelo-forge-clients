@@ -4,76 +4,77 @@
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4583" ],
+    "x-ratelimit-remaining" : [ "4292" ],
     "x-ratelimit-reset" : [ "1795279791" ]
   },
-  "body" : "{\"data\":{\"a0\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4BsocKzhKvA3U\"}},\"a1\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4BsocKzhKvA3U\"}},\"a2\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4BsocKzhKvA3w\"}},\"a3\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4BsocKzhKvA3w\"}}}}",
+  "body" : "{\"data\":{\"a0\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bsov1zhKvfso\"}},\"a1\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bsov1zhKvfso\"}},\"a2\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bsov1zhKvftI\"}},\"a3\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bsov1zhKvftI\"}}}}",
   "exchanges" : [ {
     "request_uri" : "/graphql",
     "status" : 200,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4583" ],
+      "x-ratelimit-remaining" : [ "4292" ],
       "x-ratelimit-reset" : [ "1795279791" ]
     },
-    "body" : "{\"data\":{\"a0\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4BsocKzhKvA3U\"}},\"a1\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4BsocKzhKvA3U\"}},\"a2\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4BsocKzhKvA3w\"}},\"a3\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4BsocKzhKvA3w\"}}}}"
+    "body" : "{\"data\":{\"a0\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bsov1zhKvfso\"}},\"a1\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bsov1zhKvfso\"}},\"a2\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bsov1zhKvftI\"}},\"a3\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bsov1zhKvftI\"}}}}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "prefix" : "forge-client-issues-33dddb16",
-    "number" : 118,
-    "other" : 119,
-    "subIssueId" : 6531085726,
-    "thirdIssueId" : 6531085846,
-    "since" : "2026-11-21T15:49:37Z",
-    "etag" : "\"33e78c760cb96894846d4ac2bfc61deef70f41e8ff6ce7964118ea2b809bcf90\"",
+    "prefix" : "forge-client-issues-d1aec54d",
+    "number" : 122,
+    "other" : 123,
+    "subIssueId" : 6531629661,
+    "thirdIssueId" : 6531629840,
+    "since" : "2026-11-21T16:36:43Z",
+    "etag" : "\"7700b7a99b33c6d76b8e12c3dc672385c1d41ada7a36a7ffd0f5b3360372c47b\"",
     "itemsEtag" : "pending",
-    "projectNumber" : 53,
-    "projectId" : "PVT_kwDOFN-d0c4BsocK",
+    "projectNumber" : 54,
+    "projectId" : "PVT_kwDOFN-d0c4Bsov1",
     "repositoryId" : "R_kgDOVc0D8w",
-    "issueIds" : [ "I_kwDOVc0D888AAAABhUh1Bw", "I_kwDOVc0D888AAAABhUh1ng" ],
+    "issueIds" : [ "I_kwDOVc0D888AAAABhVDBfQ", "I_kwDOVc0D888AAAABhVDCXQ" ],
     "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
-    "itemIds" : [ "PVTI_lADOFN-d0c4BsocKzhKvA3U", "PVTI_lADOFN-d0c4BsocKzhKvA3w" ],
-    "fieldId" : "PVTSSF_lADOFN-d0c4BsocKzhq1rpY",
-    "statusFieldId" : "PVTSSF_lADOFN-d0c4BsocKzhq1riw",
+    "itemIds" : [ "PVTI_lADOFN-d0c4Bsov1zhKvfso", "PVTI_lADOFN-d0c4Bsov1zhKvftI" ],
+    "fieldId" : "PVTSSF_lADOFN-d0c4Bsov1zhq19rg",
+    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bsov1zhq19qU",
     "statusOptionId" : "f75ad846",
-    "textFieldId" : "PVTF_lADOFN-d0c4BsocKzhq1rpc",
-    "numberFieldId" : "PVTF_lADOFN-d0c4BsocKzhq1rqI"
+    "textFieldId" : "PVTF_lADOFN-d0c4Bsov1zhq19sA",
+    "numberFieldId" : "PVTF_lADOFN-d0c4Bsov1zhq19sc",
+    "fieldDatabaseIds" : [ 448132773, 448132792, 448132800, 448132807 ]
   },
   "request_body" : {
-    "query" : "mutation SetFieldValues($v0: UpdateProjectV2ItemFieldValueInput!, $v1: UpdateProjectV2ItemFieldValueInput!, $v2: UpdateProjectV2ItemFieldValueInput!, $v3: ClearProjectV2ItemFieldValueInput!) { a0: updateProjectV2ItemFieldValue(input: $v0) { projectV2Item { id } } a1: updateProjectV2ItemFieldValue(input: $v1) { projectV2Item { id } } a2: updateProjectV2ItemFieldValue(input: $v2) { projectV2Item { id } } a3: clearProjectV2ItemFieldValue(input: $v3) { projectV2Item { id } } }",
     "variables" : {
       "v0" : {
-        "projectId" : "PVT_kwDOFN-d0c4BsocK",
-        "itemId" : "PVTI_lADOFN-d0c4BsocKzhKvA3U",
-        "fieldId" : "PVTSSF_lADOFN-d0c4BsocKzhq1riw",
+        "projectId" : "PVT_kwDOFN-d0c4Bsov1",
+        "itemId" : "PVTI_lADOFN-d0c4Bsov1zhKvfso",
+        "fieldId" : "PVTSSF_lADOFN-d0c4Bsov1zhq19qU",
         "value" : {
           "singleSelectOptionId" : "f75ad846"
         }
       },
       "v1" : {
-        "projectId" : "PVT_kwDOFN-d0c4BsocK",
-        "itemId" : "PVTI_lADOFN-d0c4BsocKzhKvA3U",
-        "fieldId" : "PVTF_lADOFN-d0c4BsocKzhq1rpc",
+        "projectId" : "PVT_kwDOFN-d0c4Bsov1",
+        "itemId" : "PVTI_lADOFN-d0c4Bsov1zhKvfso",
+        "fieldId" : "PVTF_lADOFN-d0c4Bsov1zhq19sA",
         "value" : {
           "text" : "OLD-1"
         }
       },
       "v2" : {
-        "projectId" : "PVT_kwDOFN-d0c4BsocK",
-        "itemId" : "PVTI_lADOFN-d0c4BsocKzhKvA3w",
-        "fieldId" : "PVTF_lADOFN-d0c4BsocKzhq1rqI",
+        "projectId" : "PVT_kwDOFN-d0c4Bsov1",
+        "itemId" : "PVTI_lADOFN-d0c4Bsov1zhKvftI",
+        "fieldId" : "PVTF_lADOFN-d0c4Bsov1zhq19sc",
         "value" : {
           "number" : 3.0
         }
       },
       "v3" : {
-        "projectId" : "PVT_kwDOFN-d0c4BsocK",
-        "itemId" : "PVTI_lADOFN-d0c4BsocKzhKvA3w",
-        "fieldId" : "PVTF_lADOFN-d0c4BsocKzhq1rpc"
+        "projectId" : "PVT_kwDOFN-d0c4Bsov1",
+        "itemId" : "PVTI_lADOFN-d0c4Bsov1zhKvftI",
+        "fieldId" : "PVTF_lADOFN-d0c4Bsov1zhq19sA"
       }
-    }
+    },
+    "query" : "mutation SetFieldValues($v0: UpdateProjectV2ItemFieldValueInput!, $v1: UpdateProjectV2ItemFieldValueInput!, $v2: UpdateProjectV2ItemFieldValueInput!, $v3: ClearProjectV2ItemFieldValueInput!) { a0: updateProjectV2ItemFieldValue(input: $v0) { projectV2Item { id } } a1: updateProjectV2ItemFieldValue(input: $v1) { projectV2Item { id } } a2: updateProjectV2ItemFieldValue(input: $v2) { projectV2Item { id } } a3: clearProjectV2ItemFieldValue(input: $v3) { projectV2Item { id } } }"
   }
 }

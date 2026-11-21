@@ -1,0 +1,2 @@
+title: Tell a project's item change apart item by item - each item of GitHubClient.projectItemsIfChanged is a ProjectItemSummary with its and its issue's times, link counts and the values of the fields named by GitHubGraphQl.ProjectField.databaseId - and carry GitHub's time on every conditional read as Conditional.date.
+type: changed

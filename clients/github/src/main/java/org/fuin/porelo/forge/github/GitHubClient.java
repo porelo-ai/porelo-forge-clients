@@ -18,6 +18,8 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -851,13 +853,42 @@ public final class GitHubClient {
      * @param after the cursor of the page to read, null for the first
      * @param etag the tag the last answer carried, or null for a first read
      */
-    public Conditional<CursorPage<ProjectsV2ItemWithContent>> projectItemsIfChanged(
+    public Conditional<CursorPage<ProjectItemSummary>> projectItemsIfChanged(
             String token,
             String org,
             int projectNumber,
             @Nullable String after,
             int perPage,
             @Nullable String etag) {
+        return projectItemsIfChanged(token, org, projectNumber, after, perPage, List.of(), etag);
+    }
+
+    /** At most this many fields are named in one read of a project's items. */
+    public static final int MAX_FIELDS = 50;
+
+    /**
+     * Reads a page of an organization project's items as {@link #projectItemsIfChanged(String,
+     * String, int, String, int, String)} does, with the values of the fields named. A change of any
+     * of those values, of an item's issue or of the items themselves changes the tag; named, the
+     * fields also keep an unchanged project's tag stable from read to read.
+     *
+     * @param fieldIds the fields' numeric ids, {@link GitHubGraphQl.ProjectField#databaseId()}, at
+     *     most {@value #MAX_FIELDS}; empty names none
+     * @param etag the tag the last answer carried, or null for a first read
+     */
+    public Conditional<CursorPage<ProjectItemSummary>> projectItemsIfChanged(
+            String token,
+            String org,
+            int projectNumber,
+            @Nullable String after,
+            int perPage,
+            List<Long> fieldIds,
+            @Nullable String etag) {
+        if (fieldIds.size() > MAX_FIELDS)
+            throw new IllegalArgumentException("Expected at most " + MAX_FIELDS + " field ids");
+        StringBuilder fields = new StringBuilder();
+        for (long id : fieldIds)
+            fields.append(fields.isEmpty() ? "&fields=" : ",").append(positive(id));
         return conditional(
                 token,
                 "orgs/"
@@ -866,11 +897,12 @@ public final class GitHubClient {
                         + positive(projectNumber)
                         + "/items?per_page="
                         + positive(perPage)
+                        + fields
                         + (after == null ? "" : "&after=" + segment(after)),
                 json.constructType(JsonNode.class),
                 etag,
                 (JsonNode items, HttpHeaders headers) ->
-                        new CursorPage<>(projectItems(items, token), nextCursor(headers, after)));
+                        new CursorPage<>(projectItems(items), nextCursor(headers, after)));
     }
 
     /**
@@ -899,7 +931,7 @@ public final class GitHubClient {
                 // GitHub answers 304 only to a tag, so a 304 to a first read is not an answer.
                 throw refusal(304, "GitHub answered 304 to a read without a tag", headers);
             }
-            return new Conditional<>(null, kept, false, limit);
+            return new Conditional<>(null, kept, false, limit, date(headers));
         }
         List<String> credentials = List.of(token);
         check(response, credentials);
@@ -909,37 +941,42 @@ public final class GitHubClient {
         } catch (GitHubException undecodable) {
             throw answered(undecodable);
         }
-        return new Conditional<>(value.apply(read, headers), answeredTag, true, limit);
+        return new Conditional<>(
+                value.apply(read, headers), answeredTag, true, limit, date(headers));
+    }
+
+    /** GitHub's time of an answer, null when its {@code Date} header is missing or unreadable. */
+    static @Nullable Instant date(HttpHeaders headers) {
+        return headers.firstValue("date")
+                .map(
+                        text -> {
+                            try {
+                                return DateTimeFormatter.RFC_1123_DATE_TIME.parse(
+                                        text.trim(), Instant::from);
+                            } catch (DateTimeParseException unreadable) {
+                                return null;
+                            }
+                        })
+                .orElse(null);
     }
 
     /**
-     * Reads project items whose {@code content} and {@code fields} GitHub describes only as objects
-     * and fills with nulls; a null there says no more than an absent key, so it is dropped before
-     * the items are read, and no null reaches the caller.
+     * Reads project items by hand rather than into the generated model, which describes their
+     * {@code content} and {@code fields} only as objects; a missing part fails the whole page.
      */
-    private List<ProjectsV2ItemWithContent> projectItems(JsonNode items, String token) {
-        for (JsonNode item : items) {
-            dropNulls(item.path("content"));
-            dropNulls(item.path("fields"));
-        }
+    private static List<ProjectItemSummary> projectItems(JsonNode items) {
+        if (!items.isArray()) throw unreadableItems("A project's items are not a list");
+        List<ProjectItemSummary> read = new ArrayList<>();
         try {
-            return GitHubJson.convert(
-                    json, items, listType(ProjectsV2ItemWithContent.class), List.of(token));
-        } catch (GitHubException undecodable) {
-            throw answered(undecodable);
+            for (JsonNode item : items) read.add(ProjectItemSummary.read(item));
+        } catch (ProjectItemSummary.Unreadable | ArithmeticException unreadable) {
+            throw unreadableItems(Objects.requireNonNull(unreadable.getMessage()));
         }
+        return read;
     }
 
-    private static void dropNulls(JsonNode node) {
-        if (node instanceof ObjectNode object) {
-            object.properties().removeIf(entry -> entry.getValue().isNull());
-            object.forEach(GitHubClient::dropNulls);
-        } else if (node instanceof com.fasterxml.jackson.databind.node.ArrayNode array) {
-            for (int index = array.size() - 1; index >= 0; index--) {
-                if (array.get(index).isNull()) array.remove(index);
-            }
-            array.forEach(GitHubClient::dropNulls);
-        }
+    private static GitHubException unreadableItems(String message) {
+        return new GitHubException(200, message, Delivery.ANSWERED, null, false);
     }
 
     /** The next page's cursor; one that names the page just read would read it forever. */
