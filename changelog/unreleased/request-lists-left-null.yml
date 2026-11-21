@@ -1,0 +1,2 @@
+title: Send no list a caller left null, so an issue's update of its title, body or state keeps its labels, assignees and field values; a list or map that an answer leaves out now reads as null instead of empty, in every GitHub and Forgejo record.
+type: fixed

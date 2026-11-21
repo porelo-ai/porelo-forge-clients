@@ -129,6 +129,8 @@
                             <annotationLibrary>none</annotationLibrary>
                             <documentationProvider>none</documentationProvider>
                             <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                            <!-- A list left null is not sent; filled with [] it would clear what the forge holds. -->
+                            <containerDefaultToNull>true</containerDefaultToNull>
                         </configOptions>
                     </configuration>
                 </plugin>

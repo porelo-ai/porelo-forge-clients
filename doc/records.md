@@ -94,3 +94,7 @@ answer, credentials included.
 A field is `@Nullable` exactly when the description lets it be absent or null. Swagger 2.0 cannot say null, so there
 every field that is not required is `@Nullable`. A JSON name that is not a Java name, such as `+1` and `-1`, gets one
 that compiles and reads it back.
+
+A list or map left null stays null, in an answer as in a request. The GitHub client leaves every null field out of a
+request, so an update sends only what its caller set: GitHub reads an empty list as "remove all", so `[]` is sent only
+when the caller gives it.

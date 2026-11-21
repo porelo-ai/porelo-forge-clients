@@ -105,6 +105,36 @@ class GitHubIssuesTest {
         assertThat(sent.has("title")).as("a field left null is not sent").isFalse();
     }
 
+    // Prevents an update of an issue's text from removing its labels, assignees and field values.
+    @Test
+    void anUpdateOfTheBodyKeepsTheIssuesLabelsAndAssignees() throws Exception {
+        var http = answering(200, example("issue"));
+        var request =
+                new IssuesUpdateRequest(
+                        null, "A new body", null, null, null, null, null, null, null, null);
+        client(http).updateIssue(TOKEN, "o", "r", 1347, request);
+        JsonNode sent = body(sent(http));
+        assertThat(sent.path("body").asText()).as("the body sent").isEqualTo("A new body");
+        assertThat(sent.has("labels")).as("labels left null are not sent").isFalse();
+        assertThat(sent.has("assignees")).as("assignees left null are not sent").isFalse();
+        assertThat(sent.has("issue_field_values"))
+                .as("field values left null are not sent")
+                .isFalse();
+    }
+
+    // Prevents a caller from being unable to remove every label of an issue.
+    @Test
+    void anUpdateWithNoLabelsClearsThem() throws Exception {
+        var http = answering(200, example("issue"));
+        var request =
+                new IssuesUpdateRequest(
+                        null, null, null, null, null, null, List.of(), null, null, null);
+        client(http).updateIssue(TOKEN, "o", "r", 1347, request);
+        assertThat(body(sent(http)).path("labels").toString())
+                .as("an empty list asked is sent, so GitHub clears the labels")
+                .isEqualTo("[]");
+    }
+
     // Prevents a sub-issue or dependency from being linked by number, which names another issue.
     @Test
     void subIssuesAndDependenciesAreNamedByTheirId() throws Exception {
