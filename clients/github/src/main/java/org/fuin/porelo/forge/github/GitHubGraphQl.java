@@ -191,22 +191,47 @@ public final class GitHubGraphQl {
                 ProjectBoard::projectFields);
     }
 
+    /** At most this many project items are read in one page. */
+    public static final int MAX_ITEMS = 100;
+
     /**
-     * Reads a page of 100 of an organization project's items, each with its issue and its field
-     * values; an item that is a draft or a pull request has no issue.
+     * Reads a page of {@value #MAX_ITEMS} of an organization project's items, each with its issue
+     * and its field values; an item that is a draft or a pull request has no issue.
      *
      * @param after the cursor of the page to read, null for the first
      */
     public ProjectItems projectItems(
             String token, String org, int projectNumber, @Nullable String after) {
+        return projectItems(token, org, projectNumber, after, MAX_ITEMS);
+    }
+
+    /**
+     * Reads a page of an organization project's items, as {@link #projectItems(String, String, int,
+     * String)} does, of the size given. A page GitHub ends for the resources it used fails with
+     * {@link GitHubException#resourceLimited()}, and a smaller one may pass.
+     *
+     * @param after the cursor of the page to read, null for the first
+     * @param first how many items the page holds, 1 to {@value #MAX_ITEMS}
+     */
+    public ProjectItems projectItems(
+            String token, String org, int projectNumber, @Nullable String after, int first) {
         ProjectBoard.requireId(org, "an organization");
         positive(projectNumber);
+        if (first < 1 || first > MAX_ITEMS)
+            throw new IllegalArgumentException("Expected a page of 1 to " + MAX_ITEMS + " items");
         return query(
                 token,
                 ProjectBoard.request(
                         ProjectBoard.PROJECT_ITEMS,
                         ProjectBoard.variables(
-                                "org", org, "number", projectNumber, "after", after)),
+                                "org",
+                                org,
+                                "number",
+                                projectNumber,
+                                "first",
+                                first,
+                                "after",
+                                after)),
                 ProjectBoard::projectItems);
     }
 

@@ -1102,9 +1102,29 @@ public final class GitHubClient {
             throw failure(scrubbed(named));
         }
 
-        /** A failure of the whole call, a rate limit when any error says so. */
+        /**
+         * Whether any error says GitHub ended the query for the resources it used, which GitHub
+         * names by its message alone.
+         */
+        boolean resourceLimited() {
+            for (JsonNode error : envelope.path("errors")) {
+                if (error.path("message")
+                        .asText()
+                        .startsWith("Resource limits for this query exceeded")) return true;
+            }
+            return false;
+        }
+
+        /** A failure of the whole call, a rate or resource limit when any error says so. */
         GitHubException failure(String message) {
-            return new GitHubException(200, message, Delivery.ANSWERED, rateLimit, rateLimited());
+            return new GitHubException(
+                    200,
+                    message,
+                    Delivery.ANSWERED,
+                    rateLimit,
+                    rateLimited(),
+                    null,
+                    resourceLimited());
         }
     }
 

@@ -13,6 +13,7 @@ public final class GitHubException extends RuntimeException {
     private final @Nullable RateLimit rateLimit;
     private final boolean rateLimited;
     private final @Nullable String acceptedPermissions;
+    private final boolean resourceLimited;
 
     GitHubException(int status, String message) {
         this(status, message, status == 0 ? Delivery.NOT_SENT : Delivery.ANSWERED, null, false);
@@ -34,12 +35,32 @@ public final class GitHubException extends RuntimeException {
             @Nullable RateLimit rateLimit,
             boolean rateLimited,
             @Nullable String acceptedPermissions) {
+        this(status, message, delivery, rateLimit, rateLimited, acceptedPermissions, false);
+    }
+
+    GitHubException(
+            int status,
+            String message,
+            Delivery delivery,
+            @Nullable RateLimit rateLimit,
+            boolean rateLimited,
+            @Nullable String acceptedPermissions,
+            boolean resourceLimited) {
         super(message);
         this.status = status;
         this.delivery = delivery;
         this.rateLimit = rateLimit;
         this.rateLimited = rateLimited;
         this.acceptedPermissions = acceptedPermissions;
+        this.resourceLimited = resourceLimited;
+    }
+
+    /**
+     * Returns whether GitHub ended a GraphQL query because it used too many resources while it ran;
+     * the same query over a smaller page may pass.
+     */
+    public boolean resourceLimited() {
+        return resourceLimited;
     }
 
     /** Returns the HTTP status, or zero for a transport, validation or payload failure. */

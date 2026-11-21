@@ -1,0 +1,2 @@
+title: Read a project's items in pages of the size the caller gives, up to 100, and tell GitHub's end of a query for the resources it used apart as GitHubException.resourceLimited(), so a heavy board can be read in smaller pages.
+type: added

@@ -328,6 +328,59 @@ class GitHubProjectsTest {
                 .isEqualTo(205);
     }
 
+    // Prevents a board too heavy for one page of 100 from never reading: the caller sets the
+    // page's size, and nothing outside 1 to 100 is sent.
+    @Test
+    void aPageOfItemsHasTheSizeTheCallerGives() throws Exception {
+        var http =
+                answering(
+                        "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"totalCount\":0,"
+                                + "\"nodes\":[],"
+                                + PAGE
+                                + "}}},"
+                                + COST
+                                + "}}");
+        graphQl(http).projectItems(TOKEN, "o", 1, null, 25);
+        assertThat(request(http).path("variables").path("first").asInt())
+                .as("the page size sent")
+                .isEqualTo(25);
+        for (int first : new int[] {0, 101}) {
+            assertThatExceptionOfType(IllegalArgumentException.class)
+                    .as("a page of %d refused before sending", first)
+                    .isThrownBy(
+                            () ->
+                                    graphQl(answering("{}"))
+                                            .projectItems(TOKEN, "o", 1, null, first));
+        }
+    }
+
+    // Prevents a caller from reading GitHub's end of a too costly query as any other failure, so
+    // it can read the same board in smaller pages instead of stopping.
+    @Test
+    void aQueryGitHubEndsForItsResourcesIsToldApart() {
+        String ended =
+                "{\"data\":{\"organization\":{\"projectV2\":{\"items\":null}}},\"errors\":["
+                        + "{\"message\":\"Resource limits for this query exceeded.\","
+                        + "\"locations\":[{\"line\":1,\"column\":1}]}]}";
+        assertThatExceptionOfType(GitHubException.class)
+                .isThrownBy(() -> graphQl(answering(ended)).projectItems(TOKEN, "o", 1, null, 100))
+                .satisfies(
+                        failure ->
+                                assertThat(failure.resourceLimited())
+                                        .as("a resource limit")
+                                        .isTrue());
+        String other =
+                "{\"data\":null,\"errors\":[{\"message\":\"Something went wrong while executing"
+                        + " your query.\"}]}";
+        assertThatExceptionOfType(GitHubException.class)
+                .isThrownBy(() -> graphQl(answering(other)).projectItems(TOKEN, "o", 1, null, 100))
+                .satisfies(
+                        failure ->
+                                assertThat(failure.resourceLimited())
+                                        .as("any other failure is none")
+                                        .isFalse());
+    }
+
     // Prevents an answer missing a part from reading as a board with that part empty.
     @Test
     void anAnswerMissingAPartFailsNamingIt() {

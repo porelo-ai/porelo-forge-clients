@@ -83,9 +83,10 @@ Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
 variables; the document holds only fixed text and, in a batch, each part's index.
 
 - `projectFields` reads the project's id, title, last change and its fields, a single-select field with its options;
-  `projectItems` reads 100 items a page with whether GitHub archived each, their issues and their single-select, text
+  `projectItems` reads 100 items a page, or as many as its caller gives up to 100, with whether GitHub archived each, their issues and their single-select, text
   and number values, an item that is a draft or a pull request without an issue, and on every page the project's whole
-  item count, `totalCount`; `issueBoard` reads up to 100 issues
+  item count, `totalCount`. A page GitHub ends for the resources it used fails with `resourceLimited()` set on its
+  `GitHubException`, so a caller can read the board on in smaller pages; `issueBoard` reads up to 100 issues
   by node id, each with its item and values in the given project, null in the place of an id GitHub does not know or
   of no issue. `statusChanges` reads an issue's moves on a project's own `Status` field; a change of any other
   single-select field appears in no timeline. A variant of a union the board does not model, such as an iteration

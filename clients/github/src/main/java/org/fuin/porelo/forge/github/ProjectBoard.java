@@ -83,9 +83,9 @@ final class ProjectBoard {
                     + " }";
 
     static final String PROJECT_ITEMS =
-            "query ProjectItems($org: String!, $number: Int!, $after: String) {"
+            "query ProjectItems($org: String!, $number: Int!, $first: Int!, $after: String) {"
                     + " organization(login: $org) { projectV2(number: $number) {"
-                    + " items(first: 100, after: $after) { totalCount nodes { id isArchived"
+                    + " items(first: $first, after: $after) { totalCount nodes { id isArchived"
                     + " content { __typename ... on Issue { "
                     + ISSUE
                     + " } } "
