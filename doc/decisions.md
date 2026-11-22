@@ -13,6 +13,7 @@ What holds and why: one row per decision, and its full text below. How the recor
 | Recordings | [A cloud forge is recorded by hand and checked live on a schedule, never on a push](#a-cloud-forge-is-recorded-by-hand-and-checked-live-on-a-schedule-never-on-a-push) |
 | Recordings | [An open-source forge is recorded from a pinned container and checked live on every build](#an-open-source-forge-is-recorded-from-a-pinned-container-and-checked-live-on-every-build) |
 | GitHub | [Three credentials, since GitHub splits them](#three-credentials-since-github-splits-them) |
+| Calls | [Failsafe is the one library beside Jackson at run time](#failsafe-is-the-one-library-beside-jackson-at-run-time) |
 
 ## The generator is pinned to a release
 
@@ -73,3 +74,10 @@ Only a GitHub App creates and updates check runs, so check runs use an installat
 App's id and key. Nobody can approve their own pull request, so a second test user writes the approving review with a
 token of their own. Everything else goes through the fine-grained token of the test user who administers the test
 repository. All three reach a run through its environment and are never written to a file.
+
+## Failsafe is the one library beside Jackson at run time
+
+A client knows which of its forge's calls may be sent twice, so the time limit, the retries and the circuit breaker
+belong in the client rather than with each caller. Failsafe gives them in one library, so it is the one exception to
+a run time of the JDK's `HttpClient`, Jackson and records. It is taken only once its version, license, dependency
+tree and size, and a native build of a client's user, are measured.
