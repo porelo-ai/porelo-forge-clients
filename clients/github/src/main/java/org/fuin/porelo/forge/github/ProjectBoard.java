@@ -54,10 +54,10 @@ final class ProjectBoard {
                     + LABEL_NODES
                     + " }"
                     + " parent { id }"
-                    + " subIssues(first: $subIssues) { "
+                    + " subIssues(first: $subIssues) { totalCount "
                     + REF
                     + " }"
-                    + " blockedBy(first: $blockedBy) { "
+                    + " blockedBy(first: $blockedBy) { totalCount "
                     + REF
                     + " }";
     private static final String FIELD = "field { ... on ProjectV2FieldCommon { id } }";
@@ -468,10 +468,17 @@ final class ProjectBoard {
                 text(node.path("repository"), "nameWithOwner"),
                 labels,
                 parent.isObject() ? text(parent, "id") : null,
-                refs(node.path("subIssues")),
-                refs(node.path("blockedBy")),
+                counted(node.path("subIssues")),
+                counted(node.path("blockedBy")),
                 pageInfo(node.path("labels")),
                 type.isObject() ? text(type, "name") : null);
+    }
+
+    /** An issue's first page of a list, with every entry GitHub counts in it. */
+    private static IssueRefs counted(JsonNode connection) {
+        IssueRefs page = refs(connection);
+        return new IssueRefs(
+                page.nodes(), page.pageInfo(), Math.toIntExact(number(connection, "totalCount")));
     }
 
     private static IssueRefs refs(JsonNode connection) {

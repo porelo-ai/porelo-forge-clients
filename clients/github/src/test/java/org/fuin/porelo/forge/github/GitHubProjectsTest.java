@@ -25,7 +25,7 @@ class GitHubProjectsTest {
     private static final String COST =
             "\"rateLimit\":{\"cost\":1,\"remaining\":4999,\"resetAt\":\"2026-01-01T01:00:00Z\"}";
     private static final String PAGE = "\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":null}";
-    private static final String REFS = "{\"nodes\":[]," + PAGE + "}";
+    private static final String REFS = "{\"totalCount\":0,\"nodes\":[]," + PAGE + "}";
 
     private static ReplayHttpClient answering(String body) {
         return new ReplayHttpClient().answer(200, Map.of(), body);
@@ -440,6 +440,53 @@ class GitHubProjectsTest {
         assertThat(issues.get(1).issue().issueType()).as("an untyped issue").isNull();
     }
 
+    // Prevents a blocker the token cannot read from passing as no blocker: both reads ask for
+    // each list's whole count, which GitHub gives beside the nodes it shows.
+    @Test
+    void anIssuesBlockersAndSubIssuesCarryGitHubsCount() throws Exception {
+        String ref =
+                "{\"id\":\"I_9\",\"databaseId\":9,\"number\":9,"
+                        + "\"repository\":{\"nameWithOwner\":\"o/r\"}}";
+        String counted =
+                issue("I_1")
+                                .replace(
+                                        "\"subIssues\":" + REFS,
+                                        "\"subIssues\":{\"totalCount\":3,\"nodes\":[],"
+                                                + PAGE
+                                                + "}")
+                                .replace(
+                                        "\"blockedBy\":" + REFS,
+                                        "\"blockedBy\":{\"totalCount\":2,\"nodes\":["
+                                                + ref
+                                                + "],"
+                                                + PAGE
+                                                + "}")
+                        + ",\"issueType\":null";
+        var items =
+                answering(
+                        "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"totalCount\":1,\"nodes\":["
+                                + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":"
+                                + counted
+                                + "},\"fieldValues\":{\"nodes\":[],"
+                                + PAGE
+                                + "}}],"
+                                + PAGE
+                                + "}}},"
+                                + COST
+                                + "}}");
+        var issue = graphQl(items).projectItems(TOKEN, "o", 1, null).items().get(0).issue();
+        assertThat(issue.blockedBy().totalCount())
+                .as("every blocker GitHub counts, one of them unreadable")
+                .isEqualTo(2);
+        assertThat(issue.blockedBy().nodes()).as("the blockers it shows").hasSize(1);
+        assertThat(issue.subIssues().totalCount()).as("every sub-issue GitHub counts").isEqualTo(3);
+        for (String query : List.of(ProjectBoard.PROJECT_ITEMS, ProjectBoard.ISSUE_BOARD))
+            assertThat(query)
+                    .as("each read asks for both lists' counts")
+                    .contains("blockedBy(first: $blockedBy) { totalCount ")
+                    .contains("subIssues(first: $subIssues) { totalCount ");
+    }
+
     // Prevents a caller that builds an issue without its type, written before the type was read,
     // from no longer compiling against this client.
     @Test
@@ -462,6 +509,17 @@ class GitHubProjectsTest {
                         none,
                         new GitHubGraphQl.PageInfo(false, null));
         assertThat(issue.issueType()).as("an issue built without a type has none").isNull();
+    }
+
+    // Prevents a caller that builds a list without GitHub's count, written before the count was
+    // read, from no longer compiling, or from reading a count its page contradicts.
+    @Test
+    void aListBuiltWithoutItsCountCountsItsPage() {
+        var refs =
+                new GitHubGraphQl.IssueRefs(
+                        List.of(new GitHubGraphQl.IssueRef("I_9", 9, 9, "o/r")),
+                        new GitHubGraphQl.PageInfo(false, null));
+        assertThat(refs.totalCount()).as("the page's own size").isEqualTo(1);
     }
 
     // Prevents a board too heavy for one page of 100 from never reading: the caller sets the
@@ -696,6 +754,23 @@ class GitHubProjectsTest {
     // without items, which a caller would answer by writing again.
     @Test
     void anAnswerMissingAListFailsInsteadOfReadingEmpty() {
+        String uncounted =
+                "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"totalCount\":1,\"nodes\":["
+                        + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":"
+                        + issue("I_1")
+                                .replace(
+                                        "\"blockedBy\":" + REFS,
+                                        "\"blockedBy\":{\"nodes\":[]," + PAGE + "}")
+                        + ",\"issueType\":null},\"fieldValues\":{\"nodes\":[],"
+                        + PAGE
+                        + "}}],"
+                        + PAGE
+                        + "}}},"
+                        + COST
+                        + "}}";
+        assertThatExceptionOfType(GitHubException.class)
+                .as("a blocker list without GitHub's count")
+                .isThrownBy(() -> graphQl(answering(uncounted)).projectItems(TOKEN, "o", 1, null));
         String noItems = "{\"data\":{\"nodes\":[" + issue("I_1") + "}]," + COST + "}}";
         assertThatExceptionOfType(GitHubException.class)
                 .as("an issue without its project items")

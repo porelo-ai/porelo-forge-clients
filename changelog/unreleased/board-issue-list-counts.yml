@@ -1,0 +1,2 @@
+title: Read GitHub's whole count of an issue's sub-issues and blockers beside their first nodes, with a project's items and with issueBoard, as IssueRefs.totalCount, so a caller sees when GitHub leaves an issue out of the nodes.
+type: added

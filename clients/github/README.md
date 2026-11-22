@@ -96,18 +96,20 @@ variables; the document holds only fixed text and, in a batch, each part's index
   issue, and on every page the project's whole item count, `totalCount`. A page GitHub ends for the resources it used
   fails with `resourceLimited()` set on its `GitHubException`, so a caller can read the board on in smaller pages. Each
   issue `projectItems` and `issueBoard` read carries its issue type's name, `issueType`, or null when it has none; as
-  measured, a token that may not list the organization's issue types still reads an issue's type. An issue's labels,
-  sub-issues and blockers and an item's values come at the sizes of `ItemLimits` (`DEFAULT` 100, 100, 100 and 50; each 1
-  to 100), and each of these lists carries its `PageInfo` (`labelsPage`, `valuesPage`), so what lies past a list is read
-  by its cursor, never dropped: `issueLabels`, `issueSubIssues` and `issueBlockedBy` read an issue's rest by its node id
-  and `itemValues` an item's, 100 a page from the cursor given, each a `ListPage` with its `PageInfo` and cost; a node
-  of another kind fails the read. `issueBoard` reads up to 100 issues by node id at the default sizes, each with its
-  item and values in the given project, null in the place of an id GitHub does not know or of no issue; as measured, 3
-  ids cost 2 points and 100 issues 54, as GitHub's published way of counting gives for the default sizes. An issue on
-  more than 50 projects whose item in the given one is not among its first 50 fails the read rather than reading as off
-  the board. `statusChanges` reads an issue's moves on a project's own `Status` field; a change of any other
-  single-select field appears in no timeline. A variant of a union the board does not model, such as an iteration field
-  or a date value, is left out. Each query's answer carries its `GraphQlCost`.
+  measured, a token that may not list the organization's issue types still reads an issue's type. An issue's `subIssues`
+  and `blockedBy` carry GitHub's `totalCount` of the whole list beside the nodes, so a caller sees when GitHub leaves an
+  issue out of them. An issue's labels, sub-issues and blockers and an item's values come at the sizes of `ItemLimits`
+  (`DEFAULT` 100, 100, 100 and 50; each 1 to 100), and each of these lists carries its `PageInfo` (`labelsPage`,
+  `valuesPage`), so what lies past a list is read by its cursor, never dropped: `issueLabels`, `issueSubIssues` and
+  `issueBlockedBy` read an issue's rest by its node id and `itemValues` an item's, 100 a page from the cursor given,
+  each a `ListPage` with its `PageInfo` and cost; a node of another kind fails the read. `issueBoard` reads up to 100
+  issues by node id at the default sizes, each with its item and values in the given project, null in the place of an id
+  GitHub does not know or of no issue; as measured, 3 ids cost 2 points and 100 issues 54, as GitHub's published way of
+  counting gives for the default sizes. An issue on more than 50 projects whose item in the given one is not among its
+  first 50 fails the read rather than reading as off the board. `statusChanges` reads an issue's moves on a project's
+  own `Status` field; a change of any other single-select field appears in no timeline. A variant of a union the board
+  does not model, such as an iteration field or a date value, is left out. Each query's answer carries its
+  `GraphQlCost`.
 - `setFieldOptions` replaces a single-select field's options; GitHub gives every option a new id, one whose name stays
   included, so a caller takes the ids from the answer. As measured, an item's value in that field is gone afterwards,
   even for an option whose name stayed, so the options are set before any value.

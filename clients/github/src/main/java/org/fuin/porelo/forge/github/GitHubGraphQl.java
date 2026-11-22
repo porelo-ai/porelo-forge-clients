@@ -864,12 +864,26 @@ public final class GitHubGraphQl {
      *
      * @param nodes the issues
      * @param pageInfo whether more follow
+     * @param totalCount how many issues GitHub counts in the whole list, beside the ones {@code
+     *     nodes} shows, so a caller can see when GitHub leaves an issue out of them
      */
-    public record IssueRefs(List<IssueRef> nodes, PageInfo pageInfo) {
-        /** Requires every part. */
+    public record IssueRefs(List<IssueRef> nodes, PageInfo pageInfo, int totalCount) {
+        /** Requires every part, and a count of 0 or more. */
         public IssueRefs {
             nodes = List.copyOf(nodes);
             Objects.requireNonNull(pageInfo, "pageInfo");
+            if (totalCount < 0) throw new IllegalArgumentException("Expected a count of 0 or more");
+        }
+
+        /**
+         * A first page without GitHub's count, for a caller written before the count was read; the
+         * count is then the page's own size.
+         *
+         * @param nodes the issues
+         * @param pageInfo whether more follow
+         */
+        public IssueRefs(List<IssueRef> nodes, PageInfo pageInfo) {
+            this(nodes, pageInfo, nodes.size());
         }
     }
 

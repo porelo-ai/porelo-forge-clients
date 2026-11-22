@@ -4,56 +4,56 @@
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4911" ],
-    "x-ratelimit-reset" : [ "1795358800" ]
+    "x-ratelimit-remaining" : [ "4921" ],
+    "x-ratelimit-reset" : [ "1795362466" ]
   },
-  "body" : "{\"data\":{\"a0\":{\"issue\":{\"id\":\"I_kwDOVc0D888AAAABhgCC0A\",\"databaseId\":6543147728,\"number\":141,\"url\":\"https://host-1.example.org/fixture-org/fixture-repo/issues/141\"}},\"a1\":{\"issue\":{\"id\":\"I_kwDOVc0D888AAAABhgCDEg\",\"databaseId\":6543147794,\"number\":142,\"url\":\"https://host-1.example.org/fixture-org/fixture-repo/issues/142\"}}}}",
+  "body" : "{\"data\":{\"a0\":{\"issue\":{\"id\":\"I_kwDOVc0D888AAAABhgoDoA\",\"databaseId\":6543770528,\"number\":145,\"url\":\"https://host-1.example.org/fixture-org/fixture-repo/issues/145\"}},\"a1\":{\"issue\":{\"id\":\"I_kwDOVc0D888AAAABhgoD3g\",\"databaseId\":6543770590,\"number\":146,\"url\":\"https://host-1.example.org/fixture-org/fixture-repo/issues/146\"}}}}",
   "exchanges" : [ {
     "request_uri" : "/graphql",
     "status" : 200,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4911" ],
-      "x-ratelimit-reset" : [ "1795358800" ]
+      "x-ratelimit-remaining" : [ "4921" ],
+      "x-ratelimit-reset" : [ "1795362466" ]
     },
-    "body" : "{\"data\":{\"a0\":{\"issue\":{\"id\":\"I_kwDOVc0D888AAAABhgCC0A\",\"databaseId\":6543147728,\"number\":141,\"url\":\"https://host-1.example.org/fixture-org/fixture-repo/issues/141\"}},\"a1\":{\"issue\":{\"id\":\"I_kwDOVc0D888AAAABhgCDEg\",\"databaseId\":6543147794,\"number\":142,\"url\":\"https://host-1.example.org/fixture-org/fixture-repo/issues/142\"}}}}"
+    "body" : "{\"data\":{\"a0\":{\"issue\":{\"id\":\"I_kwDOVc0D888AAAABhgoDoA\",\"databaseId\":6543770528,\"number\":145,\"url\":\"https://host-1.example.org/fixture-org/fixture-repo/issues/145\"}},\"a1\":{\"issue\":{\"id\":\"I_kwDOVc0D888AAAABhgoD3g\",\"databaseId\":6543770590,\"number\":146,\"url\":\"https://host-1.example.org/fixture-org/fixture-repo/issues/146\"}}}}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "prefix" : "forge-client-issues-d0d10ba5",
-    "number" : 139,
-    "other" : 140,
-    "subIssueId" : 6543138006,
-    "thirdIssueId" : 6543138140,
-    "since" : "2026-11-22T13:37:33Z",
-    "etag" : "\"5273b5f8cc49d189c07160051595f2ffcb5a31e16cf0d28e4901f0eaf9600548\"",
-    "itemsEtag" : "\"9f3d82ec34e41b3c35e5fbe9b80bec0907371871ded942c7dadf9fbe76b0d17c\"",
-    "projectNumber" : 59,
-    "projectId" : "PVT_kwDOFN-d0c4Bsuqj",
+    "prefix" : "forge-client-issues-de8a6be8",
+    "number" : 143,
+    "other" : 144,
+    "subIssueId" : 6543764118,
+    "thirdIssueId" : 6543764288,
+    "since" : "2026-11-22T14:37:45Z",
+    "etag" : "\"4cfd04bb66970e183c28cce54c1c0e3c2ea27481174e2d1d6a2d934a20f393eb\"",
+    "itemsEtag" : "\"8c17f328413cfa2dca2619bb515268178f12e27f9643787bd0e514388c9776ea\"",
+    "projectNumber" : 60,
+    "projectId" : "PVT_kwDOFN-d0c4BsvFl",
     "repositoryId" : "R_kgDOVc0D8w",
-    "issueIds" : [ "I_kwDOVc0D888AAAABhgBbNQ", "I_kwDOVc0D888AAAABhgBc1g" ],
+    "issueIds" : [ "I_kwDOVc0D888AAAABhgnpBw", "I_kwDOVc0D888AAAABhgnqlg" ],
     "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
-    "itemIds" : [ "PVTI_lADOFN-d0c4BsuqjzhK5YgY", "PVTI_lADOFN-d0c4BsuqjzhK5YhM" ],
-    "fieldId" : "PVTSSF_lADOFN-d0c4Bsuqjzhq7aAA",
-    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bsuqjzhq7Z-k",
+    "itemIds" : [ "PVTI_lADOFN-d0c4BsvFlzhK56ng", "PVTI_lADOFN-d0c4BsvFlzhK56oQ" ],
+    "fieldId" : "PVTSSF_lADOFN-d0c4BsvFlzhq7yyk",
+    "statusFieldId" : "PVTSSF_lADOFN-d0c4BsvFlzhq7yxE",
     "statusOptionId" : "f75ad846",
-    "textFieldId" : "PVTF_lADOFN-d0c4Bsuqjzhq7aA4",
-    "numberFieldId" : "PVTF_lADOFN-d0c4Bsuqjzhq7aBw",
-    "fieldDatabaseIds" : [ 448489449, 448489472, 448489486, 448489500 ]
+    "textFieldId" : "PVTF_lADOFN-d0c4BsvFlzhq7yzg",
+    "numberFieldId" : "PVTF_lADOFN-d0c4BsvFlzhq7y0A",
+    "fieldDatabaseIds" : [ 448514833, 448514857, 448514872, 448514880 ]
   },
   "request_body" : {
     "variables" : {
       "v0" : {
         "repositoryId" : "R_kgDOVc0D8w",
-        "title" : "forge-client-issues-d0d10ba5-batch-a",
+        "title" : "forge-client-issues-de8a6be8-batch-a",
         "body" : "First of a batch"
       },
       "v1" : {
         "repositoryId" : "R_kgDOVc0D8w",
-        "title" : "forge-client-issues-d0d10ba5-batch-b",
-        "parentIssueId" : "I_kwDOVc0D888AAAABhgBbNQ"
+        "title" : "forge-client-issues-de8a6be8-batch-b",
+        "parentIssueId" : "I_kwDOVc0D888AAAABhgnpBw"
       }
     },
     "query" : "mutation CreateIssues($v0: CreateIssueInput!, $v1: CreateIssueInput!) { a0: createIssue(input: $v0) { issue { id databaseId number url } } a1: createIssue(input: $v1) { issue { id databaseId number url } } }"
