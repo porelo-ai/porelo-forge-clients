@@ -63,7 +63,11 @@ public final class GitHubException extends RuntimeException {
         return resourceLimited;
     }
 
-    /** Returns the HTTP status, or zero for a transport, validation or payload failure. */
+    /**
+     * Returns the HTTP status GitHub answered with, also for an answer whose body cannot be
+     * decoded, or zero when no answer came: a request not sent, a transport failure or a bad
+     * argument.
+     */
     public int status() {
         return status;
     }

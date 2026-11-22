@@ -556,7 +556,7 @@ public final class GitHubGraphQl {
                 | IllegalArgumentException
                 | ArithmeticException unreadable) {
             throw new GitHubException(
-                    200,
+                    answer.status(),
                     "GitHub's GraphQL answer could not be read"
                             + (unreadable instanceof UnreadableAnswer missing
                                     ? ": " + missing.getMessage()

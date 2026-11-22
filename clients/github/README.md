@@ -42,11 +42,11 @@ Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
   links them, none when it links no account (`null` or an empty object), and GitHub's verdict on its signature in
   `commit.verification`. GitHub's description says the list stops at 250 commits, so a caller that needs more reads the
   branch's commits instead.
-- `GitHubException.status()` is the HTTP status, or zero for transport and payload failures.
-  Diagnostics scrub credentials and do not attach raw payloads or transport causes. `delivery()` says whether the
-  request may have reached GitHub: `NOT_SENT`, `SENT_UNANSWERED`, or `ANSWERED`, the answer perhaps undecodable or over
-  its bound. The JDK does not say whether bytes left before a failure, so a failure after the connection opened counts
-  as sent.
+- `GitHubException.status()` is the HTTP status GitHub answered with, also for an answer that cannot be decoded, or
+  zero when no answer came. Diagnostics scrub credentials and do not attach raw payloads or transport causes.
+  `delivery()` says whether the request may have reached GitHub: `NOT_SENT`, `SENT_UNANSWERED`, or `ANSWERED`, the
+  answer perhaps undecodable or over its bound. The JDK does not say whether bytes left before a failure, so a failure
+  after the connection opened counts as sent.
 - `rateLimited()` is true on a 429, on a 403 with `x-ratelimit-remaining: 0`, a `Retry-After` or a message naming a rate
   limit, and on a GraphQL answer whose first error has type `RATE_LIMITED`; any other 403 is a refusal. `rateLimit()`
   holds what the answer said, and `delay()` is its `Retry-After`, else the time until its reset, else one minute.

@@ -763,6 +763,24 @@ class GitHubProjectsTest {
     }
 
     // Prevents an answer that lost a list from reading as an issue off the board or a board
+    // Prevents a board answer that cannot be read from being blamed on another status.
+    @Test
+    void anUnreadableBoardAnswerNamesItsStatus() {
+        var http = new ReplayHttpClient().answer(203, Map.of(), "{\"data\":{\"nodes\":[]}}");
+        assertThatExceptionOfType(GitHubException.class)
+                .as("an answer without its cost")
+                .isThrownBy(() -> graphQl(http).issueBoard(TOKEN, List.of("I_1"), "P_1"))
+                .satisfies(
+                        ex -> {
+                            assertThat(ex.delivery())
+                                    .as("it was answered")
+                                    .isEqualTo(Delivery.ANSWERED);
+                            assertThat(ex.status())
+                                    .as("it carries the status GitHub answered with")
+                                    .isEqualTo(203);
+                        });
+    }
+
     // without items, which a caller would answer by writing again.
     @Test
     void anAnswerMissingAListFailsInsteadOfReadingEmpty() {

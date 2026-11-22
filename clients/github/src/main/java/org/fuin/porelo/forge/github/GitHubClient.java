@@ -938,11 +938,13 @@ public final class GitHubClient {
         T read;
         try {
             read = GitHubJson.read(json, response.body(), type, credentials);
+            return new Conditional<>(
+                    value.apply(read, headers), answeredTag, true, limit, date(headers));
         } catch (GitHubException undecodable) {
-            throw answered(undecodable);
+            // A failure that already names GitHub's status is GitHub's own and passes unchanged.
+            if (undecodable.status() != 0) throw undecodable;
+            throw answered(response.statusCode(), undecodable, limit);
         }
-        return new Conditional<>(
-                value.apply(read, headers), answeredTag, true, limit, date(headers));
     }
 
     /** GitHub's time of an answer, null when its {@code Date} header is missing or unreadable. */
@@ -976,19 +978,19 @@ public final class GitHubClient {
     }
 
     private static GitHubException unreadableItems(String message) {
-        return new GitHubException(200, message, Delivery.ANSWERED, null, false);
+        return undecodable(message);
+    }
+
+    /** An answer that cannot be decoded, its status given where the answer is at hand. */
+    private static GitHubException undecodable(String message) {
+        return new GitHubException(0, message, Delivery.ANSWERED, null, false);
     }
 
     /** The next page's cursor; one that names the page just read would read it forever. */
     private static @Nullable String nextCursor(HttpHeaders headers, @Nullable String sent) {
         String next = afterCursor(headers);
         if (next != null && next.equals(sent)) {
-            throw new GitHubException(
-                    0,
-                    "GitHub's next link names the page just read",
-                    Delivery.ANSWERED,
-                    null,
-                    false);
+            throw undecodable("GitHub's next link names the page just read");
         }
         return next;
     }
@@ -1026,8 +1028,7 @@ public final class GitHubClient {
         } catch (IllegalArgumentException unreadable) {
             // The failure below says so without quoting any part of the link.
         }
-        throw new GitHubException(
-                0, "GitHub's next link names no readable cursor", Delivery.ANSWERED, null, false);
+        throw undecodable("GitHub's next link names no readable cursor");
     }
 
     private static String issuePath(String owner, String repo, long issueNumber) {
@@ -1070,7 +1071,7 @@ public final class GitHubClient {
             return GitHubJson.convert(
                     json, envelope, json.constructType(type), answer.credentials());
         } catch (GitHubException undecodable) {
-            throw answered(undecodable);
+            throw answered(answer.status(), undecodable, answer.rateLimit());
         }
     }
 
@@ -1095,6 +1096,7 @@ public final class GitHubClient {
             object.remove("errors");
         }
         return new GraphQlAnswer(
+                answer.status(),
                 envelope,
                 RateLimit.read(answer.headers(), Instant.now()),
                 credentials(token, body));
@@ -1105,7 +1107,10 @@ public final class GitHubClient {
      * any message from it is scrubbed of.
      */
     record GraphQlAnswer(
-            JsonNode envelope, @Nullable RateLimit rateLimit, List<String> credentials) {
+            int status,
+            JsonNode envelope,
+            @Nullable RateLimit rateLimit,
+            List<String> credentials) {
         /** Keeps the credentials from changing. */
         GraphQlAnswer {
             credentials = List.copyOf(credentials);
@@ -1155,7 +1160,7 @@ public final class GitHubClient {
         /** A failure of the whole call, a rate or resource limit when any error says so. */
         GitHubException failure(String message) {
             return new GitHubException(
-                    200,
+                    status,
                     message,
                     Delivery.ANSWERED,
                     rateLimit,
@@ -1275,9 +1280,12 @@ public final class GitHubClient {
         check(response, credentials);
         try {
             T value = GitHubJson.read(json, response.body(), type, credentials);
-            return new Answered<>(value, response.headers());
+            return new Answered<>(value, response.statusCode(), response.headers());
         } catch (GitHubException undecodable) {
-            throw answered(undecodable);
+            throw answered(
+                    response.statusCode(),
+                    undecodable,
+                    RateLimit.read(response.headers(), Instant.now()));
         }
     }
 
@@ -1294,12 +1302,17 @@ public final class GitHubClient {
         return credentials;
     }
 
-    private static GitHubException answered(GitHubException undecodable) {
+    /** An answer GitHub gave that cannot be decoded, which is no failure to send the request. */
+    private static GitHubException answered(
+            int status, GitHubException undecodable, @Nullable RateLimit limit) {
         return new GitHubException(
-                undecodable.status(),
-                Objects.requireNonNull(undecodable.getMessage()),
+                status,
+                "GitHub answered "
+                        + status
+                        + " with an answer that cannot be decoded: "
+                        + undecodable.getMessage(),
                 Delivery.ANSWERED,
-                null,
+                limit,
                 false);
     }
 
@@ -1432,7 +1445,7 @@ public final class GitHubClient {
                 .orElse(null);
     }
 
-    private record Answered<T>(T value, HttpHeaders headers) {}
+    private record Answered<T>(T value, int status, HttpHeaders headers) {}
 
     private void check(HttpResponse<String> response, List<String> credentials) {
         if (response.statusCode() < 200 || response.statusCode() >= 300) {

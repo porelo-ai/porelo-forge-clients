@@ -211,18 +211,23 @@ class GitHubAnswersTest {
         assertThat(Thread.interrupted()).as("the interrupt stays set for the caller").isTrue();
     }
 
-    // Prevents an undecodable answer to a write from being taken for one that never arrived.
+    // Prevents an undecodable answer from being taken for one that never arrived, which a caller
+    // would retry or blame on its own side instead of on what GitHub answered.
     @Test
     void anAnswerNamesThatItWasAnswered() {
-        var http = new ChunkedTransport(200, Map.of(), "not json");
+        var http = new ChunkedTransport(203, Map.of(), "not json");
         assertThatExceptionOfType(GitHubException.class)
                 .as("an undecodable answer came back")
                 .isThrownBy(() -> new GitHubClient(BASE, http).ownKeys(TOKEN, 1, 1))
                 .satisfies(
-                        ex ->
-                                assertThat(ex.delivery())
-                                        .as("it was answered")
-                                        .isEqualTo(Delivery.ANSWERED));
+                        ex -> {
+                            assertThat(ex.delivery())
+                                    .as("it was answered")
+                                    .isEqualTo(Delivery.ANSWERED);
+                            assertThat(ex.status())
+                                    .as("it carries the status GitHub answered with")
+                                    .isEqualTo(203);
+                        });
         assertThat(failure(403, Map.of()).delivery())
                 .as("a refusal was answered")
                 .isEqualTo(Delivery.ANSWERED);
@@ -231,7 +236,7 @@ class GitHubAnswersTest {
     // Prevents a GraphQL write whose answer does not decode from being sent again.
     @Test
     void anUndecodableGraphQlAnswerNamesThatItWasAnswered() {
-        var http = new ChunkedTransport(200, Map.of(), "{\"data\":{}}");
+        var http = new ChunkedTransport(203, Map.of(), "{\"data\":{}}");
         assertThatExceptionOfType(GitHubException.class)
                 .as("valid JSON that is not the record asked for")
                 .isThrownBy(
@@ -239,10 +244,57 @@ class GitHubAnswersTest {
                                 new GitHubClient(BASE, http)
                                         .graphQl(TOKEN, Map.of("query", "q"), Integer.class))
                 .satisfies(
-                        ex ->
-                                assertThat(ex.delivery())
-                                        .as("it was answered")
-                                        .isEqualTo(Delivery.ANSWERED));
+                        ex -> {
+                            assertThat(ex.delivery())
+                                    .as("it was answered")
+                                    .isEqualTo(Delivery.ANSWERED);
+                            assertThat(ex.status())
+                                    .as("it carries the status GitHub answered with")
+                                    .isEqualTo(203);
+                        });
+    }
+
+    // Prevents an undecodable answer to a read with a tag from being taken for one never sent.
+    @Test
+    void anUndecodableConditionalAnswerNamesItsStatus() {
+        var http = new ChunkedTransport(203, Map.of(), "{\"broken\"");
+        assertThatExceptionOfType(GitHubException.class)
+                .as("broken JSON came back")
+                .isThrownBy(
+                        () ->
+                                new GitHubClient(BASE, http)
+                                        .issuesIfChanged(
+                                                TOKEN, "o", "r", null, null, null, 1, 10, null))
+                .satisfies(
+                        ex -> {
+                            assertThat(ex.delivery())
+                                    .as("it was answered")
+                                    .isEqualTo(Delivery.ANSWERED);
+                            assertThat(ex.status())
+                                    .as("it carries the status GitHub answered with")
+                                    .isEqualTo(203);
+                        });
+    }
+
+    // Prevents a project's items that cannot be read from being blamed on another status.
+    @Test
+    void unreadableProjectItemsNameTheirStatus() {
+        var http = new ChunkedTransport(203, Map.of(), "{}");
+        assertThatExceptionOfType(GitHubException.class)
+                .as("an object where the items' list belongs")
+                .isThrownBy(
+                        () ->
+                                new GitHubClient(BASE, http)
+                                        .projectItemsIfChanged(TOKEN, "o", 1, null, 10, null))
+                .satisfies(
+                        ex -> {
+                            assertThat(ex.delivery())
+                                    .as("it was answered")
+                                    .isEqualTo(Delivery.ANSWERED);
+                            assertThat(ex.status())
+                                    .as("it carries the status GitHub answered with")
+                                    .isEqualTo(203);
+                        });
     }
 
     // Prevents a caller from stopping early, or asking for a page that does not exist.
