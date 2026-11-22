@@ -144,14 +144,66 @@ class GitHubProjectsTest {
                 .doesNotContain(TOKEN);
     }
 
-    // Prevents a rate limit hidden behind a part's error from reading as a refused part.
+    // Prevents the parts GitHub saved before a rate limit from being lost and made twice on retry.
     @Test
-    void aRateLimitAnywhereFailsTheWholeBatch() {
+    void aRateLimitedPartKeepsThePartsSaved() {
         var http =
                 answering(
-                        "{\"data\":{\"a0\":null,\"a1\":null},\"errors\":["
-                                + "{\"type\":\"FORBIDDEN\",\"path\":[\"a0\"],\"message\":\"no\"},"
-                                + "{\"type\":\"RATE_LIMITED\",\"path\":[\"a1\"],\"message\":\"limit\"}]}");
+                        "{\"data\":{\"a0\":{\"item\":{\"id\":\"PVTI_1\"}},\"a1\":null,\"a2\":null},"
+                                + "\"errors\":["
+                                + "{\"type\":\"FORBIDDEN\",\"path\":[\"a1\"],\"message\":\"no\"},"
+                                + "{\"type\":\"RATE_LIMITED\",\"path\":[\"a2\"],\"message\":\"limit\"}]}");
+        var batch = graphQl(http).addProjectItems(TOKEN, "P_1", List.of("I_1", "I_2", "I_3"));
+        assertThat(batch.outcomes().get(0).value()).as("the saved part").isEqualTo("PVTI_1");
+        assertThat(batch.outcomes().get(1).rateLimited()).as("a refusal is no limit").isFalse();
+        assertThat(batch.outcomes().get(2).rateLimited()).as("the limited part").isTrue();
+        assertThat(batch.outcomes().get(2).error()).as("GitHub's words").isEqualTo("limit");
+        assertThat(batch.complete()).as("not every part was saved").isFalse();
+        assertThat(batch.rateLimited()).as("a later try may pass").isTrue();
+        assertThat(batch.delay(java.time.Instant.EPOCH)).as("how long to wait").isNotNull();
+    }
+
+    // Prevents a second error on one part from losing the parts saved, and hiding its rate limit.
+    @Test
+    void aPartWithTwoErrorsKeepsThePartsSavedAndItsRateLimit() {
+        var http =
+                new ReplayHttpClient()
+                        .answer(
+                                200,
+                                Map.of("retry-after", List.of("30")),
+                                "{\"data\":{\"a0\":{\"item\":{\"id\":\"PVTI_1\"}},\"a1\":null},"
+                                        + "\"errors\":["
+                                        + "{\"type\":\"FORBIDDEN\",\"path\":[\"a1\"],\"message\":\"no\"},"
+                                        + "{\"type\":\"RATE_LIMITED\",\"path\":[\"a1\"],\"message\":\"limit\"}]}");
+        var batch = graphQl(http).addProjectItems(TOKEN, "P_1", List.of("I_1", "I_2"));
+        assertThat(batch.outcomes().get(0).value()).as("the saved part").isEqualTo("PVTI_1");
+        assertThat(batch.outcomes().get(1).rateLimited()).as("its rate limit kept").isTrue();
+        assertThat(batch.delay(java.time.Instant.EPOCH))
+                .as("the answer's own wait")
+                .isEqualTo(java.time.Duration.ofSeconds(30));
+    }
+
+    // Prevents a batch refused for other reasons from reading as one to try again later.
+    @Test
+    void aBatchWithoutARateLimitAsksNoWait() {
+        var http =
+                answering(
+                        "{\"data\":{\"a0\":null},\"errors\":["
+                                + "{\"type\":\"FORBIDDEN\",\"path\":[\"a0\"],\"message\":\"no\"}]}");
+        var batch = graphQl(http).addProjectItems(TOKEN, "P_1", List.of("I_1"));
+        assertThat(batch.rateLimited()).as("no rate limit").isFalse();
+        assertThat(batch.delay(java.time.Instant.EPOCH)).as("no wait").isNull();
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .as("a saved part is never rate-limited")
+                .isThrownBy(() -> new Batch.Outcome<>("PVTI_1", null, true));
+    }
+
+    // Prevents a rate limit on the whole request, or an unreadable batch, from reading as a batch.
+    @Test
+    void aRateLimitNamingNoPartFailsTheWholeBatch() {
+        var http =
+                answering(
+                        "{\"data\":null,\"errors\":[{\"type\":\"RATE_LIMITED\",\"message\":\"limit\"}]}");
         assertThatExceptionOfType(GitHubException.class)
                 .as("the whole call fails")
                 .isThrownBy(

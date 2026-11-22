@@ -413,21 +413,28 @@ final class ProjectBoard {
     static <T> Batch<T> batch(
             GitHubClient.GraphQlAnswer answer, int parts, Function<JsonNode, T> read) {
         JsonNode envelope = answer.envelope();
-        Map<Integer, String> refused = new LinkedHashMap<>();
+        Map<Integer, Batch.Outcome<T>> refused = new LinkedHashMap<>();
         for (JsonNode error : envelope.path("errors")) {
             String alias = error.path("path").path(0).asText();
             Integer index = aliasIndex(alias, parts);
-            if (index == null || refused.containsKey(index))
-                throw answer.failure(answer.scrubbed(error));
-            refused.put(index, answer.scrubbed(error));
+            // A rate limit on the whole request names no part, so it fails the call.
+            if (index == null) throw answer.failure(answer.scrubbed(error));
+            String message = answer.scrubbed(error);
+            boolean limited = error.path("type").asText().equals("RATE_LIMITED");
+            // A part's first error stands, unless a later one says it may pass when tried again.
+            Batch.Outcome<T> first = refused.get(index);
+            if (first != null && (first.rateLimited() || !limited)) continue;
+            refused.put(
+                    index,
+                    limited ? Batch.Outcome.rateLimited(message) : Batch.Outcome.refused(message));
         }
         JsonNode data = envelope.path("data");
         List<Batch.Outcome<T>> outcomes = new ArrayList<>();
         for (int index = 0; index < parts; index++) {
             JsonNode part = data.path("a" + index);
-            String error = refused.get(index);
+            Batch.Outcome<T> error = refused.get(index);
             if (error != null) {
-                outcomes.add(Batch.Outcome.refused(error));
+                outcomes.add(error);
             } else if (part.isObject()) {
                 outcomes.add(Batch.Outcome.of(read.apply(part)));
             } else {

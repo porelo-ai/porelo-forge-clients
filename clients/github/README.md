@@ -110,12 +110,15 @@ variables; the document holds only fixed text and, in a batch, each part's index
   even for an option whose name stayed, so the options are set before any value.
 - `addProjectItems`, `setFieldValues` and `createIssues` send up to 50 parts in one mutation, each aliased `a<i>` with
   its input in `$v<i>`, and return a `Batch`: one outcome per part, in order, the value GitHub saved or its message,
-  scrubbed of credentials, for a part it refused; `complete()` says whether every part was saved. A `RATE_LIMITED`
-  error anywhere, an error naming no part sent, or a part with neither value nor error fails the whole call. An empty
-  list, a blank or repeated id, more parts than the bound, or two values for one item and field are refused before
-  sending. A mutation cannot ask its cost, so a `Batch` carries the rate limit of the answer's headers. As measured,
-  GitHub saves the parts before and after a refused one; and it once answered a whole batch with an internal error
-  naming no part, which fails the call, as above, and was not seen again.
+  scrubbed of credentials, for a part it refused; `complete()` says whether every part was saved. A part refused with
+  `RATE_LIMITED` is marked `rateLimited`, beside the parts GitHub saved, so a caller keeps their values and tries only
+  the refused parts again; `Batch.rateLimited()` says whether any part was, and `delay()` how long to wait, as for a
+  `GitHubException`. A part with several errors keeps its first, unless a later one is `RATE_LIMITED`, which then
+  stands. A `RATE_LIMITED` error naming no part, any other error naming no part sent, or a part with neither value nor
+  error fails the whole call. An empty list, a blank or repeated id, more parts than the bound, or two values for one
+  item and field are refused before sending. A mutation cannot ask its cost, so a `Batch` carries the rate limit of
+  the answer's headers. As measured, GitHub saves the parts before and after a refused one; and it once answered a
+  whole batch with an internal error naming no part, which fails the call, as above, and was not seen again.
 - `createIssues` takes a `parentIssueId`, as recorded. `statusChanges` listed only an item's first status, set either by
   `setFieldValues` or by the project's own automation, whichever came first, which the actor's `__typename` `Bot` tells;
   a later move by `setFieldValues`, read at once, was not listed.

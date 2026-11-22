@@ -1,0 +1,2 @@
+title: Keep the parts GitHub saved when it refuses other parts of a GraphQL batch for its rate limit - Batch.Outcome.rateLimited marks a refused part, Batch.rateLimited() and Batch.delay() say whether and how long to wait - instead of failing the whole batch.
+type: changed

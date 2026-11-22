@@ -573,7 +573,6 @@ public final class GitHubGraphQl {
             int parts,
             java.util.function.Function<JsonNode, T> reader) {
         var answer = client.graphQlAnswer(token, request);
-        if (answer.rateLimited()) answer.failOnErrors();
         return read(answer, data -> ProjectBoard.batch(answer, parts, reader));
     }
 
