@@ -306,12 +306,16 @@ final class GitHubIssueScenario implements AutoCloseable {
                                 itemsEtag);
                 report("items after only a field value changed: changed=" + again.changed());
             }
-            case issueBoard ->
-                    report("issueBoard of 3 ids cost=" + ((IssueBoard) result).cost().cost());
-            case statusChanges ->
-                    report(
-                            "status moves read: "
-                                    + ((GitHubGraphQl.StatusChanges) result).changes().size());
+            case addCrossSubIssue -> measureCrossSubIssue();
+            case issueBoard -> {
+                report("issueBoard of 3 ids cost=" + ((IssueBoard) result).cost().cost());
+                measureBoardCost();
+            }
+            case statusChanges -> {
+                int read = ((GitHubGraphQl.StatusChanges) result).changes().size();
+                report("status moves read: " + read);
+                awaitStatusMove(read);
+            }
             case createIssues -> {
                 var batch = (Batch<?>) result;
                 var child =
@@ -382,6 +386,54 @@ final class GitHubIssueScenario implements AutoCloseable {
                                                 .getFirst()
                                                 .id()
                                                 .equals(kept.optionId())));
+    }
+
+    /** Says which repositories GraphQL names among an issue's sub-issues, one being elsewhere. */
+    private void measureCrossSubIssue() {
+        var subIssues = setupGraphql.issueSubIssues(token, issueA, null);
+        report(
+                "GraphQL subIssues with one in another repository lists "
+                        + subIssues.nodes().stream()
+                                .map(GitHubGraphQl.IssueRef::repository)
+                                .toList());
+    }
+
+    /** Says what reading up to 100 real issues of the fixture repository costs in points. */
+    private void measureBoardCost() {
+        var ids =
+                setup
+                        .issues(
+                                token,
+                                GitHubFixture.OWNER,
+                                GitHubFixture.REPO,
+                                "all",
+                                null,
+                                null,
+                                1,
+                                100)
+                        .items()
+                        .stream()
+                        .filter(i -> i.pullRequest() == null)
+                        .map(Issue::nodeId)
+                        .toList();
+        var board = setupGraphql.issueBoard(token, ids, projectId);
+        report("issueBoard of " + ids.size() + " issues cost=" + board.cost().cost());
+    }
+
+    /**
+     * Reads an issue's status moves again for two minutes and says whether and when the move set
+     * over the API appears after the read that missed it.
+     */
+    private void awaitStatusMove(int readAtOnce) throws InterruptedException {
+        for (int waited = 5; waited <= 120; waited += 5) {
+            Thread.sleep(5000);
+            int read = setupGraphql.statusChanges(token, issueA, null).changes().size();
+            if (read > readAtOnce) {
+                report("status move by setFieldValues listed after about " + waited + " s");
+                return;
+            }
+        }
+        report("status move by setFieldValues not listed in 120 s");
     }
 
     private IssuesCreateRequest newIssue(String suffix) throws Exception {

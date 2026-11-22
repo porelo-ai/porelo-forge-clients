@@ -82,8 +82,8 @@ Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
 - `parentIssue`, `subIssues`, `addSubIssue`, `removeSubIssue`, `reprioritizeSubIssue`, `blockedBy`, `addBlockedBy`,
   `removeBlockedBy` and `blocking` name the other issue by its `id`, not its number. `parentIssue` is a 404 for an
   issue without a parent, as for a missing one; `parentIssueUrl` shows it beforehand. A sub-issue and a blocking
-  issue may be in another repository of the same owner, as recorded. GitHub's issue list shows a new issue some
-  seconds after it is made.
+  issue may be in another repository of the same owner, as recorded; GraphQL's `subIssues` and `blockedBy` list such
+  an issue too, as measured. GitHub's issue list shows a new issue some seconds after it is made.
 
 ## An organization project's board over GraphQL
 
@@ -101,10 +101,11 @@ variables; the document holds only fixed text and, in a batch, each part's index
   rest by its node id and `itemValues` an item's, 100 a page from the cursor given, each a `ListPage` with its
   `PageInfo` and cost; a node of another kind fails the read. `issueBoard` reads up to 100 issues by node id at the
   default sizes, each with its item and values in the given project, null in the place of an id GitHub does not know or
-  of no issue; an issue on more than 50 projects whose item in the given one is not among its first 50 fails the read
-  rather than reading as off the board. `statusChanges` reads an issue's moves on a project's own `Status` field; a
-  change of any other single-select field appears in no timeline. A variant of a union the board does not model, such as
-  an iteration field or a date value, is left out. Each query's answer carries its `GraphQlCost`.
+  of no issue; as measured, 3 ids cost 2 points and 100 issues 54, as GitHub's published way of counting gives for
+  the default sizes. An issue on more than 50 projects whose item in the given one is not among its first 50 fails
+  the read rather than reading as off the board. `statusChanges` reads an issue's moves on a project's own `Status`
+  field; a change of any other single-select field appears in no timeline. A variant of a union the board does not
+  model, such as an iteration field or a date value, is left out. Each query's answer carries its `GraphQlCost`.
 - `setFieldOptions` replaces a single-select field's options; GitHub gives every option a new id, one whose name stays
   included, so a caller takes the ids from the answer. As measured, an item's value in that field is gone afterwards,
   even for an option whose name stayed, so the options are set before any value.
@@ -119,9 +120,9 @@ variables; the document holds only fixed text and, in a batch, each part's index
   item and field are refused before sending. A mutation cannot ask its cost, so a `Batch` carries the rate limit of
   the answer's headers. As measured, GitHub saves the parts before and after a refused one; and it once answered a
   whole batch with an internal error naming no part, which fails the call, as above, and was not seen again.
-- `createIssues` takes a `parentIssueId`, as recorded. `statusChanges` listed only an item's first status, set either by
-  `setFieldValues` or by the project's own automation, whichever came first, which the actor's `__typename` `Bot` tells;
-  a later move by `setFieldValues`, read at once, was not listed.
+- `createIssues` takes a `parentIssueId`, as recorded. As measured, `statusChanges` lists an item's first status, set
+  either by `setFieldValues` or by the project's own automation, whichever came first, which the actor's `__typename`
+  `Bot` tells; a later move by `setFieldValues` is missing when read at once and listed within 5 seconds.
 
 The extract's `--set` corrections for these: an issue's labels read as label objects and are sent as names, its title
 is sent as text, every identifier is `int64`, a project item's `id` is an integer, and the value GitHub suggests in an

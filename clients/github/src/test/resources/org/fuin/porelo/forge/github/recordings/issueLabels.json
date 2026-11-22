@@ -4,49 +4,49 @@
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4995" ],
-    "x-ratelimit-reset" : [ "1795283932" ]
+    "x-ratelimit-remaining" : [ "4925" ],
+    "x-ratelimit-reset" : [ "1795336311" ]
   },
-  "body" : "{\"data\":{\"node\":{\"labels\":{\"nodes\":[],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":null}}},\"rateLimit\":{\"cost\":1,\"remaining\":4995,\"resetAt\":\"2026-11-21T17:58:52Z\"}}}",
+  "body" : "{\"data\":{\"node\":{\"labels\":{\"nodes\":[],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":null}}},\"rateLimit\":{\"cost\":1,\"remaining\":4925,\"resetAt\":\"2026-11-22T08:31:51Z\"}}}",
   "exchanges" : [ {
     "request_uri" : "/graphql",
     "status" : 200,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4995" ],
-      "x-ratelimit-reset" : [ "1795283932" ]
+      "x-ratelimit-remaining" : [ "4925" ],
+      "x-ratelimit-reset" : [ "1795336311" ]
     },
-    "body" : "{\"data\":{\"node\":{\"labels\":{\"nodes\":[],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":null}}},\"rateLimit\":{\"cost\":1,\"remaining\":4995,\"resetAt\":\"2026-11-21T17:58:52Z\"}}}"
+    "body" : "{\"data\":{\"node\":{\"labels\":{\"nodes\":[],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":null}}},\"rateLimit\":{\"cost\":1,\"remaining\":4925,\"resetAt\":\"2026-11-22T08:31:51Z\"}}}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "prefix" : "forge-client-issues-2ea4bb31",
-    "number" : 130,
-    "other" : 131,
-    "subIssueId" : 6531886933,
-    "thirdIssueId" : 6531887087,
-    "since" : "2026-11-21T16:58:49Z",
-    "etag" : "\"4ce7222b0b09477833e9b560cf262ad2677bd32e7e1f5b1054db0d43d7f62c84\"",
-    "itemsEtag" : "\"23e76f5b2da66692a0d7fbd6d5af30f739ffb3a8f7356514981c4bca2593ae3e\"",
-    "projectNumber" : 56,
-    "projectId" : "PVT_kwDOFN-d0c4Bso6B",
+    "prefix" : "forge-client-issues-5751bca8",
+    "number" : 134,
+    "other" : 135,
+    "subIssueId" : 6539837401,
+    "thirdIssueId" : 6539837513,
+    "since" : "2026-11-22T07:21:50Z",
+    "etag" : "\"82f6d9d25b2e9e477c4d429ed3b3bd5e6786246152128169714ecef317591df8\"",
+    "itemsEtag" : "\"07225bfbc19e6c0c0d5268130f6a0f3a1a9dda35a4e378cb88b3749bd0d7af29\"",
+    "projectNumber" : 57,
+    "projectId" : "PVT_kwDOFN-d0c4Bssmv",
     "repositoryId" : "R_kgDOVc0D8w",
-    "issueIds" : [ "I_kwDOVc0D888AAAABhVSupQ", "I_kwDOVc0D888AAAABhVSvVQ" ],
+    "issueIds" : [ "I_kwDOVc0D888AAAABhc3_Tg", "I_kwDOVc0D888AAAABhc3_2Q" ],
     "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
-    "itemIds" : [ "PVTI_lADOFN-d0c4Bso6BzhKvuaQ", "PVTI_lADOFN-d0c4Bso6BzhKvuas" ],
-    "fieldId" : "PVTSSF_lADOFN-d0c4Bso6Bzhq2HD0",
-    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bso6Bzhq2HAI",
+    "itemIds" : [ "PVTI_lADOFN-d0c4BssmvzhK2cbw", "PVTI_lADOFN-d0c4BssmvzhK2ccM" ],
+    "fieldId" : "PVTSSF_lADOFN-d0c4Bssmvzhq5g68",
+    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bssmvzhq5g5U",
     "statusOptionId" : "f75ad846",
-    "textFieldId" : "PVTF_lADOFN-d0c4Bso6Bzhq2HHE",
-    "numberFieldId" : "PVTF_lADOFN-d0c4Bso6Bzhq2HIA",
-    "fieldDatabaseIds" : [ 448142338, 448142397, 448142449, 448142464 ]
+    "textFieldId" : "PVTF_lADOFN-d0c4Bssmvzhq5g7A",
+    "numberFieldId" : "PVTF_lADOFN-d0c4Bssmvzhq5g7w",
+    "fieldDatabaseIds" : [ 448365461, 448365487, 448365488, 448365500 ]
   },
   "request_body" : {
+    "query" : "query IssueLabels($id: ID!, $after: String) { node(id: $id) { ... on Issue { labels(first: 100, after: $after) { nodes { name } pageInfo { hasNextPage endCursor } } } } rateLimit { cost remaining resetAt } }",
     "variables" : {
-      "id" : "I_kwDOVc0D888AAAABhVSupQ"
-    },
-    "query" : "query IssueLabels($id: ID!, $after: String) { node(id: $id) { ... on Issue { labels(first: 100, after: $after) { nodes { name } pageInfo { hasNextPage endCursor } } } } rateLimit { cost remaining resetAt } }"
+      "id" : "I_kwDOVc0D888AAAABhc3_Tg"
+    }
   }
 }
