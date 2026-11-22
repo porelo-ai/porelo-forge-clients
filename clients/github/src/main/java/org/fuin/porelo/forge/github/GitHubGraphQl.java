@@ -865,8 +865,7 @@ public final class GitHubGraphQl {
      * @param nodes the issues
      * @param pageInfo whether more follow
      * @param totalCount how many issues GitHub counts in the whole list, beside the ones {@code
-     *     nodes} shows, so a caller can see when GitHub leaves an issue out of them; the
-     *     two-argument constructor sets it to the page's own size
+     *     nodes} shows, so a caller can see when GitHub leaves an issue out of them
      */
     public record IssueRefs(List<IssueRef> nodes, PageInfo pageInfo, int totalCount) {
         /** Requires every part, and a count of 0 or more. */
@@ -874,17 +873,6 @@ public final class GitHubGraphQl {
             nodes = List.copyOf(nodes);
             Objects.requireNonNull(pageInfo, "pageInfo");
             if (totalCount < 0) throw new IllegalArgumentException("Expected a count of 0 or more");
-        }
-
-        /**
-         * A first page without GitHub's count, for a caller written before the count was read; the
-         * count is then the page's own size.
-         *
-         * @param nodes the issues
-         * @param pageInfo whether more follow
-         */
-        public IssueRefs(List<IssueRef> nodes, PageInfo pageInfo) {
-            this(nodes, pageInfo, nodes.size());
         }
     }
 
@@ -950,58 +938,6 @@ public final class GitHubGraphQl {
             labels = List.copyOf(labels);
             Objects.requireNonNull(subIssues, "subIssues");
             Objects.requireNonNull(blockedBy, "blockedBy");
-        }
-
-        /**
-         * An issue without an issue type, for a caller written before the type was read; a caller
-         * that knows the type gives it to the full constructor.
-         *
-         * @param id its node id
-         * @param databaseId its {@code id} in REST
-         * @param number its number in its repository
-         * @param title its title
-         * @param body its text
-         * @param state {@code OPEN} or {@code CLOSED}
-         * @param stateReason why it is in its state
-         * @param updatedAt its last change
-         * @param repository its repository, {@code owner/name}
-         * @param labels the names of its first labels
-         * @param parentId its parent's node id, or null when it has none
-         * @param subIssues its first sub-issues
-         * @param blockedBy the first issues it is blocked by
-         * @param labelsPage whether more labels follow, and from where
-         */
-        public BoardIssue(
-                String id,
-                long databaseId,
-                int number,
-                String title,
-                @Nullable String body,
-                String state,
-                @Nullable String stateReason,
-                Instant updatedAt,
-                String repository,
-                List<String> labels,
-                @Nullable String parentId,
-                IssueRefs subIssues,
-                IssueRefs blockedBy,
-                PageInfo labelsPage) {
-            this(
-                    id,
-                    databaseId,
-                    number,
-                    title,
-                    body,
-                    state,
-                    stateReason,
-                    updatedAt,
-                    repository,
-                    labels,
-                    parentId,
-                    subIssues,
-                    blockedBy,
-                    labelsPage,
-                    null);
         }
     }
 

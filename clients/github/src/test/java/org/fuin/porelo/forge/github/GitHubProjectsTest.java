@@ -499,41 +499,6 @@ class GitHubProjectsTest {
                     .contains("subIssues(first: $subIssues) { totalCount ");
     }
 
-    // Prevents a caller that builds an issue without its type, written before the type was read,
-    // from no longer compiling against this client.
-    @Test
-    void anIssueBuiltWithoutItsTypeHasNone() {
-        var none = new GitHubGraphQl.IssueRefs(List.of(), new GitHubGraphQl.PageInfo(false, null));
-        var issue =
-                new GitHubGraphQl.BoardIssue(
-                        "I_1",
-                        1,
-                        1,
-                        "T",
-                        null,
-                        "OPEN",
-                        null,
-                        java.time.Instant.EPOCH,
-                        "o/r",
-                        List.of(),
-                        null,
-                        none,
-                        none,
-                        new GitHubGraphQl.PageInfo(false, null));
-        assertThat(issue.issueType()).as("an issue built without a type has none").isNull();
-    }
-
-    // Prevents a caller that builds a list without GitHub's count, written before the count was
-    // read, from no longer compiling, or from reading a count its page contradicts.
-    @Test
-    void aListBuiltWithoutItsCountCountsItsPage() {
-        var refs =
-                new GitHubGraphQl.IssueRefs(
-                        List.of(new GitHubGraphQl.IssueRef("I_9", 9, 9, "o/r")),
-                        new GitHubGraphQl.PageInfo(false, null));
-        assertThat(refs.totalCount()).as("the page's own size").isEqualTo(1);
-    }
-
     // Prevents a board too heavy for one page of 100 from never reading: the caller sets the
     // page's size, and nothing outside 1 to 100 is sent.
     @Test
