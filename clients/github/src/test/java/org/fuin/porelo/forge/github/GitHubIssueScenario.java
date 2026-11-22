@@ -221,6 +221,7 @@ final class GitHubIssueScenario implements AutoCloseable {
                 var a = (Issue) result;
                 number = a.number();
                 issueA = a.nodeId();
+                typeIssueA();
             }
             case issuesIfChanged -> {
                 var read = (Conditional<?>) result;
@@ -386,6 +387,33 @@ final class GitHubIssueScenario implements AutoCloseable {
                                                 .getFirst()
                                                 .id()
                                                 .equals(kept.optionId())));
+    }
+
+    /**
+     * Gives the first issue one of the organization's issue types, so the board's reads are
+     * recorded with a typed issue beside the untyped ones.
+     */
+    private void typeIssueA() {
+        var types =
+                data(
+                                "query IssueTypes($i: ID!) { node(id: $i) { ... on Issue {"
+                                        + " repository { issueTypes(first: 25)"
+                                        + " { nodes { id name } } } } } }",
+                                Map.of("i", issueA))
+                        .path("node")
+                        .path("repository")
+                        .path("issueTypes")
+                        .path("nodes");
+        if (types.isEmpty())
+            throw new IllegalStateException("the organization has no issue type to give");
+        var type = types.get(0);
+        for (var each : types) if (each.path("name").asText().equals("Task")) type = each;
+        data(
+                "mutation TypeIssue($i: ID!, $t: ID!) {"
+                        + " updateIssueIssueType(input: {issueId: $i, issueTypeId: $t})"
+                        + " { issue { id } } }",
+                Map.of("i", issueA, "t", type.path("id").asText()));
+        report("issue a typed " + type.path("name").asText());
     }
 
     /** Says which repositories GraphQL names among an issue's sub-issues, one being elsewhere. */

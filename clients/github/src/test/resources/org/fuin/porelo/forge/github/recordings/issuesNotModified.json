@@ -1,39 +1,39 @@
 {
-  "request_uri" : "/repos/fixture-org/fixture-repo/issues?state=open&since=2026-11-22T07%3A21%3A50Z&sort=updated&direction=desc&page=1&per_page=50",
+  "request_uri" : "/repos/fixture-org/fixture-repo/issues?state=open&since=2026-11-22T13%3A37%3A33Z&sort=updated&direction=desc&page=1&per_page=50",
   "status" : 304,
   "headers" : {
-    "etag" : [ "\"82f6d9d25b2e9e477c4d429ed3b3bd5e6786246152128169714ecef317591df8\"" ],
+    "etag" : [ "\"5273b5f8cc49d189c07160051595f2ffcb5a31e16cf0d28e4901f0eaf9600548\"" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4997" ],
-    "x-ratelimit-reset" : [ "1795336329" ]
+    "x-ratelimit-remaining" : [ "4989" ],
+    "x-ratelimit-reset" : [ "1795358872" ]
   },
   "body" : "",
   "exchanges" : [ {
-    "request_uri" : "/repos/fixture-org/fixture-repo/issues?state=open&since=2026-11-22T07%3A21%3A50Z&sort=updated&direction=desc&page=1&per_page=50",
+    "request_uri" : "/repos/fixture-org/fixture-repo/issues?state=open&since=2026-11-22T13%3A37%3A33Z&sort=updated&direction=desc&page=1&per_page=50",
     "status" : 304,
     "headers" : {
-      "etag" : [ "\"82f6d9d25b2e9e477c4d429ed3b3bd5e6786246152128169714ecef317591df8\"" ],
+      "etag" : [ "\"5273b5f8cc49d189c07160051595f2ffcb5a31e16cf0d28e4901f0eaf9600548\"" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4997" ],
-      "x-ratelimit-reset" : [ "1795336329" ]
+      "x-ratelimit-remaining" : [ "4989" ],
+      "x-ratelimit-reset" : [ "1795358872" ]
     },
     "body" : ""
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "prefix" : "forge-client-issues-5751bca8",
-    "number" : 134,
-    "other" : 135,
-    "subIssueId" : 6539837401,
-    "thirdIssueId" : 6539837513,
-    "since" : "2026-11-22T07:21:50Z",
-    "etag" : "\"82f6d9d25b2e9e477c4d429ed3b3bd5e6786246152128169714ecef317591df8\"",
+    "prefix" : "forge-client-issues-d0d10ba5",
+    "number" : 139,
+    "other" : 140,
+    "subIssueId" : 6543138006,
+    "thirdIssueId" : 6543138140,
+    "since" : "2026-11-22T13:37:33Z",
+    "etag" : "\"5273b5f8cc49d189c07160051595f2ffcb5a31e16cf0d28e4901f0eaf9600548\"",
     "itemsEtag" : "pending",
-    "projectNumber" : 57,
-    "projectId" : "PVT_kwDOFN-d0c4Bssmv",
+    "projectNumber" : 59,
+    "projectId" : "PVT_kwDOFN-d0c4Bsuqj",
     "repositoryId" : "R_kgDOVc0D8w",
-    "issueIds" : [ "I_kwDOVc0D888AAAABhc3_Tg", "I_kwDOVc0D888AAAABhc3_2Q" ],
+    "issueIds" : [ "I_kwDOVc0D888AAAABhgBbNQ", "I_kwDOVc0D888AAAABhgBc1g" ],
     "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
     "itemIds" : [ ],
     "fieldId" : "pending",

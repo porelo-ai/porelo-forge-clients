@@ -49,6 +49,7 @@ final class ProjectBoard {
     private static final String ISSUE =
             "id databaseId number title body state stateReason updatedAt"
                     + " repository { nameWithOwner }"
+                    + " issueType { name }"
                     + " labels(first: $labels) { "
                     + LABEL_NODES
                     + " }"
@@ -454,6 +455,7 @@ final class ProjectBoard {
         List<String> labels = new ArrayList<>();
         for (JsonNode label : nodes(node.path("labels"), "labels")) labels.add(text(label, "name"));
         JsonNode parent = node.path("parent");
+        JsonNode type = node.path("issueType");
         return new BoardIssue(
                 text(node, "id"),
                 number(node, "databaseId"),
@@ -468,7 +470,8 @@ final class ProjectBoard {
                 parent.isObject() ? text(parent, "id") : null,
                 refs(node.path("subIssues")),
                 refs(node.path("blockedBy")),
-                pageInfo(node.path("labels")));
+                pageInfo(node.path("labels")),
+                type.isObject() ? text(type, "name") : null);
     }
 
     private static IssueRefs refs(JsonNode connection) {

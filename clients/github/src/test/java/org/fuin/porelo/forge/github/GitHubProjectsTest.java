@@ -384,6 +384,86 @@ class GitHubProjectsTest {
                 .isEqualTo(205);
     }
 
+    // Prevents a story from being known only by its label: both reads ask for each issue's type
+    // and read its name, or null when the issue has none.
+    @Test
+    void anIssueOnTheBoardReadsItsType() throws Exception {
+        String typed = issue("I_1") + ",\"issueType\":{\"name\":\"Story\"}";
+        String untyped = issue("I_2") + ",\"issueType\":null";
+        var items =
+                answering(
+                        "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"totalCount\":2,\"nodes\":["
+                                + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":"
+                                + typed
+                                + "},\"fieldValues\":{\"nodes\":[],"
+                                + PAGE
+                                + "}},"
+                                + "{\"id\":\"PVTI_2\",\"isArchived\":false,\"content\":"
+                                + untyped
+                                + "},\"fieldValues\":{\"nodes\":[],"
+                                + PAGE
+                                + "}}],"
+                                + PAGE
+                                + "}}},"
+                                + COST
+                                + "}}");
+        var page = graphQl(items).projectItems(TOKEN, "o", 1, null);
+        assertThat(request(items).path("query").asText())
+                .as("the item read asks for the issue's type")
+                .contains("issueType { name }");
+        assertThat(page.items().get(0).issue().issueType()).as("a typed issue").isEqualTo("Story");
+        assertThat(page.items().get(1).issue().issueType()).as("an untyped issue").isNull();
+
+        String onBoard =
+                ",\"projectItems\":{\"nodes\":[{\"id\":\"PVTI_1\",\"project\":{\"id\":\"P_1\"},"
+                        + "\"fieldValues\":{\"nodes\":[],"
+                        + PAGE
+                        + "}}],"
+                        + PAGE
+                        + "}}";
+        var board =
+                answering(
+                        "{\"data\":{\"nodes\":["
+                                + typed
+                                + onBoard
+                                + ","
+                                + untyped
+                                + onBoard
+                                + "],"
+                                + COST
+                                + "}}");
+        var issues = graphQl(board).issueBoard(TOKEN, List.of("I_1", "I_2"), "P_1").issues();
+        assertThat(request(board).path("query").asText())
+                .as("the read by node id asks for the issue's type")
+                .contains("issueType { name }");
+        assertThat(issues.get(0).issue().issueType()).as("a typed issue").isEqualTo("Story");
+        assertThat(issues.get(1).issue().issueType()).as("an untyped issue").isNull();
+    }
+
+    // Prevents a caller that builds an issue without its type, written before the type was read,
+    // from no longer compiling against this client.
+    @Test
+    void anIssueBuiltWithoutItsTypeHasNone() {
+        var none = new GitHubGraphQl.IssueRefs(List.of(), new GitHubGraphQl.PageInfo(false, null));
+        var issue =
+                new GitHubGraphQl.BoardIssue(
+                        "I_1",
+                        1,
+                        1,
+                        "T",
+                        null,
+                        "OPEN",
+                        null,
+                        java.time.Instant.EPOCH,
+                        "o/r",
+                        List.of(),
+                        null,
+                        none,
+                        none,
+                        new GitHubGraphQl.PageInfo(false, null));
+        assertThat(issue.issueType()).as("an issue built without a type has none").isNull();
+    }
+
     // Prevents a board too heavy for one page of 100 from never reading: the caller sets the
     // page's size, and nothing outside 1 to 100 is sent.
     @Test

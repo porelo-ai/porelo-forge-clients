@@ -4,49 +4,49 @@
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4925" ],
-    "x-ratelimit-reset" : [ "1795336311" ]
+    "x-ratelimit-remaining" : [ "4914" ],
+    "x-ratelimit-reset" : [ "1795358800" ]
   },
-  "body" : "{\"data\":{\"node\":{\"labels\":{\"nodes\":[],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":null}}},\"rateLimit\":{\"cost\":1,\"remaining\":4925,\"resetAt\":\"2026-11-22T08:31:51Z\"}}}",
+  "body" : "{\"data\":{\"node\":{\"labels\":{\"nodes\":[],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":null}}},\"rateLimit\":{\"cost\":1,\"remaining\":4914,\"resetAt\":\"2026-11-22T14:46:40Z\"}}}",
   "exchanges" : [ {
     "request_uri" : "/graphql",
     "status" : 200,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4925" ],
-      "x-ratelimit-reset" : [ "1795336311" ]
+      "x-ratelimit-remaining" : [ "4914" ],
+      "x-ratelimit-reset" : [ "1795358800" ]
     },
-    "body" : "{\"data\":{\"node\":{\"labels\":{\"nodes\":[],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":null}}},\"rateLimit\":{\"cost\":1,\"remaining\":4925,\"resetAt\":\"2026-11-22T08:31:51Z\"}}}"
+    "body" : "{\"data\":{\"node\":{\"labels\":{\"nodes\":[],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":null}}},\"rateLimit\":{\"cost\":1,\"remaining\":4914,\"resetAt\":\"2026-11-22T14:46:40Z\"}}}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "prefix" : "forge-client-issues-5751bca8",
-    "number" : 134,
-    "other" : 135,
-    "subIssueId" : 6539837401,
-    "thirdIssueId" : 6539837513,
-    "since" : "2026-11-22T07:21:50Z",
-    "etag" : "\"82f6d9d25b2e9e477c4d429ed3b3bd5e6786246152128169714ecef317591df8\"",
-    "itemsEtag" : "\"07225bfbc19e6c0c0d5268130f6a0f3a1a9dda35a4e378cb88b3749bd0d7af29\"",
-    "projectNumber" : 57,
-    "projectId" : "PVT_kwDOFN-d0c4Bssmv",
+    "prefix" : "forge-client-issues-d0d10ba5",
+    "number" : 139,
+    "other" : 140,
+    "subIssueId" : 6543138006,
+    "thirdIssueId" : 6543138140,
+    "since" : "2026-11-22T13:37:33Z",
+    "etag" : "\"5273b5f8cc49d189c07160051595f2ffcb5a31e16cf0d28e4901f0eaf9600548\"",
+    "itemsEtag" : "\"9f3d82ec34e41b3c35e5fbe9b80bec0907371871ded942c7dadf9fbe76b0d17c\"",
+    "projectNumber" : 59,
+    "projectId" : "PVT_kwDOFN-d0c4Bsuqj",
     "repositoryId" : "R_kgDOVc0D8w",
-    "issueIds" : [ "I_kwDOVc0D888AAAABhc3_Tg", "I_kwDOVc0D888AAAABhc3_2Q" ],
+    "issueIds" : [ "I_kwDOVc0D888AAAABhgBbNQ", "I_kwDOVc0D888AAAABhgBc1g" ],
     "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
-    "itemIds" : [ "PVTI_lADOFN-d0c4BssmvzhK2cbw", "PVTI_lADOFN-d0c4BssmvzhK2ccM" ],
-    "fieldId" : "PVTSSF_lADOFN-d0c4Bssmvzhq5g68",
-    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bssmvzhq5g5U",
+    "itemIds" : [ "PVTI_lADOFN-d0c4BsuqjzhK5YgY", "PVTI_lADOFN-d0c4BsuqjzhK5YhM" ],
+    "fieldId" : "PVTSSF_lADOFN-d0c4Bsuqjzhq7aAA",
+    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bsuqjzhq7Z-k",
     "statusOptionId" : "f75ad846",
-    "textFieldId" : "PVTF_lADOFN-d0c4Bssmvzhq5g7A",
-    "numberFieldId" : "PVTF_lADOFN-d0c4Bssmvzhq5g7w",
-    "fieldDatabaseIds" : [ 448365461, 448365487, 448365488, 448365500 ]
+    "textFieldId" : "PVTF_lADOFN-d0c4Bsuqjzhq7aA4",
+    "numberFieldId" : "PVTF_lADOFN-d0c4Bsuqjzhq7aBw",
+    "fieldDatabaseIds" : [ 448489449, 448489472, 448489486, 448489500 ]
   },
   "request_body" : {
-    "query" : "query IssueLabels($id: ID!, $after: String) { node(id: $id) { ... on Issue { labels(first: 100, after: $after) { nodes { name } pageInfo { hasNextPage endCursor } } } } rateLimit { cost remaining resetAt } }",
     "variables" : {
-      "id" : "I_kwDOVc0D888AAAABhc3_Tg"
-    }
+      "id" : "I_kwDOVc0D888AAAABhgBbNQ"
+    },
+    "query" : "query IssueLabels($id: ID!, $after: String) { node(id: $id) { ... on Issue { labels(first: 100, after: $after) { nodes { name } pageInfo { hasNextPage endCursor } } } } rateLimit { cost remaining resetAt } }"
   }
 }

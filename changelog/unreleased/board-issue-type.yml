@@ -1,0 +1,2 @@
+title: Read each issue's type with a project's items and with issueBoard, as BoardIssue.issueType, the type's name or null when the issue has none.
+type: added

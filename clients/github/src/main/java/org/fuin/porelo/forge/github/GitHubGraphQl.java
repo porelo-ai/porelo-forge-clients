@@ -906,6 +906,7 @@ public final class GitHubGraphQl {
      * @param subIssues its first sub-issues, as many as the read asked for
      * @param blockedBy the first issues it is blocked by, as many as the read asked for
      * @param labelsPage whether more labels follow, and from where
+     * @param issueType the name of its issue type, such as {@code Story}, or null when it has none
      */
     public record BoardIssue(
             String id,
@@ -921,7 +922,8 @@ public final class GitHubGraphQl {
             @Nullable String parentId,
             IssueRefs subIssues,
             IssueRefs blockedBy,
-            PageInfo labelsPage) {
+            PageInfo labelsPage,
+            @Nullable String issueType) {
         /** Requires every part GitHub always sends. */
         public BoardIssue {
             Objects.requireNonNull(labelsPage, "labelsPage");
@@ -933,6 +935,57 @@ public final class GitHubGraphQl {
             labels = List.copyOf(labels);
             Objects.requireNonNull(subIssues, "subIssues");
             Objects.requireNonNull(blockedBy, "blockedBy");
+        }
+
+        /**
+         * An issue without an issue type, for a caller written before the type was read.
+         *
+         * @param id its node id
+         * @param databaseId its {@code id} in REST
+         * @param number its number in its repository
+         * @param title its title
+         * @param body its text
+         * @param state {@code OPEN} or {@code CLOSED}
+         * @param stateReason why it is in its state
+         * @param updatedAt its last change
+         * @param repository its repository, {@code owner/name}
+         * @param labels the names of its first labels
+         * @param parentId its parent's node id, or null when it has none
+         * @param subIssues its first sub-issues
+         * @param blockedBy the first issues it is blocked by
+         * @param labelsPage whether more labels follow, and from where
+         */
+        public BoardIssue(
+                String id,
+                long databaseId,
+                int number,
+                String title,
+                @Nullable String body,
+                String state,
+                @Nullable String stateReason,
+                Instant updatedAt,
+                String repository,
+                List<String> labels,
+                @Nullable String parentId,
+                IssueRefs subIssues,
+                IssueRefs blockedBy,
+                PageInfo labelsPage) {
+            this(
+                    id,
+                    databaseId,
+                    number,
+                    title,
+                    body,
+                    state,
+                    stateReason,
+                    updatedAt,
+                    repository,
+                    labels,
+                    parentId,
+                    subIssues,
+                    blockedBy,
+                    labelsPage,
+                    null);
         }
     }
 
