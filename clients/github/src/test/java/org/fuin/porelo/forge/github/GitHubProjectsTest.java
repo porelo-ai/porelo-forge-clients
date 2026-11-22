@@ -54,6 +54,9 @@ class GitHubProjectsTest {
                 + REFS;
     }
 
+    private static final String TYPED = issue("I_1") + ",\"issueType\":{\"name\":\"Story\"}";
+    private static final String UNTYPED = issue("I_2") + ",\"issueType\":null";
+
     // Prevents a caller's text from becoming part of a GraphQL document.
     @Test
     void callerValuesTravelOnlyInVariables() throws Exception {
@@ -384,22 +387,20 @@ class GitHubProjectsTest {
                 .isEqualTo(205);
     }
 
-    // Prevents a story from being known only by its label: both reads ask for each issue's type
-    // and read its name, or null when the issue has none.
+    // Prevents a story from being known only by its label: a project's items read each issue's
+    // type name, or null when the issue has none.
     @Test
-    void anIssueOnTheBoardReadsItsType() throws Exception {
-        String typed = issue("I_1") + ",\"issueType\":{\"name\":\"Story\"}";
-        String untyped = issue("I_2") + ",\"issueType\":null";
+    void anItemsIssueReadsItsType() throws Exception {
         var items =
                 answering(
                         "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"totalCount\":2,\"nodes\":["
                                 + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":"
-                                + typed
+                                + TYPED
                                 + "},\"fieldValues\":{\"nodes\":[],"
                                 + PAGE
                                 + "}},"
                                 + "{\"id\":\"PVTI_2\",\"isArchived\":false,\"content\":"
-                                + untyped
+                                + UNTYPED
                                 + "},\"fieldValues\":{\"nodes\":[],"
                                 + PAGE
                                 + "}}],"
@@ -413,7 +414,12 @@ class GitHubProjectsTest {
                 .contains("issueType { name }");
         assertThat(page.items().get(0).issue().issueType()).as("a typed issue").isEqualTo("Story");
         assertThat(page.items().get(1).issue().issueType()).as("an untyped issue").isNull();
+    }
 
+    // Prevents a story from being known only by its label: an issue read by its node id reads
+    // its type name, or null when the issue has none.
+    @Test
+    void anIssueReadByIdReadsItsType() throws Exception {
         String onBoard =
                 ",\"projectItems\":{\"nodes\":[{\"id\":\"PVTI_1\",\"project\":{\"id\":\"P_1\"},"
                         + "\"fieldValues\":{\"nodes\":[],"
@@ -424,10 +430,10 @@ class GitHubProjectsTest {
         var board =
                 answering(
                         "{\"data\":{\"nodes\":["
-                                + typed
+                                + TYPED
                                 + onBoard
                                 + ","
-                                + untyped
+                                + UNTYPED
                                 + onBoard
                                 + "],"
                                 + COST
@@ -440,8 +446,8 @@ class GitHubProjectsTest {
         assertThat(issues.get(1).issue().issueType()).as("an untyped issue").isNull();
     }
 
-    // Prevents a blocker the token cannot read from passing as no blocker: both reads ask for
-    // each list's whole count, which GitHub gives beside the nodes it shows.
+    // Prevents a blocker the token cannot read from passing as no blocker: an issue's lists carry
+    // GitHub's whole count beside the nodes it shows.
     @Test
     void anIssuesBlockersAndSubIssuesCarryGitHubsCount() throws Exception {
         String ref =
@@ -480,6 +486,12 @@ class GitHubProjectsTest {
                 .isEqualTo(2);
         assertThat(issue.blockedBy().nodes()).as("the blockers it shows").hasSize(1);
         assertThat(issue.subIssues().totalCount()).as("every sub-issue GitHub counts").isEqualTo(3);
+    }
+
+    // Prevents one of the board's reads from leaving the counts out, so its caller would take a
+    // list with an unreadable blocker as complete.
+    @Test
+    void eachBoardReadAsksForBothListsCounts() {
         for (String query : List.of(ProjectBoard.PROJECT_ITEMS, ProjectBoard.ISSUE_BOARD))
             assertThat(query)
                     .as("each read asks for both lists' counts")

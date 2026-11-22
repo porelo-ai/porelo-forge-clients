@@ -350,8 +350,8 @@ final class ProjectBoard {
 
     /** The rest of an issue's sub-issues or blockers from a cursor. */
     static ListPage<IssueRef> refs(JsonNode data, String name) {
-        IssueRefs refs = refs(connection(data, name));
-        return new ListPage<>(refs.nodes(), refs.pageInfo(), cost(data));
+        JsonNode connection = connection(data, name);
+        return new ListPage<>(refNodes(connection), pageInfo(connection), cost(data));
     }
 
     /** The rest of an item's field values from a cursor. */
@@ -476,12 +476,13 @@ final class ProjectBoard {
 
     /** An issue's first page of a list, with every entry GitHub counts in it. */
     private static IssueRefs counted(JsonNode connection) {
-        IssueRefs page = refs(connection);
         return new IssueRefs(
-                page.nodes(), page.pageInfo(), Math.toIntExact(number(connection, "totalCount")));
+                refNodes(connection),
+                pageInfo(connection),
+                Math.toIntExact(number(connection, "totalCount")));
     }
 
-    private static IssueRefs refs(JsonNode connection) {
+    private static List<IssueRef> refNodes(JsonNode connection) {
         if (!connection.isObject()) throw new UnreadableAnswer("an issue's connection");
         List<IssueRef> refs = new ArrayList<>();
         for (JsonNode node : nodes(connection, "an issue's connection")) {
@@ -492,7 +493,7 @@ final class ProjectBoard {
                             Math.toIntExact(number(node, "number")),
                             text(node.path("repository"), "nameWithOwner")));
         }
-        return new IssueRefs(refs, pageInfo(connection));
+        return refs;
     }
 
     private static List<ItemValue> values(JsonNode item) {

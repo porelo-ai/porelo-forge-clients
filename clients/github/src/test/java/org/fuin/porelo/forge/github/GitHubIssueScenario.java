@@ -390,8 +390,8 @@ final class GitHubIssueScenario implements AutoCloseable {
     }
 
     /**
-     * Gives the first issue one of the organization's issue types, so the board's reads are
-     * recorded with a typed issue beside the untyped ones.
+     * Gives the first issue the repository's issue type {@code Task}, or its first type when it has
+     * no {@code Task}, so the board's reads are recorded with a typed issue beside untyped ones.
      */
     private void typeIssueA() {
         var types =
@@ -405,7 +405,7 @@ final class GitHubIssueScenario implements AutoCloseable {
                         .path("issueTypes")
                         .path("nodes");
         if (types.isEmpty())
-            throw new IllegalStateException("the organization has no issue type to give");
+            throw new IllegalStateException("the repository has no issue type to give");
         var type = types.get(0);
         for (var each : types) if (each.path("name").asText().equals("Task")) type = each;
         data(

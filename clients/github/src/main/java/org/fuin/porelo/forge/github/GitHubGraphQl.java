@@ -865,7 +865,8 @@ public final class GitHubGraphQl {
      * @param nodes the issues
      * @param pageInfo whether more follow
      * @param totalCount how many issues GitHub counts in the whole list, beside the ones {@code
-     *     nodes} shows, so a caller can see when GitHub leaves an issue out of them
+     *     nodes} shows, so a caller can see when GitHub leaves an issue out of them; the
+     *     two-argument constructor sets it to the page's own size
      */
     public record IssueRefs(List<IssueRef> nodes, PageInfo pageInfo, int totalCount) {
         /** Requires every part, and a count of 0 or more. */
@@ -952,7 +953,8 @@ public final class GitHubGraphQl {
         }
 
         /**
-         * An issue without an issue type, for a caller written before the type was read.
+         * An issue without an issue type, for a caller written before the type was read; a caller
+         * that knows the type gives it to the full constructor.
          *
          * @param id its node id
          * @param databaseId its {@code id} in REST
