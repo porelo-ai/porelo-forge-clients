@@ -4,78 +4,78 @@
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4950" ],
-    "x-ratelimit-reset" : [ "1795426905" ]
+    "x-ratelimit-remaining" : [ "4869" ],
+    "x-ratelimit-reset" : [ "1795435365" ]
   },
-  "body" : "{\"data\":{\"a0\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs1PAzhLEjKg\"}},\"a1\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs1PAzhLEjKg\"}},\"a2\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs1PAzhLEjLE\"}},\"a3\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs1PAzhLEjLE\"}}}}",
+  "body" : "{\"data\":{\"a0\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs2YFzhLGrZs\"}},\"a1\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs2YFzhLGrZs\"}},\"a2\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs2YFzhLGraY\"}},\"a3\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs2YFzhLGraY\"}}}}",
   "exchanges" : [ {
     "request_uri" : "/graphql",
     "status" : 200,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4950" ],
-      "x-ratelimit-reset" : [ "1795426905" ]
+      "x-ratelimit-remaining" : [ "4869" ],
+      "x-ratelimit-reset" : [ "1795435365" ]
     },
-    "body" : "{\"data\":{\"a0\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs1PAzhLEjKg\"}},\"a1\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs1PAzhLEjKg\"}},\"a2\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs1PAzhLEjLE\"}},\"a3\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs1PAzhLEjLE\"}}}}"
+    "body" : "{\"data\":{\"a0\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs2YFzhLGrZs\"}},\"a1\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs2YFzhLGrZs\"}},\"a2\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs2YFzhLGraY\"}},\"a3\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs2YFzhLGraY\"}}}}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "prefix" : "forge-client-issues-3af549eb",
-    "number" : 167,
-    "other" : 168,
-    "subIssueId" : 6555584928,
-    "thirdIssueId" : 6555585156,
-    "since" : "2026-11-23T08:35:38Z",
-    "etag" : "\"0c92ce7b020e4eb7b0c61fd44f16ffbd6394379c9bda82072fc1cec0e9266e0f\"",
+    "prefix" : "forge-client-issues-bdee0a28",
+    "number" : 178,
+    "other" : 179,
+    "subIssueId" : 6557922846,
+    "thirdIssueId" : 6557923049,
+    "since" : "2026-11-23T10:58:45Z",
+    "etag" : "\"a53a4ec2bec58678f4b6209bfea34d4f96c088c2f4620106977139a0706e75e5\"",
     "itemsEtag" : "pending",
-    "projectNumber" : 67,
-    "projectId" : "PVT_kwDOFN-d0c4Bs1PA",
+    "projectNumber" : 70,
+    "projectId" : "PVT_kwDOFN-d0c4Bs2YF",
     "repositoryId" : "R_kgDOVc0D8w",
-    "issueIds" : [ "I_kwDOVc0D888AAAABhr5HVw", "I_kwDOVc0D888AAAABhr5JoA" ],
+    "issueIds" : [ "I_kwDOVc0D888AAAABhuHzQA", "I_kwDOVc0D888AAAABhuH2Hg" ],
     "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
-    "itemIds" : [ "PVTI_lADOFN-d0c4Bs1PAzhLEjKg", "PVTI_lADOFN-d0c4Bs1PAzhLEjLE" ],
-    "fieldId" : "PVTSSF_lADOFN-d0c4Bs1PAzhrBeLs",
-    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bs1PAzhrBeHo",
+    "itemIds" : [ "PVTI_lADOFN-d0c4Bs2YFzhLGrZs", "PVTI_lADOFN-d0c4Bs2YFzhLGraY" ],
+    "fieldId" : "PVTSSF_lADOFN-d0c4Bs2YFzhrCiK8",
+    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bs2YFzhrCiIc",
     "statusOptionId" : "f75ad846",
-    "textFieldId" : "PVTF_lADOFN-d0c4Bs1PAzhrBeMU",
-    "numberFieldId" : "PVTF_lADOFN-d0c4Bs1PAzhrBeMk",
-    "fieldDatabaseIds" : [ 448886906, 448886971, 448886981, 448886985 ],
-    "label" : "forge-client-issues-3af549eb/topic a.b"
+    "textFieldId" : "PVTF_lADOFN-d0c4Bs2YFzhrCiLc",
+    "numberFieldId" : "PVTF_lADOFN-d0c4Bs2YFzhrCiL8",
+    "fieldDatabaseIds" : [ 448956551, 448956591, 448956599, 448956607 ],
+    "label" : "forge-client-issues-bdee0a28/topic a.b"
   },
   "request_body" : {
+    "query" : "mutation SetFieldValues($v0: UpdateProjectV2ItemFieldValueInput!, $v1: UpdateProjectV2ItemFieldValueInput!, $v2: UpdateProjectV2ItemFieldValueInput!, $v3: ClearProjectV2ItemFieldValueInput!) { a0: updateProjectV2ItemFieldValue(input: $v0) { projectV2Item { id } } a1: updateProjectV2ItemFieldValue(input: $v1) { projectV2Item { id } } a2: updateProjectV2ItemFieldValue(input: $v2) { projectV2Item { id } } a3: clearProjectV2ItemFieldValue(input: $v3) { projectV2Item { id } } }",
     "variables" : {
       "v0" : {
-        "projectId" : "PVT_kwDOFN-d0c4Bs1PA",
-        "itemId" : "PVTI_lADOFN-d0c4Bs1PAzhLEjKg",
-        "fieldId" : "PVTSSF_lADOFN-d0c4Bs1PAzhrBeHo",
+        "projectId" : "PVT_kwDOFN-d0c4Bs2YF",
+        "itemId" : "PVTI_lADOFN-d0c4Bs2YFzhLGrZs",
+        "fieldId" : "PVTSSF_lADOFN-d0c4Bs2YFzhrCiIc",
         "value" : {
           "singleSelectOptionId" : "f75ad846"
         }
       },
       "v1" : {
-        "projectId" : "PVT_kwDOFN-d0c4Bs1PA",
-        "itemId" : "PVTI_lADOFN-d0c4Bs1PAzhLEjKg",
-        "fieldId" : "PVTF_lADOFN-d0c4Bs1PAzhrBeMU",
+        "projectId" : "PVT_kwDOFN-d0c4Bs2YF",
+        "itemId" : "PVTI_lADOFN-d0c4Bs2YFzhLGrZs",
+        "fieldId" : "PVTF_lADOFN-d0c4Bs2YFzhrCiLc",
         "value" : {
           "text" : "OLD-1"
         }
       },
       "v2" : {
-        "projectId" : "PVT_kwDOFN-d0c4Bs1PA",
-        "itemId" : "PVTI_lADOFN-d0c4Bs1PAzhLEjLE",
-        "fieldId" : "PVTF_lADOFN-d0c4Bs1PAzhrBeMk",
+        "projectId" : "PVT_kwDOFN-d0c4Bs2YF",
+        "itemId" : "PVTI_lADOFN-d0c4Bs2YFzhLGraY",
+        "fieldId" : "PVTF_lADOFN-d0c4Bs2YFzhrCiL8",
         "value" : {
           "number" : 3.0
         }
       },
       "v3" : {
-        "projectId" : "PVT_kwDOFN-d0c4Bs1PA",
-        "itemId" : "PVTI_lADOFN-d0c4Bs1PAzhLEjLE",
-        "fieldId" : "PVTF_lADOFN-d0c4Bs1PAzhrBeMU"
+        "projectId" : "PVT_kwDOFN-d0c4Bs2YF",
+        "itemId" : "PVTI_lADOFN-d0c4Bs2YFzhLGraY",
+        "fieldId" : "PVTF_lADOFN-d0c4Bs2YFzhrCiLc"
       }
-    },
-    "query" : "mutation SetFieldValues($v0: UpdateProjectV2ItemFieldValueInput!, $v1: UpdateProjectV2ItemFieldValueInput!, $v2: UpdateProjectV2ItemFieldValueInput!, $v3: ClearProjectV2ItemFieldValueInput!) { a0: updateProjectV2ItemFieldValue(input: $v0) { projectV2Item { id } } a1: updateProjectV2ItemFieldValue(input: $v1) { projectV2Item { id } } a2: updateProjectV2ItemFieldValue(input: $v2) { projectV2Item { id } } a3: clearProjectV2ItemFieldValue(input: $v3) { projectV2Item { id } } }"
+    }
   }
 }

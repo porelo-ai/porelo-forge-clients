@@ -6,8 +6,8 @@
     "etag" : [ "\"186378bc1d4dc83dce0b6c658acc43bc3a6c73df8969a504dafe3374ec0fee04\"" ],
     "x-accepted-github-permissions" : [ "issue_fields=read" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4928" ],
-    "x-ratelimit-reset" : [ "1795426914" ]
+    "x-ratelimit-remaining" : [ "4912" ],
+    "x-ratelimit-reset" : [ "1795435349" ]
   },
   "body" : "[{\"id\":49223313,\"node_id\":\"IFSS_kgDOAu8WkQ\",\"name\":\"Priority\",\"description\":\"Current importance level assigned to this issue\",\"data_type\":\"single_select\",\"created_at\":\"2026-10-30T10:01:47.397+01:00\",\"updated_at\":\"2026-10-30T10:01:47.397+01:00\",\"visibility\":\"organization_members_only\",\"options\":[{\"id\":86177764,\"name\":\"High\",\"description\":null,\"color\":\"red\",\"priority\":2,\"created_at\":\"2026-10-30T10:01:47.431+01:00\",\"updated_at\":\"2026-10-30T10:01:47.431+01:00\"},{\"id\":86177766,\"name\":\"Low\",\"description\":null,\"color\":\"green\",\"priority\":4,\"created_at\":\"2026-10-30T10:01:47.465+01:00\",\"updated_at\":\"2026-10-30T10:01:47.465+01:00\"},{\"id\":86177765,\"name\":\"Medium\",\"description\":null,\"color\":\"yellow\",\"priority\":3,\"created_at\":\"2026-10-30T10:01:47.449+01:00\",\"updated_at\":\"2026-10-30T10:01:47.449+01:00\"},{\"id\":86177763,\"name\":\"Urgent\",\"description\":null,\"color\":\"pink\",\"priority\":1,\"created_at\":\"2026-10-30T10:01:47.414+01:00\",\"updated_at\":\"2026-10-30T10:01:47.414+01:00\"}]},{\"id\":49223314,\"node_id\":\"IFD_kgDOAu8Wkg\",\"name\":\"Start date\",\"description\":\"Date when work on issue will begin\",\"data_type\":\"date\",\"created_at\":\"2026-10-30T10:01:47.485+01:00\",\"updated_at\":\"2026-10-30T10:01:47.485+01:00\",\"visibility\":\"organization_members_only\"},{\"id\":49223315,\"node_id\":\"IFD_kgDOAu8Wkw\",\"name\":\"Target date\",\"description\":\"Expected completion date for this issue\",\"data_type\":\"date\",\"created_at\":\"2026-10-30T10:01:47.505+01:00\",\"updated_at\":\"2026-10-30T10:01:47.505+01:00\",\"visibility\":\"organization_members_only\"},{\"id\":49223316,\"node_id\":\"IFSS_kgDOAu8WlA\",\"name\":\"Effort\",\"description\":\"Relative level of effort for completing this issue\",\"data_type\":\"single_select\",\"created_at\":\"2026-10-30T10:01:47.523+01:00\",\"updated_at\":\"2026-10-30T10:01:47.523+01:00\",\"visibility\":\"organization_members_only\",\"options\":[{\"id\":86177767,\"name\":\"High\",\"description\":null,\"color\":\"red\",\"priority\":1,\"created_at\":\"2026-10-30T10:01:47.539+01:00\",\"updated_at\":\"2026-10-30T10:01:47.539+01:00\"},{\"id\":86177769,\"name\":\"Low\",\"description\":null,\"color\":\"green\",\"priority\":3,\"created_at\":\"2026-10-30T10:01:47.572+01:00\",\"updated_at\":\"2026-10-30T10:01:47.572+01:00\"},{\"id\":86177768,\"name\":\"Medium\",\"description\":null,\"color\":\"yellow\",\"priority\":2,\"created_at\":\"2026-10-30T10:01:47.556+01:00\",\"updated_at\":\"2026-10-30T10:01:47.556+01:00\"}]}]",
   "exchanges" : [ {
@@ -18,35 +18,35 @@
       "etag" : [ "\"186378bc1d4dc83dce0b6c658acc43bc3a6c73df8969a504dafe3374ec0fee04\"" ],
       "x-accepted-github-permissions" : [ "issue_fields=read" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4928" ],
-      "x-ratelimit-reset" : [ "1795426914" ]
+      "x-ratelimit-remaining" : [ "4912" ],
+      "x-ratelimit-reset" : [ "1795435349" ]
     },
     "body" : "[{\"id\":49223313,\"node_id\":\"IFSS_kgDOAu8WkQ\",\"name\":\"Priority\",\"description\":\"Current importance level assigned to this issue\",\"data_type\":\"single_select\",\"created_at\":\"2026-10-30T10:01:47.397+01:00\",\"updated_at\":\"2026-10-30T10:01:47.397+01:00\",\"visibility\":\"organization_members_only\",\"options\":[{\"id\":86177764,\"name\":\"High\",\"description\":null,\"color\":\"red\",\"priority\":2,\"created_at\":\"2026-10-30T10:01:47.431+01:00\",\"updated_at\":\"2026-10-30T10:01:47.431+01:00\"},{\"id\":86177766,\"name\":\"Low\",\"description\":null,\"color\":\"green\",\"priority\":4,\"created_at\":\"2026-10-30T10:01:47.465+01:00\",\"updated_at\":\"2026-10-30T10:01:47.465+01:00\"},{\"id\":86177765,\"name\":\"Medium\",\"description\":null,\"color\":\"yellow\",\"priority\":3,\"created_at\":\"2026-10-30T10:01:47.449+01:00\",\"updated_at\":\"2026-10-30T10:01:47.449+01:00\"},{\"id\":86177763,\"name\":\"Urgent\",\"description\":null,\"color\":\"pink\",\"priority\":1,\"created_at\":\"2026-10-30T10:01:47.414+01:00\",\"updated_at\":\"2026-10-30T10:01:47.414+01:00\"}]},{\"id\":49223314,\"node_id\":\"IFD_kgDOAu8Wkg\",\"name\":\"Start date\",\"description\":\"Date when work on issue will begin\",\"data_type\":\"date\",\"created_at\":\"2026-10-30T10:01:47.485+01:00\",\"updated_at\":\"2026-10-30T10:01:47.485+01:00\",\"visibility\":\"organization_members_only\"},{\"id\":49223315,\"node_id\":\"IFD_kgDOAu8Wkw\",\"name\":\"Target date\",\"description\":\"Expected completion date for this issue\",\"data_type\":\"date\",\"created_at\":\"2026-10-30T10:01:47.505+01:00\",\"updated_at\":\"2026-10-30T10:01:47.505+01:00\",\"visibility\":\"organization_members_only\"},{\"id\":49223316,\"node_id\":\"IFSS_kgDOAu8WlA\",\"name\":\"Effort\",\"description\":\"Relative level of effort for completing this issue\",\"data_type\":\"single_select\",\"created_at\":\"2026-10-30T10:01:47.523+01:00\",\"updated_at\":\"2026-10-30T10:01:47.523+01:00\",\"visibility\":\"organization_members_only\",\"options\":[{\"id\":86177767,\"name\":\"High\",\"description\":null,\"color\":\"red\",\"priority\":1,\"created_at\":\"2026-10-30T10:01:47.539+01:00\",\"updated_at\":\"2026-10-30T10:01:47.539+01:00\"},{\"id\":86177769,\"name\":\"Low\",\"description\":null,\"color\":\"green\",\"priority\":3,\"created_at\":\"2026-10-30T10:01:47.572+01:00\",\"updated_at\":\"2026-10-30T10:01:47.572+01:00\"},{\"id\":86177768,\"name\":\"Medium\",\"description\":null,\"color\":\"yellow\",\"priority\":2,\"created_at\":\"2026-10-30T10:01:47.556+01:00\",\"updated_at\":\"2026-10-30T10:01:47.556+01:00\"}]}]"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "prefix" : "forge-client-issues-3af549eb",
-    "number" : 167,
-    "other" : 168,
-    "subIssueId" : 6555584928,
-    "thirdIssueId" : 6555585156,
-    "since" : "2026-11-23T08:35:38Z",
-    "etag" : "\"0c92ce7b020e4eb7b0c61fd44f16ffbd6394379c9bda82072fc1cec0e9266e0f\"",
-    "itemsEtag" : "\"854e0afbe86e41d588aadc749ec8b8f6f6e2bc2af389526860048a5d46c5bbef\"",
-    "projectNumber" : 67,
-    "projectId" : "PVT_kwDOFN-d0c4Bs1PA",
+    "prefix" : "forge-client-issues-bdee0a28",
+    "number" : 178,
+    "other" : 179,
+    "subIssueId" : 6557922846,
+    "thirdIssueId" : 6557923049,
+    "since" : "2026-11-23T10:58:45Z",
+    "etag" : "\"a53a4ec2bec58678f4b6209bfea34d4f96c088c2f4620106977139a0706e75e5\"",
+    "itemsEtag" : "\"ba2f361956816e67eca29893f7184b0f69c80419102038891538e74d017f71a7\"",
+    "projectNumber" : 70,
+    "projectId" : "PVT_kwDOFN-d0c4Bs2YF",
     "repositoryId" : "R_kgDOVc0D8w",
-    "issueIds" : [ "I_kwDOVc0D888AAAABhr5HVw", "I_kwDOVc0D888AAAABhr5JoA" ],
+    "issueIds" : [ "I_kwDOVc0D888AAAABhuHzQA", "I_kwDOVc0D888AAAABhuH2Hg" ],
     "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
-    "itemIds" : [ "PVTI_lADOFN-d0c4Bs1PAzhLEjKg", "PVTI_lADOFN-d0c4Bs1PAzhLEjLE" ],
-    "fieldId" : "PVTSSF_lADOFN-d0c4Bs1PAzhrBeLs",
-    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bs1PAzhrBeHo",
+    "itemIds" : [ "PVTI_lADOFN-d0c4Bs2YFzhLGrZs", "PVTI_lADOFN-d0c4Bs2YFzhLGraY" ],
+    "fieldId" : "PVTSSF_lADOFN-d0c4Bs2YFzhrCiK8",
+    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bs2YFzhrCiIc",
     "statusOptionId" : "f75ad846",
-    "textFieldId" : "PVTF_lADOFN-d0c4Bs1PAzhrBeMU",
-    "numberFieldId" : "PVTF_lADOFN-d0c4Bs1PAzhrBeMk",
-    "fieldDatabaseIds" : [ 448886906, 448886971, 448886981, 448886985 ],
-    "label" : "forge-client-issues-3af549eb/topic a.b"
+    "textFieldId" : "PVTF_lADOFN-d0c4Bs2YFzhrCiLc",
+    "numberFieldId" : "PVTF_lADOFN-d0c4Bs2YFzhrCiL8",
+    "fieldDatabaseIds" : [ 448956551, 448956591, 448956599, 448956607 ],
+    "label" : "forge-client-issues-bdee0a28/topic a.b"
   },
   "request_body" : { }
 }

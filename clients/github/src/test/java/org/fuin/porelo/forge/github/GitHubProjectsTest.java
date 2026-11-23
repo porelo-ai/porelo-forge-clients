@@ -46,12 +46,18 @@ class GitHubProjectsTest {
     }
 
     private static String issue(String id, String closedAt) {
+        return issue(id, closedAt, "{\"totalCount\":0,\"nodes\":[]}");
+    }
+
+    private static String issue(String id, String closedAt, String fieldValues) {
         return "{\"__typename\":\"Issue\",\"id\":\""
                 + id
                 + "\",\"databaseId\":5000000001,\"number\":7,\"title\":\"T\",\"body\":null,"
                 + "\"state\":\"OPEN\",\"stateReason\":null,\"updatedAt\":\"2026-01-01T00:00:00Z\","
                 + "\"closedAt\":"
                 + closedAt
+                + ",\"issueFieldValues\":"
+                + fieldValues
                 + ","
                 + "\"repository\":{\"nameWithOwner\":\"o/r\"},"
                 + "\"labels\":{\"nodes\":[{\"name\":\"story\"}],"
@@ -454,6 +460,66 @@ class GitHubProjectsTest {
                 .as("a closed issue's time")
                 .isEqualTo(Instant.parse("2026-02-03T04:05:06Z"));
         assertThat(page.items().get(1).issue().closedAt()).as("an open issue's").isNull();
+    }
+
+    // Prevents a priority set on GitHub from going unseen: each board issue carries its
+    // single-select field values by field and option name, other kinds left out, as GitHub sends
+    // them.
+    @Test
+    void anItemsIssueReadsItsSelectedFieldOptions() throws Exception {
+        String values =
+                "{\"totalCount\":3,\"nodes\":["
+                        + "{\"__typename\":\"IssueFieldSingleSelectValue\",\"name\":\"Urgent\","
+                        + "\"field\":{\"name\":\"Priority\"}},"
+                        + "{\"__typename\":\"IssueFieldDateValue\"},"
+                        + "{\"__typename\":\"IssueFieldSingleSelectValue\",\"name\":\"Low\","
+                        + "\"field\":{\"name\":\"Effort\"}}]}";
+        var items = answering(itemsWith(issue("I_1", "null", values) + ",\"issueType\":null"));
+        var page = graphQl(items).projectItems(TOKEN, "o", 1, null);
+        assertThat(request(items).path("query").asText())
+                .as("the item read asks for the issue's field values")
+                .contains("issueFieldValues(first: 100)");
+        assertThat(page.items().get(0).issue().fieldOptions())
+                .as("the select values, the date left out")
+                .containsExactly(
+                        new GitHubGraphQl.IssueFieldOption("Priority", "Urgent"),
+                        new GitHubGraphQl.IssueFieldOption("Effort", "Low"));
+
+        String more = "{\"totalCount\":101,\"nodes\":[{\"__typename\":\"IssueFieldDateValue\"}]}";
+        var cut = answering(itemsWith(issue("I_1", "null", more) + ",\"issueType\":null"));
+        assertThatExceptionOfType(GitHubException.class)
+                .as("more values than one read holds, which would drop some")
+                .isThrownBy(() -> graphQl(cut).projectItems(TOKEN, "o", 1, null));
+    }
+
+    // Prevents a priority from being read as missing when GitHub's answer is broken: a select
+    // value without its field's or its option's name fails the read.
+    @Test
+    void aSelectedFieldOptionWithoutItsNamesFailsTheRead() {
+        for (String value :
+                List.of(
+                        "{\"__typename\":\"IssueFieldSingleSelectValue\",\"name\":\"High\",\"field\":{}}",
+                        "{\"__typename\":\"IssueFieldSingleSelectValue\","
+                                + "\"field\":{\"name\":\"Priority\"}}")) {
+            String values = "{\"totalCount\":1,\"nodes\":[" + value + "]}";
+            var broken = answering(itemsWith(issue("I_1", "null", values) + ",\"issueType\":null"));
+            assertThatExceptionOfType(GitHubException.class)
+                    .as("a select value reading %s", value)
+                    .isThrownBy(() -> graphQl(broken).projectItems(TOKEN, "o", 1, null));
+        }
+    }
+
+    private static String itemsWith(String issue) {
+        return "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"totalCount\":1,\"nodes\":["
+                + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":"
+                + issue
+                + "},\"fieldValues\":{\"nodes\":[],"
+                + PAGE
+                + "}}],"
+                + PAGE
+                + "}}},"
+                + COST
+                + "}}";
     }
 
     // Prevents a closed issue from passing as never closed when GitHub's answer is broken: a

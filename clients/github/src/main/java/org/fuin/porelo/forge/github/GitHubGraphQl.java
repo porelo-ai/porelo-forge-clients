@@ -934,6 +934,8 @@ public final class GitHubGraphQl {
      * @param labelsPage whether more labels follow, and from where
      * @param issueType the name of its issue type, such as {@code Story}, or null when it has none
      * @param closedAt when it was last closed, or null while it has never been
+     * @param fieldOptions its single-select issue-field values, in GitHub's order; values of other
+     *     kinds are left out
      */
     public record BoardIssue(
             String id,
@@ -951,7 +953,8 @@ public final class GitHubGraphQl {
             IssueRefs blockedBy,
             PageInfo labelsPage,
             @Nullable String issueType,
-            @Nullable Instant closedAt) {
+            @Nullable Instant closedAt,
+            List<IssueFieldOption> fieldOptions) {
         /** Requires every part GitHub always sends. */
         public BoardIssue {
             Objects.requireNonNull(labelsPage, "labelsPage");
@@ -963,6 +966,21 @@ public final class GitHubGraphQl {
             labels = List.copyOf(labels);
             Objects.requireNonNull(subIssues, "subIssues");
             Objects.requireNonNull(blockedBy, "blockedBy");
+            fieldOptions = List.copyOf(fieldOptions);
+        }
+    }
+
+    /**
+     * One single-select issue-field value of an issue.
+     *
+     * @param field the field's name, such as {@code Priority}
+     * @param option the chosen option's name, such as {@code High}
+     */
+    public record IssueFieldOption(String field, String option) {
+        /** Requires both names. */
+        public IssueFieldOption {
+            Objects.requireNonNull(field, "field");
+            Objects.requireNonNull(option, "option");
         }
     }
 

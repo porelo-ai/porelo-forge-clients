@@ -4,50 +4,50 @@
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4881" ],
-    "x-ratelimit-reset" : [ "1795426905" ]
+    "x-ratelimit-remaining" : [ "4804" ],
+    "x-ratelimit-reset" : [ "1795435365" ]
   },
-  "body" : "{\"data\":{\"node\":{\"blockedBy\":{\"nodes\":[{\"id\":\"I_kwDOV1dojc8AAAABhr5KhA\",\"databaseId\":6555585156,\"number\":86,\"repository\":{\"nameWithOwner\":\"fixture-org/fixture-other-repo\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"MQ\"}}},\"rateLimit\":{\"cost\":1,\"remaining\":4881,\"resetAt\":\"2026-11-23T09:41:45Z\"}}}",
+  "body" : "{\"data\":{\"node\":{\"blockedBy\":{\"nodes\":[{\"id\":\"I_kwDOV1dojc8AAAABhuH26Q\",\"databaseId\":6557923049,\"number\":89,\"repository\":{\"nameWithOwner\":\"fixture-org/fixture-other-repo\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"MQ\"}}},\"rateLimit\":{\"cost\":1,\"remaining\":4804,\"resetAt\":\"2026-11-23T12:02:45Z\"}}}",
   "exchanges" : [ {
     "request_uri" : "/graphql",
     "status" : 200,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4881" ],
-      "x-ratelimit-reset" : [ "1795426905" ]
+      "x-ratelimit-remaining" : [ "4804" ],
+      "x-ratelimit-reset" : [ "1795435365" ]
     },
-    "body" : "{\"data\":{\"node\":{\"blockedBy\":{\"nodes\":[{\"id\":\"I_kwDOV1dojc8AAAABhr5KhA\",\"databaseId\":6555585156,\"number\":86,\"repository\":{\"nameWithOwner\":\"fixture-org/fixture-other-repo\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"MQ\"}}},\"rateLimit\":{\"cost\":1,\"remaining\":4881,\"resetAt\":\"2026-11-23T09:41:45Z\"}}}"
+    "body" : "{\"data\":{\"node\":{\"blockedBy\":{\"nodes\":[{\"id\":\"I_kwDOV1dojc8AAAABhuH26Q\",\"databaseId\":6557923049,\"number\":89,\"repository\":{\"nameWithOwner\":\"fixture-org/fixture-other-repo\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"MQ\"}}},\"rateLimit\":{\"cost\":1,\"remaining\":4804,\"resetAt\":\"2026-11-23T12:02:45Z\"}}}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "prefix" : "forge-client-issues-3af549eb",
-    "number" : 167,
-    "other" : 168,
-    "subIssueId" : 6555584928,
-    "thirdIssueId" : 6555585156,
-    "since" : "2026-11-23T08:35:38Z",
-    "etag" : "\"0c92ce7b020e4eb7b0c61fd44f16ffbd6394379c9bda82072fc1cec0e9266e0f\"",
-    "itemsEtag" : "\"854e0afbe86e41d588aadc749ec8b8f6f6e2bc2af389526860048a5d46c5bbef\"",
-    "projectNumber" : 67,
-    "projectId" : "PVT_kwDOFN-d0c4Bs1PA",
+    "prefix" : "forge-client-issues-bdee0a28",
+    "number" : 178,
+    "other" : 179,
+    "subIssueId" : 6557922846,
+    "thirdIssueId" : 6557923049,
+    "since" : "2026-11-23T10:58:45Z",
+    "etag" : "\"a53a4ec2bec58678f4b6209bfea34d4f96c088c2f4620106977139a0706e75e5\"",
+    "itemsEtag" : "\"ba2f361956816e67eca29893f7184b0f69c80419102038891538e74d017f71a7\"",
+    "projectNumber" : 70,
+    "projectId" : "PVT_kwDOFN-d0c4Bs2YF",
     "repositoryId" : "R_kgDOVc0D8w",
-    "issueIds" : [ "I_kwDOVc0D888AAAABhr5HVw", "I_kwDOVc0D888AAAABhr5JoA" ],
+    "issueIds" : [ "I_kwDOVc0D888AAAABhuHzQA", "I_kwDOVc0D888AAAABhuH2Hg" ],
     "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
-    "itemIds" : [ "PVTI_lADOFN-d0c4Bs1PAzhLEjKg", "PVTI_lADOFN-d0c4Bs1PAzhLEjLE" ],
-    "fieldId" : "PVTSSF_lADOFN-d0c4Bs1PAzhrBeLs",
-    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bs1PAzhrBeHo",
+    "itemIds" : [ "PVTI_lADOFN-d0c4Bs2YFzhLGrZs", "PVTI_lADOFN-d0c4Bs2YFzhLGraY" ],
+    "fieldId" : "PVTSSF_lADOFN-d0c4Bs2YFzhrCiK8",
+    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bs2YFzhrCiIc",
     "statusOptionId" : "f75ad846",
-    "textFieldId" : "PVTF_lADOFN-d0c4Bs1PAzhrBeMU",
-    "numberFieldId" : "PVTF_lADOFN-d0c4Bs1PAzhrBeMk",
-    "fieldDatabaseIds" : [ 448886906, 448886971, 448886981, 448886985 ],
-    "label" : "forge-client-issues-3af549eb/topic a.b"
+    "textFieldId" : "PVTF_lADOFN-d0c4Bs2YFzhrCiLc",
+    "numberFieldId" : "PVTF_lADOFN-d0c4Bs2YFzhrCiL8",
+    "fieldDatabaseIds" : [ 448956551, 448956591, 448956599, 448956607 ],
+    "label" : "forge-client-issues-bdee0a28/topic a.b"
   },
   "request_body" : {
+    "query" : "query IssueBlockedBy($id: ID!, $after: String) { node(id: $id) { ... on Issue { blockedBy(first: 100, after: $after) { nodes { id databaseId number repository { nameWithOwner } } pageInfo { hasNextPage endCursor } } } } rateLimit { cost remaining resetAt } }",
     "variables" : {
-      "id" : "I_kwDOVc0D888AAAABhr5HVw"
-    },
-    "query" : "query IssueBlockedBy($id: ID!, $after: String) { node(id: $id) { ... on Issue { blockedBy(first: 100, after: $after) { nodes { id databaseId number repository { nameWithOwner } } pageInfo { hasNextPage endCursor } } } } rateLimit { cost remaining resetAt } }"
+      "id" : "I_kwDOVc0D888AAAABhuHzQA"
+    }
   }
 }

@@ -17,6 +17,7 @@ import org.fuin.porelo.forge.github.GitHubGraphQl.FieldOption;
 import org.fuin.porelo.forge.github.GitHubGraphQl.FieldOptions;
 import org.fuin.porelo.forge.github.GitHubGraphQl.FieldValue;
 import org.fuin.porelo.forge.github.GitHubGraphQl.IssueBoard;
+import org.fuin.porelo.forge.github.GitHubGraphQl.IssueFieldOption;
 import org.fuin.porelo.forge.github.GitHubGraphQl.IssueOnBoard;
 import org.fuin.porelo.forge.github.GitHubGraphQl.IssueRef;
 import org.fuin.porelo.forge.github.GitHubGraphQl.IssueRefs;
@@ -43,6 +44,10 @@ import org.jspecify.annotations.Nullable;
 final class ProjectBoard {
     private static final String COST = "rateLimit { cost remaining resetAt }";
     private static final String PAGE = "pageInfo { hasNextPage endCursor }";
+
+    /** More than an organization can define, so one read holds an issue's every value. */
+    private static final int MAX_FIELD_VALUES = 100;
+
     private static final String REF =
             "nodes { id databaseId number repository { nameWithOwner } } " + PAGE;
     private static final String LABEL_NODES = "nodes { name } " + PAGE;
@@ -59,7 +64,12 @@ final class ProjectBoard {
                     + " }"
                     + " blockedBy(first: $blockedBy) { totalCount "
                     + REF
-                    + " }";
+                    + " }"
+                    + " issueFieldValues(first: "
+                    + MAX_FIELD_VALUES
+                    + ") { totalCount nodes { __typename"
+                    + " ... on IssueFieldSingleSelectValue { name"
+                    + " field { ... on IssueFieldSingleSelect { name } } } } }";
     private static final String FIELD = "field { ... on ProjectV2FieldCommon { id } }";
     private static final String VALUE_NODES =
             "nodes { __typename"
@@ -472,7 +482,8 @@ final class ProjectBoard {
                 counted(node.path("blockedBy")),
                 pageInfo(node.path("labels")),
                 type.isObject() ? text(type, "name") : null,
-                optionalInstant(node, "closedAt"));
+                optionalInstant(node, "closedAt"),
+                fieldOptions(node.path("issueFieldValues")));
     }
 
     /** An issue's first page of a list, with every entry GitHub counts in it. */
@@ -580,6 +591,23 @@ final class ProjectBoard {
         } catch (java.time.format.DateTimeParseException unreadable) {
             throw new UnreadableAnswer(name);
         }
+    }
+
+    /** An issue's single-select values; one read holds them all, or the read fails. */
+    private static List<IssueFieldOption> fieldOptions(JsonNode connection) {
+        List<JsonNode> values = nodes(connection, "issueFieldValues");
+        if (number(connection, "totalCount") != values.size()) {
+            throw new UnreadableAnswer("issueFieldValues.totalCount");
+        }
+        List<IssueFieldOption> options = new ArrayList<>();
+        for (JsonNode value : values) {
+            if ("IssueFieldSingleSelectValue".equals(value.path("__typename").asText())) {
+                options.add(
+                        new IssueFieldOption(
+                                text(value.path("field"), "name"), text(value, "name")));
+            }
+        }
+        return options;
     }
 
     private static @Nullable Instant optionalInstant(JsonNode node, String name) {

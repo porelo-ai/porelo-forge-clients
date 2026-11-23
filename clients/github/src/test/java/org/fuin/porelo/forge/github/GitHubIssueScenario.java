@@ -482,7 +482,19 @@ final class GitHubIssueScenario implements AutoCloseable {
     private JsonNode body(GitHubIssueOperations operation) {
         return json.valueToTree(
                 switch (operation) {
-                    case createIssue -> Map.of("title", prefix + "-a", "body", "Fixture issue a");
+                    case createIssue ->
+                            Map.of(
+                                    "title",
+                                    prefix + "-a",
+                                    "body",
+                                    "Fixture issue a",
+                                    "issue_field_values",
+                                    List.of(
+                                            Map.of(
+                                                    "field_id",
+                                                    GitHubFixture.PRIORITY_FIELD,
+                                                    "value",
+                                                    "High")));
                     case updateIssue -> Map.of("body", "Fixture issue a, edited");
                     case refusedPermissions -> Map.of("name", prefix, "head_sha", "0".repeat(40));
                     case createLabel ->
@@ -780,6 +792,9 @@ final class GitHubIssueScenario implements AutoCloseable {
                 var board = ((IssueBoard) result).issues();
                 assertThat(board).as("one place per id").hasSize(3);
                 assertThat(board.get(0)).as("the first issue is read").isNotNull();
+                assertThat(board.get(0).issue().fieldOptions())
+                        .as("the first issue's priority, set when it was made")
+                        .contains(new GitHubGraphQl.IssueFieldOption("Priority", "High"));
                 assertThat(board.get(2)).as("an unknown id reads null").isNull();
             }
             default -> {}

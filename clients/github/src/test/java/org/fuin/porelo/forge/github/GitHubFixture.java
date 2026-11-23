@@ -25,6 +25,10 @@ final class GitHubFixture implements AutoCloseable {
     static final URI WEB = URI.create("https://github.com/");
     static final String OWNER = "porelo-ai-test";
     static final String REPO = "forge-clients-live";
+
+    /** The test organization's issue field Priority, a single select. */
+    static final long PRIORITY_FIELD = 49223313L;
+
     static final String ROOT = "repos/" + OWNER + "/" + REPO;
     static final String WORKFLOW = "two-step.yml";
 
