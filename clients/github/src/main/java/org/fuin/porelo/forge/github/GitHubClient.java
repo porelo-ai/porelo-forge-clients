@@ -545,6 +545,33 @@ public final class GitHubClient {
         delete(token, "user/keys/" + positive(keyId));
     }
 
+    /** Lists one page of a repository's labels, each with its name, color and description. */
+    public Page<Label> labels(String token, String owner, String repo, int page, int perPage) {
+        return page(token, repo(owner, repo) + "/labels?" + pageQuery(page, perPage), Label.class);
+    }
+
+    /**
+     * Creates a repository label; its color is six hexadecimal digits without a leading {@code #}.
+     */
+    public Label createLabel(
+            String token, String owner, String repo, IssuesCreateLabelRequest label) {
+        Objects.requireNonNull(label, "label");
+        return call(
+                token,
+                "POST",
+                repo(owner, repo) + "/labels",
+                label,
+                json.constructType(Label.class));
+    }
+
+    /**
+     * Deletes a repository label by its name, sent as one path segment whatever it holds, such as a
+     * slash.
+     */
+    public void deleteLabel(String token, String owner, String repo, String name) {
+        delete(token, repo(owner, repo) + "/labels/" + segment(name));
+    }
+
     /** Lists one page of the authenticated account's own SSH signing keys. */
     public Page<SshSigningKey> ownSigningKeys(String token, int page, int perPage) {
         return page(

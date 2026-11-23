@@ -206,6 +206,12 @@
                                 <argument>get /repos/{owner}/{repo}/issues/{issue_number}/dependencies/blocking</argument>
                                 <argument>--operation</argument>
                                 <argument>get /orgs/{org}/projectsV2/{project_number}/items</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/labels</argument>
+                                <argument>--operation</argument>
+                                <argument>post /repos/{owner}/{repo}/labels</argument>
+                                <argument>--operation</argument>
+                                <argument>delete /repos/{owner}/{repo}/labels/{name}</argument>
                             </arguments>
                         </configuration>
                     </execution>

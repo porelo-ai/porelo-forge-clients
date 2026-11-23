@@ -8,6 +8,7 @@ import org.fuin.porelo.forge.github.GitHubGraphQl.FieldValue;
 import org.fuin.porelo.forge.github.GitHubGraphQl.NewIssue;
 import org.fuin.porelo.forge.github.GitHubGraphQl.NewOption;
 import org.fuin.porelo.forge.github.model.ChecksCreateRequest;
+import org.fuin.porelo.forge.github.model.IssuesCreateLabelRequest;
 import org.fuin.porelo.forge.github.model.IssuesCreateRequest;
 import org.fuin.porelo.forge.github.model.IssuesUpdateRequest;
 
@@ -51,7 +52,10 @@ enum GitHubIssueOperations {
     issueSubIssues("POST", "/graphql"),
     issueBlockedBy("POST", "/graphql"),
     itemValues("POST", "/graphql"),
-    createIssues("POST", "/graphql");
+    createIssues("POST", "/graphql"),
+    createLabel("POST", "/repos/{owner}/{repo}/labels"),
+    labels("GET", "/repos/{owner}/{repo}/labels"),
+    deleteLabel("DELETE", "/repos/{owner}/{repo}/labels/{label}");
 
     /** The options the recorder sets on its single-select field, in this order. */
     static final List<NewOption> OPTIONS =
@@ -201,6 +205,17 @@ enum GitHubIssueOperations {
                                             null,
                                             c.issueIds().get(0),
                                             List.of())));
+            case createLabel ->
+                    client.createLabel(
+                            token,
+                            c.owner(),
+                            c.repo(),
+                            JSON.treeToValue(body, IssuesCreateLabelRequest.class));
+            case labels -> client.labels(token, c.owner(), c.repo(), 1, 100);
+            case deleteLabel -> {
+                client.deleteLabel(token, c.owner(), c.repo(), c.label());
+                yield c.label();
+            }
         };
     }
 
@@ -222,7 +237,15 @@ enum GitHubIssueOperations {
                 .replace("{number}", Long.toString(c.number()))
                 .replace("{other}", Long.toString(c.other()))
                 .replace("{subIssueId}", Long.toString(c.subIssueId()))
-                .replace("{projectNumber}", Integer.toString(c.projectNumber()));
+                .replace("{projectNumber}", Integer.toString(c.projectNumber()))
+                .replace("{label}", segment(c.label()));
+    }
+
+    /** A label's name as one path segment, as GitHub's documentation asks it encoded. */
+    private static String segment(String name) {
+        return java.net.URLEncoder.encode(name, java.nio.charset.StandardCharsets.UTF_8)
+                .replace("+", "%20")
+                .replace(".", "%2E");
     }
 
     /**
@@ -251,7 +274,8 @@ enum GitHubIssueOperations {
             String statusOptionId,
             String textFieldId,
             String numberFieldId,
-            List<Long> fieldDatabaseIds) {
+            List<Long> fieldDatabaseIds,
+            String label) {
         /** Keeps the lists from changing. */
         Context {
             issueIds = List.copyOf(issueIds);

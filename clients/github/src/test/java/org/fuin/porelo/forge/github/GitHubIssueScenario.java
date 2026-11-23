@@ -21,6 +21,7 @@ import org.fuin.porelo.forge.github.GitHubGraphQl.ProjectFields;
 import org.fuin.porelo.forge.github.model.Issue;
 import org.fuin.porelo.forge.github.model.IssuesCreateRequest;
 import org.fuin.porelo.forge.github.model.IssuesUpdateRequest;
+import org.fuin.porelo.forge.github.model.Label;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -110,7 +111,13 @@ final class GitHubIssueScenario implements AutoCloseable {
                 statusOptionId,
                 textFieldId,
                 numberFieldId,
-                fieldDatabaseIds);
+                fieldDatabaseIds,
+                label());
+    }
+
+    /** The run's label, with a slash, a space and a dot, so its name must reach GitHub whole. */
+    private String label() {
+        return prefix + "/topic a.b";
     }
 
     /** The account the token belongs to, which the recordings name as the reviewer. */
@@ -477,8 +484,26 @@ final class GitHubIssueScenario implements AutoCloseable {
                     case createIssue -> Map.of("title", prefix + "-a", "body", "Fixture issue a");
                     case updateIssue -> Map.of("body", "Fixture issue a, edited");
                     case refusedPermissions -> Map.of("name", prefix, "head_sha", "0".repeat(40));
+                    case createLabel ->
+                            Map.of(
+                                    "name",
+                                    label(),
+                                    "color",
+                                    "0e8a16",
+                                    "description",
+                                    "Fixture label");
                     default -> Map.of();
                 });
+    }
+
+    /** Deletes this run's label and any an earlier run left behind. */
+    private void removeLabels() {
+        var labels = setup.labels(token, GitHubFixture.OWNER, GitHubFixture.REPO, 1, 100);
+        for (var label : labels.items()) {
+            if (label.name().startsWith("forge-client-issues-")
+                    && label.name().endsWith("/topic a.b"))
+                setup.deleteLabel(token, GitHubFixture.OWNER, GitHubFixture.REPO, label.name());
+        }
     }
 
     private void made(Issue issue) {
@@ -573,6 +598,12 @@ final class GitHubIssueScenario implements AutoCloseable {
             } catch (RuntimeException failed) {
                 failures.add("project");
             }
+        }
+        // Always, so a label an earlier run left behind goes too.
+        try {
+            removeLabels();
+        } catch (RuntimeException failed) {
+            failures.add("label");
         }
         int deleted = 0;
         List<String> kept = new ArrayList<>();
@@ -698,6 +729,18 @@ final class GitHubIssueScenario implements AutoCloseable {
                     assertThat(((Conditional<?>) result).etag())
                             .as("%s carries an entity tag", operation)
                             .isNotBlank();
+            case createLabel -> {
+                var label = (Label) result;
+                assertThat(label.name())
+                        .as("the label keeps its whole name")
+                        .endsWith("/topic a.b");
+                assertThat(label.color()).as("its color, without #").isEqualTo("0e8a16");
+                assertThat(label.description()).as("its description").isEqualTo("Fixture label");
+            }
+            case labels ->
+                    assertThat(((Page<?>) result).items())
+                            .as("the repository's labels include the run's")
+                            .anyMatch(l -> ((Label) l).name().endsWith("/topic a.b"));
             case issues, subIssues, blockedBy, blocking ->
                     assertThat(((Page<?>) result).items())
                             .as("%s lists an issue", operation)

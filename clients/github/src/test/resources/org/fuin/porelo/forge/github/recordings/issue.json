@@ -1,43 +1,43 @@
 {
-  "request_uri" : "/repos/fixture-org/fixture-repo/issues/143",
+  "request_uri" : "/repos/fixture-org/fixture-repo/issues/152",
   "status" : 200,
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
-    "etag" : [ "\"eabf7f19945379eda7614345dc06a5dddbe7002e74d3591f9ca5aefa8cf24477\"" ],
+    "etag" : [ "\"ae4f5bdabe6b8e77bcdf0687d8853e414dfefa70c4649e2260c7f48f892d7415\"" ],
     "x-accepted-github-permissions" : [ "issues=read" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4996" ],
-    "x-ratelimit-reset" : [ "1795362475" ]
+    "x-ratelimit-remaining" : [ "4969" ],
+    "x-ratelimit-reset" : [ "1795423270" ]
   },
-  "body" : "{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/143\",\"repository_url\":\"https://example.org/repos/fixture-org/fixture-repo\",\"labels_url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/143/labels{/name}\",\"comments_url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/143/comments\",\"events_url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/143/events\",\"html_url\":\"https://host-1.example.org/fixture-org/fixture-repo/issues/143\",\"id\":6543763719,\"node_id\":\"I_kwDOVc0D888AAAABhgnpBw\",\"number\":143,\"title\":\"forge-client-issues-de8a6be8-a\",\"user\":{\"login\":\"fixture-reviewer\",\"id\":1,\"node_id\":\"FIXTURE_NODE_1\",\"avatar_url\":\"https://host-2.example.org/u/1\",\"gravatar_id\":\"\",\"url\":\"https://example.org/users/fixture-reviewer\",\"html_url\":\"https://host-1.example.org/fixture-reviewer\",\"followers_url\":\"https://example.org/users/fixture-reviewer/followers\",\"following_url\":\"https://example.org/users/fixture-reviewer/following{/other_user}\",\"gists_url\":\"https://example.org/users/fixture-reviewer/gists{/gist_id}\",\"starred_url\":\"https://example.org/users/fixture-reviewer/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://example.org/users/fixture-reviewer/subscriptions\",\"organizations_url\":\"https://example.org/users/fixture-reviewer/orgs\",\"repos_url\":\"https://example.org/users/fixture-reviewer/repos\",\"events_url\":\"https://example.org/users/fixture-reviewer/events{/privacy}\",\"received_events_url\":\"https://example.org/users/fixture-reviewer/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"labels\":[],\"state\":\"open\",\"locked\":false,\"assignees\":[],\"milestone\":null,\"comments\":0,\"created_at\":\"2026-11-22T14:47:55Z\",\"updated_at\":\"2026-11-22T14:47:57Z\",\"closed_at\":null,\"author_association\":\"MEMBER\",\"issue_field_values\":[],\"type\":{\"id\":923743346,\"node_id\":\"IT_kwDOFN-d0c43DzRy\",\"name\":\"Task\",\"description\":\"A specific piece of work\",\"color\":\"yellow\",\"created_at\":\"2026-10-30T09:01:47Z\",\"updated_at\":\"2026-10-30T09:01:47Z\",\"is_enabled\":true},\"active_lock_reason\":null,\"sub_issues_summary\":{\"total\":0,\"completed\":0,\"percent_completed\":0},\"issue_dependencies_summary\":{\"blocked_by\":0,\"total_blocked_by\":0,\"blocking\":0,\"total_blocking\":0},\"body\":\"Fixture issue a\",\"closed_by\":null,\"reactions\":{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/143/reactions\",\"total_count\":0,\"+1\":0,\"-1\":0,\"laugh\":0,\"hooray\":0,\"confused\":0,\"heart\":0,\"rocket\":0,\"eyes\":0},\"timeline_url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/143/timeline\",\"performed_via_github_app\":null,\"state_reason\":null,\"pinned_comment\":null}",
+  "body" : "{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/152\",\"repository_url\":\"https://example.org/repos/fixture-org/fixture-repo\",\"labels_url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/152/labels{/name}\",\"comments_url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/152/comments\",\"events_url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/152/events\",\"html_url\":\"https://host-1.example.org/fixture-org/fixture-repo/issues/152\",\"id\":6554670547,\"node_id\":\"I_kwDOVc0D888AAAABhrBV0w\",\"number\":152,\"title\":\"forge-client-issues-6fb2235b-a\",\"user\":{\"login\":\"fixture-reviewer\",\"id\":1,\"node_id\":\"FIXTURE_NODE_1\",\"avatar_url\":\"https://host-2.example.org/u/1\",\"gravatar_id\":\"\",\"url\":\"https://example.org/users/fixture-reviewer\",\"html_url\":\"https://host-1.example.org/fixture-reviewer\",\"followers_url\":\"https://example.org/users/fixture-reviewer/followers\",\"following_url\":\"https://example.org/users/fixture-reviewer/following{/other_user}\",\"gists_url\":\"https://example.org/users/fixture-reviewer/gists{/gist_id}\",\"starred_url\":\"https://example.org/users/fixture-reviewer/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://example.org/users/fixture-reviewer/subscriptions\",\"organizations_url\":\"https://example.org/users/fixture-reviewer/orgs\",\"repos_url\":\"https://example.org/users/fixture-reviewer/repos\",\"events_url\":\"https://example.org/users/fixture-reviewer/events{/privacy}\",\"received_events_url\":\"https://example.org/users/fixture-reviewer/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"labels\":[],\"state\":\"open\",\"locked\":false,\"assignees\":[],\"milestone\":null,\"comments\":0,\"created_at\":\"2026-11-23T07:43:31Z\",\"updated_at\":\"2026-11-23T07:43:32Z\",\"closed_at\":null,\"author_association\":\"MEMBER\",\"issue_field_values\":[],\"type\":{\"id\":923743346,\"node_id\":\"IT_kwDOFN-d0c43DzRy\",\"name\":\"Task\",\"description\":\"A specific piece of work\",\"color\":\"yellow\",\"created_at\":\"2026-10-30T09:01:47Z\",\"updated_at\":\"2026-10-30T09:01:47Z\",\"is_enabled\":true},\"active_lock_reason\":null,\"sub_issues_summary\":{\"total\":0,\"completed\":0,\"percent_completed\":0},\"issue_dependencies_summary\":{\"blocked_by\":0,\"total_blocked_by\":0,\"blocking\":0,\"total_blocking\":0},\"body\":\"Fixture issue a\",\"closed_by\":null,\"reactions\":{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/152/reactions\",\"total_count\":0,\"+1\":0,\"-1\":0,\"laugh\":0,\"hooray\":0,\"confused\":0,\"heart\":0,\"rocket\":0,\"eyes\":0},\"timeline_url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/152/timeline\",\"performed_via_github_app\":null,\"state_reason\":null,\"pinned_comment\":null}",
   "exchanges" : [ {
-    "request_uri" : "/repos/fixture-org/fixture-repo/issues/143",
+    "request_uri" : "/repos/fixture-org/fixture-repo/issues/152",
     "status" : 200,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
-      "etag" : [ "\"eabf7f19945379eda7614345dc06a5dddbe7002e74d3591f9ca5aefa8cf24477\"" ],
+      "etag" : [ "\"ae4f5bdabe6b8e77bcdf0687d8853e414dfefa70c4649e2260c7f48f892d7415\"" ],
       "x-accepted-github-permissions" : [ "issues=read" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4996" ],
-      "x-ratelimit-reset" : [ "1795362475" ]
+      "x-ratelimit-remaining" : [ "4969" ],
+      "x-ratelimit-reset" : [ "1795423270" ]
     },
-    "body" : "{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/143\",\"repository_url\":\"https://example.org/repos/fixture-org/fixture-repo\",\"labels_url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/143/labels{/name}\",\"comments_url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/143/comments\",\"events_url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/143/events\",\"html_url\":\"https://host-1.example.org/fixture-org/fixture-repo/issues/143\",\"id\":6543763719,\"node_id\":\"I_kwDOVc0D888AAAABhgnpBw\",\"number\":143,\"title\":\"forge-client-issues-de8a6be8-a\",\"user\":{\"login\":\"fixture-reviewer\",\"id\":1,\"node_id\":\"FIXTURE_NODE_1\",\"avatar_url\":\"https://host-2.example.org/u/1\",\"gravatar_id\":\"\",\"url\":\"https://example.org/users/fixture-reviewer\",\"html_url\":\"https://host-1.example.org/fixture-reviewer\",\"followers_url\":\"https://example.org/users/fixture-reviewer/followers\",\"following_url\":\"https://example.org/users/fixture-reviewer/following{/other_user}\",\"gists_url\":\"https://example.org/users/fixture-reviewer/gists{/gist_id}\",\"starred_url\":\"https://example.org/users/fixture-reviewer/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://example.org/users/fixture-reviewer/subscriptions\",\"organizations_url\":\"https://example.org/users/fixture-reviewer/orgs\",\"repos_url\":\"https://example.org/users/fixture-reviewer/repos\",\"events_url\":\"https://example.org/users/fixture-reviewer/events{/privacy}\",\"received_events_url\":\"https://example.org/users/fixture-reviewer/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"labels\":[],\"state\":\"open\",\"locked\":false,\"assignees\":[],\"milestone\":null,\"comments\":0,\"created_at\":\"2026-11-22T14:47:55Z\",\"updated_at\":\"2026-11-22T14:47:57Z\",\"closed_at\":null,\"author_association\":\"MEMBER\",\"issue_field_values\":[],\"type\":{\"id\":923743346,\"node_id\":\"IT_kwDOFN-d0c43DzRy\",\"name\":\"Task\",\"description\":\"A specific piece of work\",\"color\":\"yellow\",\"created_at\":\"2026-10-30T09:01:47Z\",\"updated_at\":\"2026-10-30T09:01:47Z\",\"is_enabled\":true},\"active_lock_reason\":null,\"sub_issues_summary\":{\"total\":0,\"completed\":0,\"percent_completed\":0},\"issue_dependencies_summary\":{\"blocked_by\":0,\"total_blocked_by\":0,\"blocking\":0,\"total_blocking\":0},\"body\":\"Fixture issue a\",\"closed_by\":null,\"reactions\":{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/143/reactions\",\"total_count\":0,\"+1\":0,\"-1\":0,\"laugh\":0,\"hooray\":0,\"confused\":0,\"heart\":0,\"rocket\":0,\"eyes\":0},\"timeline_url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/143/timeline\",\"performed_via_github_app\":null,\"state_reason\":null,\"pinned_comment\":null}"
+    "body" : "{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/152\",\"repository_url\":\"https://example.org/repos/fixture-org/fixture-repo\",\"labels_url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/152/labels{/name}\",\"comments_url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/152/comments\",\"events_url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/152/events\",\"html_url\":\"https://host-1.example.org/fixture-org/fixture-repo/issues/152\",\"id\":6554670547,\"node_id\":\"I_kwDOVc0D888AAAABhrBV0w\",\"number\":152,\"title\":\"forge-client-issues-6fb2235b-a\",\"user\":{\"login\":\"fixture-reviewer\",\"id\":1,\"node_id\":\"FIXTURE_NODE_1\",\"avatar_url\":\"https://host-2.example.org/u/1\",\"gravatar_id\":\"\",\"url\":\"https://example.org/users/fixture-reviewer\",\"html_url\":\"https://host-1.example.org/fixture-reviewer\",\"followers_url\":\"https://example.org/users/fixture-reviewer/followers\",\"following_url\":\"https://example.org/users/fixture-reviewer/following{/other_user}\",\"gists_url\":\"https://example.org/users/fixture-reviewer/gists{/gist_id}\",\"starred_url\":\"https://example.org/users/fixture-reviewer/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://example.org/users/fixture-reviewer/subscriptions\",\"organizations_url\":\"https://example.org/users/fixture-reviewer/orgs\",\"repos_url\":\"https://example.org/users/fixture-reviewer/repos\",\"events_url\":\"https://example.org/users/fixture-reviewer/events{/privacy}\",\"received_events_url\":\"https://example.org/users/fixture-reviewer/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"labels\":[],\"state\":\"open\",\"locked\":false,\"assignees\":[],\"milestone\":null,\"comments\":0,\"created_at\":\"2026-11-23T07:43:31Z\",\"updated_at\":\"2026-11-23T07:43:32Z\",\"closed_at\":null,\"author_association\":\"MEMBER\",\"issue_field_values\":[],\"type\":{\"id\":923743346,\"node_id\":\"IT_kwDOFN-d0c43DzRy\",\"name\":\"Task\",\"description\":\"A specific piece of work\",\"color\":\"yellow\",\"created_at\":\"2026-10-30T09:01:47Z\",\"updated_at\":\"2026-10-30T09:01:47Z\",\"is_enabled\":true},\"active_lock_reason\":null,\"sub_issues_summary\":{\"total\":0,\"completed\":0,\"percent_completed\":0},\"issue_dependencies_summary\":{\"blocked_by\":0,\"total_blocked_by\":0,\"blocking\":0,\"total_blocking\":0},\"body\":\"Fixture issue a\",\"closed_by\":null,\"reactions\":{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/152/reactions\",\"total_count\":0,\"+1\":0,\"-1\":0,\"laugh\":0,\"hooray\":0,\"confused\":0,\"heart\":0,\"rocket\":0,\"eyes\":0},\"timeline_url\":\"https://example.org/repos/fixture-org/fixture-repo/issues/152/timeline\",\"performed_via_github_app\":null,\"state_reason\":null,\"pinned_comment\":null}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "prefix" : "forge-client-issues-de8a6be8",
-    "number" : 143,
-    "other" : 144,
-    "subIssueId" : 6543764118,
-    "thirdIssueId" : 6543764288,
-    "since" : "2026-11-22T14:37:45Z",
+    "prefix" : "forge-client-issues-6fb2235b",
+    "number" : 152,
+    "other" : 153,
+    "subIssueId" : 6554671044,
+    "thirdIssueId" : 6554671291,
+    "since" : "2026-11-23T07:33:22Z",
     "etag" : "pending",
     "itemsEtag" : "pending",
-    "projectNumber" : 60,
-    "projectId" : "PVT_kwDOFN-d0c4BsvFl",
+    "projectNumber" : 62,
+    "projectId" : "PVT_kwDOFN-d0c4Bs0wl",
     "repositoryId" : "R_kgDOVc0D8w",
-    "issueIds" : [ "I_kwDOVc0D888AAAABhgnpBw", "I_kwDOVc0D888AAAABhgnqlg" ],
+    "issueIds" : [ "I_kwDOVc0D888AAAABhrBV0w", "I_kwDOVc0D888AAAABhrBXxA" ],
     "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
     "itemIds" : [ ],
     "fieldId" : "pending",
@@ -45,7 +45,8 @@
     "statusOptionId" : "pending",
     "textFieldId" : "pending",
     "numberFieldId" : "pending",
-    "fieldDatabaseIds" : [ ]
+    "fieldDatabaseIds" : [ ],
+    "label" : "forge-client-issues-6fb2235b/topic a.b"
   },
   "request_body" : { }
 }

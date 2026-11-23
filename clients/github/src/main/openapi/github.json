@@ -87,7 +87,8 @@
         "#/paths/~1repos~1{owner}~1{repo}~1issues~1{issue_number}~1dependencies~1blocked_by~1{issue_id}/delete/parameters/3/schema/format",
         "issue#/properties/labels/items",
         "projects-v2-item-with-content#/properties/id",
-        "#/paths/~1repos~1{owner}~1{repo}~1issues~1{issue_number}/patch/responses/200/content/application~1json/schema/allOf/1/properties/suggestions/properties/issue_field_values/items/properties/value"
+        "#/paths/~1repos~1{owner}~1{repo}~1issues~1{issue_number}/patch/responses/200/content/application~1json/schema/allOf/1/properties/suggestions/properties/issue_field_values/items/properties/value",
+        "label#/required"
       ]
     }
   },
@@ -3894,6 +3895,202 @@
         }
       }
     },
+    "/repos/{owner}/{repo}/labels": {
+      "get": {
+        "summary": "List labels for a repository",
+        "description": "Lists all labels for a repository.",
+        "tags": [
+          "issues"
+        ],
+        "operationId": "issues/list-labels-for-repo",
+        "externalDocs": {
+          "description": "API method documentation",
+          "url": "https://docs.github.com/rest/issues/labels#list-labels-for-a-repository"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/owner"
+          },
+          {
+            "$ref": "#/components/parameters/repo"
+          },
+          {
+            "$ref": "#/components/parameters/per-page"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/label"
+                  }
+                },
+                "examples": {
+                  "default": {
+                    "$ref": "#/components/examples/label-items"
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Link": {
+                "$ref": "#/components/headers/link"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        },
+        "x-github": {
+          "githubCloudOnly": false,
+          "enabledForGitHubApps": true,
+          "category": "issues",
+          "subcategory": "labels"
+        }
+      },
+      "post": {
+        "summary": "Create a label",
+        "description": "Creates a label for the specified repository with the given name and color. The name and color parameters are required. The color must be a valid [hexadecimal color code](http://www.color-hex.com/).",
+        "tags": [
+          "issues"
+        ],
+        "operationId": "issues/create-label",
+        "externalDocs": {
+          "description": "API method documentation",
+          "url": "https://docs.github.com/rest/issues/labels#create-a-label"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/owner"
+          },
+          {
+            "$ref": "#/components/parameters/repo"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "The name of the label. Emoji can be added to label names, using either native emoji or colon-style markup. For example, typing `:strawberry:` will render the emoji ![:strawberry:](https://github.githubassets.com/images/icons/emoji/unicode/1f353.png \":strawberry:\"). For a full list of available emoji and codes, see \"[Emoji cheat sheet](https://github.com/ikatyang/emoji-cheat-sheet).\""
+                  },
+                  "color": {
+                    "type": "string",
+                    "description": "The [hexadecimal color code](http://www.color-hex.com/) for the label, without the leading `#`."
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "A short description of the label. Must be 100 characters or fewer."
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "name": "bug",
+                    "description": "Something isn't working",
+                    "color": "f29513"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/label"
+                },
+                "examples": {
+                  "default": {
+                    "$ref": "#/components/examples/label"
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "example": "https://api.github.com/repos/octocat/Hello-World/labels/bug",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/validation_failed"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        },
+        "x-github": {
+          "githubCloudOnly": false,
+          "enabledForGitHubApps": true,
+          "category": "issues",
+          "subcategory": "labels"
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/labels/{name}": {
+      "delete": {
+        "summary": "Delete a label",
+        "description": "Deletes a label using the given label name.",
+        "tags": [
+          "issues"
+        ],
+        "operationId": "issues/delete-label",
+        "externalDocs": {
+          "description": "API method documentation",
+          "url": "https://docs.github.com/rest/issues/labels#delete-a-label"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/owner"
+          },
+          {
+            "$ref": "#/components/parameters/repo"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Response"
+          }
+        },
+        "x-github": {
+          "githubCloudOnly": false,
+          "enabledForGitHubApps": true,
+          "category": "issues",
+          "subcategory": "labels"
+        }
+      }
+    },
     "/repos/{owner}/{repo}/pulls": {
       "get": {
         "summary": "List pull requests",
@@ -6989,6 +7186,97 @@
           "html_url",
           "key",
           "name"
+        ]
+      },
+      "label": {
+        "title": "Label",
+        "description": "Color-coded labels help you categorize and filter your issues (just like labels in Gmail).",
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "Unique identifier for the label.",
+            "type": "integer",
+            "format": "int64",
+            "examples": [
+              208045946
+            ]
+          },
+          "node_id": {
+            "type": "string",
+            "examples": [
+              "MDU6TGFiZWwyMDgwNDU5NDY="
+            ]
+          },
+          "url": {
+            "description": "URL for the label",
+            "type": "string",
+            "format": "uri",
+            "examples": [
+              "https://api.github.com/repositories/42/labels/bug"
+            ]
+          },
+          "name": {
+            "description": "The name of the label.",
+            "type": "string",
+            "examples": [
+              "bug"
+            ]
+          },
+          "description": {
+            "description": "Optional description of the label, such as its purpose.",
+            "type": [
+              "string",
+              "null"
+            ],
+            "examples": [
+              "Something isn't working"
+            ]
+          },
+          "color": {
+            "description": "6-character hex code, without the leading #, identifying the color",
+            "type": "string",
+            "examples": [
+              "FFFFFF"
+            ]
+          },
+          "default": {
+            "description": "Whether this label comes by default in a new repository.",
+            "type": "boolean",
+            "examples": [
+              true
+            ]
+          },
+          "archived_at": {
+            "description": "Timestamp indicating when the label was archived, or `null` if it has not been archived.",
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "examples": [
+              "2023-01-01T12:00:00Z"
+            ]
+          },
+          "archived_by": {
+            "description": "The user who archived the label, or `null` if it has not been archived.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/simple-user"
+              }
+            ],
+            "type": [
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "node_id",
+          "url",
+          "name",
+          "description",
+          "color",
+          "default"
         ]
       },
       "milestone": {
@@ -18479,6 +18767,64 @@
           "author_association": "COLLABORATOR",
           "pin": null,
           "minimized": null
+        }
+      },
+      "label-items": {
+        "value": [
+          {
+            "id": 208045946,
+            "node_id": "MDU6TGFiZWwyMDgwNDU5NDY=",
+            "url": "https://api.github.com/repos/octocat/Hello-World/labels/bug",
+            "name": "bug",
+            "description": "Something isn't working",
+            "color": "f29513",
+            "default": true,
+            "archived_at": null,
+            "archived_by": null
+          },
+          {
+            "id": 208045947,
+            "node_id": "MDU6TGFiZWwyMDgwNDU5NDc=",
+            "url": "https://api.github.com/repos/octocat/Hello-World/labels/enhancement",
+            "name": "enhancement",
+            "description": "New feature or request",
+            "color": "a2eeef",
+            "default": false,
+            "archived_at": "2023-01-01T12:00:00Z",
+            "archived_by": {
+              "login": "octocat",
+              "id": 1,
+              "node_id": "MDQ6VXNlcjE=",
+              "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/octocat",
+              "html_url": "https://github.com/octocat",
+              "followers_url": "https://api.github.com/users/octocat/followers",
+              "following_url": "https://api.github.com/users/octocat/following{/other_user}",
+              "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
+              "organizations_url": "https://api.github.com/users/octocat/orgs",
+              "repos_url": "https://api.github.com/users/octocat/repos",
+              "events_url": "https://api.github.com/users/octocat/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/octocat/received_events",
+              "type": "User",
+              "site_admin": false
+            }
+          }
+        ]
+      },
+      "label": {
+        "value": {
+          "id": 208045946,
+          "node_id": "MDU6TGFiZWwyMDgwNDU5NDY=",
+          "url": "https://api.github.com/repos/octocat/Hello-World/labels/bug",
+          "name": "bug",
+          "description": "Something isn't working",
+          "color": "f29513",
+          "default": true,
+          "archived_at": null,
+          "archived_by": null
         }
       },
       "pull-request": {

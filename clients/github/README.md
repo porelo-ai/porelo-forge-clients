@@ -2,8 +2,8 @@
 
 `org.fuin.porelo:porelo-forge-client-github` covers github.com pull requests, reviews, review comments
 and replies, check runs, Actions runs, jobs and logs, git refs, the authenticated account, organization
-membership and collaborator permissions, an account's SSH keys and signing keys, repositories and a commit's
-combined status. GraphQL supplies paged review threads and their resolution;
+membership and collaborator permissions, an account's SSH keys and signing keys, repositories, a repository's
+labels and a commit's combined status. GraphQL supplies paged review threads and their resolution;
 GitHub Enterprise Server and webhooks are outside this module. The library uses the caller's JDK
 `HttpClient`, Jackson and JSpecify, and never depends on Porelo contracts; its REST records are generated from
 the committed extract.
@@ -83,6 +83,10 @@ Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
   or one holding a comma is refused, since GitHub splits at commas) and `since`; it lists pull requests too, told by
   `pullRequest`. `issue`, `createIssue` and `updateIssue` read, create and change one; GitHub drops labels in silence
   for an account without push access. Closing is `state` `closed` with `stateReason` `completed` or `not_planned`.
+- `labels`, `createLabel` and `deleteLabel` list, create and delete a repository's labels, each with its name, color
+  (six hexadecimal digits without `#`) and description. `deleteLabel` takes the label's name and sends it as one path
+  segment, a slash or dot in it encoded, so a name never addresses another path; a name with a slash, a space and a
+  dot is recorded.
 - `parentIssue`, `subIssues`, `addSubIssue`, `removeSubIssue`, `reprioritizeSubIssue`, `blockedBy`, `addBlockedBy`,
   `removeBlockedBy` and `blocking` name the other issue by its `id`, not its number. `parentIssue` is a 404 for an
   issue without a parent, as for a missing one; `parentIssueUrl` shows it beforehand. A sub-issue and a blocking
