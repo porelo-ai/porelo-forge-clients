@@ -47,7 +47,7 @@ final class ProjectBoard {
             "nodes { id databaseId number repository { nameWithOwner } } " + PAGE;
     private static final String LABEL_NODES = "nodes { name } " + PAGE;
     private static final String ISSUE =
-            "id databaseId number title body state stateReason updatedAt"
+            "id databaseId number title body state stateReason updatedAt closedAt"
                     + " repository { nameWithOwner }"
                     + " issueType { name }"
                     + " labels(first: $labels) { "
@@ -471,7 +471,8 @@ final class ProjectBoard {
                 counted(node.path("subIssues")),
                 counted(node.path("blockedBy")),
                 pageInfo(node.path("labels")),
-                type.isObject() ? text(type, "name") : null);
+                type.isObject() ? text(type, "name") : null,
+                optionalInstant(node, "closedAt"));
     }
 
     /** An issue's first page of a list, with every entry GitHub counts in it. */
@@ -579,6 +580,10 @@ final class ProjectBoard {
         } catch (java.time.format.DateTimeParseException unreadable) {
             throw new UnreadableAnswer(name);
         }
+    }
+
+    private static @Nullable Instant optionalInstant(JsonNode node, String name) {
+        return optional(node, name) == null ? null : instant(node, name);
     }
 
     /** A connection's {@code nodes}, each an object; a connection or list missing fails. */

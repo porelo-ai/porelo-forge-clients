@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import org.fuin.porelo.forge.github.GitHubGraphQl.FieldValue;
@@ -54,8 +55,10 @@ class GitHubProjectsTest {
                 + REFS;
     }
 
-    private static final String TYPED = issue("I_1") + ",\"issueType\":{\"name\":\"Story\"}";
-    private static final String UNTYPED = issue("I_2") + ",\"issueType\":null";
+    private static final String TYPED =
+            issue("I_1")
+                    + ",\"issueType\":{\"name\":\"Story\"},\"closedAt\":\"2026-02-03T04:05:06Z\"";
+    private static final String UNTYPED = issue("I_2") + ",\"issueType\":null,\"closedAt\":null";
 
     // Prevents a caller's text from becoming part of a GraphQL document.
     @Test
@@ -414,6 +417,37 @@ class GitHubProjectsTest {
                 .contains("issueType { name }");
         assertThat(page.items().get(0).issue().issueType()).as("a typed issue").isEqualTo("Story");
         assertThat(page.items().get(1).issue().issueType()).as("an untyped issue").isNull();
+    }
+
+    // Prevents a story's test day from being guessed: a project's items read when each issue was
+    // closed, or null while it never was.
+    @Test
+    void anItemsIssueReadsWhenItWasClosed() throws Exception {
+        var items =
+                answering(
+                        "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"totalCount\":2,\"nodes\":["
+                                + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":"
+                                + TYPED
+                                + "},\"fieldValues\":{\"nodes\":[],"
+                                + PAGE
+                                + "}},"
+                                + "{\"id\":\"PVTI_2\",\"isArchived\":false,\"content\":"
+                                + UNTYPED
+                                + "},\"fieldValues\":{\"nodes\":[],"
+                                + PAGE
+                                + "}}],"
+                                + PAGE
+                                + "}}},"
+                                + COST
+                                + "}}");
+        var page = graphQl(items).projectItems(TOKEN, "o", 1, null);
+        assertThat(request(items).path("query").asText())
+                .as("the item read asks when the issue was closed")
+                .contains(" closedAt ");
+        assertThat(page.items().get(0).issue().closedAt())
+                .as("a closed issue's time")
+                .isEqualTo(Instant.parse("2026-02-03T04:05:06Z"));
+        assertThat(page.items().get(1).issue().closedAt()).as("an open issue's").isNull();
     }
 
     // Prevents a story from being known only by its label: an issue read by its node id reads

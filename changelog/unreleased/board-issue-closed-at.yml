@@ -1,0 +1,2 @@
+title: Read when each issue was last closed with a project's items and with issueBoard, as BoardIssue.closedAt, or null while it never was.
+type: added

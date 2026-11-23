@@ -1,22 +1,22 @@
 {
-  "request_uri" : "/repos/fixture-org/fixture-repo/issues/152/parent",
+  "request_uri" : "/repos/fixture-org/fixture-repo/issues/156/parent",
   "status" : 404,
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
     "x-accepted-github-permissions" : [ "issues=read" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4961" ],
+    "x-ratelimit-remaining" : [ "4925" ],
     "x-ratelimit-reset" : [ "1795423270" ]
   },
   "body" : "{\"message\":\"No parent issue found\",\"documentation_url\":\"https://host-3.example.org/rest/issues/sub-issues\",\"status\":\"404\"}",
   "exchanges" : [ {
-    "request_uri" : "/repos/fixture-org/fixture-repo/issues/152/parent",
+    "request_uri" : "/repos/fixture-org/fixture-repo/issues/156/parent",
     "status" : 404,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
       "x-accepted-github-permissions" : [ "issues=read" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4961" ],
+      "x-ratelimit-remaining" : [ "4925" ],
       "x-ratelimit-reset" : [ "1795423270" ]
     },
     "body" : "{\"message\":\"No parent issue found\",\"documentation_url\":\"https://host-3.example.org/rest/issues/sub-issues\",\"status\":\"404\"}"
@@ -24,18 +24,18 @@
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "prefix" : "forge-client-issues-6fb2235b",
-    "number" : 152,
-    "other" : 153,
-    "subIssueId" : 6554671044,
-    "thirdIssueId" : 6554671291,
-    "since" : "2026-11-23T07:33:22Z",
-    "etag" : "\"8cb3e665defd6971ebbc17e18a2350e3faddd80b03f49e3af10b35770b793d9e\"",
+    "prefix" : "forge-client-issues-a8c09069",
+    "number" : 156,
+    "other" : 157,
+    "subIssueId" : 6555071239,
+    "thirdIssueId" : 6555071503,
+    "since" : "2026-11-23T08:00:57Z",
+    "etag" : "\"2bc988626795266da53cd22aac07d58975aa08e0ef87969328bffca9ef5cb043\"",
     "itemsEtag" : "pending",
-    "projectNumber" : 62,
-    "projectId" : "PVT_kwDOFN-d0c4Bs0wl",
+    "projectNumber" : 63,
+    "projectId" : "PVT_kwDOFN-d0c4Bs0-X",
     "repositoryId" : "R_kgDOVc0D8w",
-    "issueIds" : [ "I_kwDOVc0D888AAAABhrBV0w", "I_kwDOVc0D888AAAABhrBXxA" ],
+    "issueIds" : [ "I_kwDOVc0D888AAAABhrZwdQ", "I_kwDOVc0D888AAAABhrZzBw" ],
     "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
     "itemIds" : [ ],
     "fieldId" : "pending",
@@ -44,7 +44,7 @@
     "textFieldId" : "pending",
     "numberFieldId" : "pending",
     "fieldDatabaseIds" : [ ],
-    "label" : "forge-client-issues-6fb2235b/topic a.b"
+    "label" : "forge-client-issues-a8c09069/topic a.b"
   },
   "request_body" : { }
 }

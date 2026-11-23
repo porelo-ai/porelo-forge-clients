@@ -933,6 +933,7 @@ public final class GitHubGraphQl {
      * @param blockedBy the first issues it is blocked by, as many as the read asked for
      * @param labelsPage whether more labels follow, and from where
      * @param issueType the name of its issue type, such as {@code Story}, or null when it has none
+     * @param closedAt when it was last closed, or null while it has never been
      */
     public record BoardIssue(
             String id,
@@ -949,7 +950,8 @@ public final class GitHubGraphQl {
             IssueRefs subIssues,
             IssueRefs blockedBy,
             PageInfo labelsPage,
-            @Nullable String issueType) {
+            @Nullable String issueType,
+            @Nullable Instant closedAt) {
         /** Requires every part GitHub always sends. */
         public BoardIssue {
             Objects.requireNonNull(labelsPage, "labelsPage");

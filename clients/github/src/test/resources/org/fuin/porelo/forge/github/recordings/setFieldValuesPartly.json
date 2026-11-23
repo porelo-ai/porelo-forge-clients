@@ -4,69 +4,69 @@
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4899" ],
+    "x-ratelimit-remaining" : [ "4804" ],
     "x-ratelimit-reset" : [ "1795423261" ]
   },
-  "body" : "{\"data\":{\"a0\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs0wlzhLDtrI\"}},\"a1\":null,\"a2\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs0wlzhLDtsI\"}}},\"errors\":[{\"type\":\"NOT_FOUND\",\"path\":[\"a1\"],\"locations\":[{\"line\":1,\"column\":224}],\"message\":\"Could not resolve to a node with the global id of 'PVTI_lADOAAAAAM4AAAAAzgAAAAA'.\"}]}",
+  "body" : "{\"data\":{\"a0\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs0-XzhLEEaU\"}},\"a1\":null,\"a2\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs0-XzhLEEbI\"}}},\"errors\":[{\"type\":\"NOT_FOUND\",\"path\":[\"a1\"],\"locations\":[{\"line\":1,\"column\":224}],\"message\":\"Could not resolve to a node with the global id of 'PVTI_lADOAAAAAM4AAAAAzgAAAAA'.\"}]}",
   "exchanges" : [ {
     "request_uri" : "/graphql",
     "status" : 200,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4899" ],
+      "x-ratelimit-remaining" : [ "4804" ],
       "x-ratelimit-reset" : [ "1795423261" ]
     },
-    "body" : "{\"data\":{\"a0\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs0wlzhLDtrI\"}},\"a1\":null,\"a2\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs0wlzhLDtsI\"}}},\"errors\":[{\"type\":\"NOT_FOUND\",\"path\":[\"a1\"],\"locations\":[{\"line\":1,\"column\":224}],\"message\":\"Could not resolve to a node with the global id of 'PVTI_lADOAAAAAM4AAAAAzgAAAAA'.\"}]}"
+    "body" : "{\"data\":{\"a0\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs0-XzhLEEaU\"}},\"a1\":null,\"a2\":{\"projectV2Item\":{\"id\":\"PVTI_lADOFN-d0c4Bs0-XzhLEEbI\"}}},\"errors\":[{\"type\":\"NOT_FOUND\",\"path\":[\"a1\"],\"locations\":[{\"line\":1,\"column\":224}],\"message\":\"Could not resolve to a node with the global id of 'PVTI_lADOAAAAAM4AAAAAzgAAAAA'.\"}]}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "prefix" : "forge-client-issues-6fb2235b",
-    "number" : 152,
-    "other" : 153,
-    "subIssueId" : 6554671044,
-    "thirdIssueId" : 6554671291,
-    "since" : "2026-11-23T07:33:22Z",
-    "etag" : "\"8cb3e665defd6971ebbc17e18a2350e3faddd80b03f49e3af10b35770b793d9e\"",
+    "prefix" : "forge-client-issues-a8c09069",
+    "number" : 156,
+    "other" : 157,
+    "subIssueId" : 6555071239,
+    "thirdIssueId" : 6555071503,
+    "since" : "2026-11-23T08:00:57Z",
+    "etag" : "\"2bc988626795266da53cd22aac07d58975aa08e0ef87969328bffca9ef5cb043\"",
     "itemsEtag" : "pending",
-    "projectNumber" : 62,
-    "projectId" : "PVT_kwDOFN-d0c4Bs0wl",
+    "projectNumber" : 63,
+    "projectId" : "PVT_kwDOFN-d0c4Bs0-X",
     "repositoryId" : "R_kgDOVc0D8w",
-    "issueIds" : [ "I_kwDOVc0D888AAAABhrBV0w", "I_kwDOVc0D888AAAABhrBXxA" ],
+    "issueIds" : [ "I_kwDOVc0D888AAAABhrZwdQ", "I_kwDOVc0D888AAAABhrZzBw" ],
     "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
-    "itemIds" : [ "PVTI_lADOFN-d0c4Bs0wlzhLDtrI", "PVTI_lADOFN-d0c4Bs0wlzhLDtsI" ],
-    "fieldId" : "PVTSSF_lADOFN-d0c4Bs0wlzhrBCIk",
-    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bs0wlzhrBCFU",
+    "itemIds" : [ "PVTI_lADOFN-d0c4Bs0-XzhLEEaU", "PVTI_lADOFN-d0c4Bs0-XzhLEEbI" ],
+    "fieldId" : "PVTSSF_lADOFN-d0c4Bs0-XzhrBO3A",
+    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bs0-XzhrBOyc",
     "statusOptionId" : "f75ad846",
-    "textFieldId" : "PVTF_lADOFN-d0c4Bs0wlzhrBCJo",
-    "numberFieldId" : "PVTF_lADOFN-d0c4Bs0wlzhrBCKI",
-    "fieldDatabaseIds" : [ 448858197, 448858249, 448858266, 448858274 ],
-    "label" : "forge-client-issues-6fb2235b/topic a.b"
+    "textFieldId" : "PVTF_lADOFN-d0c4Bs0-XzhrBO4Q",
+    "numberFieldId" : "PVTF_lADOFN-d0c4Bs0-XzhrBO48",
+    "fieldDatabaseIds" : [ 448871207, 448871280, 448871300, 448871311 ],
+    "label" : "forge-client-issues-a8c09069/topic a.b"
   },
   "request_body" : {
     "query" : "mutation SetFieldValues($v0: UpdateProjectV2ItemFieldValueInput!, $v1: UpdateProjectV2ItemFieldValueInput!, $v2: UpdateProjectV2ItemFieldValueInput!) { a0: updateProjectV2ItemFieldValue(input: $v0) { projectV2Item { id } } a1: updateProjectV2ItemFieldValue(input: $v1) { projectV2Item { id } } a2: updateProjectV2ItemFieldValue(input: $v2) { projectV2Item { id } } }",
     "variables" : {
       "v0" : {
-        "projectId" : "PVT_kwDOFN-d0c4Bs0wl",
-        "itemId" : "PVTI_lADOFN-d0c4Bs0wlzhLDtrI",
-        "fieldId" : "PVTF_lADOFN-d0c4Bs0wlzhrBCJo",
+        "projectId" : "PVT_kwDOFN-d0c4Bs0-X",
+        "itemId" : "PVTI_lADOFN-d0c4Bs0-XzhLEEaU",
+        "fieldId" : "PVTF_lADOFN-d0c4Bs0-XzhrBO4Q",
         "value" : {
           "text" : "partly"
         }
       },
       "v1" : {
-        "projectId" : "PVT_kwDOFN-d0c4Bs0wl",
+        "projectId" : "PVT_kwDOFN-d0c4Bs0-X",
         "itemId" : "PVTI_lADOAAAAAM4AAAAAzgAAAAA",
-        "fieldId" : "PVTF_lADOFN-d0c4Bs0wlzhrBCJo",
+        "fieldId" : "PVTF_lADOFN-d0c4Bs0-XzhrBO4Q",
         "value" : {
           "text" : "refused"
         }
       },
       "v2" : {
-        "projectId" : "PVT_kwDOFN-d0c4Bs0wl",
-        "itemId" : "PVTI_lADOFN-d0c4Bs0wlzhLDtsI",
-        "fieldId" : "PVTF_lADOFN-d0c4Bs0wlzhrBCKI",
+        "projectId" : "PVT_kwDOFN-d0c4Bs0-X",
+        "itemId" : "PVTI_lADOFN-d0c4Bs0-XzhLEEbI",
+        "fieldId" : "PVTF_lADOFN-d0c4Bs0-XzhrBO48",
         "value" : {
           "number" : 7.0
         }
