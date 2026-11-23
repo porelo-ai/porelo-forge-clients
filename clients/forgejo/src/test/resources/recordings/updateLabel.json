@@ -1,0 +1,42 @@
+{
+  "request_uri" : "/api/v1/repos/review-org/review-fixture/labels/1",
+  "status" : 200,
+  "headers" : {
+    "content-type" : [
+      "application/json;charset=utf-8"
+    ]
+  },
+  "body" : "{\"id\":1,\"name\":\"area/renamed a.b\",\"exclusive\":false,\"is_archived\":false,\"color\":\"b60205\",\"description\":\"Fixture label\",\"url\":\"http://example.org/api/v1/repos/review-org/review-fixture/labels/1\"}",
+  "exchanges" : [
+    {
+      "request_uri" : "/api/v1/repos/review-org/review-fixture/labels/1",
+      "status" : 200,
+      "headers" : {
+        "content-type" : [
+          "application/json;charset=utf-8"
+        ]
+      },
+      "body" : "{\"id\":1,\"name\":\"area/renamed a.b\",\"exclusive\":false,\"is_archived\":false,\"color\":\"b60205\",\"description\":\"Fixture label\",\"url\":\"http://example.org/api/v1/repos/review-org/review-fixture/labels/1\"}"
+    }
+  ],
+  "context" : {
+    "owner" : "review-org",
+    "repo" : "review-fixture",
+    "sha" : "b9592accec9a6f2b40725d952c6f9628dfcf0a25",
+    "actionsSha" : "81c9b07607e058ab7b5b7d661974a86fbdfe9878",
+    "index" : 1,
+    "review" : 1,
+    "run" : 1,
+    "job" : 1,
+    "key" : 2,
+    "comment" : 4,
+    "issueComment" : 7,
+    "since" : "2026-11-23T14:34:41Z",
+    "longIndex" : 2,
+    "label" : 1
+  },
+  "request_body" : {
+    "name" : "area/renamed a.b",
+    "color" : "#b60205"
+  }
+}

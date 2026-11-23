@@ -36,6 +36,7 @@ final class ForgejoScenario {
     static final String EARLIER_COMMENT = "Earlier general comment fixture";
     static final String EDITED_COMMENT = "Edited general comment fixture";
     static final String LABEL = "area/topic a.b";
+    static final String RENAMED_LABEL = "area/renamed a.b";
 
     private final ForgejoContainer fixture;
     private final ObjectMapper json = ForgejoJson.mapper(Strictness.STRICT);
@@ -110,6 +111,12 @@ final class ForgejoScenario {
             if (operation == ForgejoOperations.pullCommitsAboveMaximum) {
                 longIndex = fixture.longPull();
             }
+            if (operation == ForgejoOperations.updateLabel) {
+                fixture.api(
+                        "POST",
+                        ForgejoContainer.repoPath() + "/issues/" + index + "/labels",
+                        json.valueToTree(Map.of("labels", List.of(label))));
+            }
             JsonNode body = body(operation);
             String token =
                     operation == ForgejoOperations.createReview
@@ -117,6 +124,17 @@ final class ForgejoScenario {
                             : fixture.adminToken();
             Object result = operation.invoke(client, token, context(), body);
             requireUsefulResult(operation, result);
+            if (operation == ForgejoOperations.updateLabel) {
+                var carried = new ArrayList<String>();
+                fixture.api(
+                                "GET",
+                                ForgejoContainer.repoPath() + "/issues/" + index + "/labels",
+                                null)
+                        .forEach(l -> carried.add(l.path("name").asText()));
+                assertThat(carried)
+                        .as("the pull request carrying the label carries it under its new name")
+                        .containsExactly(RENAMED_LABEL);
+            }
             if (operation == ForgejoOperations.plainKeys) {
                 String seeded =
                         String.join(
@@ -282,6 +300,8 @@ final class ForgejoScenario {
                                     "#0e8a16",
                                     "description",
                                     "Fixture label");
+                    // The description left out, so the recording shows whether Forgejo keeps it.
+                    case updateLabel -> Map.of("name", RENAMED_LABEL, "color", "#b60205");
                     default -> null;
                 });
     }
@@ -335,6 +355,16 @@ final class ForgejoScenario {
             assertThat(created.name()).as("the label keeps its whole name").isEqualTo(LABEL);
             assertThat(created.color()).as("its color, answered without #").isEqualTo("0e8a16");
             assertThat(created.description()).as("its description").isEqualTo("Fixture label");
+        }
+        if (operation == ForgejoOperations.updateLabel) {
+            var changed = (Label) result;
+            assertThat(changed.name())
+                    .as("the label takes its whole new name")
+                    .isEqualTo(RENAMED_LABEL);
+            assertThat(changed.color()).as("its new color, answered without #").isEqualTo("b60205");
+            assertThat(changed.description())
+                    .as("its description, sent as null, stays as it was")
+                    .isEqualTo("Fixture label");
         }
         if (operation == ForgejoOperations.labels) {
             assertThat(((Page<?>) result).items())

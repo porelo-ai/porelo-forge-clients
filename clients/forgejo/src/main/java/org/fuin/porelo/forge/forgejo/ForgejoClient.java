@@ -516,6 +516,22 @@ public final class ForgejoClient {
         delete(token, repo(owner, repo) + "/labels/" + positive(id));
     }
 
+    /**
+     * Changes a repository label named by its id: name, color (six hexadecimal digits with a
+     * leading {@code #}) and description. A part left null is sent as null, which Forgejo 17 leaves
+     * as it was; a pull request carrying the label carries it under its new name, both as recorded.
+     */
+    public Label updateLabel(
+            String token, String owner, String repo, long id, EditLabelOption label) {
+        Objects.requireNonNull(label, "label");
+        return call(
+                token,
+                "PATCH",
+                repo(owner, repo) + "/labels/" + positive(id),
+                label,
+                json.constructType(Label.class));
+    }
+
     /** Adds an SSH key to the authenticated account; a key Forgejo already has is refused. */
     public PublicKey addKey(String token, CreateKeyOption body) {
         Objects.requireNonNull(body, "body");

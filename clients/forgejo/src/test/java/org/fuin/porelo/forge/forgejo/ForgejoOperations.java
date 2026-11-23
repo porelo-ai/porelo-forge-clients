@@ -48,6 +48,7 @@ enum ForgejoOperations {
     permission("GET"),
     createLabel("POST"),
     labels("GET"),
+    updateLabel("PATCH"),
     deleteLabel("DELETE");
 
     static final String CREATED_REPO = "created-repo";
@@ -178,6 +179,13 @@ enum ForgejoOperations {
                             c.repo(),
                             JSON.treeToValue(body, CreateLabelOption.class));
             case labels -> client.labels(token, c.owner(), c.repo(), 1, 50);
+            case updateLabel ->
+                    client.updateLabel(
+                            token,
+                            c.owner(),
+                            c.repo(),
+                            c.label(),
+                            JSON.treeToValue(body, EditLabelOption.class));
             case deleteLabel -> {
                 client.deleteLabel(token, c.owner(), c.repo(), c.label());
                 yield Boolean.TRUE;
@@ -228,7 +236,7 @@ enum ForgejoOperations {
             case repository -> "/api/v1/repos/" + c.owner() + "/" + CREATED_REPO;
             case permission -> repo + "/collaborators/" + ForgejoContainer.REVIEWER + "/permission";
             case createLabel, labels -> repo + "/labels";
-            case deleteLabel -> repo + "/labels/" + c.label();
+            case updateLabel, deleteLabel -> repo + "/labels/" + c.label();
         };
     }
 

@@ -154,6 +154,8 @@
                                 <argument>post /repos/{owner}/{repo}/labels</argument>
                                 <argument>--operation</argument>
                                 <argument>delete /repos/{owner}/{repo}/labels/{id}</argument>
+                                <argument>--operation</argument>
+                                <argument>patch /repos/{owner}/{repo}/labels/{id}</argument>
                             </arguments>
                         </configuration>
                     </execution>

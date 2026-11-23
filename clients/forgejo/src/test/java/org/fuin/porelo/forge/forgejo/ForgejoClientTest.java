@@ -548,4 +548,32 @@ class ForgejoClientTest {
                 .isThrownBy(() -> client.pullCommits(TOKEN, "owner", "repo", 1, 1, 50))
                 .withMessageContaining("verdict");
     }
+
+    // Prevents a label id that is no id from addressing the label list instead of one label.
+    @Test
+    void aLabelIsChangedByItsPositiveIdAlone() {
+        var label =
+                "{\"id\":7,\"name\":\"defect\",\"color\":\"b60205\",\"description\":\"\","
+                        + "\"exclusive\":false,\"is_archived\":false,\"url\":\"https://example.org/l\"}";
+        var http = new ReplayHttpClient().answer(200, Map.of(), label);
+        var change =
+                new org.fuin.porelo.forge.forgejo.model.EditLabelOption(
+                        "#b60205", null, null, null, "defect");
+        new ForgejoClient(BASE, http).updateLabel(TOKEN, "o", "r", 7, change);
+        assertThat(http.requests.getFirst().uri().getRawPath())
+                .as("the label by its id")
+                .isEqualTo("/api/v1/repos/o/r/labels/7");
+        assertThat(http.requests.getFirst().method()).as("a change").isEqualTo("PATCH");
+
+        var other = new ReplayHttpClient();
+        for (long id : new long[] {0, -7}) {
+            assertThatExceptionOfType(IllegalArgumentException.class)
+                    .as("the id %s", id)
+                    .isThrownBy(
+                            () ->
+                                    new ForgejoClient(BASE, other)
+                                            .updateLabel(TOKEN, "o", "r", id, change));
+        }
+        assertThat(other.requests).as("nothing was sent").isEmpty();
+    }
 }

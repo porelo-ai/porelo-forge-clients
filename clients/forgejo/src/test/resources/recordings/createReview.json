@@ -6,7 +6,7 @@
       "application/json;charset=utf-8"
     ]
   },
-  "body" : "{\"id\":1,\"user\":{\"id\":3,\"login\":\"fixture-reviewer\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/6fbfa47bd4bc15861d1647302c545637\",\"html_url\":\"http://example.org/fixture-reviewer\",\"language\":\"\",\"is_admin\":false,\"last_login\":\"1970-01-01T00:00:00Z\",\"created\":\"2026-11-23T07:49:53Z\",\"restricted\":false,\"active\":true,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-reviewer\"},\"team\":null,\"state\":\"APPROVED\",\"body\":\"Approved fixture\",\"commit_id\":\"ea36970a9bbc12ce11f0fd03714329252a3f8772\",\"stale\":false,\"official\":true,\"dismissed\":false,\"comments_count\":1,\"submitted_at\":\"2026-11-23T07:49:57Z\",\"updated_at\":\"2026-11-23T07:49:57Z\",\"html_url\":\"http://example.org/review-org/review-fixture/pulls/1\",\"pull_request_url\":\"http://example.org/review-org/review-fixture/pulls/1\"}",
+  "body" : "{\"id\":1,\"user\":{\"id\":3,\"login\":\"fixture-reviewer\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/6fbfa47bd4bc15861d1647302c545637\",\"html_url\":\"http://example.org/fixture-reviewer\",\"language\":\"\",\"is_admin\":false,\"last_login\":\"1970-01-01T00:00:00Z\",\"created\":\"2026-11-23T14:34:28Z\",\"restricted\":false,\"active\":true,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-reviewer\"},\"team\":null,\"state\":\"APPROVED\",\"body\":\"Approved fixture\",\"commit_id\":\"b9592accec9a6f2b40725d952c6f9628dfcf0a25\",\"stale\":false,\"official\":true,\"dismissed\":false,\"comments_count\":1,\"submitted_at\":\"2026-11-23T14:34:29Z\",\"updated_at\":\"2026-11-23T14:34:29Z\",\"html_url\":\"http://example.org/review-org/review-fixture/pulls/1\",\"pull_request_url\":\"http://example.org/review-org/review-fixture/pulls/1\"}",
   "exchanges" : [
     {
       "request_uri" : "/api/v1/repos/review-org/review-fixture/pulls/1/reviews",
@@ -16,13 +16,13 @@
           "application/json;charset=utf-8"
         ]
       },
-      "body" : "{\"id\":1,\"user\":{\"id\":3,\"login\":\"fixture-reviewer\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/6fbfa47bd4bc15861d1647302c545637\",\"html_url\":\"http://example.org/fixture-reviewer\",\"language\":\"\",\"is_admin\":false,\"last_login\":\"1970-01-01T00:00:00Z\",\"created\":\"2026-11-23T07:49:53Z\",\"restricted\":false,\"active\":true,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-reviewer\"},\"team\":null,\"state\":\"APPROVED\",\"body\":\"Approved fixture\",\"commit_id\":\"ea36970a9bbc12ce11f0fd03714329252a3f8772\",\"stale\":false,\"official\":true,\"dismissed\":false,\"comments_count\":1,\"submitted_at\":\"2026-11-23T07:49:57Z\",\"updated_at\":\"2026-11-23T07:49:57Z\",\"html_url\":\"http://example.org/review-org/review-fixture/pulls/1\",\"pull_request_url\":\"http://example.org/review-org/review-fixture/pulls/1\"}"
+      "body" : "{\"id\":1,\"user\":{\"id\":3,\"login\":\"fixture-reviewer\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/6fbfa47bd4bc15861d1647302c545637\",\"html_url\":\"http://example.org/fixture-reviewer\",\"language\":\"\",\"is_admin\":false,\"last_login\":\"1970-01-01T00:00:00Z\",\"created\":\"2026-11-23T14:34:28Z\",\"restricted\":false,\"active\":true,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-reviewer\"},\"team\":null,\"state\":\"APPROVED\",\"body\":\"Approved fixture\",\"commit_id\":\"b9592accec9a6f2b40725d952c6f9628dfcf0a25\",\"stale\":false,\"official\":true,\"dismissed\":false,\"comments_count\":1,\"submitted_at\":\"2026-11-23T14:34:29Z\",\"updated_at\":\"2026-11-23T14:34:29Z\",\"html_url\":\"http://example.org/review-org/review-fixture/pulls/1\",\"pull_request_url\":\"http://example.org/review-org/review-fixture/pulls/1\"}"
     }
   ],
   "context" : {
     "owner" : "review-org",
     "repo" : "review-fixture",
-    "sha" : "ea36970a9bbc12ce11f0fd03714329252a3f8772",
+    "sha" : "b9592accec9a6f2b40725d952c6f9628dfcf0a25",
     "actionsSha" : "pending",
     "index" : 1,
     "review" : 1,
@@ -36,16 +36,16 @@
     "label" : 1
   },
   "request_body" : {
-    "event" : "APPROVED",
-    "body" : "Approved fixture",
-    "commit_id" : "ea36970a9bbc12ce11f0fd03714329252a3f8772",
     "comments" : [
       {
-        "old_position" : 0,
-        "body" : "Review comment fixture",
         "path" : "review.txt",
+        "body" : "Review comment fixture",
+        "old_position" : 0,
         "new_position" : 1
       }
-    ]
+    ],
+    "commit_id" : "b9592accec9a6f2b40725d952c6f9628dfcf0a25",
+    "body" : "Approved fixture",
+    "event" : "APPROVED"
   }
 }

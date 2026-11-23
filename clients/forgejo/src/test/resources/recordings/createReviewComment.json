@@ -6,7 +6,7 @@
       "application/json;charset=utf-8"
     ]
   },
-  "body" : "{\"id\":4,\"body\":\"Added review comment fixture\",\"user\":{\"id\":1,\"login\":\"fixture-admin\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/79842509f91b83d21aebc8fcaa5a02fa\",\"html_url\":\"http://example.org/fixture-admin\",\"language\":\"\",\"is_admin\":true,\"last_login\":\"1970-01-01T00:00:00Z\",\"created\":\"2026-11-23T07:49:52Z\",\"restricted\":false,\"active\":true,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-admin\"},\"resolver\":null,\"pull_request_review_id\":1,\"created_at\":\"2026-11-23T07:49:57Z\",\"updated_at\":\"2026-11-23T07:49:57Z\",\"path\":\"review.txt\",\"commit_id\":\"ea36970a9bbc12ce11f0fd03714329252a3f8772\",\"original_commit_id\":\"\",\"diff_hunk\":\"@@ -0,0 +1 @@\\n+Review this line.\",\"position\":1,\"original_position\":0,\"extra_lines_count\":0,\"html_url\":\"http://example.org/review-org/review-fixture/pulls/1\",\"pull_request_url\":\"http://example.org/review-org/review-fixture/pulls/1\"}",
+  "body" : "{\"id\":4,\"body\":\"Added review comment fixture\",\"user\":{\"id\":1,\"login\":\"fixture-admin\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/79842509f91b83d21aebc8fcaa5a02fa\",\"html_url\":\"http://example.org/fixture-admin\",\"language\":\"\",\"is_admin\":true,\"last_login\":\"1970-01-01T00:00:00Z\",\"created\":\"2026-11-23T14:34:28Z\",\"restricted\":false,\"active\":true,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-admin\"},\"resolver\":null,\"pull_request_review_id\":1,\"created_at\":\"2026-11-23T14:34:29Z\",\"updated_at\":\"2026-11-23T14:34:29Z\",\"path\":\"review.txt\",\"commit_id\":\"b9592accec9a6f2b40725d952c6f9628dfcf0a25\",\"original_commit_id\":\"\",\"diff_hunk\":\"@@ -0,0 +1 @@\\n+Review this line.\",\"position\":1,\"original_position\":0,\"extra_lines_count\":0,\"html_url\":\"http://example.org/review-org/review-fixture/pulls/1\",\"pull_request_url\":\"http://example.org/review-org/review-fixture/pulls/1\"}",
   "exchanges" : [
     {
       "request_uri" : "/api/v1/repos/review-org/review-fixture/pulls/1/reviews/1/comments",
@@ -16,13 +16,13 @@
           "application/json;charset=utf-8"
         ]
       },
-      "body" : "{\"id\":4,\"body\":\"Added review comment fixture\",\"user\":{\"id\":1,\"login\":\"fixture-admin\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/79842509f91b83d21aebc8fcaa5a02fa\",\"html_url\":\"http://example.org/fixture-admin\",\"language\":\"\",\"is_admin\":true,\"last_login\":\"1970-01-01T00:00:00Z\",\"created\":\"2026-11-23T07:49:52Z\",\"restricted\":false,\"active\":true,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-admin\"},\"resolver\":null,\"pull_request_review_id\":1,\"created_at\":\"2026-11-23T07:49:57Z\",\"updated_at\":\"2026-11-23T07:49:57Z\",\"path\":\"review.txt\",\"commit_id\":\"ea36970a9bbc12ce11f0fd03714329252a3f8772\",\"original_commit_id\":\"\",\"diff_hunk\":\"@@ -0,0 +1 @@\\n+Review this line.\",\"position\":1,\"original_position\":0,\"extra_lines_count\":0,\"html_url\":\"http://example.org/review-org/review-fixture/pulls/1\",\"pull_request_url\":\"http://example.org/review-org/review-fixture/pulls/1\"}"
+      "body" : "{\"id\":4,\"body\":\"Added review comment fixture\",\"user\":{\"id\":1,\"login\":\"fixture-admin\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/79842509f91b83d21aebc8fcaa5a02fa\",\"html_url\":\"http://example.org/fixture-admin\",\"language\":\"\",\"is_admin\":true,\"last_login\":\"1970-01-01T00:00:00Z\",\"created\":\"2026-11-23T14:34:28Z\",\"restricted\":false,\"active\":true,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-admin\"},\"resolver\":null,\"pull_request_review_id\":1,\"created_at\":\"2026-11-23T14:34:29Z\",\"updated_at\":\"2026-11-23T14:34:29Z\",\"path\":\"review.txt\",\"commit_id\":\"b9592accec9a6f2b40725d952c6f9628dfcf0a25\",\"original_commit_id\":\"\",\"diff_hunk\":\"@@ -0,0 +1 @@\\n+Review this line.\",\"position\":1,\"original_position\":0,\"extra_lines_count\":0,\"html_url\":\"http://example.org/review-org/review-fixture/pulls/1\",\"pull_request_url\":\"http://example.org/review-org/review-fixture/pulls/1\"}"
     }
   ],
   "context" : {
     "owner" : "review-org",
     "repo" : "review-fixture",
-    "sha" : "ea36970a9bbc12ce11f0fd03714329252a3f8772",
+    "sha" : "b9592accec9a6f2b40725d952c6f9628dfcf0a25",
     "actionsSha" : "pending",
     "index" : 1,
     "review" : 1,
@@ -36,8 +36,8 @@
     "label" : 1
   },
   "request_body" : {
-    "path" : "review.txt",
     "body" : "Added review comment fixture",
+    "path" : "review.txt",
     "new_position" : 1
   }
 }

@@ -9,7 +9,7 @@
       "1"
     ]
   },
-  "body" : "[{\"id\":1,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAdTxLMf+cXzMTRZlQ9nf7cNS1Y8UNRaXmm+cgK7MibB forgejo-fixture\",\"url\":\"http://example.org/api/v1/user/keys/1\",\"title\":\"Fixture key\",\"fingerprint\":\"SHA256:/KbvOEg8nW8GVMPm+AkQqjindQnY2YfCz3/1Md1c7XA\",\"created_at\":\"2026-11-23T07:49:53Z\",\"user\":{\"id\":3,\"login\":\"fixture-reviewer\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/6fbfa47bd4bc15861d1647302c545637\",\"html_url\":\"http://example.org/fixture-reviewer\",\"language\":\"\",\"is_admin\":false,\"last_login\":\"1970-01-01T00:00:00Z\",\"created\":\"2026-11-23T07:49:53Z\",\"restricted\":false,\"active\":true,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-reviewer\"},\"key_type\":\"user\",\"updated_at\":\"2026-11-23T07:49:53Z\",\"verified\":false}]",
+  "body" : "[{\"id\":1,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAdTxLMf+cXzMTRZlQ9nf7cNS1Y8UNRaXmm+cgK7MibB forgejo-fixture\",\"url\":\"http://example.org/api/v1/user/keys/1\",\"title\":\"Fixture key\",\"fingerprint\":\"SHA256:/KbvOEg8nW8GVMPm+AkQqjindQnY2YfCz3/1Md1c7XA\",\"created_at\":\"2026-11-23T14:34:28Z\",\"user\":{\"id\":3,\"login\":\"fixture-reviewer\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/6fbfa47bd4bc15861d1647302c545637\",\"html_url\":\"http://example.org/fixture-reviewer\",\"language\":\"\",\"is_admin\":false,\"last_login\":\"1970-01-01T00:00:00Z\",\"created\":\"2026-11-23T14:34:28Z\",\"restricted\":false,\"active\":true,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-reviewer\"},\"key_type\":\"user\",\"updated_at\":\"2026-11-23T14:34:28Z\",\"verified\":false}]",
   "exchanges" : [
     {
       "request_uri" : "/api/v1/users/fixture-reviewer/keys?page=1&limit=50",
@@ -22,14 +22,14 @@
           "1"
         ]
       },
-      "body" : "[{\"id\":1,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAdTxLMf+cXzMTRZlQ9nf7cNS1Y8UNRaXmm+cgK7MibB forgejo-fixture\",\"url\":\"http://example.org/api/v1/user/keys/1\",\"title\":\"Fixture key\",\"fingerprint\":\"SHA256:/KbvOEg8nW8GVMPm+AkQqjindQnY2YfCz3/1Md1c7XA\",\"created_at\":\"2026-11-23T07:49:53Z\",\"user\":{\"id\":3,\"login\":\"fixture-reviewer\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/6fbfa47bd4bc15861d1647302c545637\",\"html_url\":\"http://example.org/fixture-reviewer\",\"language\":\"\",\"is_admin\":false,\"last_login\":\"1970-01-01T00:00:00Z\",\"created\":\"2026-11-23T07:49:53Z\",\"restricted\":false,\"active\":true,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-reviewer\"},\"key_type\":\"user\",\"updated_at\":\"2026-11-23T07:49:53Z\",\"verified\":false}]"
+      "body" : "[{\"id\":1,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAdTxLMf+cXzMTRZlQ9nf7cNS1Y8UNRaXmm+cgK7MibB forgejo-fixture\",\"url\":\"http://example.org/api/v1/user/keys/1\",\"title\":\"Fixture key\",\"fingerprint\":\"SHA256:/KbvOEg8nW8GVMPm+AkQqjindQnY2YfCz3/1Md1c7XA\",\"created_at\":\"2026-11-23T14:34:28Z\",\"user\":{\"id\":3,\"login\":\"fixture-reviewer\",\"login_name\":\"\",\"source_id\":0,\"full_name\":\"\",\"email\":\"fixture@example.org\",\"avatar_url\":\"http://example.org/avatars/6fbfa47bd4bc15861d1647302c545637\",\"html_url\":\"http://example.org/fixture-reviewer\",\"language\":\"\",\"is_admin\":false,\"last_login\":\"1970-01-01T00:00:00Z\",\"created\":\"2026-11-23T14:34:28Z\",\"restricted\":false,\"active\":true,\"prohibit_login\":false,\"location\":\"\",\"pronouns\":\"\",\"website\":\"\",\"description\":\"\",\"visibility\":\"public\",\"followers_count\":0,\"following_count\":0,\"starred_repos_count\":0,\"username\":\"fixture-reviewer\"},\"key_type\":\"user\",\"updated_at\":\"2026-11-23T14:34:28Z\",\"verified\":false}]"
     }
   ],
   "context" : {
     "owner" : "review-org",
     "repo" : "review-fixture",
-    "sha" : "ea36970a9bbc12ce11f0fd03714329252a3f8772",
-    "actionsSha" : "cf001075e84307fa4f20899d5bbd00d8ef1cc0d2",
+    "sha" : "b9592accec9a6f2b40725d952c6f9628dfcf0a25",
+    "actionsSha" : "81c9b07607e058ab7b5b7d661974a86fbdfe9878",
     "index" : 1,
     "review" : 1,
     "run" : 1,
@@ -37,7 +37,7 @@
     "key" : 1,
     "comment" : 4,
     "issueComment" : 7,
-    "since" : "2026-11-23T07:50:35Z",
+    "since" : "2026-11-23T14:34:41Z",
     "longIndex" : 2,
     "label" : 1
   },
