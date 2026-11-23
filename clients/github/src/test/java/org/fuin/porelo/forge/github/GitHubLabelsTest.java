@@ -65,7 +65,7 @@ class GitHubLabelsTest {
         assertThat(http.sent.get(0).method()).as("a change").isEqualTo("PATCH");
     }
 
-    // Prevents a rename from clearing the label's color or description the caller left out.
+    // Prevents a part left out from reaching GitHub as a JSON null, which it may take as a value.
     @Test
     void anUpdateSendsOnlyWhatTheCallerGave() throws Exception {
         var http = new ChunkedTransport(200, Map.of(), LABEL);

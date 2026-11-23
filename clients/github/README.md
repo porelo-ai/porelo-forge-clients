@@ -88,8 +88,8 @@ Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
 - `labels`, `createLabel`, `updateLabel` and `deleteLabel` list, create, change and delete a repository's labels, each
   with its name, color (six hexadecimal digits without `#`) and description. `updateLabel` and `deleteLabel` take the
   label's name and send it as one path segment, a slash or dot in it encoded, so a name never addresses another path;
-  a name with a slash, a space and a dot is recorded. `updateLabel` sends only what the caller gave, so a part left
-  null stays as it is; as measured, an issue carrying the label carries it under its new name.
+  a name with a slash, a space and a dot is recorded. `updateLabel` sends only what the caller gave, a part left
+  null not at all; as measured, an issue carrying the label carries it under its new name.
 - `issueFields` lists an organization's issue fields, each with its id, name, data type and, for a select field, its
   options, all at once since GitHub pages them not; the token needs the organization's issue-fields permission. An
   issue carries its values in `issueFieldValues`, a select value as its option's id beside `singleSelectOption`'s
