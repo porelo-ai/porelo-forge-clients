@@ -573,6 +573,22 @@ public final class GitHubClient {
     }
 
     /**
+     * Changes a repository label named by its current name, sent as one path segment: {@code
+     * newName}, color and description, each left null staying as it is. Whatever carries the label
+     * keeps it under its new name.
+     */
+    public Label updateLabel(
+            String token, String owner, String repo, String name, IssuesUpdateLabelRequest label) {
+        Objects.requireNonNull(label, "label");
+        return call(
+                token,
+                "PATCH",
+                repo(owner, repo) + "/labels/" + segment(name),
+                label,
+                json.constructType(Label.class));
+    }
+
+    /**
      * Lists an organization's issue fields, each with its id, name, data type and, for a select
      * field, its options; GitHub answers them all at once, unpaged.
      */

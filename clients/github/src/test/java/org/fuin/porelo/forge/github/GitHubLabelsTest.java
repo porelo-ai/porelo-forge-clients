@@ -3,13 +3,18 @@ package org.fuin.porelo.forge.github;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.util.Map;
+import org.fuin.porelo.forge.github.model.IssuesUpdateLabelRequest;
 import org.junit.jupiter.api.Test;
 
 class GitHubLabelsTest {
     private static final URI BASE = URI.create("https://example.org/");
     private static final String TOKEN = "synthetic-access-token";
+    private static final String LABEL =
+            "{\"id\":1,\"node_id\":\"LA_1\",\"url\":\"https://example.org/l\",\"name\":\"defect\","
+                    + "\"description\":null,\"color\":\"0e8a16\",\"default\":false}";
 
     // Prevents a label's name from reaching another path, deleting what the caller never named.
     @Test
@@ -40,6 +45,40 @@ class GitHubLabelsTest {
                             () -> new GitHubClient(BASE, http).deleteLabel(TOKEN, "o", "r", name));
         }
         assertThat(http.sent).as("nothing was sent").isEmpty();
+    }
+
+    // Prevents a label's name from reaching another path, changing what the caller never named.
+    @Test
+    void aLabelsNameReachesTheUpdateAsOneSegment() {
+        var http = new ChunkedTransport(200, Map.of(), LABEL);
+        new GitHubClient(BASE, http)
+                .updateLabel(
+                        TOKEN,
+                        "o",
+                        "r",
+                        "area/../hooks 1.x?y#z",
+                        new IssuesUpdateLabelRequest("area/hooks", null, null, null));
+        assertThat(http.sent.get(0).uri().getRawPath())
+                .as("every slash, dot, space and query mark is encoded")
+                .isEqualTo("/repos/o/r/labels/area%2F%2E%2E%2Fhooks%201%2Ex%3Fy%23z");
+        assertThat(http.sent.get(0).uri().getRawQuery()).as("no query reaches GitHub").isNull();
+        assertThat(http.sent.get(0).method()).as("a change").isEqualTo("PATCH");
+    }
+
+    // Prevents a rename from clearing the label's color or description the caller left out.
+    @Test
+    void anUpdateSendsOnlyWhatTheCallerGave() throws Exception {
+        var http = new ChunkedTransport(200, Map.of(), LABEL);
+        new GitHubClient(BASE, http)
+                .updateLabel(
+                        TOKEN,
+                        "o",
+                        "r",
+                        "bug",
+                        new IssuesUpdateLabelRequest("defect", null, null, null));
+        assertThat(new ObjectMapper().readTree(GitHubRecordingTest.requestBody(http.sent.get(0))))
+                .as("the new name alone")
+                .isEqualTo(new ObjectMapper().readTree("{\"new_name\":\"defect\"}"));
     }
 
     // Prevents an organization's issue fields from being cut short: GitHub serves them unpaged,

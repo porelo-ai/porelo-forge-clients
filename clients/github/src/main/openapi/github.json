@@ -4076,6 +4076,94 @@
       }
     },
     "/repos/{owner}/{repo}/labels/{name}": {
+      "patch": {
+        "summary": "Update a label",
+        "description": "Updates a label using the given label name.",
+        "tags": [
+          "issues"
+        ],
+        "operationId": "issues/update-label",
+        "externalDocs": {
+          "description": "API method documentation",
+          "url": "https://docs.github.com/rest/issues/labels#update-a-label"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/owner"
+          },
+          {
+            "$ref": "#/components/parameters/repo"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "new_name": {
+                    "type": "string",
+                    "description": "The new name of the label. Emoji can be added to label names, using either native emoji or colon-style markup. For example, typing `:strawberry:` will render the emoji ![:strawberry:](https://github.githubassets.com/images/icons/emoji/unicode/1f353.png \":strawberry:\"). For a full list of available emoji and codes, see \"[Emoji cheat sheet](https://github.com/ikatyang/emoji-cheat-sheet).\""
+                  },
+                  "color": {
+                    "type": "string",
+                    "description": "The [hexadecimal color code](http://www.color-hex.com/) for the label, without the leading `#`."
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "A short description of the label. Must be 100 characters or fewer."
+                  },
+                  "archived": {
+                    "type": "boolean",
+                    "description": "Whether to archive or unarchive the label. Archived labels cannot be added to issues or pull requests. For more information, see \"[Archiving labels](https://docs.github.com/issues/organizing-your-work-with-labels/managing-labels).\""
+                  }
+                }
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "new_name": "bug :bug:",
+                    "description": "Small bug fix required",
+                    "color": "b01f26"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/label"
+                },
+                "examples": {
+                  "default": {
+                    "$ref": "#/components/examples/label-2"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-github": {
+          "githubCloudOnly": false,
+          "enabledForGitHubApps": true,
+          "category": "issues",
+          "subcategory": "labels"
+        }
+      },
       "delete": {
         "summary": "Delete a label",
         "description": "Deletes a label using the given label name.",
@@ -19018,6 +19106,19 @@
           "name": "bug",
           "description": "Something isn't working",
           "color": "f29513",
+          "default": true,
+          "archived_at": null,
+          "archived_by": null
+        }
+      },
+      "label-2": {
+        "value": {
+          "id": 208045946,
+          "node_id": "MDU6TGFiZWwyMDgwNDU5NDY=",
+          "url": "https://api.github.com/repos/octocat/Hello-World/labels/bug%20:bug:",
+          "name": "bug :bug:",
+          "description": "Small bug fix required",
+          "color": "b01f26",
           "default": true,
           "archived_at": null,
           "archived_by": null

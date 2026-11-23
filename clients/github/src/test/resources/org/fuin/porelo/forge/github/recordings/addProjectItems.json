@@ -4,57 +4,57 @@
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4870" ],
-    "x-ratelimit-reset" : [ "1795435365" ]
+    "x-ratelimit-remaining" : [ "4295" ],
+    "x-ratelimit-reset" : [ "1795444952" ]
   },
-  "body" : "{\"data\":{\"a0\":{\"item\":{\"id\":\"PVTI_lADOFN-d0c4Bs2YFzhLGrZs\"}},\"a1\":{\"item\":{\"id\":\"PVTI_lADOFN-d0c4Bs2YFzhLGraY\"}}}}",
+  "body" : "{\"data\":{\"a0\":{\"item\":{\"id\":\"PVTI_lADOFN-d0c4Bs4DYzhLJ24Y\"}},\"a1\":{\"item\":{\"id\":\"PVTI_lADOFN-d0c4Bs4DYzhLJ25A\"}}}}",
   "exchanges" : [ {
     "request_uri" : "/graphql",
     "status" : 200,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4870" ],
-      "x-ratelimit-reset" : [ "1795435365" ]
+      "x-ratelimit-remaining" : [ "4295" ],
+      "x-ratelimit-reset" : [ "1795444952" ]
     },
-    "body" : "{\"data\":{\"a0\":{\"item\":{\"id\":\"PVTI_lADOFN-d0c4Bs2YFzhLGrZs\"}},\"a1\":{\"item\":{\"id\":\"PVTI_lADOFN-d0c4Bs2YFzhLGraY\"}}}}"
+    "body" : "{\"data\":{\"a0\":{\"item\":{\"id\":\"PVTI_lADOFN-d0c4Bs4DYzhLJ24Y\"}},\"a1\":{\"item\":{\"id\":\"PVTI_lADOFN-d0c4Bs4DYzhLJ25A\"}}}}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "prefix" : "forge-client-issues-bdee0a28",
-    "number" : 178,
-    "other" : 179,
-    "subIssueId" : 6557922846,
-    "thirdIssueId" : 6557923049,
-    "since" : "2026-11-23T10:58:45Z",
-    "etag" : "\"a53a4ec2bec58678f4b6209bfea34d4f96c088c2f4620106977139a0706e75e5\"",
+    "prefix" : "forge-client-issues-ae9da61b",
+    "number" : 220,
+    "other" : 221,
+    "subIssueId" : 6561506304,
+    "thirdIssueId" : 6561506534,
+    "since" : "2026-11-23T14:17:31Z",
+    "etag" : "\"dead1a588ac2128bd7fc809fe103c64eeed2aa673aea78a19ac634ae0cad662e\"",
     "itemsEtag" : "pending",
-    "projectNumber" : 70,
-    "projectId" : "PVT_kwDOFN-d0c4Bs2YF",
+    "projectNumber" : 81,
+    "projectId" : "PVT_kwDOFN-d0c4Bs4DY",
     "repositoryId" : "R_kgDOVc0D8w",
-    "issueIds" : [ "I_kwDOVc0D888AAAABhuHzQA", "I_kwDOVc0D888AAAABhuH2Hg" ],
+    "issueIds" : [ "I_kwDOVc0D888AAAABhxigWg", "I_kwDOVc0D888AAAABhxikAA" ],
     "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
     "itemIds" : [ ],
-    "fieldId" : "PVTSSF_lADOFN-d0c4Bs2YFzhrCiK8",
-    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bs2YFzhrCiIc",
+    "fieldId" : "PVTSSF_lADOFN-d0c4Bs4DYzhrEGDo",
+    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bs4DYzhrEF9Y",
     "statusOptionId" : "f75ad846",
-    "textFieldId" : "PVTF_lADOFN-d0c4Bs2YFzhrCiLc",
-    "numberFieldId" : "PVTF_lADOFN-d0c4Bs2YFzhrCiL8",
-    "fieldDatabaseIds" : [ 448956551, 448956591, 448956599, 448956607 ],
-    "label" : "forge-client-issues-bdee0a28/topic a.b"
+    "textFieldId" : "PVTF_lADOFN-d0c4Bs4DYzhrEGDw",
+    "numberFieldId" : "PVTF_lADOFN-d0c4Bs4DYzhrEGFg",
+    "fieldDatabaseIds" : [ 449058774, 449058874, 449058876, 449058904 ],
+    "label" : "forge-client-issues-ae9da61b/topic a.b"
   },
   "request_body" : {
-    "query" : "mutation AddProjectItems($v0: AddProjectV2ItemByIdInput!, $v1: AddProjectV2ItemByIdInput!) { a0: addProjectV2ItemById(input: $v0) { item { id } } a1: addProjectV2ItemById(input: $v1) { item { id } } }",
     "variables" : {
       "v0" : {
-        "projectId" : "PVT_kwDOFN-d0c4Bs2YF",
-        "contentId" : "I_kwDOVc0D888AAAABhuHzQA"
+        "projectId" : "PVT_kwDOFN-d0c4Bs4DY",
+        "contentId" : "I_kwDOVc0D888AAAABhxigWg"
       },
       "v1" : {
-        "projectId" : "PVT_kwDOFN-d0c4Bs2YF",
-        "contentId" : "I_kwDOVc0D888AAAABhuH2Hg"
+        "projectId" : "PVT_kwDOFN-d0c4Bs4DY",
+        "contentId" : "I_kwDOVc0D888AAAABhxikAA"
       }
-    }
+    },
+    "query" : "mutation AddProjectItems($v0: AddProjectV2ItemByIdInput!, $v1: AddProjectV2ItemByIdInput!) { a0: addProjectV2ItemById(input: $v0) { item { id } } a1: addProjectV2ItemById(input: $v1) { item { id } } }"
   }
 }

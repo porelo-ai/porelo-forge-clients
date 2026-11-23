@@ -4,50 +4,50 @@
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4803" ],
-    "x-ratelimit-reset" : [ "1795435365" ]
+    "x-ratelimit-remaining" : [ "4222" ],
+    "x-ratelimit-reset" : [ "1795444952" ]
   },
-  "body" : "{\"data\":{\"node\":{\"fieldValues\":{\"nodes\":[{\"__typename\":\"ProjectV2ItemFieldRepositoryValue\"},{\"__typename\":\"ProjectV2ItemFieldTextValue\",\"text\":\"forge-client-issues-bdee0a28-a\",\"field\":{\"id\":\"PVTF_lADOFN-d0c4Bs2YFzhrCiIU\"}},{\"__typename\":\"ProjectV2ItemFieldSingleSelectValue\",\"optionId\":\"98236657\",\"name\":\"Done\",\"field\":{\"id\":\"PVTSSF_lADOFN-d0c4Bs2YFzhrCiIc\"}},{\"__typename\":\"ProjectV2ItemFieldTextValue\",\"text\":\"partly\",\"field\":{\"id\":\"PVTF_lADOFN-d0c4Bs2YFzhrCiLc\"}},{\"__typename\":\"ProjectV2ItemFieldNumberValue\",\"number\":11.0,\"field\":{\"id\":\"PVTF_lADOFN-d0c4Bs2YFzhrCiL8\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"NQ\"}}},\"rateLimit\":{\"cost\":1,\"remaining\":4803,\"resetAt\":\"2026-11-23T12:02:45Z\"}}}",
+  "body" : "{\"data\":{\"node\":{\"fieldValues\":{\"nodes\":[{\"__typename\":\"ProjectV2ItemFieldRepositoryValue\"},{\"__typename\":\"ProjectV2ItemFieldTextValue\",\"text\":\"forge-client-issues-ae9da61b-a\",\"field\":{\"id\":\"PVTF_lADOFN-d0c4Bs4DYzhrEF9Q\"}},{\"__typename\":\"ProjectV2ItemFieldSingleSelectValue\",\"optionId\":\"98236657\",\"name\":\"Done\",\"field\":{\"id\":\"PVTSSF_lADOFN-d0c4Bs4DYzhrEF9Y\"}},{\"__typename\":\"ProjectV2ItemFieldTextValue\",\"text\":\"partly\",\"field\":{\"id\":\"PVTF_lADOFN-d0c4Bs4DYzhrEGDw\"}},{\"__typename\":\"ProjectV2ItemFieldNumberValue\",\"number\":11.0,\"field\":{\"id\":\"PVTF_lADOFN-d0c4Bs4DYzhrEGFg\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"NQ\"}}},\"rateLimit\":{\"cost\":1,\"remaining\":4222,\"resetAt\":\"2026-11-23T14:42:32Z\"}}}",
   "exchanges" : [ {
     "request_uri" : "/graphql",
     "status" : 200,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4803" ],
-      "x-ratelimit-reset" : [ "1795435365" ]
+      "x-ratelimit-remaining" : [ "4222" ],
+      "x-ratelimit-reset" : [ "1795444952" ]
     },
-    "body" : "{\"data\":{\"node\":{\"fieldValues\":{\"nodes\":[{\"__typename\":\"ProjectV2ItemFieldRepositoryValue\"},{\"__typename\":\"ProjectV2ItemFieldTextValue\",\"text\":\"forge-client-issues-bdee0a28-a\",\"field\":{\"id\":\"PVTF_lADOFN-d0c4Bs2YFzhrCiIU\"}},{\"__typename\":\"ProjectV2ItemFieldSingleSelectValue\",\"optionId\":\"98236657\",\"name\":\"Done\",\"field\":{\"id\":\"PVTSSF_lADOFN-d0c4Bs2YFzhrCiIc\"}},{\"__typename\":\"ProjectV2ItemFieldTextValue\",\"text\":\"partly\",\"field\":{\"id\":\"PVTF_lADOFN-d0c4Bs2YFzhrCiLc\"}},{\"__typename\":\"ProjectV2ItemFieldNumberValue\",\"number\":11.0,\"field\":{\"id\":\"PVTF_lADOFN-d0c4Bs2YFzhrCiL8\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"NQ\"}}},\"rateLimit\":{\"cost\":1,\"remaining\":4803,\"resetAt\":\"2026-11-23T12:02:45Z\"}}}"
+    "body" : "{\"data\":{\"node\":{\"fieldValues\":{\"nodes\":[{\"__typename\":\"ProjectV2ItemFieldRepositoryValue\"},{\"__typename\":\"ProjectV2ItemFieldTextValue\",\"text\":\"forge-client-issues-ae9da61b-a\",\"field\":{\"id\":\"PVTF_lADOFN-d0c4Bs4DYzhrEF9Q\"}},{\"__typename\":\"ProjectV2ItemFieldSingleSelectValue\",\"optionId\":\"98236657\",\"name\":\"Done\",\"field\":{\"id\":\"PVTSSF_lADOFN-d0c4Bs4DYzhrEF9Y\"}},{\"__typename\":\"ProjectV2ItemFieldTextValue\",\"text\":\"partly\",\"field\":{\"id\":\"PVTF_lADOFN-d0c4Bs4DYzhrEGDw\"}},{\"__typename\":\"ProjectV2ItemFieldNumberValue\",\"number\":11.0,\"field\":{\"id\":\"PVTF_lADOFN-d0c4Bs4DYzhrEGFg\"}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"NQ\"}}},\"rateLimit\":{\"cost\":1,\"remaining\":4222,\"resetAt\":\"2026-11-23T14:42:32Z\"}}}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "prefix" : "forge-client-issues-bdee0a28",
-    "number" : 178,
-    "other" : 179,
-    "subIssueId" : 6557922846,
-    "thirdIssueId" : 6557923049,
-    "since" : "2026-11-23T10:58:45Z",
-    "etag" : "\"a53a4ec2bec58678f4b6209bfea34d4f96c088c2f4620106977139a0706e75e5\"",
-    "itemsEtag" : "\"ba2f361956816e67eca29893f7184b0f69c80419102038891538e74d017f71a7\"",
-    "projectNumber" : 70,
-    "projectId" : "PVT_kwDOFN-d0c4Bs2YF",
+    "prefix" : "forge-client-issues-ae9da61b",
+    "number" : 220,
+    "other" : 221,
+    "subIssueId" : 6561506304,
+    "thirdIssueId" : 6561506534,
+    "since" : "2026-11-23T14:17:31Z",
+    "etag" : "\"dead1a588ac2128bd7fc809fe103c64eeed2aa673aea78a19ac634ae0cad662e\"",
+    "itemsEtag" : "\"bf658e1278486ed4ed9418488cd0bc1d5e5e443a97b93713c787e19d6cb56af9\"",
+    "projectNumber" : 81,
+    "projectId" : "PVT_kwDOFN-d0c4Bs4DY",
     "repositoryId" : "R_kgDOVc0D8w",
-    "issueIds" : [ "I_kwDOVc0D888AAAABhuHzQA", "I_kwDOVc0D888AAAABhuH2Hg" ],
+    "issueIds" : [ "I_kwDOVc0D888AAAABhxigWg", "I_kwDOVc0D888AAAABhxikAA" ],
     "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
-    "itemIds" : [ "PVTI_lADOFN-d0c4Bs2YFzhLGrZs", "PVTI_lADOFN-d0c4Bs2YFzhLGraY" ],
-    "fieldId" : "PVTSSF_lADOFN-d0c4Bs2YFzhrCiK8",
-    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bs2YFzhrCiIc",
+    "itemIds" : [ "PVTI_lADOFN-d0c4Bs4DYzhLJ24Y", "PVTI_lADOFN-d0c4Bs4DYzhLJ25A" ],
+    "fieldId" : "PVTSSF_lADOFN-d0c4Bs4DYzhrEGDo",
+    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bs4DYzhrEF9Y",
     "statusOptionId" : "f75ad846",
-    "textFieldId" : "PVTF_lADOFN-d0c4Bs2YFzhrCiLc",
-    "numberFieldId" : "PVTF_lADOFN-d0c4Bs2YFzhrCiL8",
-    "fieldDatabaseIds" : [ 448956551, 448956591, 448956599, 448956607 ],
-    "label" : "forge-client-issues-bdee0a28/topic a.b"
+    "textFieldId" : "PVTF_lADOFN-d0c4Bs4DYzhrEGDw",
+    "numberFieldId" : "PVTF_lADOFN-d0c4Bs4DYzhrEGFg",
+    "fieldDatabaseIds" : [ 449058774, 449058874, 449058876, 449058904 ],
+    "label" : "forge-client-issues-ae9da61b/topic a.b"
   },
   "request_body" : {
-    "query" : "query ItemValues($id: ID!, $after: String) { node(id: $id) { ... on ProjectV2Item { fieldValues(first: 100, after: $after) { nodes { __typename ... on ProjectV2ItemFieldSingleSelectValue { optionId name field { ... on ProjectV2FieldCommon { id } } } ... on ProjectV2ItemFieldTextValue { text field { ... on ProjectV2FieldCommon { id } } } ... on ProjectV2ItemFieldNumberValue { number field { ... on ProjectV2FieldCommon { id } } } } pageInfo { hasNextPage endCursor } } } } rateLimit { cost remaining resetAt } }",
     "variables" : {
-      "id" : "PVTI_lADOFN-d0c4Bs2YFzhLGrZs"
-    }
+      "id" : "PVTI_lADOFN-d0c4Bs4DYzhLJ24Y"
+    },
+    "query" : "query ItemValues($id: ID!, $after: String) { node(id: $id) { ... on ProjectV2Item { fieldValues(first: 100, after: $after) { nodes { __typename ... on ProjectV2ItemFieldSingleSelectValue { optionId name field { ... on ProjectV2FieldCommon { id } } } ... on ProjectV2ItemFieldTextValue { text field { ... on ProjectV2FieldCommon { id } } } ... on ProjectV2ItemFieldNumberValue { number field { ... on ProjectV2FieldCommon { id } } } } pageInfo { hasNextPage endCursor } } } } rateLimit { cost remaining resetAt } }"
   }
 }

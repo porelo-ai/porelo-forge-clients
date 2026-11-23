@@ -85,10 +85,11 @@ Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
   or one holding a comma is refused, since GitHub splits at commas) and `since`; it lists pull requests too, told by
   `pullRequest`. `issue`, `createIssue` and `updateIssue` read, create and change one; GitHub drops labels in silence
   for an account without push access. Closing is `state` `closed` with `stateReason` `completed` or `not_planned`.
-- `labels`, `createLabel` and `deleteLabel` list, create and delete a repository's labels, each with its name, color
-  (six hexadecimal digits without `#`) and description. `deleteLabel` takes the label's name and sends it as one path
-  segment, a slash or dot in it encoded, so a name never addresses another path; a name with a slash, a space and a
-  dot is recorded.
+- `labels`, `createLabel`, `updateLabel` and `deleteLabel` list, create, change and delete a repository's labels, each
+  with its name, color (six hexadecimal digits without `#`) and description. `updateLabel` and `deleteLabel` take the
+  label's name and send it as one path segment, a slash or dot in it encoded, so a name never addresses another path;
+  a name with a slash, a space and a dot is recorded. `updateLabel` sends only what the caller gave, so a part left
+  null stays as it is; as measured, an issue carrying the label carries it under its new name.
 - `issueFields` lists an organization's issue fields, each with its id, name, data type and, for a select field, its
   options, all at once since GitHub pages them not; the token needs the organization's issue-fields permission. An
   issue carries its values in `issueFieldValues`, a select value as its option's id beside `singleSelectOption`'s

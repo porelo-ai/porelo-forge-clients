@@ -10,6 +10,7 @@ import org.fuin.porelo.forge.github.GitHubGraphQl.NewOption;
 import org.fuin.porelo.forge.github.model.ChecksCreateRequest;
 import org.fuin.porelo.forge.github.model.IssuesCreateLabelRequest;
 import org.fuin.porelo.forge.github.model.IssuesCreateRequest;
+import org.fuin.porelo.forge.github.model.IssuesUpdateLabelRequest;
 import org.fuin.porelo.forge.github.model.IssuesUpdateRequest;
 
 /**
@@ -55,6 +56,7 @@ enum GitHubIssueOperations {
     createIssues("POST", "/graphql"),
     createLabel("POST", "/repos/{owner}/{repo}/labels"),
     labels("GET", "/repos/{owner}/{repo}/labels"),
+    updateLabel("PATCH", "/repos/{owner}/{repo}/labels/{label}"),
     deleteLabel("DELETE", "/repos/{owner}/{repo}/labels/{label}"),
     issueFields("GET", "/orgs/{owner}/issue-fields");
 
@@ -213,6 +215,13 @@ enum GitHubIssueOperations {
                             c.repo(),
                             JSON.treeToValue(body, IssuesCreateLabelRequest.class));
             case labels -> client.labels(token, c.owner(), c.repo(), 1, 100);
+            case updateLabel ->
+                    client.updateLabel(
+                            token,
+                            c.owner(),
+                            c.repo(),
+                            c.label(),
+                            JSON.treeToValue(body, IssuesUpdateLabelRequest.class));
             case issueFields -> client.issueFields(token, c.owner());
             case deleteLabel -> {
                 client.deleteLabel(token, c.owner(), c.repo(), c.label());

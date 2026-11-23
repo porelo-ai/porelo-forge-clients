@@ -21,6 +21,7 @@ import org.fuin.porelo.forge.github.GitHubGraphQl.ProjectField;
 import org.fuin.porelo.forge.github.GitHubGraphQl.ProjectFields;
 import org.fuin.porelo.forge.github.model.Issue;
 import org.fuin.porelo.forge.github.model.IssueField;
+import org.fuin.porelo.forge.github.model.IssueLabelsInner;
 import org.fuin.porelo.forge.github.model.IssuesCreateRequest;
 import org.fuin.porelo.forge.github.model.IssuesUpdateRequest;
 import org.fuin.porelo.forge.github.model.Label;
@@ -70,6 +71,7 @@ final class GitHubIssueScenario implements AutoCloseable {
     private String etag = "pending";
     private String itemsEtag = "pending";
     private @Nullable JsonNode itemsBody;
+    private String labelName;
     private int projectNumber;
     private String projectId = "pending";
     private String repositoryId = "pending";
@@ -85,6 +87,7 @@ final class GitHubIssueScenario implements AutoCloseable {
     GitHubIssueScenario(HttpClient http, String token, String runId, Consumer<String> report) {
         this.token = token;
         this.prefix = "forge-client-issues-" + runId;
+        this.labelName = label();
         this.report = report;
         transport = new RecordingHttpClient(http);
         client =
@@ -119,12 +122,17 @@ final class GitHubIssueScenario implements AutoCloseable {
                 textFieldId,
                 numberFieldId,
                 fieldDatabaseIds,
-                label());
+                labelName);
     }
 
     /** The run's label, with a slash, a space and a dot, so its name must reach GitHub whole. */
     private String label() {
         return prefix + "/topic a.b";
+    }
+
+    /** The name the run's label is changed to, again with a slash, a space and a dot. */
+    private String renamedLabel() {
+        return prefix + "/renamed a.b";
     }
 
     /** The account the token belongs to, which the recordings name as the reviewer. */
@@ -208,6 +216,23 @@ final class GitHubIssueScenario implements AutoCloseable {
             }
             case issues -> awaitListed();
             case projectItems -> awaitBoardItems();
+            case updateLabel ->
+                    setup.updateIssue(
+                            token,
+                            GitHubFixture.OWNER,
+                            GitHubFixture.REPO,
+                            number,
+                            new IssuesUpdateRequest(
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    List.of(label()),
+                                    null,
+                                    null,
+                                    null));
             case statusChanges ->
                     setupGraphql.setFieldValues(
                             token,
@@ -307,6 +332,21 @@ final class GitHubIssueScenario implements AutoCloseable {
 
     private void after(GitHubIssueOperations operation, Object result) throws Exception {
         switch (operation) {
+            case updateLabel -> {
+                labelName = renamedLabel();
+                var carried =
+                        setup
+                                .issue(token, GitHubFixture.OWNER, GitHubFixture.REPO, number)
+                                .labels()
+                                .stream()
+                                .map(IssueLabelsInner::name)
+                                .toList();
+                report("issue carrying the changed label lists " + carried);
+                if (!carried.equals(List.of(renamedLabel())))
+                    throw new IllegalStateException(
+                            "The issue does not carry the label under its new name alone: "
+                                    + carried);
+            }
             case createIssue -> {
                 var a = (Issue) result;
                 number = a.number();
@@ -587,6 +627,14 @@ final class GitHubIssueScenario implements AutoCloseable {
                                     "0e8a16",
                                     "description",
                                     "Fixture label");
+                    case updateLabel ->
+                            Map.of(
+                                    "new_name",
+                                    renamedLabel(),
+                                    "color",
+                                    "b60205",
+                                    "description",
+                                    "Fixture label, changed");
                     default -> Map.of();
                 });
     }
@@ -596,7 +644,8 @@ final class GitHubIssueScenario implements AutoCloseable {
         var labels = setup.labels(token, GitHubFixture.OWNER, GitHubFixture.REPO, 1, 100);
         for (var label : labels.items()) {
             if (label.name().startsWith("forge-client-issues-")
-                    && label.name().endsWith("/topic a.b"))
+                    && (label.name().endsWith("/topic a.b")
+                            || label.name().endsWith("/renamed a.b")))
                 setup.deleteLabel(token, GitHubFixture.OWNER, GitHubFixture.REPO, label.name());
         }
     }
@@ -836,6 +885,16 @@ final class GitHubIssueScenario implements AutoCloseable {
                     assertThat(((Page<?>) result).items())
                             .as("the repository's labels include the run's")
                             .anyMatch(l -> ((Label) l).name().endsWith("/topic a.b"));
+            case updateLabel -> {
+                var label = (Label) result;
+                assertThat(label.name())
+                        .as("the label takes its whole new name")
+                        .endsWith("/renamed a.b");
+                assertThat(label.color()).as("its new color").isEqualTo("b60205");
+                assertThat(label.description())
+                        .as("its new description")
+                        .isEqualTo("Fixture label, changed");
+            }
             case issueFields -> {
                 @SuppressWarnings("unchecked")
                 var fields = (List<IssueField>) result;
