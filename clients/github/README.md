@@ -107,7 +107,7 @@ variables; the document holds only fixed text and, in a batch, each part's index
   fails with `resourceLimited()` set on its `GitHubException`, so a caller can read the board on in smaller pages. Each
   issue `projectItems` and `issueBoard` read carries its issue type's name, `issueType`, or null when it has none; as
   measured, a token that may not list the organization's issue types still reads an issue's type. Each also carries
-`closedAt`, when the issue was last closed, or null while it never was. An issue's `subIssues`
+  `closedAt`, when the issue was last closed, or null while it never was. An issue's `subIssues`
   and `blockedBy` carry GitHub's `totalCount` of the whole list beside the nodes, so a caller sees when GitHub leaves an
   issue out of them. An issue's labels, sub-issues and blockers and an item's values come at the sizes of `ItemLimits`
   (`DEFAULT` 100, 100, 100 and 50; each 1 to 100), and each of these lists carries its `PageInfo` (`labelsPage`,

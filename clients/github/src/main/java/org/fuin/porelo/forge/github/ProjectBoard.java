@@ -583,6 +583,8 @@ final class ProjectBoard {
     }
 
     private static @Nullable Instant optionalInstant(JsonNode node, String name) {
+        // Asked for always, so a missing field is a broken answer, never an issue left open.
+        if (node.path(name).isMissingNode()) throw new UnreadableAnswer(name);
         return optional(node, name) == null ? null : instant(node, name);
     }
 

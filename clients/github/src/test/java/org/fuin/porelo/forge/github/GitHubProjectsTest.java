@@ -42,10 +42,17 @@ class GitHubProjectsTest {
     }
 
     private static String issue(String id) {
+        return issue(id, "null");
+    }
+
+    private static String issue(String id, String closedAt) {
         return "{\"__typename\":\"Issue\",\"id\":\""
                 + id
                 + "\",\"databaseId\":5000000001,\"number\":7,\"title\":\"T\",\"body\":null,"
                 + "\"state\":\"OPEN\",\"stateReason\":null,\"updatedAt\":\"2026-01-01T00:00:00Z\","
+                + "\"closedAt\":"
+                + closedAt
+                + ","
                 + "\"repository\":{\"nameWithOwner\":\"o/r\"},"
                 + "\"labels\":{\"nodes\":[{\"name\":\"story\"}],"
                 + PAGE
@@ -56,9 +63,8 @@ class GitHubProjectsTest {
     }
 
     private static final String TYPED =
-            issue("I_1")
-                    + ",\"issueType\":{\"name\":\"Story\"},\"closedAt\":\"2026-02-03T04:05:06Z\"";
-    private static final String UNTYPED = issue("I_2") + ",\"issueType\":null,\"closedAt\":null";
+            issue("I_1", "\"2026-02-03T04:05:06Z\"") + ",\"issueType\":{\"name\":\"Story\"}";
+    private static final String UNTYPED = issue("I_2") + ",\"issueType\":null";
 
     // Prevents a caller's text from becoming part of a GraphQL document.
     @Test
@@ -448,6 +454,56 @@ class GitHubProjectsTest {
                 .as("a closed issue's time")
                 .isEqualTo(Instant.parse("2026-02-03T04:05:06Z"));
         assertThat(page.items().get(1).issue().closedAt()).as("an open issue's").isNull();
+    }
+
+    // Prevents a closed issue from passing as never closed when GitHub's answer is broken: a
+    // missing or unreadable closing time fails the read.
+    @Test
+    void anUnreadableClosingTimeFailsTheRead() {
+        for (String typed :
+                List.of(
+                        issue("I_1").replace("\"closedAt\":null,", ""),
+                        issue("I_1", "123"),
+                        issue("I_1", "\"yesterday\""))) {
+            var items =
+                    answering(
+                            "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"totalCount\":1,\"nodes\":["
+                                    + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":"
+                                    + typed
+                                    + "},\"fieldValues\":{\"nodes\":[],"
+                                    + PAGE
+                                    + "}}],"
+                                    + PAGE
+                                    + "}}},"
+                                    + COST
+                                    + "}}");
+            assertThatExceptionOfType(GitHubException.class)
+                    .as("an issue reading <%s>", typed)
+                    .isThrownBy(() -> graphQl(items).projectItems(TOKEN, "o", 1, null));
+        }
+    }
+
+    // Prevents a story's test day from being guessed: an issue read by its node id reads when it
+    // was closed, or null while it never was.
+    @Test
+    void anIssueReadByIdReadsWhenItWasClosed() throws Exception {
+        String onBoard = ",\"projectItems\":{\"nodes\":[]," + PAGE + "}}";
+        var board =
+                answering(
+                        "{\"data\":{\"nodes\":["
+                                + TYPED
+                                + onBoard
+                                + ","
+                                + UNTYPED
+                                + onBoard
+                                + "],"
+                                + COST
+                                + "}}");
+        var issues = graphQl(board).issueBoard(TOKEN, List.of("I_1", "I_2"), "P_1").issues();
+        assertThat(issues.get(0).issue().closedAt())
+                .as("a closed issue's time")
+                .isEqualTo(Instant.parse("2026-02-03T04:05:06Z"));
+        assertThat(issues.get(1).issue().closedAt()).as("an open issue's").isNull();
     }
 
     // Prevents a story from being known only by its label: an issue read by its node id reads
