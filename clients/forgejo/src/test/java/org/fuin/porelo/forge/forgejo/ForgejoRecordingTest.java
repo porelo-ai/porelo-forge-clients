@@ -61,7 +61,7 @@ class ForgejoRecordingTest {
                         case pulls -> "state=open&page=1&limit=50";
                         case issueComments -> "since=" + context.since().replace(":", "%3A");
                         case runs -> "head_sha=" + context.actionsSha() + "&page=1&limit=50";
-                        case reviews, statuses, hooks, organizations, keys, ownKeys ->
+                        case reviews, statuses, hooks, organizations, keys, ownKeys, labels ->
                                 "page=1&limit=50";
                         case pullCommits -> "verification=true&files=false&page=1&limit=50";
                         case pullCommitsAboveMaximum ->

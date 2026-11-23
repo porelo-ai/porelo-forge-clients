@@ -148,6 +148,12 @@
                                 <argument>get /repos/{owner}/{repo}/pulls/{base}/{head}</argument>
                                 <argument>--operation</argument>
                                 <argument>get /version</argument>
+                                <argument>--operation</argument>
+                                <argument>get /repos/{owner}/{repo}/labels</argument>
+                                <argument>--operation</argument>
+                                <argument>post /repos/{owner}/{repo}/labels</argument>
+                                <argument>--operation</argument>
+                                <argument>delete /repos/{owner}/{repo}/labels/{id}</argument>
                             </arguments>
                         </configuration>
                     </execution>

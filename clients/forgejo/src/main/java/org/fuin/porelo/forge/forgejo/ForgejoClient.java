@@ -487,6 +487,35 @@ public final class ForgejoClient {
         return page(token, "user/keys?" + pageQuery(page, limit), PublicKey.class, page, limit);
     }
 
+    /** Lists one page of a repository's labels, each with its id, name, color and description. */
+    public Page<Label> labels(String token, String owner, String repo, int page, int limit) {
+        return page(
+                token,
+                repo(owner, repo) + "/labels?" + pageQuery(page, limit),
+                Label.class,
+                page,
+                limit);
+    }
+
+    /**
+     * Creates a repository label; its color is sent as six hexadecimal digits with a leading {@code
+     * #}, and Forgejo answers it without.
+     */
+    public Label createLabel(String token, String owner, String repo, CreateLabelOption label) {
+        Objects.requireNonNull(label, "label");
+        return call(
+                token,
+                "POST",
+                repo(owner, repo) + "/labels",
+                label,
+                json.constructType(Label.class));
+    }
+
+    /** Deletes a repository label by its id, which Forgejo names it by, not by its name. */
+    public void deleteLabel(String token, String owner, String repo, long id) {
+        delete(token, repo(owner, repo) + "/labels/" + positive(id));
+    }
+
     /** Adds an SSH key to the authenticated account; a key Forgejo already has is refused. */
     public PublicKey addKey(String token, CreateKeyOption body) {
         Objects.requireNonNull(body, "body");

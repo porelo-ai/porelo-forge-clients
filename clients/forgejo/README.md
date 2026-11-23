@@ -4,8 +4,8 @@
 request's general comments, the server's version,
 review dismissal and undismissal, commit statuses, Actions runs, jobs and logs, branches, repository webhooks,
 the authenticated account, organizations and collaborator permissions, an account's public SSH keys, the
-authenticated account's own SSH keys, an account's permissions in an organization, and repositories. Only Forgejo 17
-is served; another major release is not promised to work. It uses the
+authenticated account's own SSH keys, an account's permissions in an organization, repositories and a
+repository's labels. Only Forgejo 17 is served; another major release is not promised to work. It uses the
 caller's JDK `HttpClient`, Jackson and JSpecify, and knows nothing of Porelo contracts; its models are generated
 from the committed extract.
 
@@ -46,6 +46,9 @@ Page<PullRequest> open = forgejo.pulls(token, "owner", "repo", "open", 1, 50);
   account's, takes a new comment. `version` reads the server's version, such as `17.0.1+gitea-1.22.0`.
 - `dismissReview` and `undismissReview` withdraw and restore a review's verdict and need the repository's
   administration right.
+- `labels`, `createLabel` and `deleteLabel` list, create and delete a repository's labels, each with its id, name,
+  color and description. `createLabel` sends the color with its leading `#`, which Forgejo 17 answers without, as
+  recorded; `deleteLabel` takes the label's id, as Forgejo addresses a label.
 - What Forgejo 17 does not offer, measured against it: a review comment has no edit of its own, but
   `editIssueComment` with its id edits it; `DELETE .../issues/comments/{id}` answers 204 for a review comment and
   leaves it in place, so only `deleteReviewComment` deletes one; and there is no thread state to read or change, and

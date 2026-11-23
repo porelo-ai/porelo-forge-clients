@@ -15,6 +15,7 @@ import java.util.Map;
 import org.fuin.porelo.forge.forgejo.ForgejoOperations.Context;
 import org.fuin.porelo.forge.forgejo.model.Comment;
 import org.fuin.porelo.forge.forgejo.model.Commit;
+import org.fuin.porelo.forge.forgejo.model.Label;
 import org.fuin.porelo.forge.forgejo.model.OrganizationPermissions;
 import org.fuin.porelo.forge.forgejo.model.PublicKey;
 import org.fuin.porelo.forge.forgejo.model.PullRequest;
@@ -34,6 +35,7 @@ final class ForgejoScenario {
 
     static final String EARLIER_COMMENT = "Earlier general comment fixture";
     static final String EDITED_COMMENT = "Edited general comment fixture";
+    static final String LABEL = "area/topic a.b";
 
     private final ForgejoContainer fixture;
     private final ObjectMapper json = ForgejoJson.mapper(Strictness.STRICT);
@@ -49,6 +51,7 @@ final class ForgejoScenario {
     private long key = 1;
     private long comment = 1;
     private long issueComment = 1;
+    private long label = 1;
     private long longIndex = 1;
     private String since = "1970-01-01T00:00:00Z";
 
@@ -85,7 +88,8 @@ final class ForgejoScenario {
                 comment,
                 issueComment,
                 since,
-                longIndex);
+                longIndex,
+                label);
     }
 
     List<Capture> run() throws Exception {
@@ -135,6 +139,8 @@ final class ForgejoScenario {
                         issueComment = identity(created.id(), "Created comment has no identity");
                 case PublicKey added when operation == ForgejoOperations.addKey ->
                         key = identity(added.id(), "Added key has no identity");
+                case Label created when operation == ForgejoOperations.createLabel ->
+                        label = identity(created.id(), "Created label has no identity");
                 default -> {}
             }
             List<ObjectNode> exchanges = transport.take();
@@ -268,6 +274,14 @@ final class ForgejoScenario {
                                     "https://example.org/build/1");
                     case createRepository -> Map.of("name", ForgejoOperations.CREATED_REPO);
                     case addKey -> Map.of("title", "Added key", "key", ADDED_PUBLIC_KEY);
+                    case createLabel ->
+                            Map.of(
+                                    "name",
+                                    LABEL,
+                                    "color",
+                                    "#0e8a16",
+                                    "description",
+                                    "Fixture label");
                     default -> null;
                 });
     }
@@ -315,6 +329,17 @@ final class ForgejoScenario {
             assertThat(((Page<?>) result).more())
                     .as("a full last page says nothing follows")
                     .isFalse();
+        }
+        if (operation == ForgejoOperations.createLabel) {
+            var created = (Label) result;
+            assertThat(created.name()).as("the label keeps its whole name").isEqualTo(LABEL);
+            assertThat(created.color()).as("its color, answered without #").isEqualTo("0e8a16");
+            assertThat(created.description()).as("its description").isEqualTo("Fixture label");
+        }
+        if (operation == ForgejoOperations.labels) {
+            assertThat(((Page<?>) result).items())
+                    .as("the repository's labels include the created one")
+                    .anyMatch(l -> LABEL.equals(((Label) l).name()));
         }
         if (result instanceof Page<?> page) {
             assertThat(page.items())

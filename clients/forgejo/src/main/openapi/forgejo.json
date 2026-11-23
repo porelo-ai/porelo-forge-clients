@@ -775,6 +775,153 @@
         }
       }
     },
+    "/repos/{owner}/{repo}/labels": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "issue"
+        ],
+        "summary": "Get all of a repository's labels",
+        "operationId": "issueListLabels",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "mostissues",
+              "leastissues",
+              "reversealphabetically"
+            ],
+            "type": "string",
+            "description": "Specifies the sorting method: mostissues, leastissues, or reversealphabetically.",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "page number of results to return (1-based)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "page size of results",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/LabelList"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "issue"
+        ],
+        "summary": "Create a label",
+        "operationId": "issueCreateLabel",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateLabelOption"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/responses/Label"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          },
+          "422": {
+            "$ref": "#/responses/validationError"
+          }
+        }
+      }
+    },
+    "/repos/{owner}/{repo}/labels/{id}": {
+      "delete": {
+        "tags": [
+          "issue"
+        ],
+        "summary": "Delete a label",
+        "operationId": "issueDeleteLabel",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "owner of the repo",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "id of the label to delete",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "$ref": "#/responses/empty"
+          },
+          "404": {
+            "$ref": "#/responses/notFound"
+          }
+        }
+      }
+    },
     "/repos/{owner}/{repo}/pulls": {
       "get": {
         "produces": [
@@ -2735,6 +2882,40 @@
       },
       "x-go-package": "forgejo.org/modules/structs"
     },
+    "CreateLabelOption": {
+      "description": "CreateLabelOption options for creating a label",
+      "type": "object",
+      "required": [
+        "name",
+        "color"
+      ],
+      "properties": {
+        "color": {
+          "type": "string",
+          "x-go-name": "Color",
+          "example": "#00aabb"
+        },
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "exclusive": {
+          "type": "boolean",
+          "x-go-name": "Exclusive",
+          "example": false
+        },
+        "is_archived": {
+          "type": "boolean",
+          "x-go-name": "IsArchived",
+          "example": false
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "forgejo.org/modules/structs"
+    },
     "CreatePullRequestOption": {
       "description": "CreatePullRequestOption options when creating a pull request",
       "type": "object",
@@ -4514,6 +4695,28 @@
           "type": "integer",
           "format": "int64",
           "description": "The total number of hooks"
+        }
+      }
+    },
+    "Label": {
+      "description": "Label",
+      "schema": {
+        "$ref": "#/definitions/Label"
+      }
+    },
+    "LabelList": {
+      "description": "LabelList",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/Label"
+        }
+      },
+      "headers": {
+        "X-Total-Count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The total number of labels"
         }
       }
     },
