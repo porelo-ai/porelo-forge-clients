@@ -12,13 +12,28 @@ public final class ForgejoException extends RuntimeException {
     private final int status;
     private final Delivery delivery;
     private final @Nullable RateLimit rateLimit;
+    private final @Nullable Duration rateLimitDelay;
 
     ForgejoException(int status, String message) {
         this(status, message, status == 0 ? Delivery.NOT_SENT : Delivery.ANSWERED, null);
     }
 
     ForgejoException(int status, String message, Delivery delivery, @Nullable RateLimit rateLimit) {
+        this(status, message, delivery, rateLimit, null);
+    }
+
+    ForgejoException(
+            int status,
+            String message,
+            Delivery delivery,
+            @Nullable RateLimit rateLimit,
+            @Nullable Duration rateLimitDelay) {
         super(message);
+        if (status == TOO_MANY_REQUESTS && rateLimitDelay == null) {
+            throw new IllegalArgumentException(
+                    "A rate limit needs the wait to use when its answer names none");
+        }
+        this.rateLimitDelay = rateLimitDelay;
         this.status = status;
         this.delivery = delivery;
         this.rateLimit = rateLimit;
@@ -50,6 +65,8 @@ public final class ForgejoException extends RuntimeException {
     }
 
     @Nullable Duration delay(Instant now) {
-        return rateLimited() ? RateLimit.delay(rateLimit, now) : null;
+        return rateLimited() && rateLimitDelay != null
+                ? RateLimit.delay(rateLimit, now, rateLimitDelay)
+                : null;
     }
 }

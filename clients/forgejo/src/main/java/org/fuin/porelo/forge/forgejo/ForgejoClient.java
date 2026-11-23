@@ -32,9 +32,20 @@ public final class ForgejoClient {
     private static final int MAX_PLAIN_KEYS_BYTES = 256 * 1024;
     private static final Pattern NEXT_LINK =
             Pattern.compile("rel=\"?next\"?(\\s|;|,|$)", Pattern.CASE_INSENSITIVE);
+
+    /** The timeout each request carries, as the JDK applies it, when the caller names none. */
+    public static final Duration DEFAULT_REQUEST_TIMEOUT = Duration.ofSeconds(60);
+
+    /**
+     * How long to wait after a rate limit whose answer names no wait, when the caller names none.
+     */
+    public static final Duration DEFAULT_RATE_LIMIT_DELAY = Duration.ofMinutes(1);
+
     private final URI base;
     private final HttpClient http;
     private final ObjectMapper json;
+    private final Duration requestTimeout;
+    private final Duration rateLimitDelay;
 
     /** Creates a lenient reader with an API base such as {@code https://example.org/api/v1/}. */
     public ForgejoClient(URI base, HttpClient http) {
@@ -43,6 +54,24 @@ public final class ForgejoClient {
 
     /** Creates a reader; the supplied transport must never follow redirects automatically. */
     public ForgejoClient(URI base, HttpClient http, Strictness strictness) {
+        this(base, http, strictness, DEFAULT_REQUEST_TIMEOUT, DEFAULT_RATE_LIMIT_DELAY);
+    }
+
+    /**
+     * Creates a reader with its own time limits; the supplied transport must never follow redirects
+     * automatically.
+     *
+     * @param requestTimeout the timeout each request carries, as the JDK applies it
+     * @param rateLimitDelay how long to wait after a rate limit whose answer names no wait
+     */
+    public ForgejoClient(
+            URI base,
+            HttpClient http,
+            Strictness strictness,
+            Duration requestTimeout,
+            Duration rateLimitDelay) {
+        this.requestTimeout = requirePositive(requestTimeout, "request timeout");
+        this.rateLimitDelay = requirePositive(rateLimitDelay, "rate-limit delay");
         validateUri(base);
         if (base.getRawQuery() != null || base.getRawFragment() != null) {
             throw new IllegalArgumentException("The API base must have no query or fragment");
@@ -53,6 +82,13 @@ public final class ForgejoClient {
             throw new IllegalArgumentException("The HTTP client must use Redirect.NEVER");
         }
         json = ForgejoJson.mapper(strictness);
+    }
+
+    private static Duration requirePositive(Duration duration, String name) {
+        if (duration.isNegative() || duration.isZero()) {
+            throw new IllegalArgumentException("The " + name + " must be positive");
+        }
+        return duration;
     }
 
     /** Lists one page of pull requests in the requested state. */
@@ -380,7 +416,7 @@ public final class ForgejoClient {
             bytes =
                     http.send(
                                     HttpRequest.newBuilder(uri)
-                                            .timeout(Duration.ofSeconds(60))
+                                            .timeout(requestTimeout)
                                             .header("Accept", "text/plain")
                                             .GET()
                                             .build(),
@@ -416,7 +452,7 @@ public final class ForgejoClient {
      * Reads a key page: a refused answer is not read at all, and a plain text one only up to one
      * byte past its bound. Its verdict says why it stopped.
      */
-    private static final class KeyPage implements HttpResponse.BodyHandler<byte[]> {
+    private final class KeyPage implements HttpResponse.BodyHandler<byte[]> {
         volatile @Nullable ForgejoException verdict;
 
         @Override
@@ -427,7 +463,8 @@ public final class ForgejoClient {
                                 info.statusCode(),
                                 "Forgejo key page request failed",
                                 Delivery.ANSWERED,
-                                rateLimit(info.headers()));
+                                rateLimit(info.headers()),
+                                rateLimitDelay);
                 return BoundedBytes.refusing();
             }
             if (!isPlainText(info.headers().firstValue("Content-Type").orElse(""))) {
@@ -509,7 +546,7 @@ public final class ForgejoClient {
         URI uri = base.resolve(repo(owner, repo) + "/actions/jobs/" + positive(jobId) + "/logs");
         boolean authenticate = true;
         for (int redirects = 0; redirects <= 5; redirects++) {
-            BoundedAnswer answer = BoundedAnswer.log();
+            BoundedAnswer answer = BoundedAnswer.log(rateLimitDelay);
             HttpResponse<String> response = send(token, "GET", uri, null, authenticate, answer);
             if (List.of(301, 302, 303, 307, 308).contains(response.statusCode())) {
                 if (redirects == 5) {
@@ -591,7 +628,13 @@ public final class ForgejoClient {
     private <T> Answered<T> exchange(
             String token, String method, String path, @Nullable Object body, JavaType type) {
         HttpResponse<String> response =
-                send(token, method, base.resolve(path), body, true, BoundedAnswer.json());
+                send(
+                        token,
+                        method,
+                        base.resolve(path),
+                        body,
+                        true,
+                        BoundedAnswer.json(rateLimitDelay));
         List<String> credentials = new ArrayList<>();
         credentials.add(token);
         if (body != null) {
@@ -625,7 +668,7 @@ public final class ForgejoClient {
         try {
             HttpRequest.Builder request =
                     HttpRequest.newBuilder(uri)
-                            .timeout(Duration.ofSeconds(60))
+                            .timeout(requestTimeout)
                             .header("Accept", "application/json");
             if (authenticate && sameOrigin(base, uri)) {
                 request.header("Authorization", "token " + token);
@@ -706,7 +749,8 @@ public final class ForgejoClient {
                     response.statusCode(),
                     message,
                     Delivery.ANSWERED,
-                    rateLimit(response.headers()));
+                    rateLimit(response.headers()),
+                    rateLimitDelay);
         }
     }
 
@@ -735,7 +779,13 @@ public final class ForgejoClient {
 
     private void delete(String token, String path) {
         HttpResponse<String> response =
-                send(token, "DELETE", base.resolve(path), null, true, BoundedAnswer.json());
+                send(
+                        token,
+                        "DELETE",
+                        base.resolve(path),
+                        null,
+                        true,
+                        BoundedAnswer.json(rateLimitDelay));
         check(response, List.of(token));
     }
 

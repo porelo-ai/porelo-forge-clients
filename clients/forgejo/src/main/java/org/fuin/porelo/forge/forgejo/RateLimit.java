@@ -25,8 +25,6 @@ public record RateLimit(
         @Nullable Instant reset,
         @Nullable Duration retryAfter) {
 
-    private static final Duration WITHOUT_A_WORD = Duration.ofMinutes(1);
-
     /** Reads an answer's headers, or null when it has none of them. */
     static @Nullable RateLimit read(HttpHeaders headers, Instant now) {
         RateLimit found =
@@ -38,8 +36,8 @@ public record RateLimit(
         return found.equals(new RateLimit(null, null, null, null)) ? null : found;
     }
 
-    /** How long to wait: what the answer asks, else until the reset, else one minute. */
-    static Duration delay(@Nullable RateLimit limit, Instant now) {
+    /** How long to wait: what the answer asks, else until the reset, else the caller's wait. */
+    static Duration delay(@Nullable RateLimit limit, Instant now, Duration withoutAWord) {
         if (limit != null && limit.retryAfter() != null) {
             return limit.retryAfter();
         }
@@ -47,7 +45,7 @@ public record RateLimit(
             Duration until = Duration.between(now, limit.reset());
             return until.isNegative() ? Duration.ZERO : until;
         }
-        return WITHOUT_A_WORD;
+        return withoutAWord;
     }
 
     private static @Nullable Long count(HttpHeaders headers, String name) {

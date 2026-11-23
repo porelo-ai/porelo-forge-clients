@@ -58,7 +58,10 @@ Page<PullRequest> open = forgejo.pulls(token, "owner", "repo", "open", 1, 50);
   failure, so a failure after the connection opened counts as sent.
 - Forgejo 17 has no limiter for its API, measured with 6000 requests in 4 s, none refused and no rate-limit header; a
   429 can only come from what stands before it. `rateLimited()` is true on a 429, `rateLimit()` holds what the answer
-  said, and `delay()` is its `Retry-After`, else the time until its reset, else one minute.
+  said, and `delay()` is its `Retry-After`, else the time until its reset, else the client's `rateLimitDelay`.
+- Each request carries the client's `requestTimeout` as its timeout, which the JDK's `HttpClient` applies. Both are
+  constructor arguments of `ForgejoClient`, by default `DEFAULT_REQUEST_TIMEOUT` (60 s) and `DEFAULT_RATE_LIMIT_DELAY`
+  (1 min); the caller scales them to its network.
 - Every answer is read up to a bound: 16 MiB, an error answer 64 KiB, past which the reading stops and the failure
   says `Forgejo answer exceeds <n> bytes`, with no part of the answer. `jobLogs` returns a `JobLog`, read up to 64 MiB
   and keeping its last 1 MiB, with `cut` saying whether it was longer.
