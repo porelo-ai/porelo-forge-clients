@@ -13,8 +13,7 @@ class GitHubIssueScenarioTest {
         return JSON.readTree(text);
     }
 
-    // A real change to the board passed off as GitHub's own change report would record a 304
-    // against a board that is no longer the one the replay's first answer shows.
+    // A changed board taken for unchanged would record a 304 the first answer no longer backs.
     @Test
     void aChangedFieldValueOfAnItemIsNamedByWhereItIs() throws Exception {
         var before = json("[{\"id\":1,\"fields\":[{\"id\":7,\"value\":3}]},{\"id\":2}]");
@@ -26,13 +25,19 @@ class GitHubIssueScenarioTest {
     }
 
     @Test
-    void anItemAddedOrAFieldGainedIsNamed() throws Exception {
-        var before = json("[{\"id\":1}]");
-
-        assertThat(GitHubIssueScenario.changes(before, json("[{\"id\":1},{\"id\":2}]"), ""))
+    void anItemAddedIsNamedAsTheWholeList() throws Exception {
+        assertThat(
+                        GitHubIssueScenario.changes(
+                                json("[{\"id\":1}]"), json("[{\"id\":1},{\"id\":2}]"), ""))
                 .as("a list of another length is named whole")
                 .containsExactly("/");
-        assertThat(GitHubIssueScenario.changes(before, json("[{\"id\":1,\"archived\":true}]"), ""))
+    }
+
+    @Test
+    void aFieldOnlyTheSecondAnswerHasIsNamed() throws Exception {
+        assertThat(
+                        GitHubIssueScenario.changes(
+                                json("[{\"id\":1}]"), json("[{\"id\":1,\"archived\":true}]"), ""))
                 .as("a field only the second answer has")
                 .containsExactly("/0/archived");
     }

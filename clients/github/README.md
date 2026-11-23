@@ -79,8 +79,7 @@ Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
   carries none, so its change is not seen in the values. GraphQL has no ETag, so the board itself is never read
   conditionally. As measured, GitHub sends strong tags, a 304 leaves `x-ratelimit-remaining` as it was, and the items'
   tag changes on any change of an item, its issue, its links or its values; with the fields named, an unchanged board
-  mostly answers 304 but at times 200 with a new tag (2 of 13 recordings), as it sometimes does without them;
-  a 200 is a change only where its items differ. A link added moves neither the item's time nor its
+  mostly answers 304 but at times 200 with a new tag, as it sometimes does without them. A link added moves neither the item's time nor its
   issue's, only the issue's counts.
 - `issues` lists a repository's issues newest change first, with `state`, `labels` (left out when none; a blank name
   or one holding a comma is refused, since GitHub splits at commas) and `since`; it lists pull requests too, told by

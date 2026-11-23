@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 import org.fuin.porelo.forge.github.GitHubGraphQl.FieldValue;
 import org.fuin.porelo.forge.github.GitHubGraphQl.IssueBoard;
@@ -35,6 +36,10 @@ final class GitHubIssueScenario implements AutoCloseable {
     static final String OTHER_REPO = "forge-clients-live-2";
     // A well-formed issue node id of no issue.
     static final String UNKNOWN_ISSUE = "I_kwDOAAAAAM4AAAAB";
+    // Bounded, so a board GitHub keeps answering as changed fails the recording, never loops.
+    private static final int SETTLE_ATTEMPTS = 3;
+    // The same pause the recording gives GitHub's issue list to catch up.
+    private static final long SETTLE_PAUSE_MILLIS = 2000;
 
     private final String token;
     private final String prefix;
@@ -214,9 +219,9 @@ final class GitHubIssueScenario implements AutoCloseable {
     }
 
     /**
-     * GitHub at times answers an unchanged board as changed, with a new entity tag and the same
-     * items: that answer is dropped and the read made again with the new tag, while a real change
-     * fails the recording and names where the board changed.
+     * GitHub at times answers the board's read with the tag of the read before as changed, with a
+     * new tag: an answer with the same items is dropped and the read made again with the new tag,
+     * while one with other items fails the recording and names where they changed.
      */
     private void settleItemsEtag(Conditional<?> read, int attempt) throws Exception {
         var changes =
@@ -229,16 +234,13 @@ final class GitHubIssueScenario implements AutoCloseable {
                     "The board changed between two reads, at " + String.join(", ", changes));
         if (attempt == SETTLE_ATTEMPTS)
             throw new IllegalStateException(
-                    "GitHub answered the unchanged board as changed "
+                    "GitHub answered the board with the same items as changed "
                             + attempt
                             + " times, its items the same");
         report("items answered changed with the same items, read again with the new entity tag");
         itemsEtag = Objects.requireNonNull(read.etag(), "the items' new entity tag");
-        Thread.sleep(2000);
+        Thread.sleep(SETTLE_PAUSE_MILLIS);
     }
-
-    // Bounded, so a board GitHub keeps answering as changed fails the recording, never loops.
-    private static final int SETTLE_ATTEMPTS = 3;
 
     private JsonNode answerBody(JsonNode exchange) throws Exception {
         return json.readTree(exchange.path("body").asText());
@@ -249,7 +251,7 @@ final class GitHubIssueScenario implements AutoCloseable {
         if (before.equals(after)) return List.of();
         List<String> found = new ArrayList<>();
         if (before.isObject() && after.isObject()) {
-            var names = new java.util.TreeSet<String>();
+            var names = new TreeSet<String>();
             before.fieldNames().forEachRemaining(names::add);
             after.fieldNames().forEachRemaining(names::add);
             for (var name : names)
