@@ -1,6 +1,7 @@
 package org.fuin.porelo.forge.github;
 
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -10,14 +11,22 @@ import org.jspecify.annotations.Nullable;
 final class GitHubKeyPage implements HttpResponse.BodyHandler<byte[]> {
     static final int MAX_BYTES = 256 * 1024;
 
+    private final Duration rateLimitDelay;
     volatile @Nullable GitHubException verdict;
+
+    GitHubKeyPage(Duration rateLimitDelay) {
+        this.rateLimitDelay = rateLimitDelay;
+    }
 
     @Override
     public HttpResponse.BodySubscriber<byte[]> apply(HttpResponse.ResponseInfo info) {
         if (info.statusCode() != 200) {
             verdict =
                     GitHubClient.refusal(
-                            info.statusCode(), "GitHub key page request failed", info.headers());
+                            info.statusCode(),
+                            "GitHub key page request failed",
+                            info.headers(),
+                            rateLimitDelay);
             return BoundedBytes.refusing();
         }
         if (!isPlainText(info.headers().firstValue("Content-Type").orElse(""))) {

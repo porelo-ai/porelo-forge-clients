@@ -15,11 +15,16 @@ import org.jspecify.annotations.Nullable;
  * @param outcomes one per part sent, in the caller's order
  * @param rateLimit what the answer's headers said of the rate limit, or null when they said
  *     nothing; a mutation cannot ask for its cost in points
+ * @param rateLimitDelay how long to wait after a rate limit whose answer names no wait
  */
-public record Batch<T>(List<Outcome<T>> outcomes, @Nullable RateLimit rateLimit) {
-    /** Keeps the outcomes from changing after the batch is read. */
+public record Batch<T>(
+        List<Outcome<T>> outcomes, @Nullable RateLimit rateLimit, Duration rateLimitDelay) {
+    /** Keeps the outcomes from changing after the batch is read, and requires a positive wait. */
     public Batch {
         outcomes = List.copyOf(outcomes);
+        if (rateLimitDelay.isNegative() || rateLimitDelay.isZero()) {
+            throw new IllegalArgumentException("The rate-limit delay must be positive");
+        }
     }
 
     /** Returns whether GitHub saved every part. */
@@ -41,7 +46,7 @@ public record Batch<T>(List<Outcome<T>> outcomes, @Nullable RateLimit rateLimit)
     }
 
     @Nullable Duration delay(Instant now) {
-        return rateLimited() ? RateLimit.delay(rateLimit, now) : null;
+        return rateLimited() ? RateLimit.delay(rateLimit, now, rateLimitDelay) : null;
     }
 
     /**

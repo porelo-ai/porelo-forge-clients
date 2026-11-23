@@ -1,0 +1,2 @@
+title: Take the GitHub client's request timeout and the wait after a rate limit that names none from the caller, by default 60 s and 1 min.
+type: changed

@@ -33,7 +33,9 @@ class GitHubKeyPageTest {
     @Test
     void aPageInSeveralBuffersIsReadWhole() throws Exception {
         var subscription = new CountingSubscription();
-        var subscriber = new GitHubKeyPage().apply(info(200, "text/plain"));
+        var subscriber =
+                new GitHubKeyPage(GitHubClient.DEFAULT_RATE_LIMIT_DELAY)
+                        .apply(info(200, "text/plain"));
 
         subscriber.onSubscribe(subscription);
         subscriber.onNext(List.of(bytes("ssh-ed25519 A\n")));
@@ -52,7 +54,7 @@ class GitHubKeyPageTest {
     // Prevents a page from passing its bound in buffers that each stay below it.
     @Test
     void theBoundCountsEveryBuffer() throws Exception {
-        var page = new GitHubKeyPage();
+        var page = new GitHubKeyPage(GitHubClient.DEFAULT_RATE_LIMIT_DELAY);
         var subscription = new CountingSubscription();
         var subscriber = page.apply(info(200, "text/plain"));
         int half = GitHubKeyPage.MAX_BYTES / 2 + 1;

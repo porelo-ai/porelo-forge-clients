@@ -2,6 +2,7 @@ package org.fuin.porelo.forge.github;
 
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -16,21 +17,23 @@ final class BoundedAnswer implements HttpResponse.BodyHandler<String> {
     static final int LOG_TAIL_BYTES = 1024 * 1024;
 
     private final boolean log;
+    private final Duration rateLimitDelay;
     private volatile @Nullable BoundedBytes bytes;
     private volatile @Nullable GitHubException exceeded;
 
-    private BoundedAnswer(boolean log) {
+    private BoundedAnswer(boolean log, Duration rateLimitDelay) {
         this.log = log;
+        this.rateLimitDelay = rateLimitDelay;
     }
 
     /** Reads an ordinary answer. */
-    static BoundedAnswer json() {
-        return new BoundedAnswer(false);
+    static BoundedAnswer json(Duration rateLimitDelay) {
+        return new BoundedAnswer(false, rateLimitDelay);
     }
 
     /** Reads a job log, of which a successful answer keeps its tail. */
-    static BoundedAnswer log() {
-        return new BoundedAnswer(true);
+    static BoundedAnswer log(Duration rateLimitDelay) {
+        return new BoundedAnswer(true, rateLimitDelay);
     }
 
     /** Returns the failure of an answer past its bound, or null when it was within. */
@@ -56,7 +59,8 @@ final class BoundedAnswer implements HttpResponse.BodyHandler<String> {
                                 GitHubClient.refusal(
                                         info.statusCode(),
                                         "GitHub answer exceeds " + bound + " bytes",
-                                        info.headers());
+                                        info.headers(),
+                                        rateLimitDelay);
         BoundedBytes current =
                 success && log
                         ? BoundedBytes.tail(bound, LOG_TAIL_BYTES, overflow)

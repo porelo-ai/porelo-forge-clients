@@ -14,6 +14,7 @@ public final class GitHubException extends RuntimeException {
     private final boolean rateLimited;
     private final @Nullable String acceptedPermissions;
     private final boolean resourceLimited;
+    private final @Nullable Duration rateLimitDelay;
 
     GitHubException(int status, String message) {
         this(status, message, status == 0 ? Delivery.NOT_SENT : Delivery.ANSWERED, null, false);
@@ -25,17 +26,7 @@ public final class GitHubException extends RuntimeException {
             Delivery delivery,
             @Nullable RateLimit rateLimit,
             boolean rateLimited) {
-        this(status, message, delivery, rateLimit, rateLimited, null);
-    }
-
-    GitHubException(
-            int status,
-            String message,
-            Delivery delivery,
-            @Nullable RateLimit rateLimit,
-            boolean rateLimited,
-            @Nullable String acceptedPermissions) {
-        this(status, message, delivery, rateLimit, rateLimited, acceptedPermissions, false);
+        this(status, message, delivery, rateLimit, rateLimited, null, false, null);
     }
 
     GitHubException(
@@ -45,14 +36,20 @@ public final class GitHubException extends RuntimeException {
             @Nullable RateLimit rateLimit,
             boolean rateLimited,
             @Nullable String acceptedPermissions,
-            boolean resourceLimited) {
+            boolean resourceLimited,
+            @Nullable Duration rateLimitDelay) {
         super(message);
+        if (rateLimited && rateLimitDelay == null) {
+            throw new IllegalArgumentException(
+                    "A rate limit needs the wait to use when its answer names none");
+        }
         this.status = status;
         this.delivery = delivery;
         this.rateLimit = rateLimit;
         this.rateLimited = rateLimited;
         this.acceptedPermissions = acceptedPermissions;
         this.resourceLimited = resourceLimited;
+        this.rateLimitDelay = rateLimitDelay;
     }
 
     /**
@@ -102,6 +99,8 @@ public final class GitHubException extends RuntimeException {
     }
 
     @Nullable Duration delay(Instant now) {
-        return rateLimited ? RateLimit.delay(rateLimit, now) : null;
+        return rateLimited && rateLimitDelay != null
+                ? RateLimit.delay(rateLimit, now, rateLimitDelay)
+                : null;
     }
 }

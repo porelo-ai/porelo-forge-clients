@@ -442,7 +442,7 @@ final class ProjectBoard {
                 throw answer.failure("GitHub answered no part " + index + " of the batch");
             }
         }
-        return new Batch<>(outcomes, answer.rateLimit());
+        return new Batch<>(outcomes, answer.rateLimit(), answer.rateLimitDelay());
     }
 
     private static @Nullable Integer aliasIndex(String alias, int parts) {

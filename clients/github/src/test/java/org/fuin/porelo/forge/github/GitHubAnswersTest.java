@@ -21,6 +21,7 @@ class GitHubAnswersTest {
     private static final URI BASE = URI.create("https://example.org/");
     private static final String TOKEN = "synthetic-access-token";
     private static final Instant NOW = Instant.parse("2026-01-01T00:00:00Z");
+    private static final Duration WAIT = Duration.ofMinutes(3);
     private static final String SECRET_BODY = "unsafe-answer-content";
 
     private static GitHubException failure(int status, Map<String, List<String>> headers) {
@@ -136,22 +137,28 @@ class GitHubAnswersTest {
 
     // Prevents a caller from retrying too early or waiting without an end.
     @Test
-    void theDelayFollowsRetryAfterThenTheResetThenOneMinute() {
+    void theDelayFollowsRetryAfterThenTheResetThenTheCallersWait() {
         var date =
                 DateTimeFormatter.RFC_1123_DATE_TIME.format(
                         NOW.plusSeconds(90).atOffset(ZoneOffset.UTC));
-        assertThat(RateLimit.delay(RateLimit.read(headers("retry-after", date), NOW), NOW))
+        assertThat(RateLimit.delay(RateLimit.read(headers("retry-after", date), NOW), NOW, WAIT))
                 .as("an HTTP date counts from now")
                 .isEqualTo(Duration.ofSeconds(90));
         String reset = String.valueOf(NOW.plusSeconds(30).getEpochSecond());
-        assertThat(RateLimit.delay(RateLimit.read(headers("x-ratelimit-reset", reset), NOW), NOW))
+        assertThat(
+                        RateLimit.delay(
+                                RateLimit.read(headers("x-ratelimit-reset", reset), NOW),
+                                NOW,
+                                WAIT))
                 .as("without a wait asked, up to the reset")
                 .isEqualTo(Duration.ofSeconds(30));
-        assertThat(RateLimit.delay(null, NOW))
-                .as("with nothing said, one minute")
-                .isEqualTo(Duration.ofMinutes(1));
+        assertThat(RateLimit.delay(null, NOW, WAIT))
+                .as("with nothing said, the caller's wait")
+                .isEqualTo(WAIT);
         String past = String.valueOf(NOW.minusSeconds(30).getEpochSecond());
-        assertThat(RateLimit.delay(RateLimit.read(headers("x-ratelimit-reset", past), NOW), NOW))
+        assertThat(
+                        RateLimit.delay(
+                                RateLimit.read(headers("x-ratelimit-reset", past), NOW), NOW, WAIT))
                 .as("a reset already past asks for no wait")
                 .isEqualTo(Duration.ZERO);
     }

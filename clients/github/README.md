@@ -49,7 +49,11 @@ Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
   after the connection opened counts as sent.
 - `rateLimited()` is true on a 429, on a 403 with `x-ratelimit-remaining: 0`, a `Retry-After` or a message naming a rate
   limit, and on a GraphQL answer whose first error has type `RATE_LIMITED`; any other 403 is a refusal. `rateLimit()`
-  holds what the answer said, and `delay()` is its `Retry-After`, else the time until its reset, else one minute.
+  holds what the answer said, and `delay()` is its `Retry-After`, else the time until its reset, else the client's
+  `rateLimitDelay`.
+- Each request carries the client's `requestTimeout` as its timeout, which the JDK's `HttpClient` applies. Both are
+  constructor arguments of `GitHubClient` and `GitHubGraphQl`, by default `DEFAULT_REQUEST_TIMEOUT` (60 s) and
+  `DEFAULT_RATE_LIMIT_DELAY` (1 min); the caller scales them to its network.
 - Every answer is read up to a bound: 16 MiB, an error answer 64 KiB, past which the reading stops and the failure says
   `GitHub answer exceeds <n> bytes`, with no part of the answer. `jobLogs` returns a `JobLog`, read up to 64 MiB and
   keeping its last 1 MiB, with `cut` saying whether it was longer.

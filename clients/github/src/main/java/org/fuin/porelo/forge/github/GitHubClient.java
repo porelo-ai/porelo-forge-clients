@@ -33,7 +33,7 @@ import org.jspecify.annotations.Nullable;
 
 /** Synchronous GitHub API calls. The caller owns the transport and supplies a token per call. */
 public final class GitHubClient {
-    private static final URI WEB = URI.create("https://github.com/");
+    static final URI WEB = URI.create("https://github.com/");
     private static final Pattern NEXT_LINK =
             Pattern.compile("rel=\"?next\"?(\\s|;|,|$)", Pattern.CASE_INSENSITIVE);
     private static final Pattern LINK = Pattern.compile("<([^>]*)>([^,<]*)");
@@ -45,10 +45,20 @@ public final class GitHubClient {
     private static final Pattern ACCEPTED_PERMISSIONS =
             Pattern.compile("[a-z_]+=[a-z_]+(\\s*[;,]\\s*[a-z_]+=[a-z_]+)*");
 
+    /** The timeout each request carries, as the JDK applies it, when the caller names none. */
+    public static final Duration DEFAULT_REQUEST_TIMEOUT = Duration.ofSeconds(60);
+
+    /**
+     * How long to wait after a rate limit whose answer names no wait, when the caller names none.
+     */
+    public static final Duration DEFAULT_RATE_LIMIT_DELAY = Duration.ofMinutes(1);
+
     private final URI base;
     private final URI web;
     private final HttpClient http;
     private final ObjectMapper json;
+    private final Duration requestTimeout;
+    private final Duration rateLimitDelay;
 
     /** Creates a lenient reader with an API base such as {@code https://api.github.com/}. */
     public GitHubClient(URI base, HttpClient http) {
@@ -68,6 +78,25 @@ public final class GitHubClient {
      * https://github.com/}; the supplied transport must never follow redirects automatically.
      */
     public GitHubClient(URI base, URI web, HttpClient http, Strictness strictness) {
+        this(base, web, http, strictness, DEFAULT_REQUEST_TIMEOUT, DEFAULT_RATE_LIMIT_DELAY);
+    }
+
+    /**
+     * Creates a reader with its own time limits; the supplied transport must never follow redirects
+     * automatically.
+     *
+     * @param requestTimeout the timeout each request carries, as the JDK applies it
+     * @param rateLimitDelay how long to wait after a rate limit whose answer names no wait
+     */
+    public GitHubClient(
+            URI base,
+            URI web,
+            HttpClient http,
+            Strictness strictness,
+            Duration requestTimeout,
+            Duration rateLimitDelay) {
+        this.requestTimeout = requirePositive(requestTimeout, "request timeout");
+        this.rateLimitDelay = requirePositive(rateLimitDelay, "rate-limit delay");
         this.base = root(base, "API base");
         this.web = root(web, "web base");
         this.http = Objects.requireNonNull(http);
@@ -75,6 +104,13 @@ public final class GitHubClient {
             throw new IllegalArgumentException("The HTTP client must use Redirect.NEVER");
         }
         json = GitHubJson.mapper(strictness);
+    }
+
+    private static Duration requirePositive(Duration duration, String name) {
+        if (duration.isNegative() || duration.isZero()) {
+            throw new IllegalArgumentException("The " + name + " must be positive");
+        }
+        return duration;
     }
 
     /** Lists one page of pull requests in the requested state. */
@@ -458,14 +494,14 @@ public final class GitHubClient {
      */
     public List<String> plainKeys(String login) {
         URI uri = web.resolve(segment(login) + ".keys");
-        GitHubKeyPage page = new GitHubKeyPage();
+        GitHubKeyPage page = new GitHubKeyPage(rateLimitDelay);
         byte[] bytes;
         try {
             // The body is read inside send, so the request timeout covers it too.
             bytes =
                     http.send(
                                     HttpRequest.newBuilder(uri)
-                                            .timeout(Duration.ofSeconds(60))
+                                            .timeout(requestTimeout)
                                             .header("Accept", "text/plain")
                                             .GET()
                                             .build(),
@@ -917,7 +953,14 @@ public final class GitHubClient {
             BiFunction<T, HttpHeaders, R> value) {
         Objects.requireNonNull(token, "token");
         HttpResponse<String> response =
-                send(token, "GET", base.resolve(path), null, true, BoundedAnswer.json(), etag);
+                send(
+                        token,
+                        "GET",
+                        base.resolve(path),
+                        null,
+                        true,
+                        BoundedAnswer.json(rateLimitDelay),
+                        etag);
         HttpHeaders headers = response.headers();
         RateLimit limit = RateLimit.read(headers, Instant.now());
         // A tag that could not be sent back is not kept, so the caller's next read can be sent.
@@ -929,7 +972,11 @@ public final class GitHubClient {
             String kept = answeredTag != null ? answeredTag : etag;
             if (kept == null) {
                 // GitHub answers 304 only to a tag, so a 304 to a first read is not an answer.
-                throw refusal(304, "GitHub answered 304 to a read without a tag", headers);
+                throw refusal(
+                        304,
+                        "GitHub answered 304 to a read without a tag",
+                        headers,
+                        rateLimitDelay);
             }
             return new Conditional<>(null, kept, false, limit, date(headers));
         }
@@ -1099,7 +1146,8 @@ public final class GitHubClient {
                 answer.status(),
                 envelope,
                 RateLimit.read(answer.headers(), Instant.now()),
-                credentials(token, body));
+                credentials(token, body),
+                rateLimitDelay);
     }
 
     /**
@@ -1110,7 +1158,8 @@ public final class GitHubClient {
             int status,
             JsonNode envelope,
             @Nullable RateLimit rateLimit,
-            List<String> credentials) {
+            List<String> credentials,
+            Duration rateLimitDelay) {
         /** Keeps the credentials from changing. */
         GraphQlAnswer {
             credentials = List.copyOf(credentials);
@@ -1166,7 +1215,8 @@ public final class GitHubClient {
                     rateLimit,
                     rateLimited(),
                     null,
-                    resourceLimited());
+                    resourceLimited(),
+                    rateLimitDelay);
         }
     }
 
@@ -1179,7 +1229,7 @@ public final class GitHubClient {
         URI uri = base.resolve(repo(owner, repo) + "/actions/jobs/" + positive(jobId) + "/logs");
         boolean authenticate = true;
         for (int redirects = 0; redirects <= 5; redirects++) {
-            BoundedAnswer answer = BoundedAnswer.log();
+            BoundedAnswer answer = BoundedAnswer.log(rateLimitDelay);
             HttpResponse<String> response =
                     send(token, "GET", uri, null, authenticate, answer, null);
             if (List.of(301, 302, 303, 307, 308).contains(response.statusCode())) {
@@ -1275,7 +1325,14 @@ public final class GitHubClient {
             @Nullable Object body,
             JavaType type) {
         HttpResponse<String> response =
-                send(token, method, base.resolve(path), body, true, BoundedAnswer.json(), null);
+                send(
+                        token,
+                        method,
+                        base.resolve(path),
+                        body,
+                        true,
+                        BoundedAnswer.json(rateLimitDelay),
+                        null);
         List<String> credentials = credentials(token, body);
         check(response, credentials);
         try {
@@ -1319,7 +1376,14 @@ public final class GitHubClient {
     private void delete(String token, String path) {
         Objects.requireNonNull(token, "token");
         HttpResponse<String> response =
-                send(token, "DELETE", base.resolve(path), null, true, BoundedAnswer.json(), null);
+                send(
+                        token,
+                        "DELETE",
+                        base.resolve(path),
+                        null,
+                        true,
+                        BoundedAnswer.json(rateLimitDelay),
+                        null);
         check(response, List.of(token));
     }
 
@@ -1342,7 +1406,7 @@ public final class GitHubClient {
         try {
             HttpRequest.Builder request =
                     HttpRequest.newBuilder(uri)
-                            .timeout(Duration.ofSeconds(60))
+                            .timeout(requestTimeout)
                             .header("Accept", "application/vnd.github+json")
                             .header("X-GitHub-Api-Version", "2026-03-10");
             if (token != null && authenticate && sameOrigin(base, uri)) {
@@ -1407,7 +1471,8 @@ public final class GitHubClient {
     }
 
     /** Makes the failure of a refused answer, telling a rate limit from a refusal. */
-    static GitHubException refusal(int status, String message, HttpHeaders headers) {
+    static GitHubException refusal(
+            int status, String message, HttpHeaders headers, Duration rateLimitDelay) {
         RateLimit limit = RateLimit.read(headers, Instant.now());
         return new GitHubException(
                 status,
@@ -1415,7 +1480,9 @@ public final class GitHubClient {
                 Delivery.ANSWERED,
                 limit,
                 isRateLimit(status, message, limit),
-                acceptedPermissions(headers));
+                acceptedPermissions(headers),
+                false,
+                rateLimitDelay);
     }
 
     /**
@@ -1458,7 +1525,7 @@ public final class GitHubClient {
             } catch (JsonProcessingException ex) {
                 // A non-JSON error page is not safe to include in an exception.
             }
-            throw refusal(response.statusCode(), message, response.headers());
+            throw refusal(response.statusCode(), message, response.headers(), rateLimitDelay);
         }
     }
 

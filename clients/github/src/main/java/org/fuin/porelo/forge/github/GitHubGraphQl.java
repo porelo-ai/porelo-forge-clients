@@ -3,6 +3,7 @@ package org.fuin.porelo.forge.github;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
@@ -106,7 +107,29 @@ public final class GitHubGraphQl {
 
     /** Creates a GraphQL reader; automatic redirects are refused. */
     public GitHubGraphQl(URI base, HttpClient http, Strictness strictness) {
-        client = new GitHubClient(base, http, strictness);
+        this(
+                base,
+                http,
+                strictness,
+                GitHubClient.DEFAULT_REQUEST_TIMEOUT,
+                GitHubClient.DEFAULT_RATE_LIMIT_DELAY);
+    }
+
+    /**
+     * Creates a GraphQL reader with its own time limits; automatic redirects are refused.
+     *
+     * @param requestTimeout the timeout each request carries, as the JDK applies it
+     * @param rateLimitDelay how long to wait after a rate limit whose answer names no wait
+     */
+    public GitHubGraphQl(
+            URI base,
+            HttpClient http,
+            Strictness strictness,
+            Duration requestTimeout,
+            Duration rateLimitDelay) {
+        client =
+                new GitHubClient(
+                        base, GitHubClient.WEB, http, strictness, requestTimeout, rateLimitDelay);
     }
 
     /** Reads a page of threads; a null cursor requests the first page. */
