@@ -89,6 +89,12 @@ Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
   (six hexadecimal digits without `#`) and description. `deleteLabel` takes the label's name and sends it as one path
   segment, a slash or dot in it encoded, so a name never addresses another path; a name with a slash, a space and a
   dot is recorded.
+- `issueFields` lists an organization's issue fields, each with its id, name, data type and, for a select field, its
+  options, all at once since GitHub pages them not; the token needs the organization's issue-fields permission. An
+  issue carries its values in `issueFieldValues`, a select value as its option's id beside `singleSelectOption`'s
+  name. `createIssue` and `updateIssue` set them by field id, a select value by its option's name; as measured,
+  `updateIssue` with field values replaces every value of the issue, so a caller sends all it keeps, and an update
+  without them leaves them as they were.
 - `parentIssue`, `subIssues`, `addSubIssue`, `removeSubIssue`, `reprioritizeSubIssue`, `blockedBy`, `addBlockedBy`,
   `removeBlockedBy` and `blocking` name the other issue by its `id`, not its number. `parentIssue` is a 404 for an
   issue without a parent, as for a missing one; `parentIssueUrl` shows it beforehand. A sub-issue and a blocking

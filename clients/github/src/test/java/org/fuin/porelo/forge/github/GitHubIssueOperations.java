@@ -55,7 +55,8 @@ enum GitHubIssueOperations {
     createIssues("POST", "/graphql"),
     createLabel("POST", "/repos/{owner}/{repo}/labels"),
     labels("GET", "/repos/{owner}/{repo}/labels"),
-    deleteLabel("DELETE", "/repos/{owner}/{repo}/labels/{label}");
+    deleteLabel("DELETE", "/repos/{owner}/{repo}/labels/{label}"),
+    issueFields("GET", "/orgs/{owner}/issue-fields");
 
     /** The options the recorder sets on its single-select field, in this order. */
     static final List<NewOption> OPTIONS =
@@ -212,6 +213,7 @@ enum GitHubIssueOperations {
                             c.repo(),
                             JSON.treeToValue(body, IssuesCreateLabelRequest.class));
             case labels -> client.labels(token, c.owner(), c.repo(), 1, 100);
+            case issueFields -> client.issueFields(token, c.owner());
             case deleteLabel -> {
                 client.deleteLabel(token, c.owner(), c.repo(), c.label());
                 yield c.label();

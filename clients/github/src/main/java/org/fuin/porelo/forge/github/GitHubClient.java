@@ -572,6 +572,20 @@ public final class GitHubClient {
         delete(token, repo(owner, repo) + "/labels/" + segment(name));
     }
 
+    /**
+     * Lists an organization's issue fields, each with its id, name, data type and, for a select
+     * field, its options; GitHub answers them all at once, unpaged.
+     */
+    public List<IssueField> issueFields(String token, String org) {
+        Page<IssueField> fields =
+                page(token, "orgs/" + segment(org) + "/issue-fields", IssueField.class);
+        // Read unpaged, so a next page would be fields silently left out.
+        if (fields.more()) {
+            throw new IllegalStateException("GitHub paged the issue fields, read here unpaged");
+        }
+        return fields.items();
+    }
+
     /** Lists one page of the authenticated account's own SSH signing keys. */
     public Page<SshSigningKey> ownSigningKeys(String token, int page, int perPage) {
         return page(

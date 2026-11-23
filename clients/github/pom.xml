@@ -212,6 +212,8 @@
                                 <argument>post /repos/{owner}/{repo}/labels</argument>
                                 <argument>--operation</argument>
                                 <argument>delete /repos/{owner}/{repo}/labels/{name}</argument>
+                                <argument>--operation</argument>
+                                <argument>get /orgs/{org}/issue-fields</argument>
                             </arguments>
                         </configuration>
                     </execution>

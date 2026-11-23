@@ -41,4 +41,28 @@ class GitHubLabelsTest {
         }
         assertThat(http.sent).as("nothing was sent").isEmpty();
     }
+
+    // Prevents an organization's issue fields from being cut short: GitHub serves them unpaged,
+    // and a next page would be fields the caller never sees.
+    @Test
+    void anOrganizationsIssueFieldsAreReadWholeOrNotAtAll() {
+        var http = new ChunkedTransport(200, Map.of(), "[]");
+        new GitHubClient(BASE, http).issueFields(TOKEN, "a/b.c");
+        assertThat(http.sent.get(0).uri().getRawPath())
+                .as("the organization is one path segment")
+                .isEqualTo("/orgs/a%2Fb%2Ec/issue-fields");
+
+        var paged =
+                new ChunkedTransport(
+                        200,
+                        Map.of(
+                                "Link",
+                                java.util.List.of(
+                                        "<https://example.org/orgs/o/issue-fields?page=2>;"
+                                                + " rel=\"next\"")),
+                        "[]");
+        assertThatExceptionOfType(IllegalStateException.class)
+                .as("a next page")
+                .isThrownBy(() -> new GitHubClient(BASE, paged).issueFields(TOKEN, "o"));
+    }
 }

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import org.fuin.porelo.forge.github.model.IssuesCreateRequest;
 import org.fuin.porelo.forge.github.model.IssuesUpdateRequest;
+import org.fuin.porelo.forge.github.model.IssuesUpdateRequestIssueFieldValuesInner;
 import org.fuin.porelo.forge.github.replay.ReplayHttpClient;
 import org.junit.jupiter.api.Test;
 
@@ -44,6 +45,51 @@ class GitHubIssuesTest {
 
     private static JsonNode body(HttpRequest request) throws Exception {
         return JSON.readTree(GitHubRecordingTest.requestBody(request));
+    }
+
+    // Prevents an issue that carries a priority from failing every read of it: GitHub gives a
+    // select field's value as its option's id, a number, as measured.
+    @Test
+    void anIssuesSelectFieldValueIsRead() throws Exception {
+        var issue =
+                (com.fasterxml.jackson.databind.node.ObjectNode) JSON.readTree(example("issue"));
+        issue.set(
+                "issue_field_values",
+                JSON.readTree(
+                        "[{\"issue_field_id\":49223313,\"node_id\":\"IFSSV_kgDOASnK2g\","
+                                + "\"data_type\":\"single_select\",\"issue_field_name\":\"Priority\","
+                                + "\"value\":86177766,\"single_select_option\":{\"id\":86177766,"
+                                + "\"name\":\"Low\",\"color\":\"green\"}}]"));
+        var read = client(answering(200, issue.toString())).issue(TOKEN, "o", "r", 1347);
+        var value = read.issueFieldValues().get(0);
+        assertThat(value.issueFieldName()).as("the field's name").isEqualTo("Priority");
+        assertThat(value.singleSelectOption().name()).as("the option's name").isEqualTo("Low");
+        assertThat(value.value()).as("the value, the option's id").hasToString("86177766");
+    }
+
+    // Prevents a priority from never reaching GitHub: a select value is sent as the option's name
+    // the caller gave, which GitHub accepts, as measured.
+    @Test
+    void anIssueFieldValueIsSentAsTheCallerGaveIt() throws Exception {
+        var http = answering(200, example("issue"));
+        var request =
+                new IssuesUpdateRequest(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        List.of(
+                                new IssuesUpdateRequestIssueFieldValuesInner(
+                                        49223313L, "High", null, null, null)),
+                        null);
+        client(http).updateIssue(TOKEN, "o", "r", 1347, request);
+        JsonNode sent = body(sent(http)).path("issue_field_values").path(0);
+        assertThat(sent.path("field_id").asLong()).as("the field's id").isEqualTo(49223313L);
+        assertThat(sent.path("value").asText()).as("the option's name").isEqualTo("High");
     }
 
     // Prevents a caller from acting on an issue it misread.

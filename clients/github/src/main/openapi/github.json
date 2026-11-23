@@ -28,6 +28,8 @@
         "issue.assignee"
       ],
       "set": [
+        "issue-field#/properties/id",
+        "issue-field#/properties/options/items/properties/id",
         "pull-request#/properties/labels/items/properties/archived_by",
         "pull-request#/properties/labels/items/properties/archived_at",
         "pull-request-simple#/properties/labels/items/properties/archived_by",
@@ -88,6 +90,9 @@
         "issue#/properties/labels/items",
         "projects-v2-item-with-content#/properties/id",
         "#/paths/~1repos~1{owner}~1{repo}~1issues~1{issue_number}/patch/responses/200/content/application~1json/schema/allOf/1/properties/suggestions/properties/issue_field_values/items/properties/value",
+        "issue-field-value#/properties/value",
+        "#/paths/~1repos~1{owner}~1{repo}~1issues/post/requestBody/content/application~1json/schema/properties/issue_field_values/items/properties/value",
+        "#/paths/~1repos~1{owner}~1{repo}~1issues~1{issue_number}/patch/requestBody/content/application~1json/schema/properties/issue_field_values/items/properties/value",
         "label#/required"
       ]
     }
@@ -296,6 +301,54 @@
     "url": "https://docs.github.com/rest/"
   },
   "paths": {
+    "/orgs/{org}/issue-fields": {
+      "get": {
+        "summary": "List issue fields for an organization",
+        "description": "Lists all issue fields for an organization. OAuth app tokens and personal access tokens (classic) need the read:org scope to use this endpoint.",
+        "tags": [
+          "orgs"
+        ],
+        "operationId": "orgs/list-issue-fields",
+        "externalDocs": {
+          "description": "API method documentation",
+          "url": "https://docs.github.com/rest/orgs/issue-fields#list-issue-fields-for-an-organization"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/org"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/issue-field"
+                  }
+                },
+                "examples": {
+                  "default": {
+                    "$ref": "#/components/examples/issue-field-items"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        },
+        "x-github": {
+          "githubCloudOnly": false,
+          "enabledForGitHubApps": true,
+          "category": "orgs",
+          "subcategory": "issue-fields"
+        }
+      }
+    },
     "/orgs/{org}/memberships/{username}": {
       "get": {
         "summary": "Get organization membership for a user",
@@ -2208,21 +2261,7 @@
                           "format": "int64"
                         },
                         "value": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "number"
-                            },
-                            {
-                              "type": "array",
-                              "items": {
-                                "type": "string"
-                              }
-                            }
-                          ],
-                          "description": "The value to set for the field. For multi-select fields, provide an array of option names."
+                          "description": "The value to set: a string, a number, or for a multi-select field a list of option names"
                         }
                       },
                       "required": [
@@ -2645,21 +2684,7 @@
                           "format": "int64"
                         },
                         "value": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "number"
-                            },
-                            {
-                              "type": "array",
-                              "items": {
-                                "type": "string"
-                              }
-                            }
-                          ],
-                          "description": "The value to set for the field. For multi-select fields, provide an array of option names."
+                          "description": "The value to set: a string, a number, or for a multi-select field a list of option names"
                         },
                         "rationale": {
                           "type": "string",
@@ -7814,33 +7839,7 @@
             ]
           },
           "value": {
-            "description": "The value of the issue field",
-            "anyOf": [
-              {
-                "type": "string",
-                "examples": [
-                  "Sample text"
-                ]
-              },
-              {
-                "type": "number",
-                "examples": [
-                  42.5
-                ]
-              },
-              {
-                "type": "integer",
-                "examples": [
-                  1
-                ]
-              }
-            ],
-            "type": [
-              "null",
-              "string",
-              "number",
-              "integer"
-            ]
+            "description": "The value: a string, a number, or a select option's id; null when unset"
           },
           "single_select_option": {
             "description": "Details about the selected option (only present for single_select fields)",
@@ -9501,6 +9500,138 @@
           "slug",
           "parent",
           "type"
+        ]
+      },
+      "issue-field": {
+        "title": "Issue Field",
+        "description": "A custom attribute defined at the organization level for attaching structured data to issues.",
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The unique identifier of the issue field."
+          },
+          "node_id": {
+            "type": "string",
+            "description": "The node identifier of the issue field."
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the issue field."
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The description of the issue field."
+          },
+          "data_type": {
+            "type": "string",
+            "description": "The data type of the issue field.",
+            "enum": [
+              "text",
+              "date",
+              "single_select",
+              "multi_select",
+              "number"
+            ]
+          },
+          "visibility": {
+            "type": "string",
+            "description": "The visibility of the issue field. Can be `organization_members_only` (visible only within the organization) or `all` (visible to all users who can see issues).",
+            "enum": [
+              "organization_members_only",
+              "all"
+            ]
+          },
+          "options": {
+            "description": "Available options for single select and multi select fields.",
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "The unique identifier of the option."
+                },
+                "name": {
+                  "type": "string",
+                  "description": "The name of the option."
+                },
+                "description": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "The description of the option."
+                },
+                "color": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "The color of the option.",
+                  "enum": [
+                    "gray",
+                    "blue",
+                    "green",
+                    "yellow",
+                    "orange",
+                    "red",
+                    "pink",
+                    "purple",
+                    null
+                  ]
+                },
+                "priority": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "description": "The priority of the option for ordering."
+                },
+                "created_at": {
+                  "type": "string",
+                  "description": "The time the option was created.",
+                  "format": "date-time"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "description": "The time the option was last updated.",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ]
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "description": "The time the issue field was created.",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "description": "The time the issue field was last updated.",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "node_id",
+          "name",
+          "data_type"
         ]
       },
       "org-membership": {
@@ -14816,6 +14947,71 @@
       }
     },
     "examples": {
+      "issue-field-items": {
+        "value": [
+          {
+            "id": 1,
+            "node_id": "IFT_kwDNAd3NAZo",
+            "name": "Text field",
+            "description": "DRI",
+            "data_type": "text",
+            "created_at": "2024-12-11T14:39:09Z",
+            "updated_at": "2024-12-11T14:39:09Z"
+          },
+          {
+            "id": 2,
+            "node_id": "IFSS_kwDNAd3NAZs",
+            "name": "Priority",
+            "description": "Level of importance",
+            "data_type": "single_select",
+            "options": [
+              {
+                "id": 1,
+                "name": "High",
+                "color": "red"
+              },
+              {
+                "id": 2,
+                "name": "Medium",
+                "color": "yellow"
+              },
+              {
+                "id": 3,
+                "name": "Low",
+                "color": "green"
+              }
+            ],
+            "created_at": "2024-12-11T14:39:09Z",
+            "updated_at": "2024-12-11T14:39:09Z"
+          },
+          {
+            "id": 3,
+            "node_id": "IFMS_kwDNAd3NAZt",
+            "name": "Categories",
+            "description": "Issue categories",
+            "data_type": "multi_select",
+            "options": [
+              {
+                "id": 4,
+                "name": "Frontend",
+                "color": "blue"
+              },
+              {
+                "id": 5,
+                "name": "Backend",
+                "color": "green"
+              },
+              {
+                "id": 6,
+                "name": "Infrastructure",
+                "color": "purple"
+              }
+            ],
+            "created_at": "2024-12-11T14:39:09Z",
+            "updated_at": "2024-12-11T14:39:09Z"
+          }
+        ]
+      },
       "org-membership-response-if-user-has-an-active-admin-membership-with-organization": {
         "summary": "Response if user has an active admin membership with organization",
         "value": {

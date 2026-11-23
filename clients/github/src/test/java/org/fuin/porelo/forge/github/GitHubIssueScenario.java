@@ -19,6 +19,7 @@ import org.fuin.porelo.forge.github.GitHubGraphQl.ItemValue;
 import org.fuin.porelo.forge.github.GitHubGraphQl.ProjectField;
 import org.fuin.porelo.forge.github.GitHubGraphQl.ProjectFields;
 import org.fuin.porelo.forge.github.model.Issue;
+import org.fuin.porelo.forge.github.model.IssueField;
 import org.fuin.porelo.forge.github.model.IssuesCreateRequest;
 import org.fuin.porelo.forge.github.model.IssuesUpdateRequest;
 import org.fuin.porelo.forge.github.model.Label;
@@ -741,6 +742,22 @@ final class GitHubIssueScenario implements AutoCloseable {
                     assertThat(((Page<?>) result).items())
                             .as("the repository's labels include the run's")
                             .anyMatch(l -> ((Label) l).name().endsWith("/topic a.b"));
+            case issueFields -> {
+                @SuppressWarnings("unchecked")
+                var fields = (List<IssueField>) result;
+                var priority =
+                        fields.stream()
+                                .filter(f -> f.name().equals("Priority"))
+                                .findFirst()
+                                .orElseThrow(() -> new AssertionError("no field Priority"));
+                assertThat(priority.dataType())
+                        .as("Priority is a single select")
+                        .isEqualTo(IssueField.DataTypeEnum.SINGLE_SELECT);
+                assertThat(priority.options())
+                        .as("Priority's options carry their ids and names")
+                        .isNotEmpty()
+                        .allMatch(o -> o.id() > 0 && !o.name().isBlank());
+            }
             case issues, subIssues, blockedBy, blocking ->
                     assertThat(((Page<?>) result).items())
                             .as("%s lists an issue", operation)
