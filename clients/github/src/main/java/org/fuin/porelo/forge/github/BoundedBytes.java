@@ -37,9 +37,9 @@ final class BoundedBytes implements HttpResponse.BodySubscriber<byte[]> {
         return new BoundedBytes(bound, bound, overflow, false);
     }
 
-    /** Reads up to the bound and keeps the last bytes of it. */
-    static BoundedBytes tail(long bound, int keep, Runnable overflow) {
-        return new BoundedBytes(bound, keep, overflow, false);
+    /** Reads to the end, however long, and keeps the last bytes of it. */
+    static BoundedBytes tail(int keep) {
+        return new BoundedBytes(Long.MAX_VALUE, keep, () -> {}, false);
     }
 
     /** Reads nothing, for an answer whose verdict is already given. */
@@ -81,7 +81,13 @@ final class BoundedBytes implements HttpResponse.BodySubscriber<byte[]> {
         }
         for (ByteBuffer item : items) {
             while (item.hasRemaining()) {
-                int take = (int) Math.min(Math.min(item.remaining(), 65536), bound + 1 - read);
+                long room = bound - read;
+                // One byte past the bound is read, so the overflow is seen; MAX_VALUE has no past.
+                int take =
+                        (int)
+                                Math.min(
+                                        Math.min(item.remaining(), 65536),
+                                        room < 65536 ? room + 1 : 65536);
                 byte[] chunk = new byte[take];
                 item.get(chunk);
                 read += take;

@@ -420,15 +420,6 @@ class GitHubAnswersTest {
         assertThat(error.delivered)
                 .as("an error answer stops at the crossing buffer")
                 .isLessThanOrEqualTo(BoundedAnswer.ERROR_BYTES + ChunkedTransport.SIZE);
-        var log =
-                new ChunkedTransport(
-                        200, Map.of(), "x".repeat((int) BoundedAnswer.LOG_BYTES + several));
-        assertThatExceptionOfType(GitHubException.class)
-                .as("a log several buffers past its bound")
-                .isThrownBy(() -> new GitHubClient(BASE, log).jobLogs(TOKEN, "o", "r", 1));
-        assertThat(log.delivered)
-                .as("a log stops at the crossing buffer")
-                .isLessThanOrEqualTo((int) BoundedAnswer.LOG_BYTES + ChunkedTransport.SIZE);
     }
 
     private static JobLog log(String text) {
@@ -454,17 +445,15 @@ class GitHubAnswersTest {
         assertThat(much.cut()).as("and cut").isTrue();
     }
 
-    // Prevents an endless log from running on past what any build's tail could need.
+    // Prevents a real build's long log from being refused, losing the failure at its end.
     @Test
-    void aLogOverItsBoundIsRefused() {
-        var http =
-                new ChunkedTransport(200, Map.of(), "x".repeat((int) BoundedAnswer.LOG_BYTES + 1));
-        assertThatExceptionOfType(GitHubException.class)
-                .as("a log past its bound")
-                .isThrownBy(() -> new GitHubClient(BASE, http).jobLogs(TOKEN, "o", "r", 1))
-                .withMessage("GitHub answer exceeds " + BoundedAnswer.LOG_BYTES + " bytes");
-        assertThat(http.delivered)
-                .as("the reading stops at the buffer that crosses the bound")
-                .isLessThanOrEqualTo((int) BoundedAnswer.LOG_BYTES + ChunkedTransport.SIZE);
+    void aLogOfAnyLengthIsReadToItsEndKeepingItsTail() {
+        String end = "e".repeat(BoundedAnswer.LOG_TAIL_BYTES - 8) + "fin-mark";
+        String text = "x".repeat(96 * 1024 * 1024) + end;
+        var http = new ChunkedTransport(200, Map.of(), text);
+        var read = new GitHubClient(BASE, http).jobLogs(TOKEN, "o", "r", 1);
+        assertThat(http.delivered).as("the whole log was read").isEqualTo(text.length());
+        assertThat(read.text()).as("its last mebibyte").isEqualTo(end);
+        assertThat(read.cut()).as("and it says it was longer").isTrue();
     }
 }

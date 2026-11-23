@@ -1222,7 +1222,8 @@ public final class GitHubClient {
 
     /**
      * Reads a job log, following at most five redirects and stripping authentication off origin. A
-     * log is read up to 64 MiB, of which its last 1 MiB is kept, since a build reads a log's tail.
+     * log is read to its end, however long, keeping its last 1 MiB, since a build reads a log's
+     * tail.
      */
     public JobLog jobLogs(String token, String owner, String repo, long jobId) {
         Objects.requireNonNull(token, "token");
