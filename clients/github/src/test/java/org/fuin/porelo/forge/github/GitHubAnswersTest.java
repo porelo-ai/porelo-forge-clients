@@ -337,32 +337,17 @@ class GitHubAnswersTest {
                 .isFalse();
     }
 
-    // Prevents a hostile or broken forge from exhausting the caller's memory, and its answer from
-    // reaching a message.
+    // Prevents a legal answer from being refused: GitHub names no maximum for a commit message, a
+    // diff hunk or a project's text value, which many answers carry.
     @Test
-    void anAnswerOneByteOverItsBoundIsRefusedAndNotRead() {
-        String over = SECRET_BODY + " ".repeat(BoundedAnswer.ANSWER_BYTES);
-        var http = new ChunkedTransport(200, Map.of(), over);
-        assertThatExceptionOfType(GitHubException.class)
-                .as("one answer past its bound")
-                .isThrownBy(() -> new GitHubClient(BASE, http).ownKeys(TOKEN, 1, 1))
-                .withMessage("GitHub answer exceeds " + BoundedAnswer.ANSWER_BYTES + " bytes")
-                .satisfies(
-                        ex -> {
-                            assertThat(ex.delivery())
-                                    .as("it was answered")
-                                    .isEqualTo(Delivery.ANSWERED);
-                            assertThat(ex.status()).as("its status stays").isEqualTo(200);
-                        });
-        assertThat(http.delivered)
-                .as("the reading stops at the buffer that crosses the bound")
-                .isLessThanOrEqualTo(BoundedAnswer.ANSWER_BYTES + ChunkedTransport.SIZE);
-
-        String exact = "[" + " ".repeat(BoundedAnswer.ANSWER_BYTES - 2) + "]";
-        var within = new ChunkedTransport(200, Map.of(), exact);
-        assertThat(new GitHubClient(BASE, within).ownKeys(TOKEN, 1, 1).items())
-                .as("an answer exactly at its bound is read")
+    void aSuccessfulAnswerOfAnySizeIsRead() {
+        int large = 24 * 1024 * 1024;
+        String body = "[" + " ".repeat(large) + "]";
+        var http = new ChunkedTransport(200, Map.of(), body);
+        assertThat(new GitHubClient(BASE, http).ownKeys(TOKEN, 1, 1).items())
+                .as("an answer over 16 MiB is read")
                 .isEmpty();
+        assertThat(http.delivered).as("to its end").isEqualTo(body.length());
     }
 
     // Prevents a long error page from being read like an answer, while its status still decides.
@@ -402,15 +387,6 @@ class GitHubAnswersTest {
     @Test
     void theReadingStopsAtTheBufferThatCrossesTheBound() {
         int several = 3 * ChunkedTransport.SIZE;
-        var answer =
-                new ChunkedTransport(
-                        200, Map.of(), " ".repeat(BoundedAnswer.ANSWER_BYTES + several));
-        assertThatExceptionOfType(GitHubException.class)
-                .as("an answer several buffers past its bound")
-                .isThrownBy(() -> new GitHubClient(BASE, answer).ownKeys(TOKEN, 1, 1));
-        assertThat(answer.delivered)
-                .as("an answer stops at the crossing buffer")
-                .isLessThanOrEqualTo(BoundedAnswer.ANSWER_BYTES + ChunkedTransport.SIZE);
         var error =
                 new ChunkedTransport(
                         403, Map.of(), " ".repeat(BoundedAnswer.ERROR_BYTES + several));

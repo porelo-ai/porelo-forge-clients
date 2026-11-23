@@ -54,9 +54,11 @@ Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
 - Each request carries the client's `requestTimeout` as its timeout, which the JDK's `HttpClient` applies. Both are
   constructor arguments of `GitHubClient` and `GitHubGraphQl`, by default `DEFAULT_REQUEST_TIMEOUT` (60 s) and
   `DEFAULT_RATE_LIMIT_DELAY` (1 min); the caller scales them to its network.
-- Every answer is read up to a bound: 16 MiB, an error answer 64 KiB, past which the reading stops and the failure says
-  `GitHub answer exceeds <n> bytes`, with no part of the answer. `jobLogs` returns a `JobLog`, read to its end however
-  long and keeping its last 1 MiB, with `cut` saying whether it was longer.
+- A successful answer is read whole, up to what one Java array holds (about 2 GiB): GitHub names no maximum for a
+  commit message, a diff hunk or a project's text value, which many answers carry, so a smaller bound would refuse a
+  legal answer. An error answer is read up to 64 KiB; past a bound the reading stops and the failure says `GitHub
+  answer exceeds <n> bytes`, with no part of the answer. The key page stops at 256 KiB. `jobLogs` returns a `JobLog`,
+  read to its end however long and keeping its last 1 MiB, with `cut` saying whether it was longer.
 
 - `acceptedPermissions()` of a refusal is GitHub's `X-Accepted-GitHub-Permissions` header, such as `issues=write`,
   when it is a plain list of permissions, else null.
