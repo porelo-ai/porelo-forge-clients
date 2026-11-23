@@ -7,6 +7,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.util.List;
 import java.util.Map;
+import org.fuin.porelo.forge.forgejo.model.EditLabelOption;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -551,14 +552,13 @@ class ForgejoClientTest {
 
     // Prevents a label id that is no id from addressing the label list instead of one label.
     @Test
-    void aLabelIsChangedByItsPositiveIdAlone() {
+    void aLabelIsChangedByItsPositiveId() {
         var label =
                 "{\"id\":7,\"name\":\"defect\",\"color\":\"b60205\",\"description\":\"\","
                         + "\"exclusive\":false,\"is_archived\":false,\"url\":\"https://example.org/l\"}";
         var http = new ReplayHttpClient().answer(200, Map.of(), label);
-        var change =
-                new org.fuin.porelo.forge.forgejo.model.EditLabelOption(
-                        "#b60205", null, null, null, "defect");
+        // Color, description, exclusive, archived and name, as the record orders them.
+        var change = new EditLabelOption("#b60205", null, null, null, "defect");
         new ForgejoClient(BASE, http).updateLabel(TOKEN, "o", "r", 7, change);
         assertThat(http.requests.getFirst().uri().getRawPath())
                 .as("the label by its id")

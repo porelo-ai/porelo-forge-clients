@@ -518,8 +518,9 @@ public final class ForgejoClient {
 
     /**
      * Changes a repository label named by its id: name, color (six hexadecimal digits with a
-     * leading {@code #}) and description. A part left null is sent as null, which Forgejo 17 leaves
-     * as it was; a pull request carrying the label carries it under its new name, both as recorded.
+     * leading {@code #}) and description. A part left null is sent as null; a description so left
+     * stayed as it was, and a pull request carrying the label carried it under its new name, as
+     * recorded against Forgejo 17.
      */
     public Label updateLabel(
             String token, String owner, String repo, long id, EditLabelOption label) {

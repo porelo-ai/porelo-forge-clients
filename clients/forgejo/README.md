@@ -49,8 +49,8 @@ Page<PullRequest> open = forgejo.pulls(token, "owner", "repo", "open", 1, 50);
 - `labels`, `createLabel`, `updateLabel` and `deleteLabel` list, create, change and delete a repository's labels,
   each with its id, name, color and description. `createLabel` and `updateLabel` send the color with its leading `#`,
   which Forgejo 17 answers without, as recorded; `updateLabel` and `deleteLabel` take the label's id, as Forgejo
-  addresses a label. `updateLabel` sends a part left null as null, which Forgejo 17 leaves as it was, and a pull
-  request carrying the label carries it under its new name, both as recorded.
+  addresses a label. `updateLabel` sends a part left null as null; a description so left stayed as it was,
+  and a pull request carrying the label carried it under its new name, as recorded against Forgejo 17.
 - What Forgejo 17 does not offer, measured against it: a review comment has no edit of its own, but
   `editIssueComment` with its id edits it; `DELETE .../issues/comments/{id}` answers 204 for a review comment and
   leaves it in place, so only `deleteReviewComment` deletes one; and there is no thread state to read or change, and
