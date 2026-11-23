@@ -64,6 +64,7 @@ final class GitHubIssueScenario implements AutoCloseable {
     private long thirdIssueId;
     private String etag = "pending";
     private String itemsEtag = "pending";
+    private @Nullable JsonNode itemsBody;
     private int projectNumber;
     private String projectId = "pending";
     private String repositoryId = "pending";
@@ -146,6 +147,15 @@ final class GitHubIssueScenario implements AutoCloseable {
             var context = context();
             var body = body(operation);
             Object result = operation.invoke(client, graphql, token, context, body);
+            for (int attempt = 1;
+                    operation == GitHubIssueOperations.projectItemsNotModified
+                            && result instanceof Conditional<?> read
+                            && read.changed();
+                    attempt++) {
+                settleItemsEtag(read, attempt);
+                context = context();
+                result = operation.invoke(client, graphql, token, context, body);
+            }
             // What a call made is owned before it is judged, so a failed check still cleans it up.
             if (operation == GitHubIssueOperations.createIssue && result instanceof Issue a)
                 made(a);
@@ -160,6 +170,8 @@ final class GitHubIssueScenario implements AutoCloseable {
             var exchanges = transport.take();
             if (exchanges.isEmpty())
                 throw new IllegalStateException("Operation exchanged no response: " + operation);
+            if (operation == GitHubIssueOperations.projectItemsIfChanged)
+                itemsBody = answerBody(exchanges.getLast());
             var recording = exchanges.getLast().deepCopy();
             recording.set("request_uri", exchanges.getFirst().path("request_uri"));
             recording.set("exchanges", json.valueToTree(exchanges));
@@ -199,6 +211,54 @@ final class GitHubIssueScenario implements AutoCloseable {
                                             itemIds.get(0), statusFieldId, doneOptionId)));
             default -> {}
         }
+    }
+
+    /**
+     * GitHub at times answers an unchanged board as changed, with a new entity tag and the same
+     * items: that answer is dropped and the read made again with the new tag, while a real change
+     * fails the recording and names where the board changed.
+     */
+    private void settleItemsEtag(Conditional<?> read, int attempt) throws Exception {
+        var changes =
+                changes(
+                        Objects.requireNonNull(itemsBody, "the board's first answer"),
+                        answerBody(transport.take().getLast()),
+                        "");
+        if (!changes.isEmpty())
+            throw new IllegalStateException(
+                    "The board changed between two reads, at " + String.join(", ", changes));
+        if (attempt == SETTLE_ATTEMPTS)
+            throw new IllegalStateException(
+                    "GitHub answered the unchanged board as changed "
+                            + attempt
+                            + " times, its items the same");
+        report("items answered changed with the same items, read again with the new entity tag");
+        itemsEtag = Objects.requireNonNull(read.etag(), "the items' new entity tag");
+        Thread.sleep(2000);
+    }
+
+    // Bounded, so a board GitHub keeps answering as changed fails the recording, never loops.
+    private static final int SETTLE_ATTEMPTS = 3;
+
+    private JsonNode answerBody(JsonNode exchange) throws Exception {
+        return json.readTree(exchange.path("body").asText());
+    }
+
+    /** The JSON pointers at which two answers differ, empty when they are the same. */
+    static List<String> changes(JsonNode before, JsonNode after, String at) {
+        if (before.equals(after)) return List.of();
+        List<String> found = new ArrayList<>();
+        if (before.isObject() && after.isObject()) {
+            var names = new java.util.TreeSet<String>();
+            before.fieldNames().forEachRemaining(names::add);
+            after.fieldNames().forEachRemaining(names::add);
+            for (var name : names)
+                found.addAll(changes(before.path(name), after.path(name), at + "/" + name));
+        } else if (before.isArray() && after.isArray() && before.size() == after.size()) {
+            for (int i = 0; i < before.size(); i++)
+                found.addAll(changes(before.get(i), after.get(i), at + "/" + i));
+        } else found.add(at.isEmpty() ? "/" : at);
+        return found;
     }
 
     /** Waits until GitHub's issue list shows the run's issues, which it may do a little later. */
