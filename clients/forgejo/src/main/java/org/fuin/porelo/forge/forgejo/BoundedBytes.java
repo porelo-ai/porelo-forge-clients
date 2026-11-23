@@ -16,6 +16,9 @@ import org.jspecify.annotations.Nullable;
  * {@code keep} bytes of what it read.
  */
 final class BoundedBytes implements HttpResponse.BodySubscriber<byte[]> {
+    /** The most one Java array, and so one answer read whole, can hold. */
+    static final int MOST = Integer.MAX_VALUE - 8;
+
     private final long bound;
     private final int keep;
     private final Runnable overflow;

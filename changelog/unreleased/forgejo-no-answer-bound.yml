@@ -1,0 +1,2 @@
+title: Read a successful Forgejo answer whole whatever its size, instead of refusing one over 16 MiB, since Forgejo names no maximum for what it answers.
+type: changed

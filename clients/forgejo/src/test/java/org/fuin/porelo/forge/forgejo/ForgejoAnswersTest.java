@@ -196,32 +196,17 @@ class ForgejoAnswersTest {
                 .isFalse();
     }
 
-    // Prevents a hostile or broken forge from exhausting the caller's memory, and its answer from
-    // reaching a message.
+    // Prevents a legal answer from being refused, since Forgejo names no maximum for a body or a
+    // list it answers unpaged.
     @Test
-    void anAnswerOneByteOverItsBoundIsRefusedAndNotRead() {
-        String over = SECRET_BODY + " ".repeat(BoundedAnswer.ANSWER_BYTES);
-        var http = new ReplayHttpClient().answer(200, Map.of(), over);
-        assertThatExceptionOfType(ForgejoException.class)
-                .as("one answer past its bound")
-                .isThrownBy(() -> new ForgejoClient(BASE, http).user(TOKEN))
-                .withMessage("Forgejo answer exceeds " + BoundedAnswer.ANSWER_BYTES + " bytes")
-                .satisfies(
-                        ex -> {
-                            assertThat(ex.delivery())
-                                    .as("it was answered")
-                                    .isEqualTo(Delivery.ANSWERED);
-                            assertThat(ex.status()).as("its status stays").isEqualTo(200);
-                        });
-        assertThat(http.delivered.getFirst())
-                .as("the reading stops at the buffer that crosses the bound")
-                .isLessThanOrEqualTo(BoundedAnswer.ANSWER_BYTES + ReplayHttpClient.Chunks.SIZE);
-
-        String exact = "[" + " ".repeat(BoundedAnswer.ANSWER_BYTES - 2) + "]";
-        var within = new ReplayHttpClient().answer(200, Map.of(), exact);
-        assertThat(new ForgejoClient(BASE, within).ownKeys(TOKEN, 1, 1).items())
-                .as("an answer exactly at its bound is read")
+    void aSuccessfulAnswerOfAnySizeIsRead() {
+        int large = 24 * 1024 * 1024;
+        String body = "[" + " ".repeat(large) + "]";
+        var http = new ReplayHttpClient().answer(200, Map.of(), body);
+        assertThat(new ForgejoClient(BASE, http).ownKeys(TOKEN, 1, 1).items())
+                .as("an answer over 16 MiB is read")
                 .isEmpty();
+        assertThat(http.delivered.getFirst()).as("to its end").isEqualTo(body.length());
     }
 
     // Prevents a long error page from being read like an answer, while its status still decides.
@@ -262,15 +247,6 @@ class ForgejoAnswersTest {
     @Test
     void theReadingStopsAtTheBufferThatCrossesTheBound() {
         int several = 3 * ReplayHttpClient.Chunks.SIZE;
-        var answer =
-                new ReplayHttpClient()
-                        .answer(200, Map.of(), " ".repeat(BoundedAnswer.ANSWER_BYTES + several));
-        assertThatExceptionOfType(ForgejoException.class)
-                .as("an answer several buffers past its bound")
-                .isThrownBy(() -> new ForgejoClient(BASE, answer).user(TOKEN));
-        assertThat(answer.delivered.getFirst())
-                .as("an answer stops at the crossing buffer")
-                .isLessThanOrEqualTo(BoundedAnswer.ANSWER_BYTES + ReplayHttpClient.Chunks.SIZE);
         var error =
                 new ReplayHttpClient()
                         .answer(403, Map.of(), " ".repeat(BoundedAnswer.ERROR_BYTES + several));
