@@ -63,8 +63,8 @@ Page<PullRequest> open = forgejo.pulls(token, "owner", "repo", "open", 1, 50);
   constructor arguments of `ForgejoClient`, by default `DEFAULT_REQUEST_TIMEOUT` (60 s) and `DEFAULT_RATE_LIMIT_DELAY`
   (1 min); the caller scales them to its network.
 - Every answer is read up to a bound: 16 MiB, an error answer 64 KiB, past which the reading stops and the failure
-  says `Forgejo answer exceeds <n> bytes`, with no part of the answer. `jobLogs` returns a `JobLog`, read up to 64 MiB
-  and keeping its last 1 MiB, with `cut` saying whether it was longer.
+  says `Forgejo answer exceeds <n> bytes`, with no part of the answer. `jobLogs` returns a `JobLog`, read to its end however
+  long and keeping its last 1 MiB, with `cut` saying whether it was longer.
 - `ForgejoWebhook.read(body, signature, event, secret)` reads at most its bound, checks `X-Forgejo-Signature`
   before parsing, and gives a `PullRequestEvent` for `pull_request`, a `ReviewEvent` for `pull_request_approved`,
   `_rejected` and `_comment`, and an `ActionsRunEvent` for `action_run_success` and `_failure`.

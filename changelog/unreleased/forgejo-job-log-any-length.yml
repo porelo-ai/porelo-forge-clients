@@ -1,0 +1,2 @@
+title: Read a Forgejo job log to its end however long, keeping its last 1 MiB, instead of refusing one over 64 MiB.
+type: changed
