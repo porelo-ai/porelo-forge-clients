@@ -60,7 +60,7 @@ class GitHubProjectsTest {
                 + fieldValues
                 + ","
                 + "\"repository\":{\"nameWithOwner\":\"o/r\"},"
-                + "\"labels\":{\"nodes\":[{\"name\":\"story\"}],"
+                + "\"labels\":{\"totalCount\":1,\"nodes\":[{\"name\":\"story\"}],"
                 + PAGE
                 + "},\"parent\":null,\"subIssues\":"
                 + REFS
@@ -281,13 +281,13 @@ class GitHubProjectsTest {
     void issueBoardReadsOptionIds() {
         String item =
                 ",\"projectItems\":{\"nodes\":["
-                        + "{\"id\":\"PVTI_1\",\"project\":{\"id\":\"P_1\"},\"fieldValues\":{\"nodes\":["
+                        + "{\"id\":\"PVTI_1\",\"project\":{\"id\":\"P_1\"},\"fieldValues\":{\"totalCount\":3,\"nodes\":["
                         + "{\"__typename\":\"ProjectV2ItemFieldSingleSelectValue\",\"optionId\":\"OPT_1\",\"name\":\"Todo\",\"field\":{\"id\":\"F_STATE\"}},"
                         + "{\"__typename\":\"ProjectV2ItemFieldRepositoryValue\"},"
                         + "{\"__typename\":\"ProjectV2ItemFieldTextValue\",\"text\":\"OLD-1\",\"field\":{\"id\":\"F_ID\"}}],"
                         + PAGE
                         + "}},"
-                        + "{\"id\":\"PVTI_OTHER\",\"project\":{\"id\":\"P_2\"},\"fieldValues\":{\"nodes\":[],"
+                        + "{\"id\":\"PVTI_OTHER\",\"project\":{\"id\":\"P_2\"},\"fieldValues\":{\"totalCount\":0,\"nodes\":[],"
                         + PAGE
                         + "}}],"
                         + PAGE
@@ -381,10 +381,10 @@ class GitHubProjectsTest {
                         "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"totalCount\":205,\"nodes\":["
                                 + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":"
                                 + issue("I_1")
-                                + "},\"fieldValues\":{\"nodes\":[],"
+                                + "},\"fieldValues\":{\"totalCount\":0,\"nodes\":[],"
                                 + PAGE
                                 + "}},"
-                                + "{\"id\":\"PVTI_2\",\"isArchived\":true,\"content\":{\"__typename\":\"DraftIssue\"},\"fieldValues\":{\"nodes\":[],"
+                                + "{\"id\":\"PVTI_2\",\"isArchived\":true,\"content\":{\"__typename\":\"DraftIssue\"},\"fieldValues\":{\"totalCount\":0,\"nodes\":[],"
                                 + PAGE
                                 + "}}],"
                                 + PAGE
@@ -411,12 +411,12 @@ class GitHubProjectsTest {
                         "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"totalCount\":2,\"nodes\":["
                                 + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":"
                                 + TYPED
-                                + "},\"fieldValues\":{\"nodes\":[],"
+                                + "},\"fieldValues\":{\"totalCount\":0,\"nodes\":[],"
                                 + PAGE
                                 + "}},"
                                 + "{\"id\":\"PVTI_2\",\"isArchived\":false,\"content\":"
                                 + UNTYPED
-                                + "},\"fieldValues\":{\"nodes\":[],"
+                                + "},\"fieldValues\":{\"totalCount\":0,\"nodes\":[],"
                                 + PAGE
                                 + "}}],"
                                 + PAGE
@@ -440,12 +440,12 @@ class GitHubProjectsTest {
                         "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"totalCount\":2,\"nodes\":["
                                 + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":"
                                 + TYPED
-                                + "},\"fieldValues\":{\"nodes\":[],"
+                                + "},\"fieldValues\":{\"totalCount\":0,\"nodes\":[],"
                                 + PAGE
                                 + "}},"
                                 + "{\"id\":\"PVTI_2\",\"isArchived\":false,\"content\":"
                                 + UNTYPED
-                                + "},\"fieldValues\":{\"nodes\":[],"
+                                + "},\"fieldValues\":{\"totalCount\":0,\"nodes\":[],"
                                 + PAGE
                                 + "}}],"
                                 + PAGE
@@ -513,7 +513,7 @@ class GitHubProjectsTest {
         return "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"totalCount\":1,\"nodes\":["
                 + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":"
                 + issue
-                + "},\"fieldValues\":{\"nodes\":[],"
+                + "},\"fieldValues\":{\"totalCount\":0,\"nodes\":[],"
                 + PAGE
                 + "}}],"
                 + PAGE
@@ -536,7 +536,7 @@ class GitHubProjectsTest {
                             "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"totalCount\":1,\"nodes\":["
                                     + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":"
                                     + typed
-                                    + "},\"fieldValues\":{\"nodes\":[],"
+                                    + "},\"fieldValues\":{\"totalCount\":0,\"nodes\":[],"
                                     + PAGE
                                     + "}}],"
                                     + PAGE
@@ -578,7 +578,7 @@ class GitHubProjectsTest {
     void anIssueReadByIdReadsItsType() throws Exception {
         String onBoard =
                 ",\"projectItems\":{\"nodes\":[{\"id\":\"PVTI_1\",\"project\":{\"id\":\"P_1\"},"
-                        + "\"fieldValues\":{\"nodes\":[],"
+                        + "\"fieldValues\":{\"totalCount\":0,\"nodes\":[],"
                         + PAGE
                         + "}}],"
                         + PAGE
@@ -629,7 +629,7 @@ class GitHubProjectsTest {
                         "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"totalCount\":1,\"nodes\":["
                                 + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":"
                                 + counted
-                                + "},\"fieldValues\":{\"nodes\":[],"
+                                + "},\"fieldValues\":{\"totalCount\":0,\"nodes\":[],"
                                 + PAGE
                                 + "}}],"
                                 + PAGE
@@ -645,14 +645,100 @@ class GitHubProjectsTest {
     }
 
     // Prevents one of the board's reads from leaving the counts out, so its caller would take a
-    // list with an unreadable blocker as complete.
+    // list with an unreadable blocker as complete, or a label or value past the first page as
+    // no change.
     @Test
-    void eachBoardReadAsksForBothListsCounts() {
+    void eachBoardReadAsksForItsListsCounts() {
         for (String query : List.of(ProjectBoard.PROJECT_ITEMS, ProjectBoard.ISSUE_BOARD))
             assertThat(query)
-                    .as("each read asks for both lists' counts")
+                    .as("each read asks for its lists' counts")
                     .contains("blockedBy(first: $blockedBy) { totalCount ")
-                    .contains("subIssues(first: $subIssues) { totalCount ");
+                    .contains("subIssues(first: $subIssues) { totalCount ")
+                    .contains("labels(first: $labels) { totalCount ")
+                    .contains("fieldValues(first: $fieldValues) { totalCount ");
+    }
+
+    // Prevents a label or value added past the first page from leaving the board unchanged to its
+    // caller: an issue's labels and an item's values carry GitHub's whole count.
+    @Test
+    void anIssuesLabelsAndAnItemsValuesCarryGitHubsCount() throws Exception {
+        String labelled =
+                issue("I_1")
+                                .replace(
+                                        "\"labels\":{\"totalCount\":1,",
+                                        "\"labels\":{\"totalCount\":4,")
+                        + ",\"issueType\":null";
+        var items =
+                answering(
+                        "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"totalCount\":1,\"nodes\":["
+                                + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":"
+                                + labelled
+                                + "},\"fieldValues\":{\"totalCount\":7,\"nodes\":[],"
+                                + PAGE
+                                + "}}],"
+                                + PAGE
+                                + "}}},"
+                                + COST
+                                + "}}");
+        var item = graphQl(items).projectItems(TOKEN, "o", 1, null).items().get(0);
+        assertThat(item.issue().labelCount()).as("every label GitHub counts").isEqualTo(4);
+        assertThat(item.valueCount()).as("every value GitHub counts").isEqualTo(7);
+
+        var board =
+                answering(
+                        "{\"data\":{\"nodes\":["
+                                + labelled
+                                + ",\"projectItems\":{\"nodes\":[{\"id\":\"PVTI_1\",\"project\":{\"id\":\"P_1\"},"
+                                + "\"fieldValues\":{\"totalCount\":5,\"nodes\":[],"
+                                + PAGE
+                                + "}}],"
+                                + PAGE
+                                + "}},"
+                                + labelled.replace("\"id\":\"I_1\"", "\"id\":\"I_2\"")
+                                + ",\"projectItems\":{\"nodes\":[],"
+                                + PAGE
+                                + "}}],"
+                                + COST
+                                + "}}");
+        var issues = graphQl(board).issueBoard(TOKEN, List.of("I_1", "I_2"), "P_1").issues();
+        assertThat(issues.get(0).issue().labelCount())
+                .as("an issue read by id counts its labels")
+                .isEqualTo(4);
+        assertThat(issues.get(0).valueCount())
+                .as("an issue read by id counts its values in the project")
+                .isEqualTo(5);
+        assertThat(issues.get(1).valueCount()).as("an issue off the board has none").isZero();
+    }
+
+    // Prevents an answer without a count from reading as a list GitHub counted empty.
+    @Test
+    void anAnswerWithoutALabelOrValueCountFails() {
+        String uncounted =
+                issue("I_1").replace("\"labels\":{\"totalCount\":1,", "\"labels\":{")
+                        + ",\"issueType\":null";
+        for (String[] answer :
+                new String[][] {
+                    {uncounted, "\"totalCount\":0,", "labels"},
+                    {issue("I_1") + ",\"issueType\":null", "", "fieldValues"}
+                }) {
+            String body =
+                    "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"totalCount\":1,\"nodes\":["
+                            + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":"
+                            + answer[0]
+                            + "},\"fieldValues\":{"
+                            + answer[1]
+                            + "\"nodes\":[],"
+                            + PAGE
+                            + "}}],"
+                            + PAGE
+                            + "}}},"
+                            + COST
+                            + "}}";
+            assertThatExceptionOfType(GitHubException.class)
+                    .as("an answer without the %s count", answer[2])
+                    .isThrownBy(() -> graphQl(answering(body)).projectItems(TOKEN, "o", 1, null))
+                    .withMessageContaining("totalCount");
+        }
     }
 
     // Prevents a board too heavy for one page of 100 from never reading: the caller sets the
@@ -689,15 +775,16 @@ class GitHubProjectsTest {
         String issue =
                 issue("I_1")
                         .replace(
-                                "\"labels\":{\"nodes\":[{\"name\":\"story\"}]," + PAGE,
-                                "\"labels\":{\"nodes\":[{\"name\":\"story\"}],"
+                                "\"labels\":{\"totalCount\":1,\"nodes\":[{\"name\":\"story\"}],"
+                                        + PAGE,
+                                "\"labels\":{\"totalCount\":1,\"nodes\":[{\"name\":\"story\"}],"
                                         + more.formatted("L1"));
         var http =
                 answering(
                         "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"totalCount\":1,"
                                 + "\"nodes\":[{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":"
                                 + issue
-                                + "},\"fieldValues\":{\"nodes\":[],"
+                                + "},\"fieldValues\":{\"totalCount\":0,\"nodes\":[],"
                                 + more.formatted("V1")
                                 + "}}],"
                                 + PAGE
@@ -736,7 +823,7 @@ class GitHubProjectsTest {
                         "{\"data\":{\"nodes\":["
                                 + issue
                                 + ",\"projectItems\":{\"nodes\":[{\"id\":\"PVTI_1\",\"project\":{\"id\":\"P_1\"},"
-                                + "\"fieldValues\":{\"nodes\":[],"
+                                + "\"fieldValues\":{\"totalCount\":0,\"nodes\":[],"
                                 + more.formatted("V2")
                                 + "}}],"
                                 + PAGE
@@ -756,7 +843,7 @@ class GitHubProjectsTest {
                         "{\"data\":{\"nodes\":["
                                 + issue
                                 + ",\"projectItems\":{\"nodes\":[{\"id\":\"PVTI_9\",\"project\":{\"id\":\"P_2\"},"
-                                + "\"fieldValues\":{\"nodes\":[],"
+                                + "\"fieldValues\":{\"totalCount\":0,\"nodes\":[],"
                                 + PAGE
                                 + "}}],"
                                 + more.formatted("P1")
@@ -912,7 +999,7 @@ class GitHubProjectsTest {
                                 .replace(
                                         "\"blockedBy\":" + REFS,
                                         "\"blockedBy\":{\"nodes\":[]," + PAGE + "}")
-                        + ",\"issueType\":null},\"fieldValues\":{\"nodes\":[],"
+                        + ",\"issueType\":null},\"fieldValues\":{\"totalCount\":0,\"nodes\":[],"
                         + PAGE
                         + "}}],"
                         + PAGE
@@ -931,7 +1018,7 @@ class GitHubProjectsTest {
                 "{\"data\":{\"nodes\":["
                         + issue("I_1")
                         + ",\"projectItems\":{\"nodes\":[{\"id\":\"PVTI_1\",\"project\":null,"
-                        + "\"fieldValues\":{\"nodes\":[],"
+                        + "\"fieldValues\":{\"totalCount\":0,\"nodes\":[],"
                         + PAGE
                         + "}}],"
                         + PAGE
@@ -958,7 +1045,7 @@ class GitHubProjectsTest {
                                         .projectItems(TOKEN, "o", 1, null));
         String valueWithoutField =
                 "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"nodes\":["
-                        + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":{\"__typename\":\"DraftIssue\"},\"fieldValues\":{\"nodes\":["
+                        + "{\"id\":\"PVTI_1\",\"isArchived\":false,\"content\":{\"__typename\":\"DraftIssue\"},\"fieldValues\":{\"totalCount\":1,\"nodes\":["
                         + "{\"__typename\":\"ProjectV2ItemFieldTextValue\",\"text\":\"x\",\"field\":null}],"
                         + PAGE
                         + "}}],"
@@ -982,7 +1069,7 @@ class GitHubProjectsTest {
                     "{\"data\":{\"organization\":{\"projectV2\":{\"items\":{\"nodes\":["
                             + "{\"id\":\"PVTI_1\","
                             + archived
-                            + "\"content\":{\"__typename\":\"DraftIssue\"},\"fieldValues\":{\"nodes\":[],"
+                            + "\"content\":{\"__typename\":\"DraftIssue\"},\"fieldValues\":{\"totalCount\":0,\"nodes\":[],"
                             + PAGE
                             + "}}],"
                             + PAGE

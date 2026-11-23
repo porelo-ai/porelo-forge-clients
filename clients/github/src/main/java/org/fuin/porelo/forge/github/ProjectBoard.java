@@ -55,7 +55,7 @@ final class ProjectBoard {
             "id databaseId number title body state stateReason updatedAt closedAt"
                     + " repository { nameWithOwner }"
                     + " issueType { name }"
-                    + " labels(first: $labels) { "
+                    + " labels(first: $labels) { totalCount "
                     + LABEL_NODES
                     + " }"
                     + " parent { id }"
@@ -83,7 +83,8 @@ final class ProjectBoard {
                     + FIELD
                     + " } } "
                     + PAGE;
-    private static final String VALUES = "fieldValues(first: $fieldValues) { " + VALUE_NODES + " }";
+    private static final String VALUES =
+            "fieldValues(first: $fieldValues) { totalCount " + VALUE_NODES + " }";
 
     /** The sizes of an issue's and an item's nested lists, as {@link ItemLimits} gives them. */
     private static final String LIMITS =
@@ -314,10 +315,10 @@ final class ProjectBoard {
                             flag(node, "isArchived"),
                             issue,
                             values(node),
-                            pageInfo(node.path("fieldValues"))));
+                            pageInfo(node.path("fieldValues")),
+                            count(node.path("fieldValues"))));
         }
-        return new ProjectItems(
-                read, pageInfo(items), cost(data), Math.toIntExact(number(items, "totalCount")));
+        return new ProjectItems(read, pageInfo(items), cost(data), count(items));
     }
 
     /** Each id's issue in its place; an id of no issue, or one GitHub does not know, reads null. */
@@ -333,19 +334,21 @@ final class ProjectBoard {
             String itemId = null;
             List<ItemValue> values = List.of();
             PageInfo valuesPage = new PageInfo(false, null);
+            int valueCount = 0;
             JsonNode projectItems = node.path("projectItems");
             for (JsonNode item : nodes(projectItems, "projectItems")) {
                 if (projectId.equals(text(item.path("project"), "id"))) {
                     itemId = text(item, "id");
                     values = values(item);
                     valuesPage = pageInfo(item.path("fieldValues"));
+                    valueCount = count(item.path("fieldValues"));
                 }
             }
             // Past its first projects the issue may still have an item here; it is not off the
             // board.
             if (itemId == null && pageInfo(projectItems).hasNextPage())
                 throw new UnreadableAnswer("projectItems past the first page");
-            read.add(new IssueOnBoard(issue(node), itemId, values, valuesPage));
+            read.add(new IssueOnBoard(issue(node), itemId, values, valuesPage, valueCount));
         }
         return new IssueBoard(read, cost(data));
     }
@@ -483,15 +486,18 @@ final class ProjectBoard {
                 pageInfo(node.path("labels")),
                 type.isObject() ? text(type, "name") : null,
                 optionalInstant(node, "closedAt"),
-                fieldOptions(node.path("issueFieldValues")));
+                fieldOptions(node.path("issueFieldValues")),
+                count(node.path("labels")));
+    }
+
+    /** How many entries GitHub counts in a list, past the page it shows too. */
+    private static int count(JsonNode connection) {
+        return Math.toIntExact(number(connection, "totalCount"));
     }
 
     /** An issue's first page of a list, with every entry GitHub counts in it. */
     private static IssueRefs counted(JsonNode connection) {
-        return new IssueRefs(
-                refNodes(connection),
-                pageInfo(connection),
-                Math.toIntExact(number(connection, "totalCount")));
+        return new IssueRefs(refNodes(connection), pageInfo(connection), count(connection));
     }
 
     private static List<IssueRef> refNodes(JsonNode connection) {

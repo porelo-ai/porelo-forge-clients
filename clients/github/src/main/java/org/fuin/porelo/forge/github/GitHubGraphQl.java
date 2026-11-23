@@ -936,6 +936,8 @@ public final class GitHubGraphQl {
      * @param closedAt when it was last closed, or null while it has never been
      * @param fieldOptions its single-select issue-field values, in GitHub's order; values of other
      *     kinds are left out
+     * @param labelCount how many labels GitHub counts on it, beside the ones {@code labels} shows,
+     *     so a label added past the first page changes what is read
      */
     public record BoardIssue(
             String id,
@@ -954,8 +956,9 @@ public final class GitHubGraphQl {
             PageInfo labelsPage,
             @Nullable String issueType,
             @Nullable Instant closedAt,
-            List<IssueFieldOption> fieldOptions) {
-        /** Requires every part GitHub always sends. */
+            List<IssueFieldOption> fieldOptions,
+            int labelCount) {
+        /** Requires every part GitHub always sends, and a count of 0 or more. */
         public BoardIssue {
             Objects.requireNonNull(labelsPage, "labelsPage");
             Objects.requireNonNull(id, "id");
@@ -967,6 +970,7 @@ public final class GitHubGraphQl {
             Objects.requireNonNull(subIssues, "subIssues");
             Objects.requireNonNull(blockedBy, "blockedBy");
             fieldOptions = List.copyOf(fieldOptions);
+            if (labelCount < 0) throw new IllegalArgumentException("Expected a count of 0 or more");
         }
     }
 
@@ -1015,18 +1019,22 @@ public final class GitHubGraphQl {
      * @param values its first single-select, text and number field values, as many as the read
      *     asked for
      * @param valuesPage whether more values follow, and from where
+     * @param valueCount how many field values GitHub counts on it, of every kind, the ones {@code
+     *     values} leaves out among them, so a value added past the first page changes what is read
      */
     public record ProjectItem(
             String id,
             boolean archived,
             @Nullable BoardIssue issue,
             List<ItemValue> values,
-            PageInfo valuesPage) {
-        /** Requires every part. */
+            PageInfo valuesPage,
+            int valueCount) {
+        /** Requires every part, and a count of 0 or more. */
         public ProjectItem {
             Objects.requireNonNull(id, "id");
             Objects.requireNonNull(valuesPage, "valuesPage");
             values = List.copyOf(values);
+            if (valueCount < 0) throw new IllegalArgumentException("Expected a count of 0 or more");
         }
     }
 
@@ -1056,17 +1064,21 @@ public final class GitHubGraphQl {
      * @param itemId its item in the project, or null when it is not in it
      * @param values its first field values in the project, as many as the read asked for
      * @param valuesPage whether more values follow, and from where; none when it is not in it
+     * @param valueCount how many field values GitHub counts on its item, of every kind, the ones
+     *     {@code values} leaves out among them; 0 when it is not in the project
      */
     public record IssueOnBoard(
             BoardIssue issue,
             @Nullable String itemId,
             List<ItemValue> values,
-            PageInfo valuesPage) {
-        /** Requires every part. */
+            PageInfo valuesPage,
+            int valueCount) {
+        /** Requires every part, and a count of 0 or more. */
         public IssueOnBoard {
             Objects.requireNonNull(issue, "issue");
             Objects.requireNonNull(valuesPage, "valuesPage");
             values = List.copyOf(values);
+            if (valueCount < 0) throw new IllegalArgumentException("Expected a count of 0 or more");
         }
     }
 

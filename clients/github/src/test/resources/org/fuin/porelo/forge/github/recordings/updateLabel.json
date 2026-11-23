@@ -1,56 +1,56 @@
 {
-  "request_uri" : "/repos/fixture-org/fixture-repo/labels/forge-client-issues-ae9da61b%2Ftopic%20a%2Eb",
+  "request_uri" : "/repos/fixture-org/fixture-repo/labels/forge-client-issues-6ab7f76a%2Ftopic%20a%2Eb",
   "status" : 200,
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
-    "etag" : [ "\"1f1cef72f2ef7299dac052d114f2934cbdccc0b56b83c4ff1651a8416399590c\"" ],
+    "etag" : [ "\"4f42544a73c866a2f8f1c80123b6594b8ec4f40a613fad7c8df3177bd6bf54c9\"" ],
     "x-accepted-github-permissions" : [ "issues=write; pull_requests=write" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4667" ],
-    "x-ratelimit-reset" : [ "1795444960" ]
+    "x-ratelimit-remaining" : [ "4874" ],
+    "x-ratelimit-reset" : [ "1795460292" ]
   },
-  "body" : "{\"id\":13192545184,\"node_id\":\"LA_kwDOVc0D888AAAADElZDoA\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/labels/forge-client-issues-ae9da61b/renamed%20a.b\",\"name\":\"forge-client-issues-ae9da61b/renamed a.b\",\"color\":\"b60205\",\"default\":false,\"description\":\"Fixture label, changed\",\"archived_at\":null,\"archived_by\":null}",
+  "body" : "{\"id\":13195700143,\"node_id\":\"LA_kwDOVc0D888AAAADEoZnrw\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/labels/forge-client-issues-6ab7f76a/renamed%20a.b\",\"name\":\"forge-client-issues-6ab7f76a/renamed a.b\",\"color\":\"b60205\",\"default\":false,\"description\":\"Fixture label, changed\",\"archived_at\":null,\"archived_by\":null}",
   "exchanges" : [ {
-    "request_uri" : "/repos/fixture-org/fixture-repo/labels/forge-client-issues-ae9da61b%2Ftopic%20a%2Eb",
+    "request_uri" : "/repos/fixture-org/fixture-repo/labels/forge-client-issues-6ab7f76a%2Ftopic%20a%2Eb",
     "status" : 200,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
-      "etag" : [ "\"1f1cef72f2ef7299dac052d114f2934cbdccc0b56b83c4ff1651a8416399590c\"" ],
+      "etag" : [ "\"4f42544a73c866a2f8f1c80123b6594b8ec4f40a613fad7c8df3177bd6bf54c9\"" ],
       "x-accepted-github-permissions" : [ "issues=write; pull_requests=write" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4667" ],
-      "x-ratelimit-reset" : [ "1795444960" ]
+      "x-ratelimit-remaining" : [ "4874" ],
+      "x-ratelimit-reset" : [ "1795460292" ]
     },
-    "body" : "{\"id\":13192545184,\"node_id\":\"LA_kwDOVc0D888AAAADElZDoA\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/labels/forge-client-issues-ae9da61b/renamed%20a.b\",\"name\":\"forge-client-issues-ae9da61b/renamed a.b\",\"color\":\"b60205\",\"default\":false,\"description\":\"Fixture label, changed\",\"archived_at\":null,\"archived_by\":null}"
+    "body" : "{\"id\":13195700143,\"node_id\":\"LA_kwDOVc0D888AAAADEoZnrw\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/labels/forge-client-issues-6ab7f76a/renamed%20a.b\",\"name\":\"forge-client-issues-6ab7f76a/renamed a.b\",\"color\":\"b60205\",\"default\":false,\"description\":\"Fixture label, changed\",\"archived_at\":null,\"archived_by\":null}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "prefix" : "forge-client-issues-ae9da61b",
-    "number" : 220,
-    "other" : 221,
-    "subIssueId" : 6561506304,
-    "thirdIssueId" : 6561506534,
-    "since" : "2026-11-23T14:17:31Z",
-    "etag" : "\"dead1a588ac2128bd7fc809fe103c64eeed2aa673aea78a19ac634ae0cad662e\"",
-    "itemsEtag" : "\"bf658e1278486ed4ed9418488cd0bc1d5e5e443a97b93713c787e19d6cb56af9\"",
-    "projectNumber" : 81,
-    "projectId" : "PVT_kwDOFN-d0c4Bs4DY",
+    "prefix" : "forge-client-issues-6ab7f76a",
+    "number" : 224,
+    "other" : 225,
+    "subIssueId" : 6566559842,
+    "thirdIssueId" : 6566560122,
+    "since" : "2026-11-23T18:45:15Z",
+    "etag" : "\"1b7e90b8fa5ad06b6ab96ab98015ef859808bc95fbea85e4acdb7a32ed864f7c\"",
+    "itemsEtag" : "\"45dc5424c72c6b9b7949dafcb2bb98b37cced7137201022502145c0ecd3ef6f1\"",
+    "projectNumber" : 82,
+    "projectId" : "PVT_kwDOFN-d0c4Bs6Wu",
     "repositoryId" : "R_kgDOVc0D8w",
-    "issueIds" : [ "I_kwDOVc0D888AAAABhxigWg", "I_kwDOVc0D888AAAABhxikAA" ],
+    "issueIds" : [ "I_kwDOVc0D888AAAABh2W8iw", "I_kwDOVc0D888AAAABh2XAYg" ],
     "unknownIssueId" : "I_kwDOAAAAAM4AAAAB",
-    "itemIds" : [ "PVTI_lADOFN-d0c4Bs4DYzhLJ24Y", "PVTI_lADOFN-d0c4Bs4DYzhLJ25A" ],
-    "fieldId" : "PVTSSF_lADOFN-d0c4Bs4DYzhrEGDo",
-    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bs4DYzhrEF9Y",
+    "itemIds" : [ "PVTI_lADOFN-d0c4Bs6WuzhLOmME", "PVTI_lADOFN-d0c4Bs6WuzhLOmM8" ],
+    "fieldId" : "PVTSSF_lADOFN-d0c4Bs6WuzhrGPYU",
+    "statusFieldId" : "PVTSSF_lADOFN-d0c4Bs6WuzhrGPVI",
     "statusOptionId" : "f75ad846",
-    "textFieldId" : "PVTF_lADOFN-d0c4Bs4DYzhrEGDw",
-    "numberFieldId" : "PVTF_lADOFN-d0c4Bs4DYzhrEGFg",
-    "fieldDatabaseIds" : [ 449058774, 449058874, 449058876, 449058904 ],
-    "label" : "forge-client-issues-ae9da61b/topic a.b"
+    "textFieldId" : "PVTF_lADOFN-d0c4Bs6WuzhrGPYY",
+    "numberFieldId" : "PVTF_lADOFN-d0c4Bs6WuzhrGPYc",
+    "fieldDatabaseIds" : [ 449199442, 449199493, 449199494, 449199495 ],
+    "label" : "forge-client-issues-6ab7f76a/topic a.b"
   },
   "request_body" : {
     "color" : "b60205",
-    "description" : "Fixture label, changed",
-    "new_name" : "forge-client-issues-ae9da61b/renamed a.b"
+    "new_name" : "forge-client-issues-6ab7f76a/renamed a.b",
+    "description" : "Fixture label, changed"
   }
 }
