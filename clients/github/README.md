@@ -120,8 +120,8 @@ variables; the document holds only fixed text and, in a batch, each part's index
   values add one to the measured cost of reading 100 issues (55). An issue's `subIssues`
   and `blockedBy` carry GitHub's `totalCount` of the whole list beside the nodes, so a caller sees when GitHub leaves an
   issue out of them. An issue carries `labelCount` and an item, or an issue read by id, `valueCount`: GitHub's count of
-  all its labels or values, so a label or value added past the first page changes what is read. Values the board leaves
-  out are counted too; as recorded, an item's repository value is among them. An issue's labels, sub-issues and
+  all its labels or values, so adding or removing one changes what is read even past the first page. Values the board
+  leaves out are counted too; as recorded, an item's repository value is among them. An issue's labels, sub-issues and
   blockers and an item's values come at the sizes of `ItemLimits`
   (`DEFAULT` 100, 100, 100 and 50; each 1 to 100), and each of these lists carries its `PageInfo` (`labelsPage`,
   `valuesPage`), so what lies past a list is read by its cursor, never dropped: `issueLabels`, `issueSubIssues` and

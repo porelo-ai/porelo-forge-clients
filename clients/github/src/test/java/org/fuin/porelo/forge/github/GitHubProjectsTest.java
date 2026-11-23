@@ -691,6 +691,10 @@ class GitHubProjectsTest {
                                 + ",\"projectItems\":{\"nodes\":[{\"id\":\"PVTI_1\",\"project\":{\"id\":\"P_1\"},"
                                 + "\"fieldValues\":{\"totalCount\":5,\"nodes\":[],"
                                 + PAGE
+                                + "}},{\"id\":\"PVTI_9\",\"project\":{\"id\":\"P_2\"},"
+                                + "\"fieldValues\":{\"totalCount\":1,\"nodes\":["
+                                + "{\"__typename\":\"ProjectV2ItemFieldRepositoryValue\"}],"
+                                + PAGE
                                 + "}}],"
                                 + PAGE
                                 + "}},"
@@ -705,7 +709,7 @@ class GitHubProjectsTest {
                 .as("an issue read by id counts its labels")
                 .isEqualTo(4);
         assertThat(issues.get(0).valueCount())
-                .as("an issue read by id counts its values in the project")
+                .as("an issue read by id counts its values in this project, not another's")
                 .isEqualTo(5);
         assertThat(issues.get(1).valueCount()).as("an issue off the board has none").isZero();
     }
@@ -739,6 +743,24 @@ class GitHubProjectsTest {
                     .isThrownBy(() -> graphQl(answering(body)).projectItems(TOKEN, "o", 1, null))
                     .withMessageContaining("totalCount");
         }
+        String uncountedById =
+                "{\"data\":{\"nodes\":["
+                        + issue("I_1")
+                        + ",\"projectItems\":{\"nodes\":[{\"id\":\"PVTI_1\",\"project\":{\"id\":\"P_1\"},"
+                        + "\"fieldValues\":{\"nodes\":[],"
+                        + PAGE
+                        + "}}],"
+                        + PAGE
+                        + "}}],"
+                        + COST
+                        + "}}";
+        assertThatExceptionOfType(GitHubException.class)
+                .as("an issue read by id without its values' count")
+                .isThrownBy(
+                        () ->
+                                graphQl(answering(uncountedById))
+                                        .issueBoard(TOKEN, List.of("I_1"), "P_1"))
+                .withMessageContaining("totalCount");
     }
 
     // Prevents a board too heavy for one page of 100 from never reading: the caller sets the

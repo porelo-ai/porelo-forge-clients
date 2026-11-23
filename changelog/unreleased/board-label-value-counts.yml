@@ -1,2 +1,2 @@
-title: Read GitHub's whole count of a board issue's labels, as BoardIssue.labelCount, and of an item's field values, as ProjectItem.valueCount and IssueOnBoard.valueCount, so a label or value added past the first page changes what a caller reads.
+title: Read GitHub's whole count of a board issue's labels, as BoardIssue.labelCount, and of an item's field values, as ProjectItem.valueCount and IssueOnBoard.valueCount, so adding or removing one changes what a caller reads even past the first page.
 type: added
