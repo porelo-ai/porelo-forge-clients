@@ -207,6 +207,7 @@ final class GitHubIssueScenario implements AutoCloseable {
                 thirdIssueId = c.id();
             }
             case issues -> awaitListed();
+            case projectItems -> awaitBoardItems();
             case statusChanges ->
                     setupGraphql.setFieldValues(
                             token,
@@ -261,6 +262,25 @@ final class GitHubIssueScenario implements AutoCloseable {
                 found.addAll(changes(before.get(i), after.get(i), at + "/" + i));
         } else found.add(at.isEmpty() ? "/" : at);
         return found;
+    }
+
+    /** Waits until GitHub's board lists the items the run added, which it may do a little later. */
+    private void awaitBoardItems() throws InterruptedException {
+        for (int attempt = 0; attempt < 30; attempt++) {
+            var listed =
+                    setupGraphql
+                            .projectItems(token, GitHubFixture.OWNER, projectNumber, null)
+                            .items()
+                            .stream()
+                            .map(GitHubGraphQl.ProjectItem::id)
+                            .toList();
+            if (listed.containsAll(itemIds)) {
+                report("board listed the added items after about " + 2 * attempt + " s");
+                return;
+            }
+            Thread.sleep(2000);
+        }
+        throw new IllegalStateException("GitHub's board did not list the added items in a minute");
     }
 
     /** Waits until GitHub's issue list shows the run's issues, which it may do a little later. */
