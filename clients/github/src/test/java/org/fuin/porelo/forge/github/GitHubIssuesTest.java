@@ -5,12 +5,14 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import org.fuin.porelo.forge.github.model.IssuesCreateRequest;
+import org.fuin.porelo.forge.github.model.IssuesCreateRequestIssueFieldValuesInner;
 import org.fuin.porelo.forge.github.model.IssuesUpdateRequest;
 import org.fuin.porelo.forge.github.model.IssuesUpdateRequestIssueFieldValuesInner;
 import org.fuin.porelo.forge.github.replay.ReplayHttpClient;
@@ -90,6 +92,90 @@ class GitHubIssuesTest {
         JsonNode sent = body(sent(http)).path("issue_field_values").path(0);
         assertThat(sent.path("field_id").asLong()).as("the field's id").isEqualTo(49223313L);
         assertThat(sent.path("value").asText()).as("the option's name").isEqualTo("High");
+    }
+
+    // Prevents a number, date, text or multi-select value from being lost on an update: each goes
+    // as the JSON type GitHub's description names for it, a number as a number, a multi-select
+    // value as a list of option names, never all as text.
+    @Test
+    void everyFieldTypesValueIsSentInItsOwnJsonTypeOnUpdate() throws Exception {
+        var http = answering(200, example("issue"));
+        var request =
+                new IssuesUpdateRequest(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        List.of(
+                                new IssuesUpdateRequestIssueFieldValuesInner(
+                                        1L, 3, null, null, null),
+                                new IssuesUpdateRequestIssueFieldValuesInner(
+                                        2L, new BigDecimal("2.5"), null, null, null),
+                                new IssuesUpdateRequestIssueFieldValuesInner(
+                                        3L, List.of("Backend", "Frontend"), null, null, null),
+                                new IssuesUpdateRequestIssueFieldValuesInner(
+                                        4L, "2026-11-24", null, null, null),
+                                new IssuesUpdateRequestIssueFieldValuesInner(
+                                        5L, "A text", null, null, null)),
+                        null);
+        client(http).updateIssue(TOKEN, "o", "r", 1347, request);
+        assertFieldValuesInTheirTypes(body(sent(http)).path("issue_field_values"));
+    }
+
+    // Prevents a number, date, text or multi-select value from being lost when an issue is
+    // created with it.
+    @Test
+    void everyFieldTypesValueIsSentInItsOwnJsonTypeOnCreate() throws Exception {
+        var http = answering(201, example("issue"));
+        var request =
+                new IssuesCreateRequest(
+                        "A title",
+                        null,
+                        null,
+                        null,
+                        null,
+                        List.of(
+                                new IssuesCreateRequestIssueFieldValuesInner(1L, 3),
+                                new IssuesCreateRequestIssueFieldValuesInner(
+                                        2L, new BigDecimal("2.5")),
+                                new IssuesCreateRequestIssueFieldValuesInner(
+                                        3L, List.of("Backend", "Frontend")),
+                                new IssuesCreateRequestIssueFieldValuesInner(4L, "2026-11-24"),
+                                new IssuesCreateRequestIssueFieldValuesInner(5L, "A text")),
+                        null,
+                        null);
+        client(http).createIssue(TOKEN, "o", "r", request);
+        assertFieldValuesInTheirTypes(body(sent(http)).path("issue_field_values"));
+    }
+
+    private static void assertFieldValuesInTheirTypes(JsonNode values) {
+        assertThat(values.size()).as("every value sent").isEqualTo(5);
+        assertThat(values.path(0).path("value").isIntegralNumber())
+                .as("a whole number sent as a JSON number, not text")
+                .isTrue();
+        assertThat(values.path(0).path("value").asInt()).as("the whole number").isEqualTo(3);
+        assertThat(values.path(1).path("value").isNumber())
+                .as("a decimal sent as a JSON number, not text")
+                .isTrue();
+        assertThat(values.path(1).path("value").decimalValue())
+                .as("the decimal, not rounded")
+                .isEqualByComparingTo("2.5");
+        assertThat(values.path(2).path("value").toString())
+                .as("a multi-select value sent as a list of option names")
+                .isEqualTo("[\"Backend\",\"Frontend\"]");
+        assertThat(values.path(3).path("value").isTextual()).as("a date sent as text").isTrue();
+        assertThat(values.path(3).path("value").asText())
+                .as("the date as the caller gave it")
+                .isEqualTo("2026-11-24");
+        assertThat(values.path(4).path("value").asText()).as("the text").isEqualTo("A text");
+        for (int i = 0; i < 5; i++)
+            assertThat(values.path(i).path("field_id").asLong())
+                    .as("value %d's field id", i)
+                    .isEqualTo(i + 1L);
     }
 
     // Prevents a caller from acting on an issue it misread.
