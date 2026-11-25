@@ -189,6 +189,36 @@ call, two for a job log, whose first answer GitHub redirects; `context` names th
 request and ids the requests used. Accounts, addresses and credentials are scrubbed, as below. The recordings change
 only when this repository records again.
 
+## Native image
+
+The jar ships `META-INF/native-image/org.fuin.porelo/porelo-forge-client-github/reachability-metadata.json`, the
+reflection its models and its JSON mapping need: every generated model, a record or a class with setters, the GraphQL
+review thread answers, and each variant the account, owner and commit-author readers choose by content. A native user
+registers nothing for the client's types and needs no access to its mapper. The client reads no resource and uses no
+proxy, `ServiceLoader` or foreign call.
+
+`GitHubModelRoundTripTest` makes a sample of every model by reflection with every component set, an untyped value of
+each JSON kind and each union's variants, writes them with the client's run-time mapper and reads them back. The
+metadata is recorded by GraalVM's tracing agent while that test runs, only accesses of the client's own classes kept
+(`src/test/native-image/`), and written sorted, reflection alone, by `GitHubNativeMetadata`, which refuses a recording
+that lacks a sampled class. After a change to the models or the mapping it is recorded again from the root:
+
+```shell
+./mvnw -B -s settings.xml -pl clients/github -am -Pnative -Dagent=true -DskipNativeTests=true \
+    -Dtest=GitHubModelRoundTripTest -Dsurefire.failIfNoSpecifiedTests=false prepare-package
+```
+
+The Build runs the same test in a native image built with no metadata but the module's own, after the JVM run wrote
+the samples to `target/github-model-samples.json`; a missing entry fails it by its class:
+
+```shell
+./mvnw -B -s settings.xml -pl clients/github -am -Pnative -Dtest=GitHubModelRoundTripTest \
+    -Dsurefire.failIfNoSpecifiedTests=false test
+```
+
+On the JVM the test also fails when the shipped file names a class that is neither the client's nor Jackson's, so a
+recording that caught a test class does not ship.
+
 ## Build
 
 Unit tests replay the GitHub answers in `src/test/resources/org/fuin/porelo/forge/github/recordings/`, with no

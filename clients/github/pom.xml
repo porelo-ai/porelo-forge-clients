@@ -293,6 +293,95 @@
         </plugins>
     </build>
     <profiles>
+        <!-- The native image's metadata, shipped in the jar so a native user needs no hints for the client's types.
+             '-Pnative' builds the tests named by -Dtest into an image with no metadata but the module's own and runs
+             them; with '-Dagent=true -DskipNativeTests' the JVM run records under GraalVM's tracing agent instead, and
+             'prepare-package' then writes what was recorded as the shipped file (native-record below). -->
+        <profile>
+            <id>native</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.junit.platform</groupId>
+                    <artifactId>junit-platform-launcher</artifactId>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <extensions>true</extensions>
+                        <executions>
+                            <execution>
+                                <id>test-native</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <!-- Only the module's own metadata: a library's from GraalVM's repository would hide a gap. -->
+                            <metadataRepository>
+                                <enabled>false</enabled>
+                            </metadataRepository>
+                            <buildArgs>
+                                <buildArg>-march=x86-64</buildArg>
+                            </buildArgs>
+                            <agent>
+                                <defaultMode>Standard</defaultMode>
+                                <options>
+                                    <builtinCallerFilter>true</builtinCallerFilter>
+                                    <builtinHeuristicFilter>true</builtinHeuristicFilter>
+                                    <callerFilterFiles>
+                                        <filterFile>${project.basedir}/src/test/native-image/caller-filter.json</filterFile>
+                                    </callerFilterFiles>
+                                    <accessFilterFiles>
+                                        <filterFile>${project.basedir}/src/test/native-image/access-filter.json</filterFile>
+                                    </accessFilterFiles>
+                                </options>
+                            </agent>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>native-record</id>
+            <activation>
+                <property>
+                    <name>agent</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>native-metadata</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>org.fuin.porelo.forge.github.GitHubNativeMetadata</mainClass>
+                                    <classpathScope>test</classpathScope>
+                                    <arguments>
+                                        <argument>${project.build.directory}/native/agent-output/test/reachability-metadata.json</argument>
+                                        <argument>${project.build.directory}/github-model-samples.json</argument>
+                                        <argument>${project.basedir}/src/main/resources/META-INF/native-image/org.fuin.porelo/porelo-forge-client-github/reachability-metadata.json</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>github-live</id>
             <activation>

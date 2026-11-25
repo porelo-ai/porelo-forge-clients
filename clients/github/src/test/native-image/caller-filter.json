@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {"includeClasses": "**"},
+    {"excludeClasses": "org.junit.**"},
+    {"excludeClasses": "org.assertj.**"},
+    {"excludeClasses": "org.opentest4j.**"},
+    {"excludeClasses": "org.apache.maven.**"},
+    {"excludeClasses": "net.bytebuddy.**"},
+    {"excludeClasses": "org.fuin.porelo.forge.github.GitHubModelRoundTripTest"},
+    {"excludeClasses": "org.fuin.porelo.forge.github.GitHubModelSamples"}
+  ]
+}

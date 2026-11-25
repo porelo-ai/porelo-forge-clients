@@ -1,0 +1,8 @@
+{
+  "rules": [
+    {"excludeClasses": "**"},
+    {"includeClasses": "org.fuin.porelo.forge.github.**"},
+    {"excludeClasses": "org.fuin.porelo.forge.github.GitHubModelRoundTripTest"},
+    {"excludeClasses": "org.fuin.porelo.forge.github.GitHubModelSamples"}
+  ]
+}
