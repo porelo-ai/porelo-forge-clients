@@ -94,6 +94,68 @@ class GitHubFixtureKeysTest {
         assertThat(remote.repository).isFalse();
     }
 
+    // Prevents a cleanup failure from hiding why GitHub kept the resource.
+    @Test
+    void aRefusedDeleteNamesGitHubsAnswer() throws Exception {
+        var remote = new Remote();
+        remote.deleteRefusal = 403;
+        var http = new ReplayHttpClient().otherwise(remote::answer);
+
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(
+                        () -> {
+                            try (var fixture = fixture(http)) {
+                                fixture.prepare();
+                                fixture.requesting(
+                                        GitHubFixture.Requested.REPOSITORY,
+                                        () -> remote.repository = true);
+                            }
+                        })
+                .as("the failure names the resource with GitHub's status and message")
+                .withMessageContaining("repository (")
+                .withMessageContaining("403")
+                .withMessageContaining("Must have admin rights to Repository.");
+    }
+
+    // Prevents GitHub's delay after a delete from being taken for a resource left behind.
+    @Test
+    void aRepositoryStillShownJustAfterItsDeleteIsNotLeftBehind() throws Exception {
+        var remote = new Remote();
+        remote.staleReads = 1;
+        var http = new ReplayHttpClient().otherwise(remote::answer);
+
+        try (var fixture = fixture(http)) {
+            fixture.prepare();
+            fixture.requesting(GitHubFixture.Requested.REPOSITORY, () -> remote.repository = true);
+        }
+
+        assertThat(deletes(http))
+                .as("the repository is deleted once")
+                .containsOnlyOnce(OWN_REPOSITORY);
+        assertThat(remote.staleReads).as("GitHub was asked again after its delay").isZero();
+    }
+
+    // Prevents the wait for GitHub's delay from hiding a repository that stays.
+    @Test
+    void aRepositoryShownAfterEveryRetryIsLeftBehind() {
+        var remote = new Remote();
+        remote.staleReads = 100;
+        var http = new ReplayHttpClient().otherwise(remote::answer);
+
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(
+                        () -> {
+                            try (var fixture = fixture(http)) {
+                                fixture.prepare();
+                                fixture.requesting(
+                                        GitHubFixture.Requested.REPOSITORY,
+                                        () -> remote.repository = true);
+                            }
+                        })
+                .as("the repository is named after the last retry")
+                .withMessageContaining("repository (Repository remains)");
+    }
+
     // Prevents a refused create from adopting, and then deleting, what another run made.
     @Test
     void aRefusedCreateLeavesTheRepositoryToWhoeverMadeIt() throws Exception {
@@ -252,6 +314,11 @@ class GitHubFixtureKeysTest {
     /** A test organization holding this run's repository and keys, and another key of each kind. */
     private static final class Remote {
         volatile boolean repository;
+        // A status other than zero refuses the repository's delete with it.
+        volatile int deleteRefusal;
+        // How often the repository is still shown after its delete.
+        volatile int staleReads;
+        private volatile boolean deleted;
         final List<Long> keys = new ArrayList<>();
         final List<Long> signingKeys = new ArrayList<>();
 
@@ -260,8 +327,17 @@ class GitHubFixtureKeysTest {
             String method = request.method();
             if (path.equals(OWN_REPOSITORY)) {
                 if (method.equals("DELETE")) {
+                    if (deleteRefusal != 0)
+                        return GitHubFixtureKeysTest.answer(
+                                deleteRefusal,
+                                "{\"message\":\"Must have admin rights to Repository.\"}");
                     repository = false;
+                    deleted = true;
                     return GitHubFixtureKeysTest.answer(204, "");
+                }
+                if (deleted && staleReads > 0) {
+                    staleReads--;
+                    return GitHubFixtureKeysTest.answer(200, "{\"name\":\"" + PREFIX + "\"}");
                 }
                 return repository
                         ? GitHubFixtureKeysTest.answer(200, "{\"name\":\"" + PREFIX + "\"}")

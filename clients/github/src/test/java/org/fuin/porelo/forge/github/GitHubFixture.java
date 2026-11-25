@@ -784,7 +784,7 @@ final class GitHubFixture implements AutoCloseable {
                         if (!requested.contains(Requested.REPOSITORY)) return;
                         if (repositoryExists())
                             api("DELETE", "repos/" + OWNER + "/" + prefix, null);
-                        if (repositoryExists())
+                        if (!goneAfterDelete(this::repositoryExists))
                             throw new IllegalStateException("Repository remains");
                     });
             cleanup(
@@ -815,8 +815,13 @@ final class GitHubFixture implements AutoCloseable {
                         for (var ref : items("git/matching-refs/heads/" + prefix))
                             if (own.contains(ref.path("ref").asText()))
                                 api("DELETE", ROOT + "/git/" + ref.path("ref").asText(), null);
-                        if (items("git/matching-refs/heads/" + prefix).stream()
-                                .anyMatch(ref -> own.contains(ref.path("ref").asText())))
+                        if (!goneAfterDelete(
+                                () ->
+                                        items("git/matching-refs/heads/" + prefix).stream()
+                                                .anyMatch(
+                                                        ref ->
+                                                                own.contains(
+                                                                        ref.path("ref").asText()))))
                             throw new IllegalStateException("Branch remains");
                     });
         } finally {
@@ -870,7 +875,7 @@ final class GitHubFixture implements AutoCloseable {
                 }
                 api("DELETE", ROOT + "/actions/runs/" + id, null);
             }
-        if (allRuns().stream().anyMatch(this::ownRun))
+        if (!goneAfterDelete(() -> allRuns().stream().anyMatch(this::ownRun)))
             throw new IllegalStateException("Actions runs remain");
     }
 
@@ -911,8 +916,28 @@ final class GitHubFixture implements AutoCloseable {
         try {
             action.run();
         } catch (Exception ex) {
-            failures.add(resource);
+            failures.add(
+                    resource
+                            + " ("
+                            + GitHubJson.safe(String.valueOf(ex.getMessage()), secrets)
+                            + ")");
         }
+    }
+
+    /**
+     * Whether a resource just deleted is gone; GitHub may still show it for a moment after the
+     * delete answered.
+     */
+    private boolean goneAfterDelete(CheckedQuery stillThere) throws Exception {
+        for (int attempt = 1; ; attempt++) {
+            if (!stillThere.ask()) return true;
+            if (attempt >= 5) return false;
+            Thread.sleep(Duration.ofMillis(500L * attempt));
+        }
+    }
+
+    private interface CheckedQuery {
+        boolean ask() throws Exception;
     }
 
     private interface CheckedAction {
