@@ -4,10 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
@@ -100,7 +102,14 @@ class GitHubModelRoundTripTest {
             String type = sample.path("type").asText();
             JsonNode json = sample.path("json");
             try {
-                Object value = MAPPER.treeToValue(json, Class.forName(type));
+                // A write-only sample is read through its variant; writing it is what is checked.
+                ObjectMapper reader =
+                        sample.path("read").asBoolean(true)
+                                ? MAPPER
+                                : through(
+                                        sample.path("interface").asText(),
+                                        sample.path("variant").asText());
+                Object value = reader.treeToValue(json, Class.forName(type));
                 String expect = sample.path("expect").asText();
                 if (expect.equals(Void.class.getName())) {
                     if (value != null) failed.add(type + ": expected no value, read " + value);
@@ -120,6 +129,37 @@ class GitHubModelRoundTripTest {
             }
         }
         assertThat(failed).as("every sample is read back as it was written").isEmpty();
+    }
+
+    // Prevents an interface component from going unsampled once it is no longer what the list
+    // says.
+    @Test
+    @DisabledIfSystemProperty(named = "org.graalvm.nativeimage.imagecode", matches = "runtime")
+    void theComponentsNeverSetAreInterfacesWithoutAVariantOrReader() throws Exception {
+        assertThat(GitHubModelSamples.staleNeverSet(GitHubModelSamples.NEVER_SET))
+                .as("each component never set is still one no sample can set")
+                .isEmpty();
+        assertThat(
+                        GitHubModelSamples.staleNeverSet(
+                                Set.of(
+                                        "IssuesUpdateRequest.type",
+                                        "IssuesUpdateRequest.gone",
+                                        "Commit.author",
+                                        "Nothing.here")))
+                .as("a variant, a missing component, a reader and a missing record are each named")
+                .containsExactly(
+                        "Commit.author (a reader chooses its variant)",
+                        "IssuesUpdateRequest.gone (no such component)",
+                        "IssuesUpdateRequest.type (its interface has a variant)",
+                        "Nothing.here (no such record)");
+    }
+
+    /** The client's mapper, reading an interface as the variant named. */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static ObjectMapper through(String face, String variant) throws Exception {
+        var module = new SimpleModule();
+        module.addAbstractTypeMapping((Class) Class.forName(face), (Class) Class.forName(variant));
+        return MAPPER.copy().registerModule(module);
     }
 
     private static List<JsonNode> samples() throws Exception {

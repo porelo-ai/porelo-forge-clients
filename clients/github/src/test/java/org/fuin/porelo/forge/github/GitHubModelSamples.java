@@ -65,6 +65,17 @@ final class GitHubModelSamples {
                     CommitAuthor.class,
                     List.of(SimpleUser.class));
 
+    /**
+     * The components typed by an interface with no variant in the model, so a caller cannot set
+     * them from it and the client reads none: the milestones take a string or an integer, and no
+     * main code binds a validation error.
+     */
+    static final Set<String> NEVER_SET =
+            Set.of(
+                    "IssuesCreateRequest.milestone",
+                    "IssuesUpdateRequest.milestone",
+                    "ValidationErrorErrorsInner.value");
+
     /** A value of each JSON kind, as an untyped value is read. */
     private static final Map<String, Object> UNTYPED = untyped();
 
@@ -131,6 +142,7 @@ final class GitHubModelSamples {
                     }
                 }
                 add(samples, type, type, value(type, true, 0));
+                writeOnly(samples, type);
             } else if (type.isEnum()) {
                 for (Object constant : type.getEnumConstants()) add(samples, type, type, constant);
             } else if (UNIONS.containsKey(type)) {
@@ -141,7 +153,7 @@ final class GitHubModelSamples {
                 add(samples, type, type, bean(type, 0));
             }
             // An interface no reader chooses a variant of is never read by the client; a record
-            // holding one leaves it out.
+            // holding one gets a write-only sample per variant, or names it in NEVER_SET.
         }
         add(samples, CommitAuthor.class, Void.class, mapper.createObjectNode());
         for (Object value : UNTYPED.values()) add(samples, Object.class, Object.class, value);
@@ -149,11 +161,130 @@ final class GitHubModelSamples {
         return samples;
     }
 
-    private void add(ArrayNode samples, Class<?> type, Class<?> expect, Object value) {
+    private ObjectNode add(ArrayNode samples, Class<?> type, Class<?> expect, Object value) {
         ObjectNode sample = samples.addObject();
         sample.put("type", type.getName());
         sample.put("expect", expect.getName());
         sample.set("json", value instanceof JsonNode node ? node : mapper.valueToTree(value));
+        return sample;
+    }
+
+    /**
+     * One further sample of the record per variant of each interface it holds that no reader
+     * chooses, the component set to that variant: the client only writes these, so the sample is
+     * read back through the variant ({@code "read": false}). Any other interface component fails.
+     */
+    private void writeOnly(ArrayNode samples, Class<?> type) throws Exception {
+        for (RecordComponent component : type.getRecordComponents()) {
+            Class<?> face = interfaceOf(component.getGenericType());
+            if (face == null || UNIONS.containsKey(face)) continue;
+            List<Class<?>> variants = variants(face);
+            if (variants.isEmpty()) {
+                if (NEVER_SET.contains(type.getSimpleName() + "." + component.getName())) continue;
+                throw new IllegalStateException(
+                        "No sample for "
+                                + type.getName()
+                                + "."
+                                + component.getName()
+                                + ": its interface "
+                                + face.getName()
+                                + " has no variant and no reader");
+            }
+            for (Class<?> variant : variants) {
+                Object set = wrap(component.getType(), value(variant, true, 1));
+                ObjectNode sample =
+                        add(samples, type, type, with(value(type, true, 0), component, set));
+                sample.put("read", false);
+                sample.put("interface", face.getName());
+                sample.put("variant", variant.getName());
+            }
+        }
+    }
+
+    /** The entries of a never-set list that no longer name a component it is meant for. */
+    static List<String> staleNeverSet(Set<String> listed) throws Exception {
+        var stale = new ArrayList<String>();
+        for (String entry : new TreeSet<>(listed)) {
+            int dot = entry.indexOf('.');
+            Class<?> type;
+            try {
+                type = Class.forName(MODEL + "." + entry.substring(0, dot));
+            } catch (ClassNotFoundException ex) {
+                stale.add(entry + " (no such record)");
+                continue;
+            }
+            RecordComponent found = null;
+            if (type.isRecord()) {
+                for (RecordComponent component : type.getRecordComponents()) {
+                    if (component.getName().equals(entry.substring(dot + 1))) found = component;
+                }
+            }
+            if (found == null) {
+                stale.add(entry + " (no such component)");
+                continue;
+            }
+            Class<?> face = interfaceOf(found.getGenericType());
+            if (face == null) stale.add(entry + " (not typed by an interface)");
+            else if (UNIONS.containsKey(face)) stale.add(entry + " (a reader chooses its variant)");
+            else if (!variants(face).isEmpty()) stale.add(entry + " (its interface has a variant)");
+        }
+        return stale;
+    }
+
+    /** The model interface a component holds, alone or in a list, set, map or array. */
+    private static @Nullable Class<?> interfaceOf(Type type) {
+        if (type instanceof Class<?> plain && plain.isArray()) {
+            return interfaceOf(plain.getComponentType());
+        }
+        if (type instanceof Class<?> plain) {
+            return plain.isInterface() && plain.getPackageName().equals(MODEL) ? plain : null;
+        }
+        if (type instanceof ParameterizedType parameterized) {
+            for (Type argument : parameterized.getActualTypeArguments()) {
+                Class<?> found = interfaceOf(argument);
+                if (found != null) return found;
+            }
+        }
+        return null;
+    }
+
+    /** The model's classes that implement an interface. */
+    private static List<Class<?>> variants(Class<?> face) throws Exception {
+        return modelClasses().stream()
+                .filter(type -> !type.isInterface() && face.isAssignableFrom(type))
+                .toList();
+    }
+
+    /** A value as a component of the given type holds it: alone, or as the one element. */
+    private static Object wrap(Class<?> type, @Nullable Object value) {
+        if (value == null) throw new IllegalStateException("No sample of a variant for " + type);
+        if (List.class.isAssignableFrom(type)) return List.of(value);
+        if (Set.class.isAssignableFrom(type)) return Set.of(value);
+        if (type.isArray()) {
+            Object array = Array.newInstance(type.getComponentType(), 1);
+            Array.set(array, 0, value);
+            return array;
+        }
+        return value;
+    }
+
+    /** A copy of a record with one component replaced. */
+    private static Object with(@Nullable Object record, RecordComponent target, Object value)
+            throws Exception {
+        if (record == null) throw new IllegalStateException("No sample to set " + target);
+        RecordComponent[] components = record.getClass().getRecordComponents();
+        Object[] arguments = new Object[components.length];
+        Class<?>[] types = new Class<?>[components.length];
+        for (int i = 0; i < components.length; i++) {
+            types[i] = components[i].getType();
+            arguments[i] =
+                    components[i].getName().equals(target.getName())
+                            ? value
+                            : components[i].getAccessor().invoke(record);
+        }
+        var constructor = record.getClass().getDeclaredConstructor(types);
+        constructor.setAccessible(true);
+        return constructor.newInstance(arguments);
     }
 
     private static List<Class<?>> records(Type type) {
