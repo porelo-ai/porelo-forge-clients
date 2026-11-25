@@ -76,6 +76,33 @@ Page<PullRequest> open = forgejo.pulls(token, "owner", "repo", "open", 1, 50);
   before parsing, and gives a `PullRequestEvent` for `pull_request`, a `ReviewEvent` for `pull_request_approved`,
   `_rejected` and `_comment`, and an `ActionsRunEvent` for `action_run_success` and `_failure`.
 
+## Native image
+
+The jar ships `META-INF/native-image/org.fuin.porelo/porelo-forge-client-forgejo/reachability-metadata.json`, the
+reflection its models and its JSON mapping need: every generated model and the webhook payloads. A native user
+registers nothing for the client's types and needs no access to its mapper.
+
+`ForgejoModelRoundTripTest` makes a sample of every model and webhook payload by reflection with every component set,
+and an untyped value of each JSON kind, writes them with the client's run-time mapper and reads them back. The
+metadata is recorded by GraalVM's tracing agent while that test runs, only accesses of the client's own classes kept
+(`src/test/native-image/`), and written sorted, reflection alone, by `ForgejoNativeMetadata`, which refuses a
+recording that lacks a sampled class. After a change to the models or the mapping it is recorded again from the root:
+
+```shell
+./mvnw -B -s settings.xml -pl clients/forgejo -am -Pnative -Dagent=true -DskipNativeTests=true \
+    -Dtest=ForgejoModelRoundTripTest -Dsurefire.failIfNoSpecifiedTests=false prepare-package
+```
+
+The Build runs the same test in a native image built with no metadata but the module's own, after the JVM run wrote
+the samples to `target/forgejo-model-samples.json`; a missing entry fails it by its class:
+
+```shell
+./mvnw -B -s settings.xml -pl clients/forgejo -am -Pnative -Dtest=ForgejoModelRoundTripTest \
+    -Dsurefire.failIfNoSpecifiedTests=false test
+```
+
+On the JVM the test also fails when the shipped file names a class that is neither the client's nor Jackson's.
+
 ## Build
 
 - The unit tests replay the answers and deliveries recorded in `src/test/resources/recordings/`, with no network.

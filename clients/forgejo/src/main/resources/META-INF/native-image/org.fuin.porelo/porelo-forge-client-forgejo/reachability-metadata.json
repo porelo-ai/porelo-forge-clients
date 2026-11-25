@@ -1,0 +1,1838 @@
+{
+  "reflection" : [ {
+    "type" : "org.fuin.porelo.forge.forgejo.ForgejoWebhook$ActionsRunEvent",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "org.fuin.porelo.forge.forgejo.model.ActionRun", "java.lang.String" ]
+    }, {
+      "name" : "action",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "priorStatus",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "run",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.ForgejoWebhook$Payload"
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.ForgejoWebhook$PullRequestEvent",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.Long", "org.fuin.porelo.forge.forgejo.model.PullRequest", "org.fuin.porelo.forge.forgejo.model.User", "org.fuin.porelo.forge.forgejo.model.Repository", "org.fuin.porelo.forge.forgejo.model.User", "java.lang.String", "org.fuin.porelo.forge.forgejo.ForgejoWebhook$Review" ]
+    }, {
+      "name" : "action",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "commitId",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "number",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "pullRequest",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "repository",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "requestedReviewer",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "review",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "sender",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.ForgejoWebhook$Review",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.String" ]
+    }, {
+      "name" : "content",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "type",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.ForgejoWebhook$ReviewEvent",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.Long", "org.fuin.porelo.forge.forgejo.model.PullRequest", "org.fuin.porelo.forge.forgejo.model.User", "org.fuin.porelo.forge.forgejo.model.Repository", "org.fuin.porelo.forge.forgejo.model.User", "java.lang.String", "org.fuin.porelo.forge.forgejo.ForgejoWebhook$Review" ]
+    }, {
+      "name" : "action",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "commitId",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "number",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "pullRequest",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "repository",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "requestedReviewer",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "review",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "sender",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.APIError",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.String" ]
+    }, {
+      "name" : "message",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "url",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.APIForbiddenError",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.String" ]
+    }, {
+      "name" : "message",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "url",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.APIInternalServerError",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.String" ]
+    }, {
+      "name" : "message",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "url",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.APINotFound",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.util.List", "java.lang.String", "java.lang.String" ]
+    }, {
+      "name" : "errors",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "message",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "url",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.APIRepoArchivedError",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.String" ]
+    }, {
+      "name" : "message",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "url",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.APIUnauthorizedError",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.String" ]
+    }, {
+      "name" : "message",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "url",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.APIValidationError",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.String" ]
+    }, {
+      "name" : "message",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "url",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.ActionRun",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.Long", "java.lang.Long", "java.lang.String", "java.time.OffsetDateTime", "java.lang.Long", "java.lang.String", "java.lang.String", "java.lang.String", "java.lang.Long", "java.lang.Long", "java.lang.Boolean", "java.lang.Boolean", "java.lang.Boolean", "java.lang.String", "org.fuin.porelo.forge.forgejo.model.Repository", "java.time.OffsetDateTime", "java.lang.String", "java.time.OffsetDateTime", "java.lang.String", "java.lang.String", "org.fuin.porelo.forge.forgejo.model.User", "java.time.OffsetDateTime", "java.lang.String" ]
+    }, {
+      "name" : "approvedBy",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "commitSha",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "created",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "duration",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "event",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "eventPayload",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "htmlUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "id",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "indexInRepo",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "isForkPullRequest",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "isRefDeleted",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "needApproval",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "prettyref",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "repository",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "scheduleID",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "started",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "status",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "stopped",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "title",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "triggerEvent",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "triggerUser",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "updated",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "workflowId",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.ActionRunJob",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.Long", "java.lang.String", "java.lang.String", "java.lang.Long", "java.lang.String", "java.util.List", "java.lang.Long", "java.lang.Long", "java.lang.Long", "java.util.List", "java.lang.String", "java.util.List", "java.lang.Long" ]
+    }, {
+      "name" : "attempt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "handle",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "htmlUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "id",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "name",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "needs",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "ownerId",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "repoId",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "runId",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "runsOn",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "status",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "steps",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "taskId",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.ActionRunJobStep",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.Long", "java.time.OffsetDateTime", "java.lang.String", "java.time.OffsetDateTime" ]
+    }, {
+      "name" : "name",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "number",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "started",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "status",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "stopped",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.Attachment",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.time.OffsetDateTime", "java.lang.Long", "java.lang.Long", "java.lang.String", "java.lang.Long", "org.fuin.porelo.forge.forgejo.model.Attachment$TypeEnum", "java.lang.String" ]
+    }, {
+      "name" : "browserDownloadUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "createdAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "downloadCount",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "id",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "name",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "size",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "type",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "uuid",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.Attachment$TypeEnum",
+    "methods" : [ {
+      "name" : "fromValue",
+      "parameterTypes" : [ "java.lang.String" ]
+    }, {
+      "name" : "getValue",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "values",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.Branch",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "org.fuin.porelo.forge.forgejo.model.PayloadCommit", "java.lang.String", "java.lang.Boolean", "java.lang.String", "java.lang.Boolean", "java.lang.Long", "java.util.List", "java.lang.Boolean", "java.lang.Boolean" ]
+    }, {
+      "name" : "_protected",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "commit",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "effectiveBranchProtectionName",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "enableStatusCheck",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "name",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "requiredApprovals",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "statusCheckContexts",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "userCanMerge",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "userCanPush",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.Comment",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.util.List", "java.lang.String", "java.time.OffsetDateTime", "java.lang.String", "java.lang.Long", "java.lang.String", "java.lang.String", "java.lang.Long", "java.lang.String", "java.time.OffsetDateTime", "org.fuin.porelo.forge.forgejo.model.User" ]
+    }, {
+      "name" : "assets",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "body",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "createdAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "htmlUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "id",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "issueUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "originalAuthor",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "originalAuthorId",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "pullRequestUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "updatedAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "user",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.Commit",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "org.fuin.porelo.forge.forgejo.model.User", "org.fuin.porelo.forge.forgejo.model.RepoCommit", "org.fuin.porelo.forge.forgejo.model.User", "java.time.OffsetDateTime", "java.util.List", "java.lang.String", "java.util.List", "java.lang.String", "org.fuin.porelo.forge.forgejo.model.CommitStats", "java.lang.String" ]
+    }, {
+      "name" : "author",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "commit",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "committer",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "created",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "files",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "htmlUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "parents",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "sha",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "stats",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "url",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.CommitAffectedFiles",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.String" ]
+    }, {
+      "name" : "filename",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "status",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.CommitMeta",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.time.OffsetDateTime", "java.lang.String", "java.lang.String" ]
+    }, {
+      "name" : "created",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "sha",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "url",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.CommitStats",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.Long", "java.lang.Long", "java.lang.Long" ]
+    }, {
+      "name" : "additions",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "deletions",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "total",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.CommitStatus",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.time.OffsetDateTime", "org.fuin.porelo.forge.forgejo.model.User", "java.lang.String", "java.lang.Long", "java.lang.String", "java.lang.String", "java.time.OffsetDateTime", "java.lang.String" ]
+    }, {
+      "name" : "context",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "createdAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "creator",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "description",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "id",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "status",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "targetUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "updatedAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "url",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.CommitUser",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.String", "java.lang.String" ]
+    }, {
+      "name" : "date",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "email",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "name",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.CreateHookOption",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.Boolean", "java.lang.String", "java.lang.String", "java.util.Map", "java.util.List", "org.fuin.porelo.forge.forgejo.model.CreateHookOption$TypeEnum" ]
+    }, {
+      "name" : "active",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "authorizationHeader",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "branchFilter",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "config",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "events",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "type",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.CreateHookOption$TypeEnum",
+    "methods" : [ {
+      "name" : "fromValue",
+      "parameterTypes" : [ "java.lang.String" ]
+    }, {
+      "name" : "getValue",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "values",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.CreateIssueCommentOption",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.time.OffsetDateTime" ]
+    }, {
+      "name" : "body",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "updatedAt",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.CreateKeyOption",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.Boolean", "java.lang.String" ]
+    }, {
+      "name" : "key",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "readOnly",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "title",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.CreateLabelOption",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.String", "java.lang.Boolean", "java.lang.Boolean", "java.lang.String" ]
+    }, {
+      "name" : "color",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "description",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "exclusive",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "isArchived",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "name",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.CreatePullRequestOption",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.util.List", "java.lang.String", "java.lang.String", "java.time.OffsetDateTime", "java.lang.String", "java.util.List", "java.lang.Long", "java.lang.String" ]
+    }, {
+      "name" : "assignee",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "assignees",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "base",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "body",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "dueDate",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "head",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "labels",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "milestone",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "title",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.CreatePullReviewComment",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.Long", "java.lang.Long", "java.lang.Long", "java.lang.String" ]
+    }, {
+      "name" : "body",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "extraLinesCount",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "newPosition",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "oldPosition",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "path",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.CreatePullReviewOptions",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.util.List", "java.lang.String", "java.lang.String" ]
+    }, {
+      "name" : "body",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "comments",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "commitId",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "event",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.CreateRepoOption",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.Boolean", "java.lang.String", "java.lang.String", "java.lang.String", "java.lang.String", "java.lang.String", "java.lang.String", "org.fuin.porelo.forge.forgejo.model.CreateRepoOption$ObjectFormatNameEnum", "java.lang.Boolean", "java.lang.String", "java.lang.Boolean", "org.fuin.porelo.forge.forgejo.model.CreateRepoOption$TrustModelEnum" ]
+    }, {
+      "name" : "_private",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "autoInit",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "defaultBranch",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "description",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "gitignores",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "issueLabels",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "license",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "name",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "objectFormatName",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "readme",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "template",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "trustModel",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.CreateRepoOption$ObjectFormatNameEnum",
+    "methods" : [ {
+      "name" : "fromValue",
+      "parameterTypes" : [ "java.lang.String" ]
+    }, {
+      "name" : "getValue",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "values",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.CreateRepoOption$TrustModelEnum",
+    "methods" : [ {
+      "name" : "fromValue",
+      "parameterTypes" : [ "java.lang.String" ]
+    }, {
+      "name" : "getValue",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "values",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.CreateStatusOption",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.String", "java.lang.String", "java.lang.String" ]
+    }, {
+      "name" : "context",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "description",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "state",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "targetUrl",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.DismissPullReviewOptions",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.Boolean" ]
+    }, {
+      "name" : "message",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "priors",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.EditIssueCommentOption",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.time.OffsetDateTime" ]
+    }, {
+      "name" : "body",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "updatedAt",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.EditLabelOption",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.String", "java.lang.Boolean", "java.lang.Boolean", "java.lang.String" ]
+    }, {
+      "name" : "color",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "description",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "exclusive",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "isArchived",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "name",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.ExternalTracker",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.String", "java.lang.String", "java.lang.String" ]
+    }, {
+      "name" : "externalTrackerFormat",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "externalTrackerRegexpPattern",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "externalTrackerStyle",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "externalTrackerUrl",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.ExternalWiki",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String" ]
+    }, {
+      "name" : "externalWikiUrl",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.Hook",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.Boolean", "java.lang.String", "java.lang.String", "java.util.Map", "java.lang.String", "java.time.OffsetDateTime", "java.util.List", "java.lang.Long", "java.lang.Object", "java.lang.String", "java.time.OffsetDateTime", "java.lang.String" ]
+    }, {
+      "name" : "active",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "authorizationHeader",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "branchFilter",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "config",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "contentType",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "createdAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "events",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "id",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "metadata",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "type",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "updatedAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "url",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.InternalTracker",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.Boolean", "java.lang.Boolean", "java.lang.Boolean" ]
+    }, {
+      "name" : "allowOnlyContributorsToTrackTime",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "enableIssueDependencies",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "enableTimeTracker",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.Label",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.String", "java.lang.Boolean", "java.lang.Long", "java.lang.Boolean", "java.lang.String", "java.lang.String" ]
+    }, {
+      "name" : "color",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "description",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "exclusive",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "id",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "isArchived",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "name",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "url",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.ListActionRunResponse",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.Long", "java.util.List" ]
+    }, {
+      "name" : "totalCount",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "workflowRuns",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.Milestone",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.time.OffsetDateTime", "java.lang.Long", "java.time.OffsetDateTime", "java.lang.String", "java.time.OffsetDateTime", "java.lang.Long", "java.lang.Long", "java.lang.String", "java.lang.String", "java.time.OffsetDateTime" ]
+    }, {
+      "name" : "closedAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "closedIssues",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "createdAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "description",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "dueOn",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "id",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "openIssues",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "state",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "title",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "updatedAt",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.Organization",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.time.OffsetDateTime", "java.lang.String", "java.lang.String", "java.lang.String", "java.lang.Long", "java.lang.String", "java.lang.String", "java.lang.Boolean", "java.lang.String", "java.lang.String", "java.lang.String" ]
+    }, {
+      "name" : "avatarUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "created",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "description",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "email",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "fullName",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "id",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "location",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "name",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "repoAdminChangeTeamAccess",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "username",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "visibility",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "website",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.OrganizationPermissions",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.Boolean", "java.lang.Boolean", "java.lang.Boolean", "java.lang.Boolean", "java.lang.Boolean" ]
+    }, {
+      "name" : "canCreateRepository",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "canRead",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "canWrite",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "isAdmin",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "isOwner",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.PRBranchInfo",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.String", "org.fuin.porelo.forge.forgejo.model.Repository", "java.lang.Long", "java.lang.String" ]
+    }, {
+      "name" : "label",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "ref",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "repo",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "repoId",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "sha",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.PayloadCommit",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.util.List", "org.fuin.porelo.forge.forgejo.model.PayloadUser", "org.fuin.porelo.forge.forgejo.model.PayloadUser", "java.lang.String", "java.lang.String", "java.util.List", "java.util.List", "java.time.OffsetDateTime", "java.lang.String", "org.fuin.porelo.forge.forgejo.model.PayloadCommitVerification" ]
+    }, {
+      "name" : "added",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "author",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "committer",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "id",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "message",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "modified",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "removed",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "timestamp",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "url",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "verification",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.PayloadCommitVerification",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.String", "java.lang.String", "org.fuin.porelo.forge.forgejo.model.PayloadUser", "java.lang.Boolean" ]
+    }, {
+      "name" : "payload",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "reason",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "signature",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "signer",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "verified",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.PayloadUser",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.String", "java.lang.String" ]
+    }, {
+      "name" : "email",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "name",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "username",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.Permission",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.Boolean", "java.lang.Boolean", "java.lang.Boolean" ]
+    }, {
+      "name" : "admin",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "pull",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "push",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.PublicKey",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.time.OffsetDateTime", "java.lang.String", "java.lang.Long", "java.lang.String", "java.lang.String", "java.lang.Boolean", "java.lang.String", "java.time.OffsetDateTime", "java.lang.String", "org.fuin.porelo.forge.forgejo.model.User", "java.lang.Boolean" ]
+    }, {
+      "name" : "createdAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "fingerprint",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "id",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "key",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "keyType",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "readOnly",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "title",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "updatedAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "url",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "user",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "verified",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.PullRequest",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.Long", "java.lang.Boolean", "org.fuin.porelo.forge.forgejo.model.User", "java.util.List", "org.fuin.porelo.forge.forgejo.model.PRBranchInfo", "java.lang.String", "java.lang.Long", "java.time.OffsetDateTime", "java.lang.Long", "java.time.OffsetDateTime", "java.lang.Long", "java.lang.String", "java.lang.Boolean", "java.time.OffsetDateTime", "java.lang.Long", "org.fuin.porelo.forge.forgejo.model.PRBranchInfo", "java.lang.String", "java.lang.Long", "java.lang.Boolean", "java.util.List", "java.lang.String", "java.lang.String", "java.lang.Boolean", "java.lang.Boolean", "java.time.OffsetDateTime", "org.fuin.porelo.forge.forgejo.model.User", "org.fuin.porelo.forge.forgejo.model.Milestone", "java.lang.Long", "java.lang.String", "java.lang.Long", "java.util.List", "java.util.List", "java.lang.Long", "java.lang.String", "java.lang.String", "java.time.OffsetDateTime", "java.lang.String", "org.fuin.porelo.forge.forgejo.model.User" ]
+    }, {
+      "name" : "additions",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "allowMaintainerEdit",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "assignee",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "assignees",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "base",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "body",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "changedFiles",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "closedAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "comments",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "createdAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "deletions",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "diffUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "draft",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "dueDate",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "flow",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "head",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "htmlUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "id",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "isLocked",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "labels",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "mergeBase",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "mergeCommitSha",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "mergeable",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "merged",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "mergedAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "mergedBy",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "milestone",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "number",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "patchUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "pinOrder",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "requestedReviewers",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "requestedReviewersTeams",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "reviewComments",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "state",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "title",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "updatedAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "url",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "user",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.PullReview",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.Long", "java.lang.String", "java.lang.Boolean", "java.lang.String", "java.lang.Long", "java.lang.Boolean", "java.lang.String", "java.lang.Boolean", "java.lang.String", "java.time.OffsetDateTime", "org.fuin.porelo.forge.forgejo.model.Team", "java.time.OffsetDateTime", "org.fuin.porelo.forge.forgejo.model.User" ]
+    }, {
+      "name" : "body",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "commentsCount",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "commitId",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "dismissed",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "htmlUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "id",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "official",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "pullRequestUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "stale",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "state",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "submittedAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "team",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "updatedAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "user",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.PullReviewComment",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.String", "java.time.OffsetDateTime", "java.lang.String", "java.lang.Long", "java.lang.String", "java.lang.Long", "java.lang.String", "java.lang.Integer", "java.lang.String", "java.lang.Integer", "java.lang.Long", "java.lang.String", "org.fuin.porelo.forge.forgejo.model.User", "java.time.OffsetDateTime", "org.fuin.porelo.forge.forgejo.model.User" ]
+    }, {
+      "name" : "body",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "commitId",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "createdAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "diffHunk",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "extraLinesCount",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "htmlUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "id",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "originalCommitId",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "originalPosition",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "path",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "position",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "pullRequestReviewId",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "pullRequestUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "resolver",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "updatedAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "user",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.RepoCollaboratorPermission",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String", "java.lang.String", "org.fuin.porelo.forge.forgejo.model.User" ]
+    }, {
+      "name" : "permission",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "roleName",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "user",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.RepoCommit",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "org.fuin.porelo.forge.forgejo.model.CommitUser", "org.fuin.porelo.forge.forgejo.model.CommitUser", "java.lang.String", "org.fuin.porelo.forge.forgejo.model.CommitMeta", "java.lang.String", "org.fuin.porelo.forge.forgejo.model.PayloadCommitVerification" ]
+    }, {
+      "name" : "author",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "committer",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "message",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "tree",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "url",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "verification",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.RepoTransfer",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "org.fuin.porelo.forge.forgejo.model.User", "org.fuin.porelo.forge.forgejo.model.User", "java.util.List" ]
+    }, {
+      "name" : "doer",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "recipient",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "teams",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.Repository",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.Boolean", "java.lang.Boolean", "java.lang.Boolean", "java.lang.Boolean", "java.lang.Boolean", "java.lang.Boolean", "java.lang.Boolean", "java.time.OffsetDateTime", "java.lang.String", "java.lang.String", "java.time.OffsetDateTime", "java.lang.Boolean", "java.lang.String", "java.lang.Boolean", "java.lang.String", "java.lang.String", "java.lang.String", "java.lang.Boolean", "org.fuin.porelo.forge.forgejo.model.ExternalTracker", "org.fuin.porelo.forge.forgejo.model.ExternalWiki", "java.lang.Boolean", "java.lang.Long", "java.lang.String", "java.lang.Boolean", "java.lang.Boolean", "java.lang.Boolean", "java.lang.Boolean", "java.lang.Boolean", "java.lang.Boolean", "java.lang.Boolean", "java.lang.Boolean", "java.lang.Boolean", "java.lang.String", "java.lang.Long", "java.lang.Boolean", "java.lang.Boolean", "org.fuin.porelo.forge.forgejo.model.InternalTracker", "java.lang.String", "java.lang.String", "java.lang.String", "java.lang.Boolean", "java.lang.String", "java.time.OffsetDateTime", "java.lang.String", "org.fuin.porelo.forge.forgejo.model.Repository$ObjectFormatNameEnum", "java.lang.Long", "java.lang.Long", "java.lang.String", "org.fuin.porelo.forge.forgejo.model.User", "org.fuin.porelo.forge.forgejo.model.Repository", "org.fuin.porelo.forge.forgejo.model.Permission", "java.lang.Boolean", "java.lang.Long", "org.fuin.porelo.forge.forgejo.model.RepoTransfer", "java.lang.Long", "java.lang.String", "java.lang.Long", "java.lang.Boolean", "java.util.List", "java.time.OffsetDateTime", "java.lang.String", "java.lang.Long", "java.lang.String", "java.lang.String", "java.lang.String", "java.lang.String" ]
+    }, {
+      "name" : "_private",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "allowFastForwardOnlyMerge",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "allowMergeCommits",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "allowRebase",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "allowRebaseExplicit",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "allowRebaseUpdate",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "allowSquashMerge",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "archived",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "archivedAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "avatarUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "cloneUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "createdAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "defaultAllowMaintainerEdit",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "defaultBranch",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "defaultDeleteBranchAfterMerge",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "defaultMergeStyle",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "defaultUpdateStyle",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "description",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "empty",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "externalTracker",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "externalWiki",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "fork",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "forksCount",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "fullName",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "globallyEditableWiki",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "hasActions",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "hasIssues",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "hasPackages",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "hasProjects",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "hasPullRequests",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "hasReleases",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "hasWiki",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "hasWikiContents",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "htmlUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "id",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "ignoreWhitespaceConflicts",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "internal",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "internalTracker",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "language",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "languagesUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "link",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "mirror",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "mirrorInterval",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "mirrorUpdated",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "name",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "objectFormatName",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "openIssuesCount",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "openPrCounter",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "originalUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "owner",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "parent",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "permissions",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "releaseCounter",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "repoTransfer",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "size",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "sshUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "starsCount",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "template",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "topics",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "updatedAt",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "url",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "watchersCount",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "website",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "wikiBranch",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "wikiCloneUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "wikiSshUrl",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.Repository$ObjectFormatNameEnum",
+    "methods" : [ {
+      "name" : "fromValue",
+      "parameterTypes" : [ "java.lang.String" ]
+    }, {
+      "name" : "getValue",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "values",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.ServerVersion",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.String" ]
+    }, {
+      "name" : "version",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.Team",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.Boolean", "java.lang.String", "java.lang.Long", "java.lang.Boolean", "java.lang.String", "org.fuin.porelo.forge.forgejo.model.Organization", "org.fuin.porelo.forge.forgejo.model.Team$PermissionEnum", "java.util.List", "java.util.Map" ]
+    }, {
+      "name" : "canCreateOrgRepo",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "description",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "id",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "includesAllRepositories",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "name",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "organization",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "permission",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "units",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "unitsMap",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.Team$PermissionEnum",
+    "methods" : [ {
+      "name" : "fromValue",
+      "parameterTypes" : [ "java.lang.String" ]
+    }, {
+      "name" : "getValue",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "values",
+      "parameterTypes" : [ ]
+    } ]
+  }, {
+    "type" : "org.fuin.porelo.forge.forgejo.model.User",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "java.lang.Boolean", "java.lang.String", "java.time.OffsetDateTime", "java.lang.String", "java.lang.String", "java.lang.Long", "java.lang.Long", "java.lang.String", "java.lang.String", "java.lang.Long", "java.lang.Boolean", "java.lang.String", "java.time.OffsetDateTime", "java.lang.String", "java.lang.String", "java.lang.String", "java.lang.Boolean", "java.lang.String", "java.lang.Boolean", "java.lang.Long", "java.lang.Long", "java.lang.String", "java.lang.String", "java.lang.String" ]
+    }, {
+      "name" : "active",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "avatarUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "created",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "description",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "email",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "followersCount",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "followingCount",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "fullName",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "htmlUrl",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "id",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "isAdmin",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "language",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "lastLogin",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "location",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "login",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "loginName",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "prohibitLogin",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "pronouns",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "restricted",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "sourceId",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "starredReposCount",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "username",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "visibility",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "website",
+      "parameterTypes" : [ ]
+    } ]
+  } ]
+}

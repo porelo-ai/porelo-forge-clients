@@ -1,0 +1,2 @@
+title: Ship the Forgejo client's native-image reachability metadata in its jar - every model and the webhook payloads - so a native user registers no hints for the client's types; a native test reads every model back in an image with no other metadata.
+type: added

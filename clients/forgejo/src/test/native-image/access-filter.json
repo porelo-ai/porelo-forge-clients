@@ -1,0 +1,8 @@
+{
+  "rules": [
+    {"excludeClasses": "**"},
+    {"includeClasses": "org.fuin.porelo.forge.forgejo.**"},
+    {"excludeClasses": "org.fuin.porelo.forge.forgejo.ForgejoModelRoundTripTest"},
+    {"excludeClasses": "org.fuin.porelo.forge.forgejo.ForgejoModelSamples"}
+  ]
+}

@@ -30,8 +30,8 @@ jobs:
         name: Build and test
         # Pinned, not ubuntu-latest.
         runs-on: ubuntu-24.04
-        # A run takes about 3 minutes and the native test about 2 more; a slow runner must end, not run for GitHub's six
-        # hours.
+        # A run takes about 3 minutes and each client's native test about 2 more; a slow runner must end, not run for
+        # GitHub's six hours.
         timeout-minutes: 35
         steps:
             # Every commit, so the pushed range can be read.
@@ -52,6 +52,11 @@ jobs:
             # Every model the GitHub client binds, read back in a native image that has no metadata but the jar's own.
             - name: The GitHub client's models in a native image
               run: ./mvnw -B -s settings.xml -pl clients/github -am -Pnative -Dtest=GitHubModelRoundTripTest -Dsurefire.failIfNoSpecifiedTests=false test
+
+            # Every model and webhook payload the Forgejo client binds, read back in a native image that has no metadata
+            # but the jar's own.
+            - name: The Forgejo client's models in a native image
+              run: ./mvnw -B -s settings.xml -pl clients/forgejo -am -Pnative -Dtest=ForgejoModelRoundTripTest -Dsurefire.failIfNoSpecifiedTests=false test
 
             # The live test's two images, pinned by digest in ForgejoContainer, the only place they are named: the cache's
             # key is the hash of both references, so a moved pin misses it and fetches anew. GitHub deletes an entry no
