@@ -3,9 +3,11 @@
   "status" : 200,
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
+    "etag" : [ "\"c45190fe0e1fe4a06ed2af3464d751edfd840d732051dd18467b567abb92234f\"" ],
+    "x-accepted-github-permissions" : [ "members=read" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4850" ],
-    "x-ratelimit-reset" : [ "1793797115" ]
+    "x-ratelimit-remaining" : [ "4858" ],
+    "x-ratelimit-reset" : [ "1795620250" ]
   },
   "body" : "{\"url\":\"https://example.org/orgs/fixture-org/memberships/fixture-user\",\"state\":\"active\",\"role\":\"admin\",\"organization_url\":\"https://example.org/orgs/fixture-org\",\"user\":{\"login\":\"fixture-user\",\"id\":1,\"node_id\":\"FIXTURE_NODE_1\",\"avatar_url\":\"https://host-2.example.org/u/1\",\"gravatar_id\":\"\",\"url\":\"https://example.org/users/fixture-user\",\"html_url\":\"https://host-1.example.org/fixture-user\",\"followers_url\":\"https://example.org/users/fixture-user/followers\",\"following_url\":\"https://example.org/users/fixture-user/following{/other_user}\",\"gists_url\":\"https://example.org/users/fixture-user/gists{/gist_id}\",\"starred_url\":\"https://example.org/users/fixture-user/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://example.org/users/fixture-user/subscriptions\",\"organizations_url\":\"https://example.org/users/fixture-user/orgs\",\"repos_url\":\"https://example.org/users/fixture-user/repos\",\"events_url\":\"https://example.org/users/fixture-user/events{/privacy}\",\"received_events_url\":\"https://example.org/users/fixture-user/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"direct_membership\":true,\"enterprise_teams_providing_indirect_membership\":[],\"organization\":{\"login\":\"fixture-org\",\"id\":2,\"node_id\":\"FIXTURE_NODE_2\",\"url\":\"https://example.org/orgs/fixture-org\",\"repos_url\":\"https://example.org/orgs/fixture-org/repos\",\"events_url\":\"https://example.org/orgs/fixture-org/events\",\"hooks_url\":\"https://example.org/orgs/fixture-org/hooks\",\"issues_url\":\"https://example.org/orgs/fixture-org/issues\",\"members_url\":\"https://example.org/orgs/fixture-org/members{/member}\",\"public_members_url\":\"https://example.org/orgs/fixture-org/public_members{/member}\",\"avatar_url\":\"https://host-2.example.org/u/2\",\"description\":\"Test organization for the Porelo project: fixtures, test accounts and live checks against GitHub. Nothing here is a product\"}}",
   "exchanges" : [ {
@@ -13,32 +15,35 @@
     "status" : 200,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
+      "etag" : [ "\"c45190fe0e1fe4a06ed2af3464d751edfd840d732051dd18467b567abb92234f\"" ],
+      "x-accepted-github-permissions" : [ "members=read" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4850" ],
-      "x-ratelimit-reset" : [ "1793797115" ]
+      "x-ratelimit-remaining" : [ "4858" ],
+      "x-ratelimit-reset" : [ "1795620250" ]
     },
     "body" : "{\"url\":\"https://example.org/orgs/fixture-org/memberships/fixture-user\",\"state\":\"active\",\"role\":\"admin\",\"organization_url\":\"https://example.org/orgs/fixture-org\",\"user\":{\"login\":\"fixture-user\",\"id\":1,\"node_id\":\"FIXTURE_NODE_1\",\"avatar_url\":\"https://host-2.example.org/u/1\",\"gravatar_id\":\"\",\"url\":\"https://example.org/users/fixture-user\",\"html_url\":\"https://host-1.example.org/fixture-user\",\"followers_url\":\"https://example.org/users/fixture-user/followers\",\"following_url\":\"https://example.org/users/fixture-user/following{/other_user}\",\"gists_url\":\"https://example.org/users/fixture-user/gists{/gist_id}\",\"starred_url\":\"https://example.org/users/fixture-user/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://example.org/users/fixture-user/subscriptions\",\"organizations_url\":\"https://example.org/users/fixture-user/orgs\",\"repos_url\":\"https://example.org/users/fixture-user/repos\",\"events_url\":\"https://example.org/users/fixture-user/events{/privacy}\",\"received_events_url\":\"https://example.org/users/fixture-user/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"direct_membership\":true,\"enterprise_teams_providing_indirect_membership\":[],\"organization\":{\"login\":\"fixture-org\",\"id\":2,\"node_id\":\"FIXTURE_NODE_2\",\"url\":\"https://example.org/orgs/fixture-org\",\"repos_url\":\"https://example.org/orgs/fixture-org/repos\",\"events_url\":\"https://example.org/orgs/fixture-org/events\",\"hooks_url\":\"https://example.org/orgs/fixture-org/hooks\",\"issues_url\":\"https://example.org/orgs/fixture-org/issues\",\"members_url\":\"https://example.org/orgs/fixture-org/members{/member}\",\"public_members_url\":\"https://example.org/orgs/fixture-org/public_members{/member}\",\"avatar_url\":\"https://host-2.example.org/u/2\",\"description\":\"Test organization for the Porelo project: fixtures, test accounts and live checks against GitHub. Nothing here is a product\"}}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "sha" : "ddb2cdaa1ee183a0c5a021a6a9145a3b8a53a7cf",
-    "number" : 11,
-    "comment" : 4467633645,
-    "check" : 126581593507,
-    "run" : 41832125512,
-    "job" : 126581668761,
+    "sha" : "1b05e99168c75e6eed33f28d717718ce1c440d49",
+    "number" : 233,
+    "comment" : 4697091364,
+    "check" : 139312298736,
+    "run" : 45644708077,
+    "job" : 139312467198,
     "username" : "fixture-user",
-    "ref" : "heads/forge-client-bbd1c0eb-61e9-4179-9ad5-8f01a3af1f5a",
+    "ref" : "heads/forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e",
     "thread" : "pending",
-    "reply" : 4467633878,
-    "issueComment" : 6630952917,
-    "review" : 5768488376,
-    "since" : "2026-11-04T12:45:59Z",
+    "reply" : 4697091640,
+    "issueComment" : 7166773803,
+    "review" : 6060422923,
+    "since" : "2026-11-25T15:23:41Z",
     "base" : "main",
     "keyAccount" : "fixture-reviewer",
     "key" : 0,
-    "signingKey" : 0
+    "signingKey" : 0,
+    "merged" : 232
   },
   "request_body" : null
 }

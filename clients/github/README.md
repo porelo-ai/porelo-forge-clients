@@ -42,6 +42,11 @@ Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
   links them, none when it links no account (`null` or an empty object), and GitHub's verdict on its signature in
   `commit.verification`. GitHub's description says the list stops at 250 commits, so a caller that needs more reads the
   branch's commits instead.
+- `GitHubGraphQl.mergeCommit` reads the commit a pull request's merge made on its base branch, as GitHub documents it:
+  the merge commit, the squashed commit, or the commit a rebase moved the base to; null while the pull request is not
+  merged. API version `2026-03-10` no longer sends REST's `merge_commit_sha`, so this is read through GraphQL's
+  `mergeCommit`. A missing repository or pull request fails as GitHub answers it. The recorder merges a pull request
+  between two branches of its own run, deleted with it, to record this; the merged pull request stays, closed.
 - `GitHubException.status()` is the HTTP status GitHub answered with, also for an answer that cannot be decoded, or
   zero when no answer came. Diagnostics scrub credentials and do not attach raw payloads or transport causes.
   `delivery()` says whether the request may have reached GitHub: `NOT_SENT`, `SENT_UNANSWERED`, or `ANSWERED`, the
@@ -240,7 +245,8 @@ The manual recorder runs from that root with
 and `LIVE_GITHUB_APP_KEY` from the environment, targeting `porelo-ai-test/forge-clients-live`. The App key is PEM
 RSA, PKCS#1 or PKCS#8. The user token belongs to the organization's owner, a test account, and may administer its
 repositories and write commit statuses; the keys token belongs to the reviewer, also a test account, and may write
-its SSH keys and signing keys, since a token owned by the organization holds no account permissions. The recorder
+its SSH keys and signing keys, since a token owned by the organization holds no account permissions. Check runs are
+read and written with a token of the App's installation, since a fine-grained token cannot hold Checks. The recorder
 refuses a keys token of any other account. It refuses matching leftovers and closes or removes its own resources,
 including on interrupt: its branch, a repository named after the run, and keys titled after it, each made for that
 run only.
@@ -263,7 +269,8 @@ comments and a resolved thread, and a check run and a commit status on its head 
 `./mvnw -B -s settings.xml -pl clients/github test-compile exec:java@kept-github` makes from the recorder's environment
 unless it is there; the approving reviewer
 keeps one SSH key and one signing key made for the test, read without a token, and with
-`LIVE_GITHUB_REVIEWER_KEYS_TOKEN` as its own.
+`LIVE_GITHUB_REVIEWER_KEYS_TOKEN` as its own. The live check reads `LIVE_GITHUB_USER_TOKEN`,
+`LIVE_GITHUB_REVIEWER_KEYS_TOKEN`, `LIVE_GITHUB_APP_ID` and `LIVE_GITHUB_APP_KEY`.
 
 The extract is fetched with `org.fuin.porelo.forge.openapi.OpenApiExtract` (see
 [openapi-extract](../../openapi-extract/README.md)), the source and digest below, and one `--operation` for each

@@ -4211,7 +4211,7 @@
     "type" : "org.fuin.porelo.forge.github.model.PullRequestReviewComment",
     "methods" : [ {
       "name" : "<init>",
-      "parameterTypes" : [ "java.lang.String", "java.lang.Long", "java.lang.Long", "java.lang.String", "java.lang.String", "java.lang.String", "java.lang.Integer", "java.lang.Integer", "java.lang.String", "java.lang.String", "java.lang.Long", "org.fuin.porelo.forge.github.model.SimpleUser", "java.lang.String", "java.time.OffsetDateTime", "java.time.OffsetDateTime", "java.net.URI", "java.net.URI", "org.fuin.porelo.forge.github.model.AuthorAssociation", "org.fuin.porelo.forge.github.model.PullRequestReviewCommentLinks", "java.lang.Integer", "java.lang.Integer", "org.fuin.porelo.forge.github.model.PullRequestReviewComment$StartSideEnum", "java.lang.Integer", "java.lang.Integer", "org.fuin.porelo.forge.github.model.PullRequestReviewComment$SideEnum", "org.fuin.porelo.forge.github.model.PullRequestReviewComment$SubjectTypeEnum", "org.fuin.porelo.forge.github.model.ReactionRollup", "java.lang.String", "java.lang.String", "java.lang.Boolean", "java.util.List" ]
+      "parameterTypes" : [ "java.lang.String", "java.lang.Long", "java.lang.Long", "java.lang.String", "java.lang.String", "java.lang.String", "java.lang.Integer", "java.lang.Integer", "java.lang.String", "java.lang.String", "java.lang.Long", "org.fuin.porelo.forge.github.model.SimpleUser", "java.lang.String", "java.time.OffsetDateTime", "java.time.OffsetDateTime", "java.net.URI", "java.net.URI", "org.fuin.porelo.forge.github.model.AuthorAssociation", "org.fuin.porelo.forge.github.model.PullRequestReviewCommentLinks", "java.lang.Integer", "java.lang.Integer", "org.fuin.porelo.forge.github.model.PullRequestReviewComment$StartSideEnum", "java.lang.Integer", "java.lang.Integer", "org.fuin.porelo.forge.github.model.PullRequestReviewComment$SideEnum", "org.fuin.porelo.forge.github.model.PullRequestReviewComment$SubjectTypeEnum", "org.fuin.porelo.forge.github.model.ReactionRollup", "java.lang.String", "java.lang.String", "java.lang.Boolean", "java.util.List", "java.lang.Object" ]
     }, {
       "name" : "authorAssociation",
       "parameterTypes" : [ ]
@@ -4226,6 +4226,9 @@
       "parameterTypes" : [ ]
     }, {
       "name" : "commitId",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "copilotCodeReviewSeverity",
       "parameterTypes" : [ ]
     }, {
       "name" : "copilotCodeReviewSources",
@@ -5408,7 +5411,7 @@
     "type" : "org.fuin.porelo.forge.github.model.ReviewComment",
     "methods" : [ {
       "name" : "<init>",
-      "parameterTypes" : [ "java.net.URI", "java.lang.Long", "java.lang.Long", "java.lang.String", "java.lang.String", "java.lang.String", "java.lang.Integer", "java.lang.Integer", "java.lang.String", "java.lang.String", "java.lang.Long", "org.fuin.porelo.forge.github.model.SimpleUser", "java.lang.String", "java.time.OffsetDateTime", "java.time.OffsetDateTime", "java.net.URI", "java.net.URI", "org.fuin.porelo.forge.github.model.AuthorAssociation", "org.fuin.porelo.forge.github.model.ReviewCommentLinks", "java.lang.String", "java.lang.String", "org.fuin.porelo.forge.github.model.ReactionRollup", "org.fuin.porelo.forge.github.model.ReviewComment$SideEnum", "org.fuin.porelo.forge.github.model.ReviewComment$StartSideEnum", "java.lang.Integer", "java.lang.Integer", "java.lang.Integer", "java.lang.Integer", "org.fuin.porelo.forge.github.model.ReviewComment$SubjectTypeEnum", "java.lang.Boolean", "java.util.List" ]
+      "parameterTypes" : [ "java.net.URI", "java.lang.Long", "java.lang.Long", "java.lang.String", "java.lang.String", "java.lang.String", "java.lang.Integer", "java.lang.Integer", "java.lang.String", "java.lang.String", "java.lang.Long", "org.fuin.porelo.forge.github.model.SimpleUser", "java.lang.String", "java.time.OffsetDateTime", "java.time.OffsetDateTime", "java.net.URI", "java.net.URI", "org.fuin.porelo.forge.github.model.AuthorAssociation", "org.fuin.porelo.forge.github.model.ReviewCommentLinks", "java.lang.String", "java.lang.String", "org.fuin.porelo.forge.github.model.ReactionRollup", "org.fuin.porelo.forge.github.model.ReviewComment$SideEnum", "org.fuin.porelo.forge.github.model.ReviewComment$StartSideEnum", "java.lang.Integer", "java.lang.Integer", "java.lang.Integer", "java.lang.Integer", "org.fuin.porelo.forge.github.model.ReviewComment$SubjectTypeEnum", "java.lang.Boolean", "java.util.List", "java.lang.Object" ]
     }, {
       "name" : "authorAssociation",
       "parameterTypes" : [ ]
@@ -5423,6 +5426,9 @@
       "parameterTypes" : [ ]
     }, {
       "name" : "commitId",
+      "parameterTypes" : [ ]
+    }, {
+      "name" : "copilotCodeReviewSeverity",
       "parameterTypes" : [ ]
     }, {
       "name" : "copilotCodeReviewSources",

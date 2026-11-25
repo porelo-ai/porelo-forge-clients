@@ -54,6 +54,9 @@ enum GitHubOperations {
     // Between resolving and reopening, so the thread is read with its resolver.
     reviewThread("POST", "/graphql"),
     unresolveReviewThread("POST", "/graphql"),
+    // The run's pull request merged into a base branch of its own, then its open one.
+    mergeCommit("POST", "/graphql"),
+    mergeCommitOpen("POST", "/graphql"),
     deleteIssueComment("DELETE", "/repos/{owner}/{repo}/issues/comments/{issue_comment_id}"),
     deleteReviewComment("DELETE", "/repos/{owner}/{repo}/pulls/comments/{reply_id}"),
     deleteKey("DELETE", "/user/keys/{key_id}"),
@@ -214,6 +217,14 @@ enum GitHubOperations {
             case threadComments -> graphql.threadComments(token, c.thread(), null);
             case resolveReviewThread -> graphql.resolveReviewThread(token, c.thread());
             case unresolveReviewThread -> graphql.unresolveReviewThread(token, c.thread());
+            case mergeCommit ->
+                    new MergeRead(
+                            graphql.mergeCommit(
+                                    token, c.owner(), c.repo(), Math.toIntExact(c.merged())));
+            case mergeCommitOpen ->
+                    new MergeRead(
+                            graphql.mergeCommit(
+                                    token, c.owner(), c.repo(), Math.toIntExact(c.number())));
         };
     }
 
@@ -296,7 +307,11 @@ enum GitHubOperations {
             String base,
             String keyAccount,
             long key,
-            long signingKey) {}
+            long signingKey,
+            long merged) {}
+
+    /** What {@code mergeCommit} read, a commit or none, as a value a scenario can check. */
+    record MergeRead(@org.jspecify.annotations.Nullable String commit) {}
 
     /** What a delete answers: nothing but its status. */
     enum Deleted {

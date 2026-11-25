@@ -3,42 +3,47 @@
   "status" : 200,
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
+    "etag" : [ "\"19563068e70a6cd4820b933fb5f577f951ac60b01a1bf9d348f0b196d0f605be\"" ],
+    "x-accepted-github-permissions" : [ "keys=read" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4979" ],
-    "x-ratelimit-reset" : [ "1793799357" ]
+    "x-ratelimit-remaining" : [ "4981" ],
+    "x-ratelimit-reset" : [ "1795623143" ]
   },
-  "body" : "[{\"id\":168298268,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIHqAhdm8fNga7IAObFXjTjZzA4AxqRHwyV6gaJtSOFc\",\"created_at\":\"2026-10-31T13:38:28Z\",\"last_used\":\"2026-11-01T18:42:04Z\",\"url\":\"https://example.org/user/keys/168298268\",\"title\":\"porelo test\",\"verified\":true,\"read_only\":false}]",
+  "body" : "[{\"id\":168298268,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIHqAhdm8fNga7IAObFXjTjZzA4AxqRHwyV6gaJtSOFc\",\"created_at\":\"2026-10-31T13:38:28Z\",\"last_used\":\"2026-11-01T18:42:04Z\",\"url\":\"https://example.org/user/keys/168298268\",\"title\":\"porelo test\",\"verified\":true,\"read_only\":false},{\"id\":169269840,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHSsFhaa60uYdPdpxDL+mA6s8GNOhPCAt+7B+cOxYFHG\",\"created_at\":\"2026-11-09T12:38:11Z\",\"last_used\":\"2026-11-23T20:12:48Z\",\"url\":\"https://example.org/user/keys/169269840\",\"title\":\"porelo agents (fixture-org only)\",\"verified\":true,\"read_only\":false}]",
   "exchanges" : [ {
     "request_uri" : "/user/keys?page=1&per_page=50",
     "status" : 200,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
+      "etag" : [ "\"19563068e70a6cd4820b933fb5f577f951ac60b01a1bf9d348f0b196d0f605be\"" ],
+      "x-accepted-github-permissions" : [ "keys=read" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4979" ],
-      "x-ratelimit-reset" : [ "1793799357" ]
+      "x-ratelimit-remaining" : [ "4981" ],
+      "x-ratelimit-reset" : [ "1795623143" ]
     },
-    "body" : "[{\"id\":168298268,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIHqAhdm8fNga7IAObFXjTjZzA4AxqRHwyV6gaJtSOFc\",\"created_at\":\"2026-10-31T13:38:28Z\",\"last_used\":\"2026-11-01T18:42:04Z\",\"url\":\"https://example.org/user/keys/168298268\",\"title\":\"porelo test\",\"verified\":true,\"read_only\":false}]"
+    "body" : "[{\"id\":168298268,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIHqAhdm8fNga7IAObFXjTjZzA4AxqRHwyV6gaJtSOFc\",\"created_at\":\"2026-10-31T13:38:28Z\",\"last_used\":\"2026-11-01T18:42:04Z\",\"url\":\"https://example.org/user/keys/168298268\",\"title\":\"porelo test\",\"verified\":true,\"read_only\":false},{\"id\":169269840,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHSsFhaa60uYdPdpxDL+mA6s8GNOhPCAt+7B+cOxYFHG\",\"created_at\":\"2026-11-09T12:38:11Z\",\"last_used\":\"2026-11-23T20:12:48Z\",\"url\":\"https://example.org/user/keys/169269840\",\"title\":\"porelo agents (fixture-org only)\",\"verified\":true,\"read_only\":false}]"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "sha" : "ddb2cdaa1ee183a0c5a021a6a9145a3b8a53a7cf",
-    "number" : 11,
-    "comment" : 4467633645,
-    "check" : 126581593507,
-    "run" : 41832125512,
-    "job" : 126581668761,
+    "sha" : "1b05e99168c75e6eed33f28d717718ce1c440d49",
+    "number" : 233,
+    "comment" : 4697091364,
+    "check" : 139312298736,
+    "run" : 45644708077,
+    "job" : 139312467198,
     "username" : "fixture-user",
-    "ref" : "heads/forge-client-bbd1c0eb-61e9-4179-9ad5-8f01a3af1f5a",
+    "ref" : "heads/forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e",
     "thread" : "pending",
-    "reply" : 4467633878,
-    "issueComment" : 6630952917,
-    "review" : 5768488376,
-    "since" : "2026-11-04T12:45:59Z",
+    "reply" : 4697091640,
+    "issueComment" : 7166773803,
+    "review" : 6060422923,
+    "since" : "2026-11-25T15:23:41Z",
     "base" : "main",
     "keyAccount" : "fixture-reviewer",
     "key" : 0,
-    "signingKey" : 0
+    "signingKey" : 0,
+    "merged" : 232
   },
   "request_body" : null
 }

@@ -238,6 +238,10 @@ class GitHubFixtureKeysTest {
         if (path.endsWith("/git/ref/heads/main"))
             return answer(200, "{\"object\":{\"sha\":\"" + SHA + "\"}}");
         if (path.endsWith("/check-runs")) return answer(200, "{\"check_runs\":[]}");
+        if (path.endsWith("/pulls") && request.method().equals("POST"))
+            return answer(201, "{\"number\":9}");
+        if (path.endsWith("/pulls/9/merge"))
+            return answer(200, "{\"sha\":\"" + SHA + "\",\"merged\":true}");
         if (request.method().equals("PUT"))
             return answer(201, "{\"commit\":{\"sha\":\"" + SHA + "\"}}");
         if (request.method().equals("POST")) return answer(201, "{}");

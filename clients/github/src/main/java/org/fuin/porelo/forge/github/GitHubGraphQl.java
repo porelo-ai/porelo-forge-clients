@@ -98,6 +98,19 @@ public final class GitHubGraphQl {
             }
             """;
 
+    /** Reads whether a pull request is merged and the commit its merge made. */
+    public static final String MERGE_COMMIT =
+            """
+            query MergeCommit($owner: String!, $repo: String!, $number: Int!) {
+              repository(owner: $owner, name: $repo) {
+                pullRequest(number: $number) { merged mergeCommit { oid } }
+              }
+            }
+            """;
+
+    private static final java.util.regex.Pattern COMMIT =
+            java.util.regex.Pattern.compile("[0-9a-f]{40}|[0-9a-f]{64}");
+
     private final GitHubClient client;
 
     /** Creates a lenient GraphQL reader using the supplied API base and transport. */
@@ -169,6 +182,46 @@ public final class GitHubGraphQl {
                 token,
                 Map.of("query", REVIEW_THREAD, "variables", Map.of("id", id)),
                 ThreadResponse.class);
+    }
+
+    /**
+     * Reads the commit a pull request's merge made on its base branch: the merge commit, the
+     * squashed commit or the commit a rebase moved the base to; null while it is not merged. A
+     * missing repository or pull request fails as GitHub answers it.
+     */
+    public @Nullable String mergeCommit(String token, String owner, String repo, int number) {
+        if (number <= 0 || owner.isBlank() || repo.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Expected an owner, repository and positive pull number");
+        }
+        Map<String, Object> variables = new LinkedHashMap<>();
+        variables.put("owner", owner);
+        variables.put("repo", repo);
+        variables.put("number", number);
+        return query(
+                token,
+                Map.of("query", MERGE_COMMIT, "variables", variables),
+                GitHubGraphQl::readMergeCommit);
+    }
+
+    private static @Nullable String readMergeCommit(JsonNode data) {
+        JsonNode pull = data.path("repository").path("pullRequest");
+        if (!pull.isObject() || !pull.path("merged").isBoolean()) {
+            throw new UnreadableAnswer("repository.pullRequest");
+        }
+        JsonNode commit = pull.path("mergeCommit");
+        // GitHub leaves the merge commit out or null before a merge; a commit there contradicts it.
+        if (!pull.path("merged").booleanValue()) {
+            if (!commit.isNull() && !commit.isMissingNode()) {
+                throw new UnreadableAnswer("repository.pullRequest.mergeCommit");
+            }
+            return null;
+        }
+        String oid = commit.path("oid").asText("");
+        if (!COMMIT.matcher(oid).matches()) {
+            throw new UnreadableAnswer("repository.pullRequest.mergeCommit.oid");
+        }
+        return oid;
     }
 
     /** Resolves a thread identified by its GraphQL node ID. */

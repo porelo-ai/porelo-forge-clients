@@ -60,16 +60,28 @@ public final class GitHubLiveCheck {
         String token = GitHubFixture.required(System.getenv(), "LIVE_GITHUB_USER_TOKEN");
         String keysToken =
                 GitHubFixture.required(System.getenv(), "LIVE_GITHUB_REVIEWER_KEYS_TOKEN");
-        try (var http = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build();
-                var fixture =
-                        new GitHubFixture(
-                                http,
-                                token,
-                                token,
-                                token,
-                                keysToken,
-                                List.of(token, keysToken),
-                                UUID.randomUUID().toString())) {
+        String appId = GitHubFixture.required(System.getenv(), "LIVE_GITHUB_APP_ID");
+        String appKey = GitHubFixture.required(System.getenv(), "LIVE_GITHUB_APP_KEY");
+        try (var http =
+                HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build()) {
+            String appToken =
+                    GitHubFixture.installationToken(http, appId, appKey, List.of(token, keysToken));
+            check(http, token, keysToken, appToken, List.of(token, keysToken, appKey, appToken));
+        }
+    }
+
+    private static void check(
+            HttpClient http, String token, String keysToken, String appToken, List<String> secrets)
+            throws Exception {
+        try (var fixture =
+                new GitHubFixture(
+                        http,
+                        token,
+                        token,
+                        appToken,
+                        keysToken,
+                        secrets,
+                        UUID.randomUUID().toString())) {
             fixture.beginLiveCheck();
             var client =
                     new GitHubClient(
@@ -158,7 +170,7 @@ public final class GitHubLiveCheck {
                             "checkRuns",
                             () ->
                                     client.checkRuns(
-                                                    token,
+                                                    appToken,
                                                     GitHubFixture.OWNER,
                                                     GitHubFixture.REPO,
                                                     pull.head().sha(),

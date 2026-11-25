@@ -1,37 +1,41 @@
 {
-  "request_uri" : "/repos/fixture-org/fixture-repo/pulls/11/comments",
+  "request_uri" : "/repos/fixture-org/fixture-repo/pulls/233/comments",
   "status" : 201,
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
-    "location" : [ "https://example.org/repos/fixture-org/fixture-repo/pulls/comments/4467633645" ],
+    "location" : [ "https://example.org/repos/fixture-org/fixture-repo/pulls/comments/4697091364" ],
+    "etag" : [ "\"9bb5a2f2b185f6c54c84d2d7219e3e2f14afa5e06762c809b892e321cf1d0820\"" ],
+    "x-accepted-github-permissions" : [ "pull_requests=write" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4981" ],
-    "x-ratelimit-reset" : [ "1793799357" ]
+    "x-ratelimit-remaining" : [ "4983" ],
+    "x-ratelimit-reset" : [ "1795623143" ]
   },
-  "body" : "{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/comments/4467633645\",\"pull_request_review_id\":5768488376,\"id\":4467633645,\"node_id\":\"PRRC_kwDOVc0D888AAAABCkqt7Q\",\"diff_hunk\":\"@@ -0,0 +1,2 @@\\n+fixture-complete\",\"path\":\"forge-client-bbd1c0eb-61e9-4179-9ad5-8f01a3af1f5a.txt\",\"commit_id\":\"ddb2cdaa1ee183a0c5a021a6a9145a3b8a53a7cf\",\"original_commit_id\":\"ddb2cdaa1ee183a0c5a021a6a9145a3b8a53a7cf\",\"user\":{\"login\":\"fixture-reviewer\",\"id\":3,\"node_id\":\"FIXTURE_NODE_3\",\"avatar_url\":\"https://host-2.example.org/u/3\",\"gravatar_id\":\"\",\"url\":\"https://example.org/users/fixture-reviewer\",\"html_url\":\"https://host-1.example.org/fixture-reviewer\",\"followers_url\":\"https://example.org/users/fixture-reviewer/followers\",\"following_url\":\"https://example.org/users/fixture-reviewer/following{/other_user}\",\"gists_url\":\"https://example.org/users/fixture-reviewer/gists{/gist_id}\",\"starred_url\":\"https://example.org/users/fixture-reviewer/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://example.org/users/fixture-reviewer/subscriptions\",\"organizations_url\":\"https://example.org/users/fixture-reviewer/orgs\",\"repos_url\":\"https://example.org/users/fixture-reviewer/repos\",\"events_url\":\"https://example.org/users/fixture-reviewer/events{/privacy}\",\"received_events_url\":\"https://example.org/users/fixture-reviewer/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"body\":\"```suggestion\\nfixture-complete\\n```\",\"created_at\":\"2026-11-04T12:45:53Z\",\"updated_at\":\"2026-11-04T12:45:54Z\",\"html_url\":\"https://host-1.example.org/fixture-org/fixture-repo/pull/11\",\"pull_request_url\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/11\",\"_links\":{\"self\":{\"href\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/comments/4467633645\"},\"html\":{\"href\":\"https://host-1.example.org/fixture-org/fixture-repo/pull/11\"},\"pull_request\":{\"href\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/11\"}},\"reactions\":{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/comments/4467633645/reactions\",\"total_count\":0,\"+1\":0,\"-1\":0,\"laugh\":0,\"hooray\":0,\"confused\":0,\"heart\":0,\"rocket\":0,\"eyes\":0},\"start_line\":null,\"original_start_line\":null,\"start_side\":null,\"line\":1,\"original_line\":1,\"side\":\"RIGHT\",\"author_association\":\"MEMBER\",\"original_position\":1,\"position\":1,\"subject_type\":\"line\",\"is_copilot_code_review\":false,\"copilot_code_review_sources\":[]}",
+  "body" : "{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/comments/4697091364\",\"pull_request_review_id\":6060422923,\"id\":4697091364,\"node_id\":\"PRRC_kwDOVc0D888AAAABF_ftJA\",\"diff_hunk\":\"@@ -0,0 +1,2 @@\\n+fixture-complete\",\"path\":\"forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e.txt\",\"commit_id\":\"1b05e99168c75e6eed33f28d717718ce1c440d49\",\"original_commit_id\":\"1b05e99168c75e6eed33f28d717718ce1c440d49\",\"user\":{\"login\":\"fixture-reviewer\",\"id\":3,\"node_id\":\"FIXTURE_NODE_3\",\"avatar_url\":\"https://host-2.example.org/u/3\",\"gravatar_id\":\"\",\"url\":\"https://example.org/users/fixture-reviewer\",\"html_url\":\"https://host-1.example.org/fixture-reviewer\",\"followers_url\":\"https://example.org/users/fixture-reviewer/followers\",\"following_url\":\"https://example.org/users/fixture-reviewer/following{/other_user}\",\"gists_url\":\"https://example.org/users/fixture-reviewer/gists{/gist_id}\",\"starred_url\":\"https://example.org/users/fixture-reviewer/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://example.org/users/fixture-reviewer/subscriptions\",\"organizations_url\":\"https://example.org/users/fixture-reviewer/orgs\",\"repos_url\":\"https://example.org/users/fixture-reviewer/repos\",\"events_url\":\"https://example.org/users/fixture-reviewer/events{/privacy}\",\"received_events_url\":\"https://example.org/users/fixture-reviewer/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"body\":\"```suggestion\\nfixture-complete\\n```\",\"created_at\":\"2026-11-25T15:23:35Z\",\"updated_at\":\"2026-11-25T15:23:35Z\",\"html_url\":\"https://host-1.example.org/fixture-org/fixture-repo/pull/233\",\"pull_request_url\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/233\",\"_links\":{\"self\":{\"href\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/comments/4697091364\"},\"html\":{\"href\":\"https://host-1.example.org/fixture-org/fixture-repo/pull/233\"},\"pull_request\":{\"href\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/233\"}},\"reactions\":{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/comments/4697091364/reactions\",\"total_count\":0,\"+1\":0,\"-1\":0,\"laugh\":0,\"hooray\":0,\"confused\":0,\"heart\":0,\"rocket\":0,\"eyes\":0},\"start_line\":null,\"original_start_line\":null,\"start_side\":null,\"line\":1,\"original_line\":1,\"side\":\"RIGHT\",\"author_association\":\"MEMBER\",\"original_position\":1,\"position\":1,\"subject_type\":\"line\",\"is_copilot_code_review\":false,\"copilot_code_review_severity\":null,\"copilot_code_review_sources\":[]}",
   "exchanges" : [ {
-    "request_uri" : "/repos/fixture-org/fixture-repo/pulls/11/comments",
+    "request_uri" : "/repos/fixture-org/fixture-repo/pulls/233/comments",
     "status" : 201,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
-      "location" : [ "https://example.org/repos/fixture-org/fixture-repo/pulls/comments/4467633645" ],
+      "location" : [ "https://example.org/repos/fixture-org/fixture-repo/pulls/comments/4697091364" ],
+      "etag" : [ "\"9bb5a2f2b185f6c54c84d2d7219e3e2f14afa5e06762c809b892e321cf1d0820\"" ],
+      "x-accepted-github-permissions" : [ "pull_requests=write" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4981" ],
-      "x-ratelimit-reset" : [ "1793799357" ]
+      "x-ratelimit-remaining" : [ "4983" ],
+      "x-ratelimit-reset" : [ "1795623143" ]
     },
-    "body" : "{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/comments/4467633645\",\"pull_request_review_id\":5768488376,\"id\":4467633645,\"node_id\":\"PRRC_kwDOVc0D888AAAABCkqt7Q\",\"diff_hunk\":\"@@ -0,0 +1,2 @@\\n+fixture-complete\",\"path\":\"forge-client-bbd1c0eb-61e9-4179-9ad5-8f01a3af1f5a.txt\",\"commit_id\":\"ddb2cdaa1ee183a0c5a021a6a9145a3b8a53a7cf\",\"original_commit_id\":\"ddb2cdaa1ee183a0c5a021a6a9145a3b8a53a7cf\",\"user\":{\"login\":\"fixture-reviewer\",\"id\":3,\"node_id\":\"FIXTURE_NODE_3\",\"avatar_url\":\"https://host-2.example.org/u/3\",\"gravatar_id\":\"\",\"url\":\"https://example.org/users/fixture-reviewer\",\"html_url\":\"https://host-1.example.org/fixture-reviewer\",\"followers_url\":\"https://example.org/users/fixture-reviewer/followers\",\"following_url\":\"https://example.org/users/fixture-reviewer/following{/other_user}\",\"gists_url\":\"https://example.org/users/fixture-reviewer/gists{/gist_id}\",\"starred_url\":\"https://example.org/users/fixture-reviewer/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://example.org/users/fixture-reviewer/subscriptions\",\"organizations_url\":\"https://example.org/users/fixture-reviewer/orgs\",\"repos_url\":\"https://example.org/users/fixture-reviewer/repos\",\"events_url\":\"https://example.org/users/fixture-reviewer/events{/privacy}\",\"received_events_url\":\"https://example.org/users/fixture-reviewer/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"body\":\"```suggestion\\nfixture-complete\\n```\",\"created_at\":\"2026-11-04T12:45:53Z\",\"updated_at\":\"2026-11-04T12:45:54Z\",\"html_url\":\"https://host-1.example.org/fixture-org/fixture-repo/pull/11\",\"pull_request_url\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/11\",\"_links\":{\"self\":{\"href\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/comments/4467633645\"},\"html\":{\"href\":\"https://host-1.example.org/fixture-org/fixture-repo/pull/11\"},\"pull_request\":{\"href\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/11\"}},\"reactions\":{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/comments/4467633645/reactions\",\"total_count\":0,\"+1\":0,\"-1\":0,\"laugh\":0,\"hooray\":0,\"confused\":0,\"heart\":0,\"rocket\":0,\"eyes\":0},\"start_line\":null,\"original_start_line\":null,\"start_side\":null,\"line\":1,\"original_line\":1,\"side\":\"RIGHT\",\"author_association\":\"MEMBER\",\"original_position\":1,\"position\":1,\"subject_type\":\"line\",\"is_copilot_code_review\":false,\"copilot_code_review_sources\":[]}"
+    "body" : "{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/comments/4697091364\",\"pull_request_review_id\":6060422923,\"id\":4697091364,\"node_id\":\"PRRC_kwDOVc0D888AAAABF_ftJA\",\"diff_hunk\":\"@@ -0,0 +1,2 @@\\n+fixture-complete\",\"path\":\"forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e.txt\",\"commit_id\":\"1b05e99168c75e6eed33f28d717718ce1c440d49\",\"original_commit_id\":\"1b05e99168c75e6eed33f28d717718ce1c440d49\",\"user\":{\"login\":\"fixture-reviewer\",\"id\":3,\"node_id\":\"FIXTURE_NODE_3\",\"avatar_url\":\"https://host-2.example.org/u/3\",\"gravatar_id\":\"\",\"url\":\"https://example.org/users/fixture-reviewer\",\"html_url\":\"https://host-1.example.org/fixture-reviewer\",\"followers_url\":\"https://example.org/users/fixture-reviewer/followers\",\"following_url\":\"https://example.org/users/fixture-reviewer/following{/other_user}\",\"gists_url\":\"https://example.org/users/fixture-reviewer/gists{/gist_id}\",\"starred_url\":\"https://example.org/users/fixture-reviewer/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://example.org/users/fixture-reviewer/subscriptions\",\"organizations_url\":\"https://example.org/users/fixture-reviewer/orgs\",\"repos_url\":\"https://example.org/users/fixture-reviewer/repos\",\"events_url\":\"https://example.org/users/fixture-reviewer/events{/privacy}\",\"received_events_url\":\"https://example.org/users/fixture-reviewer/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"body\":\"```suggestion\\nfixture-complete\\n```\",\"created_at\":\"2026-11-25T15:23:35Z\",\"updated_at\":\"2026-11-25T15:23:35Z\",\"html_url\":\"https://host-1.example.org/fixture-org/fixture-repo/pull/233\",\"pull_request_url\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/233\",\"_links\":{\"self\":{\"href\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/comments/4697091364\"},\"html\":{\"href\":\"https://host-1.example.org/fixture-org/fixture-repo/pull/233\"},\"pull_request\":{\"href\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/233\"}},\"reactions\":{\"url\":\"https://example.org/repos/fixture-org/fixture-repo/pulls/comments/4697091364/reactions\",\"total_count\":0,\"+1\":0,\"-1\":0,\"laugh\":0,\"hooray\":0,\"confused\":0,\"heart\":0,\"rocket\":0,\"eyes\":0},\"start_line\":null,\"original_start_line\":null,\"start_side\":null,\"line\":1,\"original_line\":1,\"side\":\"RIGHT\",\"author_association\":\"MEMBER\",\"original_position\":1,\"position\":1,\"subject_type\":\"line\",\"is_copilot_code_review\":false,\"copilot_code_review_severity\":null,\"copilot_code_review_sources\":[]}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "sha" : "ddb2cdaa1ee183a0c5a021a6a9145a3b8a53a7cf",
-    "number" : 11,
+    "sha" : "1b05e99168c75e6eed33f28d717718ce1c440d49",
+    "number" : 233,
     "comment" : 0,
     "check" : 0,
     "run" : 0,
     "job" : 0,
     "username" : "fixture-user",
-    "ref" : "heads/forge-client-bbd1c0eb-61e9-4179-9ad5-8f01a3af1f5a",
+    "ref" : "heads/forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e",
     "thread" : "pending",
     "reply" : 0,
     "issueComment" : 0,
@@ -40,13 +44,14 @@
     "base" : "main",
     "keyAccount" : "fixture-reviewer",
     "key" : 0,
-    "signingKey" : 0
+    "signingKey" : 0,
+    "merged" : 232
   },
   "request_body" : {
-    "path" : "forge-client-bbd1c0eb-61e9-4179-9ad5-8f01a3af1f5a.txt",
-    "body" : "```suggestion\nfixture-complete\n```",
-    "side" : "RIGHT",
     "line" : 1,
-    "commit_id" : "ddb2cdaa1ee183a0c5a021a6a9145a3b8a53a7cf"
+    "commit_id" : "1b05e99168c75e6eed33f28d717718ce1c440d49",
+    "path" : "forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e.txt",
+    "body" : "```suggestion\nfixture-complete\n```",
+    "side" : "RIGHT"
   }
 }

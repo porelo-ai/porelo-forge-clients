@@ -59,7 +59,8 @@ final class GitHubScenario {
                 "main",
                 fixture.keyAccount(),
                 key,
-                signingKey);
+                signingKey,
+                fixture.merged());
     }
 
     /**
@@ -105,7 +106,7 @@ final class GitHubScenario {
                     switch (operation) {
                         case createReview, createReviewComment, updateReviewComment ->
                                 fixture.reviewerToken();
-                        case createCheckRun, updateCheckRun -> fixture.appToken();
+                        case createCheckRun, updateCheckRun, checkRuns -> fixture.appToken();
                         case ownKeys,
                                 addKey,
                                 deleteKey,
@@ -126,6 +127,10 @@ final class GitHubScenario {
             Object result =
                     resource == null ? fixture.guarded(call) : fixture.requesting(resource, call);
             requireUsefulResult(operation, result);
+            if (operation == GitHubOperations.mergeCommit)
+                assertThat(((GitHubOperations.MergeRead) result).commit())
+                        .as("the merge commit read is the one the merge made")
+                        .isEqualTo(fixture.mergedCommit());
             switch (result) {
                 case PullRequest pull when operation == GitHubOperations.createPull ->
                         number = pull.number();
@@ -310,6 +315,14 @@ final class GitHubScenario {
                             .as("the comparison names its merge base")
                             .matches("[a-f0-9]{40,64}");
             case GitHubOperations.Deleted deleted -> {}
+            case GitHubOperations.MergeRead read when operation == GitHubOperations.mergeCommit ->
+                    assertThat(read.commit())
+                            .as("a merged pull request names its merge commit")
+                            .matches("[a-f0-9]{40,64}");
+            case GitHubOperations.MergeRead read ->
+                    assertThat(read.commit())
+                            .as("an open pull request has no merge commit")
+                            .isNull();
             case GitHubGraphQl.CommentsResponse response -> {
                 assertThat(response.data().node()).as("the comment thread is visible").isNotNull();
                 assertThat(response.data().node().comments().nodes())

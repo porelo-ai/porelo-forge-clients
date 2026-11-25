@@ -59,6 +59,8 @@ final class GitHubFixture implements AutoCloseable {
     private boolean dispatchUnseen;
     private boolean hookRegistered;
     private String sha = "";
+    private long merged;
+    private String mergedCommit = "";
     private String keyAccount = "";
     // Set before the scenario asks GitHub for one, so an answer lost on the way is cleaned up too.
     private final java.util.Set<Requested> requested = java.util.EnumSet.noneOf(Requested.class);
@@ -110,16 +112,28 @@ final class GitHubFixture implements AutoCloseable {
         String id = required(env, "LIVE_GITHUB_APP_ID");
         String key = required(env, "LIVE_GITHUB_APP_KEY");
         String keys = required(env, "LIVE_GITHUB_REVIEWER_KEYS_TOKEN");
+        String token = installationToken(http, id, key, List.of(user, reviewer, keys));
+        return new GitHubFixture(
+                http,
+                user,
+                reviewer,
+                token,
+                keys,
+                List.of(user, reviewer, key, token, keys),
+                env.getOrDefault("LIVE_GITHUB_RUN_ID", UUID.randomUUID().toString()));
+    }
+
+    /**
+     * Makes a token of the App's installation on the test repository; check runs are read and
+     * written with it, since a fine-grained personal token cannot hold the Checks permission.
+     */
+    static String installationToken(HttpClient http, String id, String key, List<String> others)
+            throws Exception {
         String jwt = GitHubAppToken.jwt(id, key, java.time.Instant.now());
-        var bootstrap =
-                new GitHubFixture(
-                        http,
-                        user,
-                        reviewer,
-                        jwt,
-                        keys,
-                        List.of(user, reviewer, key, jwt, keys),
-                        "bootstrap");
+        var secrets = new java.util.ArrayList<>(others);
+        secrets.add(key);
+        secrets.add(jwt);
+        var bootstrap = new GitHubFixture(http, jwt, jwt, jwt, jwt, secrets, "bootstrap");
         long installation =
                 bootstrap.apiWith(jwt, "GET", ROOT + "/installation", null).path("id").asLong();
         if (installation <= 0)
@@ -134,14 +148,7 @@ final class GitHubFixture implements AutoCloseable {
                         .path("token")
                         .asText();
         if (token.isBlank()) throw new IllegalStateException("App installation token is missing");
-        return new GitHubFixture(
-                http,
-                user,
-                reviewer,
-                token,
-                keys,
-                List.of(user, reviewer, key, jwt, token, keys),
-                env.getOrDefault("LIVE_GITHUB_RUN_ID", UUID.randomUUID().toString()));
+        return token;
     }
 
     static String required(Map<String, String> env, String name) {
@@ -227,6 +234,57 @@ final class GitHubFixture implements AutoCloseable {
                 "POST",
                 ROOT + "/statuses/" + sha,
                 Map.of("state", "success", "context", prefix, "description", "Fixture status"));
+        mergeIntoOwnBase(baseSha);
+    }
+
+    /** The run's own base branch, which its merged pull request went into. */
+    private String mergedBase() {
+        return prefix + "-base";
+    }
+
+    /**
+     * The merged pull request's head, so a repository that deletes merged heads keeps the run's.
+     */
+    private String mergedHead() {
+        return prefix + "-head";
+    }
+
+    /**
+     * A pull request merged, so its merge commit can be read: a head of the run's own at the run's
+     * commit into a base branch of the run's own, never into main, both removed with the run.
+     */
+    private void mergeIntoOwnBase(String baseSha) throws Exception {
+        api(
+                "POST",
+                ROOT + "/git/refs",
+                Map.of("ref", "refs/heads/" + mergedBase(), "sha", baseSha));
+        api("POST", ROOT + "/git/refs", Map.of("ref", "refs/heads/" + mergedHead(), "sha", sha));
+        merged =
+                api(
+                                "POST",
+                                ROOT + "/pulls",
+                                Map.of("head", mergedHead(), "base", mergedBase(), "title", prefix))
+                        .path("number")
+                        .asLong();
+        if (merged <= 0) throw new IllegalStateException("Merged pull request has no number");
+        // GitHub works out whether a new pull request can be merged after answering its creation.
+        for (int attempt = 1; ; attempt++) {
+            try {
+                mergedCommit =
+                        api(
+                                        "PUT",
+                                        ROOT + "/pulls/" + merged + "/merge",
+                                        Map.of("merge_method", "merge"))
+                                .path("sha")
+                                .asText();
+                break;
+            } catch (GitHubException ex) {
+                if (attempt >= 5 || (ex.status() != 405 && ex.status() != 409)) throw ex;
+                Thread.sleep(2000L * attempt);
+            }
+        }
+        if (!mergedCommit.matches("[a-f0-9]{40,64}"))
+            throw new IllegalStateException("Merge commit has no identity");
     }
 
     /**
@@ -372,6 +430,16 @@ final class GitHubFixture implements AutoCloseable {
 
     String sha() {
         return sha;
+    }
+
+    /** The number of the run's merged pull request. */
+    long merged() {
+        return merged;
+    }
+
+    /** The commit GitHub said the merge of the run's merged pull request made. */
+    String mergedCommit() {
+        return mergedCommit;
     }
 
     List<String> secrets() {
@@ -739,15 +807,16 @@ final class GitHubFixture implements AutoCloseable {
                     "branch",
                     failures,
                     () -> {
+                        var own =
+                                List.of(
+                                        "refs/heads/" + prefix,
+                                        "refs/heads/" + mergedBase(),
+                                        "refs/heads/" + mergedHead());
                         for (var ref : items("git/matching-refs/heads/" + prefix))
-                            if (ref.path("ref").asText().equals("refs/heads/" + prefix))
-                                api("DELETE", ROOT + "/git/refs/heads/" + prefix, null);
+                            if (own.contains(ref.path("ref").asText()))
+                                api("DELETE", ROOT + "/git/" + ref.path("ref").asText(), null);
                         if (items("git/matching-refs/heads/" + prefix).stream()
-                                .anyMatch(
-                                        ref ->
-                                                ref.path("ref")
-                                                        .asText()
-                                                        .equals("refs/heads/" + prefix)))
+                                .anyMatch(ref -> own.contains(ref.path("ref").asText())))
                             throw new IllegalStateException("Branch remains");
                     });
         } finally {

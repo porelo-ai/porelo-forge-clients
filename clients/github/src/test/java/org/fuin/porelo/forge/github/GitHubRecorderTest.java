@@ -186,7 +186,11 @@ class GitHubRecorderTest {
                                 200,
                                 Map.of(),
                                 "[{\"ref\":\"refs/heads/forge-client-unit\"},"
+                                        + "{\"ref\":\"refs/heads/forge-client-unit-base\"},"
+                                        + "{\"ref\":\"refs/heads/forge-client-unit-head\"},"
                                         + "{\"ref\":\"refs/heads/forge-client-unit-other\"}]")
+                        .answer(204, Map.of(), "")
+                        .answer(204, Map.of(), "")
                         .answer(204, Map.of(), "")
                         .answer(
                                 200,
@@ -206,8 +210,113 @@ class GitHubRecorderTest {
                         http.requests().stream()
                                 .filter(request -> request.method().equals("DELETE"))
                                 .map(request -> request.uri().getRawPath()))
-                .as("cleanup deletes exactly the branch this run owns")
-                .containsExactly("/" + GitHubFixture.ROOT + "/git/refs/heads/forge-client-unit");
+                .as("cleanup deletes exactly the branches this run owns, its merge base too")
+                .containsExactly(
+                        "/" + GitHubFixture.ROOT + "/git/refs/heads/forge-client-unit",
+                        "/" + GitHubFixture.ROOT + "/git/refs/heads/forge-client-unit-base",
+                        "/" + GitHubFixture.ROOT + "/git/refs/heads/forge-client-unit-head");
+    }
+
+    // Prevents GitHub's late answer on whether a new pull request can merge from failing a run.
+    @Test
+    void theMergeIsTriedAgainWhileGitHubCannotMergeYet() throws Exception {
+        var http =
+                beforeTheMerge("a".repeat(40))
+                        .answer(405, Map.of(), "{\"message\":\"Pull Request is not mergeable\"}")
+                        .answer(200, Map.of(), "{\"sha\":\"" + "c".repeat(40) + "\"}")
+                        .answer(200, Map.of(), "[]")
+                        .answer(200, Map.of(), "{\"check_runs\":[]}")
+                        .answer(200, Map.of(), "{\"workflow_runs\":[]}")
+                        .answer(200, Map.of(), "{\"workflow_runs\":[]}")
+                        .answer(200, Map.of(), "[]")
+                        .answer(200, Map.of(), "[]");
+        var fixture = fixture(http);
+        fixture.prepare();
+        fixture.close();
+
+        assertThat(fixture.mergedCommit())
+                .as("the second try's merge is kept")
+                .isEqualTo("c".repeat(40));
+        assertThat(fixture.merged()).as("the merged pull request is the run's").isEqualTo(9);
+        assertThat(
+                        http.requests().stream()
+                                .filter(request -> request.method().equals("PUT"))
+                                .filter(request -> request.uri().getRawPath().endsWith("/merge"))
+                                .map(request -> request.uri().getRawPath()))
+                .as("the merge goes only to the run's own pull request, twice")
+                .containsExactly(
+                        "/" + GitHubFixture.ROOT + "/pulls/9/merge",
+                        "/" + GitHubFixture.ROOT + "/pulls/9/merge");
+    }
+
+    // Prevents a merge GitHub refuses for good from being tried again, or leaving the run's
+    // branches.
+    @Test
+    void aRefusedMergeFailsAtOnceAndTheRunsBranchesGo() throws Exception {
+        String pulls = "/" + GitHubFixture.ROOT + "/pulls";
+        String refs = "forge-client-unit";
+        var deleted = new java.util.concurrent.atomic.AtomicBoolean();
+        var http =
+                beforeTheMerge("a".repeat(40))
+                        .answer(422, Map.of(), "{\"message\":\"Base branch was modified\"}")
+                        .otherwise(
+                                request -> {
+                                    String call =
+                                            request.method() + " " + request.uri().getRawPath();
+                                    if (call.startsWith("DELETE ")) {
+                                        deleted.set(true);
+                                        return new ReplayHttpClient.Answer(204, Map.of(), "");
+                                    }
+                                    String body;
+                                    if (call.equals("GET " + pulls))
+                                        body =
+                                                "[{\"number\": 9, \"title\": \""
+                                                        + refs
+                                                        + "\", \"head\": {\"ref\": \""
+                                                        + refs
+                                                        + "-head\"}}]";
+                                    else if (call.endsWith(pulls + "/9"))
+                                        body = "{\"state\": \"closed\"}";
+                                    else if (call.contains("/check-runs"))
+                                        body = "{\"check_runs\": []}";
+                                    else if (call.contains("/actions/runs"))
+                                        body = "{\"workflow_runs\": []}";
+                                    else if (call.contains("/git/matching-refs/") && !deleted.get())
+                                        body =
+                                                "[{\"ref\":\"refs/heads/"
+                                                        + refs
+                                                        + "\"},{\"ref\":\"refs/heads/"
+                                                        + refs
+                                                        + "-base\"},{\"ref\":\"refs/heads/"
+                                                        + refs
+                                                        + "-head\"}]";
+                                    else body = "[]";
+                                    return new ReplayHttpClient.Answer(200, Map.of(), body);
+                                });
+
+        assertThatExceptionOfType(GitHubException.class)
+                .as("the refused merge is the failure")
+                .isThrownBy(
+                        () -> {
+                            try (var fixture = fixture(http)) {
+                                fixture.prepare();
+                            }
+                        })
+                .matches(ex -> ex.status() == 422, "GitHub's status");
+        assertThat(
+                        http.requests().stream()
+                                .filter(request -> request.uri().getRawPath().endsWith("/merge")))
+                .as("a refusal other than not mergeable yet is not tried again")
+                .hasSize(1);
+        assertThat(
+                        http.requests().stream()
+                                .filter(request -> request.method().equals("DELETE"))
+                                .map(request -> request.uri().getRawPath()))
+                .as("all three of the run's branches go")
+                .containsExactly(
+                        "/" + GitHubFixture.ROOT + "/git/refs/heads/" + refs,
+                        "/" + GitHubFixture.ROOT + "/git/refs/heads/" + refs + "-base",
+                        "/" + GitHubFixture.ROOT + "/git/refs/heads/" + refs + "-head");
     }
 
     // Prevents a failed cleanup from being reported as a successful recording.
@@ -981,6 +1090,12 @@ class GitHubRecorderTest {
     }
 
     private static ReplayHttpClient preparedTransport(String sha) {
+        return beforeTheMerge(sha)
+                .answer(200, Map.of(), "{\"sha\":\"" + "c".repeat(40) + "\",\"merged\":true}");
+    }
+
+    /** Every answer of a fixture's preparation up to the merge of its merged pull request. */
+    private static ReplayHttpClient beforeTheMerge(String sha) {
         return new ReplayHttpClient()
                 .answer(200, Map.of(), "[]")
                 .answer(200, Map.of(), "[]")
@@ -992,6 +1107,9 @@ class GitHubRecorderTest {
                 .answer(201, Map.of(), "{\"ref\":\"refs/heads/forge-client-unit\"}")
                 .answer(201, Map.of(), "{\"commit\":{\"sha\":\"" + "b".repeat(40) + "\"}}")
                 .answer(201, Map.of(), "{\"commit\":{\"sha\":\"" + sha + "\"}}")
-                .answer(201, Map.of(), "{\"state\":\"success\"}");
+                .answer(201, Map.of(), "{\"state\":\"success\"}")
+                .answer(201, Map.of(), "{\"ref\":\"refs/heads/forge-client-unit-base\"}")
+                .answer(201, Map.of(), "{\"ref\":\"refs/heads/forge-client-unit-head\"}")
+                .answer(201, Map.of(), "{\"number\":9}");
     }
 }

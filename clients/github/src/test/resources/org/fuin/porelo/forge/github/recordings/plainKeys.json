@@ -2,37 +2,40 @@
   "request_uri" : "/fixture-reviewer.keys",
   "status" : 200,
   "headers" : {
-    "content-type" : [ "text/plain; charset=utf-8" ]
+    "content-type" : [ "text/plain; charset=utf-8" ],
+    "etag" : [ "W/\"ead475dc543a25ada54ac61bfe1c7d2b\"" ]
   },
-  "body" : "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIHqAhdm8fNga7IAObFXjTjZzA4AxqRHwyV6gaJtSOFc\n",
+  "body" : "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIHqAhdm8fNga7IAObFXjTjZzA4AxqRHwyV6gaJtSOFc\nssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHSsFhaa60uYdPdpxDL+mA6s8GNOhPCAt+7B+cOxYFHG\n",
   "exchanges" : [ {
     "request_uri" : "/fixture-reviewer.keys",
     "status" : 200,
     "headers" : {
-      "content-type" : [ "text/plain; charset=utf-8" ]
+      "content-type" : [ "text/plain; charset=utf-8" ],
+      "etag" : [ "W/\"ead475dc543a25ada54ac61bfe1c7d2b\"" ]
     },
-    "body" : "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIHqAhdm8fNga7IAObFXjTjZzA4AxqRHwyV6gaJtSOFc\n"
+    "body" : "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIHqAhdm8fNga7IAObFXjTjZzA4AxqRHwyV6gaJtSOFc\nssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHSsFhaa60uYdPdpxDL+mA6s8GNOhPCAt+7B+cOxYFHG\n"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "sha" : "ddb2cdaa1ee183a0c5a021a6a9145a3b8a53a7cf",
-    "number" : 11,
-    "comment" : 4467633645,
-    "check" : 126581593507,
-    "run" : 41832125512,
-    "job" : 126581668761,
+    "sha" : "1b05e99168c75e6eed33f28d717718ce1c440d49",
+    "number" : 233,
+    "comment" : 4697091364,
+    "check" : 139312298736,
+    "run" : 45644708077,
+    "job" : 139312467198,
     "username" : "fixture-user",
-    "ref" : "heads/forge-client-bbd1c0eb-61e9-4179-9ad5-8f01a3af1f5a",
+    "ref" : "heads/forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e",
     "thread" : "pending",
-    "reply" : 4467633878,
-    "issueComment" : 6630952917,
-    "review" : 5768488376,
-    "since" : "2026-11-04T12:45:59Z",
+    "reply" : 4697091640,
+    "issueComment" : 7166773803,
+    "review" : 6060422923,
+    "since" : "2026-11-25T15:23:41Z",
     "base" : "main",
     "keyAccount" : "fixture-reviewer",
     "key" : 0,
-    "signingKey" : 0
+    "signingKey" : 0,
+    "merged" : 232
   },
   "request_body" : null
 }

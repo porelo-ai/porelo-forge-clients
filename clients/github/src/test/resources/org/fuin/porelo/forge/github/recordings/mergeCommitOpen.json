@@ -1,0 +1,52 @@
+{
+  "request_uri" : "/graphql",
+  "status" : 200,
+  "headers" : {
+    "content-type" : [ "application/json; charset=utf-8" ],
+    "x-ratelimit-limit" : [ "5000" ],
+    "x-ratelimit-remaining" : [ "4988" ],
+    "x-ratelimit-reset" : [ "1795622815" ]
+  },
+  "body" : "{\"data\":{\"repository\":{\"pullRequest\":{\"merged\":false,\"mergeCommit\":null}}}}",
+  "exchanges" : [ {
+    "request_uri" : "/graphql",
+    "status" : 200,
+    "headers" : {
+      "content-type" : [ "application/json; charset=utf-8" ],
+      "x-ratelimit-limit" : [ "5000" ],
+      "x-ratelimit-remaining" : [ "4988" ],
+      "x-ratelimit-reset" : [ "1795622815" ]
+    },
+    "body" : "{\"data\":{\"repository\":{\"pullRequest\":{\"merged\":false,\"mergeCommit\":null}}}}"
+  } ],
+  "context" : {
+    "owner" : "fixture-org",
+    "repo" : "fixture-repo",
+    "sha" : "1b05e99168c75e6eed33f28d717718ce1c440d49",
+    "number" : 233,
+    "comment" : 4697091364,
+    "check" : 139312298736,
+    "run" : 45644708077,
+    "job" : 139312467198,
+    "username" : "fixture-user",
+    "ref" : "heads/forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e",
+    "thread" : "PRRT_kwDOVc0D8867-Rpf",
+    "reply" : 4697091640,
+    "issueComment" : 7166773803,
+    "review" : 6060422923,
+    "since" : "2026-11-25T15:23:41Z",
+    "base" : "main",
+    "keyAccount" : "fixture-reviewer",
+    "key" : 171107998,
+    "signingKey" : 1366333,
+    "merged" : 232
+  },
+  "request_body" : {
+    "variables" : {
+      "owner" : "fixture-org",
+      "repo" : "fixture-repo",
+      "number" : 233
+    },
+    "query" : "query MergeCommit($owner: String!, $repo: String!, $number: Int!) {\n  repository(owner: $owner, name: $repo) {\n    pullRequest(number: $number) { merged mergeCommit { oid } }\n  }\n}\n"
+  }
+}

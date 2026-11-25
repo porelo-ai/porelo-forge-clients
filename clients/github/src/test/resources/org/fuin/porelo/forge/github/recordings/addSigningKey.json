@@ -3,45 +3,50 @@
   "status" : 201,
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
+    "etag" : [ "\"14fc2b4cf39c7c012e0c4dc353b4cc040348edc1cce8b62a5165743a7b7eab4d\"" ],
+    "x-accepted-github-permissions" : [ "git_signing_ssh_public_keys=write" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4976" ],
-    "x-ratelimit-reset" : [ "1793799357" ]
+    "x-ratelimit-remaining" : [ "4978" ],
+    "x-ratelimit-reset" : [ "1795623143" ]
   },
-  "body" : "{\"id\":1301563,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKWzSCqIXV+5EWDYmH4/A9z1oHbGv+lYG0A/wkPbn0IT\",\"title\":\"forge-client-bbd1c0eb-61e9-4179-9ad5-8f01a3af1f5a\",\"created_at\":\"2026-11-04T13:46:24.651+01:00\"}",
+  "body" : "{\"id\":1366333,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGG75+0S84CGxEgqNlXXFCc9lSDRXE9sb9bP49QbKvBq\",\"title\":\"forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e\",\"created_at\":\"2026-11-25T16:24:12.725+01:00\"}",
   "exchanges" : [ {
     "request_uri" : "/user/ssh_signing_keys",
     "status" : 201,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
+      "etag" : [ "\"14fc2b4cf39c7c012e0c4dc353b4cc040348edc1cce8b62a5165743a7b7eab4d\"" ],
+      "x-accepted-github-permissions" : [ "git_signing_ssh_public_keys=write" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4976" ],
-      "x-ratelimit-reset" : [ "1793799357" ]
+      "x-ratelimit-remaining" : [ "4978" ],
+      "x-ratelimit-reset" : [ "1795623143" ]
     },
-    "body" : "{\"id\":1301563,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKWzSCqIXV+5EWDYmH4/A9z1oHbGv+lYG0A/wkPbn0IT\",\"title\":\"forge-client-bbd1c0eb-61e9-4179-9ad5-8f01a3af1f5a\",\"created_at\":\"2026-11-04T13:46:24.651+01:00\"}"
+    "body" : "{\"id\":1366333,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGG75+0S84CGxEgqNlXXFCc9lSDRXE9sb9bP49QbKvBq\",\"title\":\"forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e\",\"created_at\":\"2026-11-25T16:24:12.725+01:00\"}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "sha" : "ddb2cdaa1ee183a0c5a021a6a9145a3b8a53a7cf",
-    "number" : 11,
-    "comment" : 4467633645,
-    "check" : 126581593507,
-    "run" : 41832125512,
-    "job" : 126581668761,
+    "sha" : "1b05e99168c75e6eed33f28d717718ce1c440d49",
+    "number" : 233,
+    "comment" : 4697091364,
+    "check" : 139312298736,
+    "run" : 45644708077,
+    "job" : 139312467198,
     "username" : "fixture-user",
-    "ref" : "heads/forge-client-bbd1c0eb-61e9-4179-9ad5-8f01a3af1f5a",
+    "ref" : "heads/forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e",
     "thread" : "pending",
-    "reply" : 4467633878,
-    "issueComment" : 6630952917,
-    "review" : 5768488376,
-    "since" : "2026-11-04T12:45:59Z",
+    "reply" : 4697091640,
+    "issueComment" : 7166773803,
+    "review" : 6060422923,
+    "since" : "2026-11-25T15:23:41Z",
     "base" : "main",
     "keyAccount" : "fixture-reviewer",
-    "key" : 168752657,
-    "signingKey" : 0
+    "key" : 171107998,
+    "signingKey" : 0,
+    "merged" : 232
   },
   "request_body" : {
-    "title" : "forge-client-bbd1c0eb-61e9-4179-9ad5-8f01a3af1f5a",
-    "key" : "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKWzSCqIXV+5EWDYmH4/A9z1oHbGv+lYG0A/wkPbn0IT"
+    "key" : "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGG75+0S84CGxEgqNlXXFCc9lSDRXE9sb9bP49QbKvBq",
+    "title" : "forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e"
   }
 }

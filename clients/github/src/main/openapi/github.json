@@ -22,8 +22,10 @@
         "pull-request-review.copilot_code_review_effort",
         "pull-request-review-comment.is_copilot_code_review",
         "pull-request-review-comment.copilot_code_review_sources",
+        "pull-request-review-comment.copilot_code_review_severity",
         "review-comment.is_copilot_code_review",
         "review-comment.copilot_code_review_sources",
+        "review-comment.copilot_code_review_severity",
         "security-and-analysis.secret_scanning_validity_checks",
         "issue.assignee"
       ],
@@ -13423,6 +13425,9 @@
             "description": "GitHub sends it, its description does not have it; only an empty array has been seen, so its items' type is not known.",
             "type": "array",
             "items": { }
+          },
+          "copilot_code_review_severity": {
+            "description": "GitHub sends it, its description does not have it; only null has been seen, so its type is not known."
           }
         },
         "required": [
@@ -14320,6 +14325,9 @@
             "description": "GitHub sends it, its description does not have it; only an empty array has been seen, so its items' type is not known.",
             "type": "array",
             "items": { }
+          },
+          "copilot_code_review_severity": {
+            "description": "GitHub sends it, its description does not have it; only null has been seen, so its type is not known."
           }
         },
         "required": [

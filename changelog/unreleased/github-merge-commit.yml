@@ -1,0 +1,2 @@
+title: Read the commit a pull request's merge made with GitHubGraphQl.mergeCommit, null while it is not merged, since GitHub's API version 2026-03-10 no longer sends merge_commit_sha.
+type: added

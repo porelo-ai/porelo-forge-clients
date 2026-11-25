@@ -81,6 +81,7 @@ class GitHubRecordingTest {
                             case threadComments -> GitHubGraphQl.THREAD_COMMENTS;
                             case resolveReviewThread -> GitHubGraphQl.RESOLVE_REVIEW_THREAD;
                             case unresolveReviewThread -> GitHubGraphQl.UNRESOLVE_REVIEW_THREAD;
+                            case mergeCommit, mergeCommitOpen -> GitHubGraphQl.MERGE_COMMIT;
                             default -> throw new AssertionError("Unexpected GraphQL operation");
                         };
                 assertThat(sent.path("query").asText())
