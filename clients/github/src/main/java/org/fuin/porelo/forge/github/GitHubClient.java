@@ -1047,7 +1047,11 @@ public final class GitHubClient {
         } catch (GitHubException undecodable) {
             // A failure that already names GitHub's status is GitHub's own and passes unchanged.
             if (undecodable.status() != 0) throw undecodable;
-            throw answered(response.statusCode(), undecodable, limit);
+            throw answered(
+                    response.statusCode(),
+                    undecodable,
+                    limit,
+                    GitHubWords.requestId(headers, credentials));
         }
     }
 
@@ -1175,7 +1179,7 @@ public final class GitHubClient {
             return GitHubJson.convert(
                     json, envelope, json.constructType(type), answer.credentials());
         } catch (GitHubException undecodable) {
-            throw answered(answer.status(), undecodable, answer.rateLimit());
+            throw answered(answer.status(), undecodable, answer.rateLimit(), answer.requestId());
         }
     }
 
@@ -1199,22 +1203,25 @@ public final class GitHubClient {
                 && (errors.isNull() || (errors.isArray() && errors.isEmpty()))) {
             object.remove("errors");
         }
+        List<String> credentials = credentials(token, body);
         return new GraphQlAnswer(
                 answer.status(),
                 envelope,
                 RateLimit.read(answer.headers(), Instant.now()),
-                credentials(token, body),
+                GitHubWords.requestId(answer.headers(), credentials),
+                credentials,
                 rateLimitDelay);
     }
 
     /**
-     * A GraphQL answer: its envelope, what its headers said of the rate limit, and the credentials
-     * any message from it is scrubbed of.
+     * A GraphQL answer: its envelope, what its headers said of the rate limit, its request id, and
+     * the credentials any message from it is scrubbed of.
      */
     record GraphQlAnswer(
             int status,
             JsonNode envelope,
             @Nullable RateLimit rateLimit,
+            @Nullable String requestId,
             List<String> credentials,
             Duration rateLimitDelay) {
         /** Keeps the credentials from changing. */
@@ -1247,7 +1254,7 @@ public final class GitHubClient {
                     if (error.path("type").asText().equals("RATE_LIMITED")) named = error;
                 }
             }
-            throw failure(scrubbed(named));
+            throw failure(named);
         }
 
         /**
@@ -1263,8 +1270,24 @@ public final class GitHubClient {
             return false;
         }
 
-        /** A failure of the whole call, a rate or resource limit when any error says so. */
+        /**
+         * A failure of the whole call in GitHub's words, the named error's and every other's, a
+         * rate or resource limit when any error says so.
+         */
+        GitHubException failure(JsonNode named) {
+            return failure(
+                    scrubbed(named),
+                    GitHubWords.graphQl(requestId, named, envelope.path("errors"), credentials));
+        }
+
+        /**
+         * A failure of the whole call in the client's own words, a limit when any error says so.
+         */
         GitHubException failure(String message) {
+            return failure(message, new GitHubWords(requestId, null, List.of()));
+        }
+
+        private GitHubException failure(String message, GitHubWords words) {
             return new GitHubException(
                     status,
                     message,
@@ -1273,7 +1296,8 @@ public final class GitHubClient {
                     rateLimited(),
                     null,
                     resourceLimited(),
-                    rateLimitDelay);
+                    rateLimitDelay,
+                    words);
         }
     }
 
@@ -1400,7 +1424,8 @@ public final class GitHubClient {
             throw answered(
                     response.statusCode(),
                     undecodable,
-                    RateLimit.read(response.headers(), Instant.now()));
+                    RateLimit.read(response.headers(), Instant.now()),
+                    GitHubWords.requestId(response.headers(), credentials));
         }
     }
 
@@ -1419,7 +1444,10 @@ public final class GitHubClient {
 
     /** An answer GitHub gave that cannot be decoded, which is no failure to send the request. */
     private static GitHubException answered(
-            int status, GitHubException undecodable, @Nullable RateLimit limit) {
+            int status,
+            GitHubException undecodable,
+            @Nullable RateLimit limit,
+            @Nullable String requestId) {
         return new GitHubException(
                 status,
                 "GitHub answered "
@@ -1428,7 +1456,11 @@ public final class GitHubClient {
                         + undecodable.getMessage(),
                 Delivery.ANSWERED,
                 limit,
-                false);
+                false,
+                null,
+                false,
+                null,
+                new GitHubWords(requestId, null, List.of()));
     }
 
     private void delete(String token, String path) {
@@ -1531,6 +1563,22 @@ public final class GitHubClient {
     /** Makes the failure of a refused answer, telling a rate limit from a refusal. */
     static GitHubException refusal(
             int status, String message, HttpHeaders headers, Duration rateLimitDelay) {
+        // GitHub's tokens hold an underscore, which no request id may, so none is scrubbed here.
+        return refusal(
+                status,
+                message,
+                headers,
+                rateLimitDelay,
+                GitHubWords.requestIdOf(headers, List.of()));
+    }
+
+    /** Makes the failure of a refused answer that carries GitHub's own words. */
+    static GitHubException refusal(
+            int status,
+            String message,
+            HttpHeaders headers,
+            Duration rateLimitDelay,
+            GitHubWords words) {
         RateLimit limit = RateLimit.read(headers, Instant.now());
         return new GitHubException(
                 status,
@@ -1540,7 +1588,8 @@ public final class GitHubClient {
                 isRateLimit(status, message, limit),
                 acceptedPermissions(headers),
                 false,
-                rateLimitDelay);
+                rateLimitDelay,
+                words);
     }
 
     /**
@@ -1574,16 +1623,20 @@ public final class GitHubClient {
 
     private void check(HttpResponse<String> response, List<String> credentials) {
         if (response.statusCode() < 200 || response.statusCode() >= 300) {
-            String message = "GitHub request failed";
+            JsonNode value = null;
             try {
-                var value = json.readTree(response.body());
-                if (value != null && value.path("message").isTextual()) {
-                    message = GitHubJson.safe(value.path("message").asText(), credentials);
-                }
+                value = json.readTree(response.body());
             } catch (JsonProcessingException ex) {
                 // A non-JSON error page is not safe to include in an exception.
             }
-            throw refusal(response.statusCode(), message, response.headers(), rateLimitDelay);
+            GitHubWords words = GitHubWords.rest(response.headers(), value, credentials);
+            String message = words.message();
+            throw refusal(
+                    response.statusCode(),
+                    message != null ? message : "GitHub request failed",
+                    response.headers(),
+                    rateLimitDelay,
+                    words);
         }
     }
 

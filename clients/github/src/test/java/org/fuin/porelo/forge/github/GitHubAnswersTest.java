@@ -432,4 +432,232 @@ class GitHubAnswersTest {
         assertThat(read.text()).as("its last mebibyte").isEqualTo(end);
         assertThat(read.cut()).as("and it says it was longer").isTrue();
     }
+
+    private static final String REQUEST_ID = "C0F4:3A2B:1234567:12345678:65A1B2C3";
+
+    private static GitHubException refused(
+            int status, Map<String, List<String>> headers, String body) {
+        var http = new ChunkedTransport(status, headers, body);
+        var thrown =
+                org.assertj.core.api.Assertions.catchThrowableOfType(
+                        GitHubException.class,
+                        () -> new GitHubClient(BASE, http).ownKeys(TOKEN, 1, 1));
+        assertThat(thrown).as("a status of %s is a failure", status).isNotNull();
+        return thrown;
+    }
+
+    private static GitHubException graphQlRefused(Map<String, List<String>> headers, String body) {
+        var http = new ChunkedTransport(200, headers, body);
+        var thrown =
+                org.assertj.core.api.Assertions.catchThrowableOfType(
+                        GitHubException.class,
+                        () ->
+                                new GitHubClient(BASE, http)
+                                        .graphQl(TOKEN, Map.of("query", "q"), Object.class));
+        assertThat(thrown).as("GraphQL errors are a failure").isNotNull();
+        return thrown;
+    }
+
+    // Prevents a person from losing GitHub's own words and the id its support traces a refusal by.
+    @Test
+    void aRefusalCarriesGitHubsRequestIdAndItsOwnWords() {
+        var refused =
+                refused(
+                        422,
+                        Map.of("x-github-request-id", List.of(REQUEST_ID)),
+                        "{\"message\":\"Validation Failed\",\"errors\":["
+                                + "{\"resource\":\"Issue\",\"field\":\"title\","
+                                + "\"code\":\"missing_field\"},"
+                                + "{\"resource\":\"Issue\",\"code\":\"custom\","
+                                + "\"message\":\"title is too long\"},"
+                                + "\"a plain entry\"]}");
+        assertThat(refused.requestId()).as("GitHub's request id").isEqualTo(REQUEST_ID);
+        assertThat(refused.forgeMessage())
+                .as("GitHub's message word for word")
+                .isEqualTo("Validation Failed");
+        assertThat(refused.forgeDetails())
+                .as("each error detail in GitHub's order")
+                .containsExactly(
+                        "resource=Issue, field=title, code=missing_field",
+                        "title is too long",
+                        "a plain entry");
+    }
+
+    // Prevents the request's token from reaching a person through GitHub echoing it back.
+    @Test
+    void gitHubsWordsNeverCarryTheRequestsToken() {
+        var refused =
+                refused(
+                        401,
+                        Map.of("x-github-request-id", List.of(TOKEN)),
+                        "{\"message\":\"Bad credentials: "
+                                + TOKEN
+                                + "\",\"errors\":[{\"message\":\"token "
+                                + TOKEN
+                                + " is revoked\"},{\"resource\":\""
+                                + TOKEN
+                                + "\"}]}");
+        assertThat(refused.forgeMessage())
+                .as("GitHub's message without the token")
+                .isEqualTo("Bad credentials: [redacted]");
+        assertThat(refused.forgeDetails())
+                .as("the details without the token")
+                .containsExactly("token [redacted] is revoked", "resource=[redacted]");
+        assertThat(refused.requestId()).as("a request id that holds the token").isNull();
+        var graphQl =
+                graphQlRefused(
+                        Map.of(),
+                        "{\"errors\":[{\"message\":\"no "
+                                + TOKEN
+                                + "\",\"path\":[\""
+                                + TOKEN
+                                + "\"]}]}");
+        assertThat(graphQl.forgeMessage())
+                .as("a GraphQL message without the token")
+                .isEqualTo("no [redacted]");
+        assertThat(graphQl.forgeDetails())
+                .as("a GraphQL detail without the token")
+                .containsExactly("no [redacted] (path [redacted])");
+    }
+
+    // Prevents the client's own fallback wording from passing as GitHub's words.
+    @Test
+    void theClientsOwnWordsAreNeverGitHubs() {
+        var page =
+                refused(
+                        502,
+                        Map.of("x-github-request-id", List.of(REQUEST_ID)),
+                        "<html>" + SECRET_BODY + "</html>");
+        assertThat(page.getMessage())
+                .as("the client's fallback")
+                .isEqualTo("GitHub request failed");
+        assertThat(page.forgeMessage()).as("no forge message for a page").isNull();
+        assertThat(page.forgeDetails()).as("no details for a page").isEmpty();
+        assertThat(page.requestId())
+                .as("the request id still names the answer")
+                .isEqualTo(REQUEST_ID);
+        var silent = refused(404, Map.of(), "{\"documentation_url\":\"x\"}");
+        assertThat(silent.forgeMessage()).as("no message in the answer").isNull();
+        assertThat(silent.requestId()).as("no request id in the answer").isNull();
+        var undecodable =
+                new ChunkedTransport(
+                        203, Map.of("x-github-request-id", List.of(REQUEST_ID)), "{\"data\":{}}");
+        assertThatExceptionOfType(GitHubException.class)
+                .as("an answer that cannot be decoded")
+                .isThrownBy(
+                        () ->
+                                new GitHubClient(BASE, undecodable)
+                                        .graphQl(TOKEN, Map.of("query", "q"), Integer.class))
+                .satisfies(
+                        ex -> {
+                            assertThat(ex.requestId())
+                                    .as("names its request id")
+                                    .isEqualTo(REQUEST_ID);
+                            assertThat(ex.forgeMessage())
+                                    .as("but the words are the client's")
+                                    .isNull();
+                            assertThat(ex.forgeDetails()).as("and has no details").isEmpty();
+                        });
+    }
+
+    // Prevents a header GitHub did not mean as a plain id from reaching a person's screen.
+    @Test
+    void aRequestIdThatIsNoPlainTokenIsDropped() {
+        for (String value : List.of("A B", "A\u0007B", "A".repeat(65), "A_B", "")) {
+            assertThat(
+                            refused(403, Map.of("x-github-request-id", List.of(value)), "{}")
+                                    .requestId())
+                    .as("the header %s", value)
+                    .isNull();
+        }
+        assertThat(
+                        refused(403, Map.of("x-github-request-id", List.of("A".repeat(64))), "{}")
+                                .requestId())
+                .as("the longest id kept")
+                .isEqualTo("A".repeat(64));
+    }
+
+    // Prevents every GraphQL error but the first from being lost, and the call's request id with
+    // them.
+    @Test
+    void aGraphQlFailureCarriesEveryErrorAndTheRequestId() {
+        var refused =
+                graphQlRefused(
+                        Map.of("x-github-request-id", List.of(REQUEST_ID)),
+                        "{\"errors\":["
+                                + "{\"type\":\"FORBIDDEN\",\"path\":[\"repository\",\"issue\"],"
+                                + "\"message\":\"Resource not accessible by integration\"},"
+                                + "{\"path\":[\"addComment\",0],\"message\":\"Body is too long\"}"
+                                + "]}");
+        assertThat(refused.requestId()).as("the call's request id").isEqualTo(REQUEST_ID);
+        assertThat(refused.forgeMessage())
+                .as("the named error's message")
+                .isEqualTo("Resource not accessible by integration");
+        assertThat(refused.forgeDetails())
+                .as("every error with its type and path")
+                .containsExactly(
+                        "Resource not accessible by integration"
+                                + " (type FORBIDDEN, path repository.issue)",
+                        "Body is too long (path addComment.0)");
+        var unreadable =
+                new ChunkedTransport(
+                        200,
+                        Map.of("x-github-request-id", List.of(REQUEST_ID)),
+                        "{\"data\":{\"repository\":null}}");
+        assertThatExceptionOfType(GitHubException.class)
+                .as("a GraphQL answer the reader cannot read")
+                .isThrownBy(
+                        () -> new GitHubGraphQl(BASE, unreadable).mergeCommit(TOKEN, "o", "r", 7))
+                .satisfies(
+                        ex -> {
+                            assertThat(ex.requestId())
+                                    .as("names its request id")
+                                    .isEqualTo(REQUEST_ID);
+                            assertThat(ex.forgeMessage()).as("in the client's words").isNull();
+                        });
+    }
+
+    // Prevents an answered failure in the client's own words from losing the id GitHub's support
+    // traces.
+    @Test
+    void everyAnsweredFailureKeepsTheRequestIdInTheClientsOwnWords() {
+        var undecodable =
+                new ChunkedTransport(
+                        203, Map.of("x-github-request-id", List.of(REQUEST_ID)), "not json");
+        assertThatExceptionOfType(GitHubException.class)
+                .as("a REST answer that cannot be decoded")
+                .isThrownBy(() -> new GitHubClient(BASE, undecodable).ownKeys(TOKEN, 1, 1))
+                .satisfies(
+                        ex -> {
+                            assertThat(ex.requestId())
+                                    .as("names its request id")
+                                    .isEqualTo(REQUEST_ID);
+                            assertThat(ex.forgeMessage()).as("in the client's words").isNull();
+                        });
+        var oversized =
+                new ChunkedTransport(
+                        502,
+                        Map.of("x-github-request-id", List.of(REQUEST_ID)),
+                        "{\"message\":\"" + " ".repeat(BoundedAnswer.ERROR_BYTES) + "\"}");
+        assertThatExceptionOfType(GitHubException.class)
+                .as("an error answer past its bound")
+                .isThrownBy(() -> new GitHubClient(BASE, oversized).ownKeys(TOKEN, 1, 1))
+                .satisfies(
+                        ex -> {
+                            assertThat(ex.requestId())
+                                    .as("names its request id")
+                                    .isEqualTo(REQUEST_ID);
+                            assertThat(ex.forgeMessage()).as("in the client's words").isNull();
+                        });
+    }
+
+    // Prevents a blank message from passing as GitHub's words and hiding the client's own.
+    @Test
+    void aBlankMessageIsNoMessageOfGitHubs() {
+        var blank = refused(422, Map.of(), "{\"message\":\"  \"}");
+        assertThat(blank.forgeMessage()).as("a blank message is none").isNull();
+        assertThat(blank.getMessage())
+                .as("the client's fallback")
+                .isEqualTo("GitHub request failed");
+    }
 }

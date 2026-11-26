@@ -2,6 +2,7 @@ package org.fuin.porelo.forge.github;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -15,6 +16,7 @@ public final class GitHubException extends RuntimeException {
     private final @Nullable String acceptedPermissions;
     private final boolean resourceLimited;
     private final @Nullable Duration rateLimitDelay;
+    private final GitHubWords words;
 
     GitHubException(int status, String message) {
         this(status, message, status == 0 ? Delivery.NOT_SENT : Delivery.ANSWERED, null, false);
@@ -38,6 +40,28 @@ public final class GitHubException extends RuntimeException {
             @Nullable String acceptedPermissions,
             boolean resourceLimited,
             @Nullable Duration rateLimitDelay) {
+        this(
+                status,
+                message,
+                delivery,
+                rateLimit,
+                rateLimited,
+                acceptedPermissions,
+                resourceLimited,
+                rateLimitDelay,
+                GitHubWords.NONE);
+    }
+
+    GitHubException(
+            int status,
+            String message,
+            Delivery delivery,
+            @Nullable RateLimit rateLimit,
+            boolean rateLimited,
+            @Nullable String acceptedPermissions,
+            boolean resourceLimited,
+            @Nullable Duration rateLimitDelay,
+            GitHubWords words) {
         super(message);
         if (rateLimited && rateLimitDelay == null) {
             throw new IllegalArgumentException(
@@ -50,6 +74,32 @@ public final class GitHubException extends RuntimeException {
         this.acceptedPermissions = acceptedPermissions;
         this.resourceLimited = resourceLimited;
         this.rateLimitDelay = rateLimitDelay;
+        this.words = words;
+    }
+
+    /**
+     * Returns the answer's {@code X-GitHub-Request-Id}, which GitHub's support can trace, or null
+     * when no answer came or it named none that is a plain token.
+     */
+    public @Nullable String requestId() {
+        return words.requestId();
+    }
+
+    /**
+     * Returns GitHub's own message word for word, scrubbed of the request's credentials, or null
+     * when GitHub's answer gave none; {@link #getMessage()} may then be the client's own words.
+     */
+    public @Nullable String forgeMessage() {
+        return words.message();
+    }
+
+    /**
+     * Returns each error detail GitHub gave, in its order and scrubbed of the request's
+     * credentials: a REST entry's message, else its resource, field and code; a GraphQL error's
+     * message with its type and path. Empty when it gave none.
+     */
+    public List<String> forgeDetails() {
+        return words.details();
     }
 
     /**

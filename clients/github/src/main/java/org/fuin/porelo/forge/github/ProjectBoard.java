@@ -432,7 +432,7 @@ final class ProjectBoard {
             String alias = error.path("path").path(0).asText();
             Integer index = aliasIndex(alias, parts);
             // A rate limit on the whole request names no part, so it fails the call.
-            if (index == null) throw answer.failure(answer.scrubbed(error));
+            if (index == null) throw answer.failure(error);
             String message = answer.scrubbed(error);
             boolean limited = error.path("type").asText().equals("RATE_LIMITED");
             // A part's first error stands, unless a later one says it may pass when tried again.

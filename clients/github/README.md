@@ -67,6 +67,9 @@ Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
 
 - `acceptedPermissions()` of a refusal is GitHub's `X-Accepted-GitHub-Permissions` header, such as `issues=write`,
   when it is a plain list of permissions, else null.
+- `requestId()` is the answer's `X-GitHub-Request-Id` when it is a plain token, `forgeMessage()` GitHub's own message
+  and `forgeDetails()` each REST `errors[]` entry or GraphQL error, all scrubbed of the request's credentials; null and
+  empty where GitHub said nothing, so the client's own words in `getMessage()` never pass as GitHub's.
 - The conditional reads `issuesIfChanged`, a repository's issues newest change first, and `projectItemsIfChanged`, an
   organization project's items, send the entity tag the caller last got as `If-None-Match`, none when it gives none; a
   tag that is blank or holds anything but visible ASCII and inner spaces is refused before sending. Each returns a

@@ -639,7 +639,11 @@ public final class GitHubGraphQl {
                                     : ""),
                     Delivery.ANSWERED,
                     answer.rateLimit(),
-                    false);
+                    false,
+                    null,
+                    false,
+                    null,
+                    new GitHubWords(answer.requestId(), null, List.of()));
         }
     }
 

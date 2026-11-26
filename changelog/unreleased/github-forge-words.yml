@@ -1,0 +1,2 @@
+title: Keep GitHub's request id and its own words on a GitHubException - requestId(), forgeMessage() and forgeDetails() carry X-GitHub-Request-Id, GitHub's message and each REST or GraphQL error detail, scrubbed of the request's credentials - so a caller can show them and tell them from the client's own wording.
+type: added

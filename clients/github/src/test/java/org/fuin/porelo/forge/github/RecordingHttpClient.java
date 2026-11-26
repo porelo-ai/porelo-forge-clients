@@ -74,6 +74,7 @@ final class RecordingHttpClient extends HttpClient {
                         "link",
                         "etag",
                         "x-accepted-github-permissions",
+                        "x-github-request-id",
                         "x-total-count",
                         "retry-after",
                         "x-ratelimit-limit",
