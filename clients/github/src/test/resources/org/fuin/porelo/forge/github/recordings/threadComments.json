@@ -3,48 +3,50 @@
   "status" : 200,
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
+    "x-github-request-id" : [ "F0B7:27FBD0:46F2809:686EC45:6B07D8DB" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4992" ],
-    "x-ratelimit-reset" : [ "1795622815" ]
+    "x-ratelimit-remaining" : [ "4346" ],
+    "x-ratelimit-reset" : [ "1795677161" ]
   },
-  "body" : "{\"data\":{\"node\":{\"comments\":{\"nodes\":[{\"id\":\"PRRC_kwDOVc0D888AAAABF_ftJA\",\"databaseId\":4697091364,\"body\":\"```suggestion\\nfixture-complete\\n```\\nEdited\",\"createdAt\":\"2026-11-25T15:23:35Z\",\"author\":{\"login\":\"fixture-reviewer\",\"id\":\"FIXTURE_NODE_3\",\"databaseId\":3}},{\"id\":\"PRRC_kwDOVc0D888AAAABF_fuOA\",\"databaseId\":4697091640,\"body\":\"Fixture reply\",\"createdAt\":\"2026-11-25T15:23:36Z\",\"author\":{\"login\":\"fixture-user\",\"id\":\"FIXTURE_NODE_1\",\"databaseId\":1}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"Y3Vyc29yOnYyOpK0MjAyNi0xMS0yNVQxNToyMzozNlrPAAAAARf37jg=\"}}}}}",
+  "body" : "{\"data\":{\"node\":{\"comments\":{\"nodes\":[{\"id\":\"PRRC_kwDOVc0D888AAAABGG6MGQ\",\"databaseId\":4704865305,\"body\":\"```suggestion\\nfixture-complete\\n```\\nEdited\",\"createdAt\":\"2026-11-26T06:59:03Z\",\"state\":\"SUBMITTED\",\"author\":{\"login\":\"fixture-reviewer\",\"id\":\"FIXTURE_NODE_3\",\"databaseId\":3}},{\"id\":\"PRRC_kwDOVc0D888AAAABGG6MxA\",\"databaseId\":4704865476,\"body\":\"Fixture reply\",\"createdAt\":\"2026-11-26T06:59:05Z\",\"state\":\"SUBMITTED\",\"author\":{\"login\":\"fixture-user\",\"id\":\"FIXTURE_NODE_1\",\"databaseId\":1}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"Y3Vyc29yOnYyOpK0MjAyNi0xMS0yNlQwNjo1OTowNVrPAAAAARhujMQ=\"}}}}}",
   "exchanges" : [ {
     "request_uri" : "/graphql",
     "status" : 200,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
+      "x-github-request-id" : [ "F0B7:27FBD0:46F2809:686EC45:6B07D8DB" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4992" ],
-      "x-ratelimit-reset" : [ "1795622815" ]
+      "x-ratelimit-remaining" : [ "4346" ],
+      "x-ratelimit-reset" : [ "1795677161" ]
     },
-    "body" : "{\"data\":{\"node\":{\"comments\":{\"nodes\":[{\"id\":\"PRRC_kwDOVc0D888AAAABF_ftJA\",\"databaseId\":4697091364,\"body\":\"```suggestion\\nfixture-complete\\n```\\nEdited\",\"createdAt\":\"2026-11-25T15:23:35Z\",\"author\":{\"login\":\"fixture-reviewer\",\"id\":\"FIXTURE_NODE_3\",\"databaseId\":3}},{\"id\":\"PRRC_kwDOVc0D888AAAABF_fuOA\",\"databaseId\":4697091640,\"body\":\"Fixture reply\",\"createdAt\":\"2026-11-25T15:23:36Z\",\"author\":{\"login\":\"fixture-user\",\"id\":\"FIXTURE_NODE_1\",\"databaseId\":1}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"Y3Vyc29yOnYyOpK0MjAyNi0xMS0yNVQxNToyMzozNlrPAAAAARf37jg=\"}}}}}"
+    "body" : "{\"data\":{\"node\":{\"comments\":{\"nodes\":[{\"id\":\"PRRC_kwDOVc0D888AAAABGG6MGQ\",\"databaseId\":4704865305,\"body\":\"```suggestion\\nfixture-complete\\n```\\nEdited\",\"createdAt\":\"2026-11-26T06:59:03Z\",\"state\":\"SUBMITTED\",\"author\":{\"login\":\"fixture-reviewer\",\"id\":\"FIXTURE_NODE_3\",\"databaseId\":3}},{\"id\":\"PRRC_kwDOVc0D888AAAABGG6MxA\",\"databaseId\":4704865476,\"body\":\"Fixture reply\",\"createdAt\":\"2026-11-26T06:59:05Z\",\"state\":\"SUBMITTED\",\"author\":{\"login\":\"fixture-user\",\"id\":\"FIXTURE_NODE_1\",\"databaseId\":1}}],\"pageInfo\":{\"hasNextPage\":false,\"endCursor\":\"Y3Vyc29yOnYyOpK0MjAyNi0xMS0yNlQwNjo1OTowNVrPAAAAARhujMQ=\"}}}}}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "sha" : "1b05e99168c75e6eed33f28d717718ce1c440d49",
-    "number" : 233,
-    "comment" : 4697091364,
-    "check" : 139312298736,
-    "run" : 45644708077,
-    "job" : 139312467198,
+    "sha" : "7e1f36e2c1b55a368ea55e29476dab37814a4e10",
+    "number" : 235,
+    "comment" : 4704865305,
+    "check" : 139746562807,
+    "run" : 45772001203,
+    "job" : 139746624477,
     "username" : "fixture-user",
-    "ref" : "heads/forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e",
-    "thread" : "PRRT_kwDOVc0D8867-Rpf",
-    "reply" : 4697091640,
-    "issueComment" : 7166773803,
-    "review" : 6060422923,
-    "since" : "2026-11-25T15:23:41Z",
+    "ref" : "heads/forge-client-4e3c81f9-b79d-4a83-8873-9f18040e7395",
+    "thread" : "PRRT_kwDOVc0D8868QJCh",
+    "reply" : 4704865476,
+    "issueComment" : 7184977908,
+    "review" : 6069766584,
+    "since" : "2026-11-26T06:59:09Z",
     "base" : "main",
     "keyAccount" : "fixture-reviewer",
-    "key" : 171107998,
-    "signingKey" : 1366333,
-    "merged" : 232
+    "key" : 171174170,
+    "signingKey" : 1368289,
+    "merged" : 234
   },
   "request_body" : {
+    "query" : "query ThreadComments($id: ID!, $after: String) {\n  node(id: $id) {\n    ... on PullRequestReviewThread {\n      comments(first: 100, after: $after) {\n        nodes {\n          id databaseId body createdAt state\n          author { login ... on User { id databaseId } ... on Bot { id databaseId } }\n        }\n        pageInfo { hasNextPage endCursor }\n      }\n    }\n  }\n}\n",
     "variables" : {
-      "id" : "PRRT_kwDOVc0D8867-Rpf"
-    },
-    "query" : "query ThreadComments($id: ID!, $after: String) {\n  node(id: $id) {\n    ... on PullRequestReviewThread {\n      comments(first: 100, after: $after) {\n        nodes {\n          id databaseId body createdAt\n          author { login ... on User { id databaseId } ... on Bot { id databaseId } }\n        }\n        pageInfo { hasNextPage endCursor }\n      }\n    }\n  }\n}\n"
+      "id" : "PRRT_kwDOVc0D8868QJCh"
+    }
   }
 }

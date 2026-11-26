@@ -3,50 +3,52 @@
   "status" : 201,
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
-    "etag" : [ "\"14fc2b4cf39c7c012e0c4dc353b4cc040348edc1cce8b62a5165743a7b7eab4d\"" ],
+    "etag" : [ "\"2b791d91693c7045d969b5192f69d9cffd3508633b6784e434691ff006fa6271\"" ],
     "x-accepted-github-permissions" : [ "git_signing_ssh_public_keys=write" ],
+    "x-github-request-id" : [ "F0B7:27FBD0:46EF654:686A093:6B07D8D6" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4978" ],
-    "x-ratelimit-reset" : [ "1795623143" ]
+    "x-ratelimit-remaining" : [ "4969" ],
+    "x-ratelimit-reset" : [ "1795678641" ]
   },
-  "body" : "{\"id\":1366333,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGG75+0S84CGxEgqNlXXFCc9lSDRXE9sb9bP49QbKvBq\",\"title\":\"forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e\",\"created_at\":\"2026-11-25T16:24:12.725+01:00\"}",
+  "body" : "{\"id\":1368289,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLgNtfrfV8tp4vIDiVnpwGrSHCV+rLxyDGvX/frGrF+\",\"title\":\"forge-client-4e3c81f9-b79d-4a83-8873-9f18040e7395\",\"created_at\":\"2026-11-26T07:59:35.194+01:00\"}",
   "exchanges" : [ {
     "request_uri" : "/user/ssh_signing_keys",
     "status" : 201,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
-      "etag" : [ "\"14fc2b4cf39c7c012e0c4dc353b4cc040348edc1cce8b62a5165743a7b7eab4d\"" ],
+      "etag" : [ "\"2b791d91693c7045d969b5192f69d9cffd3508633b6784e434691ff006fa6271\"" ],
       "x-accepted-github-permissions" : [ "git_signing_ssh_public_keys=write" ],
+      "x-github-request-id" : [ "F0B7:27FBD0:46EF654:686A093:6B07D8D6" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4978" ],
-      "x-ratelimit-reset" : [ "1795623143" ]
+      "x-ratelimit-remaining" : [ "4969" ],
+      "x-ratelimit-reset" : [ "1795678641" ]
     },
-    "body" : "{\"id\":1366333,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGG75+0S84CGxEgqNlXXFCc9lSDRXE9sb9bP49QbKvBq\",\"title\":\"forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e\",\"created_at\":\"2026-11-25T16:24:12.725+01:00\"}"
+    "body" : "{\"id\":1368289,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLgNtfrfV8tp4vIDiVnpwGrSHCV+rLxyDGvX/frGrF+\",\"title\":\"forge-client-4e3c81f9-b79d-4a83-8873-9f18040e7395\",\"created_at\":\"2026-11-26T07:59:35.194+01:00\"}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "sha" : "1b05e99168c75e6eed33f28d717718ce1c440d49",
-    "number" : 233,
-    "comment" : 4697091364,
-    "check" : 139312298736,
-    "run" : 45644708077,
-    "job" : 139312467198,
+    "sha" : "7e1f36e2c1b55a368ea55e29476dab37814a4e10",
+    "number" : 235,
+    "comment" : 4704865305,
+    "check" : 139746562807,
+    "run" : 45772001203,
+    "job" : 139746624477,
     "username" : "fixture-user",
-    "ref" : "heads/forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e",
+    "ref" : "heads/forge-client-4e3c81f9-b79d-4a83-8873-9f18040e7395",
     "thread" : "pending",
-    "reply" : 4697091640,
-    "issueComment" : 7166773803,
-    "review" : 6060422923,
-    "since" : "2026-11-25T15:23:41Z",
+    "reply" : 4704865476,
+    "issueComment" : 7184977908,
+    "review" : 6069766584,
+    "since" : "2026-11-26T06:59:09Z",
     "base" : "main",
     "keyAccount" : "fixture-reviewer",
-    "key" : 171107998,
+    "key" : 171174170,
     "signingKey" : 0,
-    "merged" : 232
+    "merged" : 234
   },
   "request_body" : {
-    "key" : "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGG75+0S84CGxEgqNlXXFCc9lSDRXE9sb9bP49QbKvBq",
-    "title" : "forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e"
+    "title" : "forge-client-4e3c81f9-b79d-4a83-8873-9f18040e7395",
+    "key" : "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLgNtfrfV8tp4vIDiVnpwGrSHCV+rLxyDGvX/frGrF+"
   }
 }

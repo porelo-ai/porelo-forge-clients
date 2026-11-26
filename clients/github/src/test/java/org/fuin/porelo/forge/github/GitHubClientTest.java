@@ -1019,7 +1019,8 @@ class GitHubClientTest {
                                  "isOutdated": false, "path": "a.txt", "line": 1, "diffSide": "RIGHT",
                                  "startDiffSide": null, "resolvedBy": null,
                                  "comments": {"nodes": [{"id": "PRRC_x", "databaseId": 7, "body": "b",
-                                  "createdAt": "2026-10-31T10:00:00Z", "author": {"login": "someone"}}],
+                                  "createdAt": "2026-10-31T10:00:00Z", "state": "SUBMITTED",
+                                  "author": {"login": "someone"}}],
                                   "pageInfo": {"hasNextPage": false, "endCursor": null}}}}}
                                 """);
 

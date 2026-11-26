@@ -22,6 +22,8 @@ Page<PullRequestSimple> open = github.pulls(token, "owner", "repo", "open", 1, 5
   page follows, read from GitHub's `Link` header or an envelope's `total_count`; a full page without a next link is the
   last one. `status` keeps its envelope, which says a commit's `state` and `sha` beside the page, and its `total_count`
   tells the end. Callers advance pages. GraphQL exposes cursors for threads and comments.
+- Each comment of a review thread carries its `state`: `PENDING` for a comment of the reading account's own review
+  not yet submitted, which GraphQL lists and the REST list of review comments leaves out, else `SUBMITTED`.
 - The transport must use `Redirect.NEVER`. Log redirects are followed manually, at most five times;
   authentication stays removed after leaving the base's scheme, host and port. HTTPS never downgrades to HTTP.
 - Reading defaults to `Strictness.LENIENT`; `Strictness.STRICT` rejects unknown fields. Both reject missing

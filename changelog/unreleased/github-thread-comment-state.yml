@@ -1,0 +1,2 @@
+title: Read each review thread comment's state - PENDING for a comment of the reading account's own review not yet submitted, which the REST list of review comments leaves out, else SUBMITTED - so a caller can leave such comments out.
+type: added

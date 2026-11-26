@@ -138,4 +138,42 @@ class GitHubRecordingTest {
                         });
         return subscriber.getBody().toCompletableFuture().join();
     }
+
+    // Prevents an unsubmitted comment of the reading account from passing as one the pull request
+    // shows.
+    @org.junit.jupiter.api.Test
+    void aCommentOfAReviewNotYetSubmittedReadsAsPending() throws Exception {
+        var http = new ReplayHttpClient().recording(GitHubOperations.reviewThreads.name());
+        var context =
+                JSON.treeToValue(
+                        recording(GitHubOperations.reviewThreads.name()).path("context"),
+                        GitHubOperations.Context.class);
+        var threads =
+                (GitHubGraphQl.ThreadsResponse)
+                        GitHubOperations.reviewThreads.invoke(
+                                new GitHubClient(BASE, BASE, http, Strictness.STRICT),
+                                new GitHubGraphQl(BASE, http, Strictness.STRICT),
+                                TOKEN,
+                                context,
+                                recording(GitHubOperations.reviewThreads.name())
+                                        .path("request_body"));
+        var comments =
+                threads.data().repository().pullRequest().reviewThreads().nodes().stream()
+                        .flatMap(thread -> thread.comments().nodes().stream())
+                        .toList();
+        assertThat(comments)
+                .filteredOn(comment -> comment.body().equals(GitHubScenario.PENDING_COMMENT))
+                .extracting(GitHubGraphQl.Comment::state)
+                .as("the comment of the review not yet submitted")
+                .containsExactly("PENDING");
+        assertThat(comments)
+                .filteredOn(comment -> !comment.body().equals(GitHubScenario.PENDING_COMMENT))
+                .extracting(GitHubGraphQl.Comment::state)
+                .as("every other comment")
+                .isNotEmpty()
+                .containsOnly("SUBMITTED");
+        assertThat(recording(GitHubOperations.reviewComments.name()).path("body").asText())
+                .as("the REST list leaves the pending comment out")
+                .doesNotContain(GitHubScenario.PENDING_COMMENT);
+    }
 }

@@ -5,9 +5,10 @@
     "content-type" : [ "application/json; charset=utf-8" ],
     "etag" : [ "\"ab1e224835aa0a6678a347ce22dc86cd201e6863f94de94f45b03d4df2f2f9f2\"" ],
     "x-accepted-github-permissions" : [ "metadata=read" ],
+    "x-github-request-id" : [ "F0B7:27FBD0:46F211D:686E1B2:6B07D8DB" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4979" ],
-    "x-ratelimit-reset" : [ "1795623224" ]
+    "x-ratelimit-remaining" : [ "4128" ],
+    "x-ratelimit-reset" : [ "1795677162" ]
   },
   "body" : "{\"permission\":\"admin\",\"user\":{\"login\":\"fixture-user\",\"id\":1,\"node_id\":\"FIXTURE_NODE_1\",\"avatar_url\":\"https://host-2.example.org/u/1\",\"gravatar_id\":\"\",\"url\":\"https://example.org/users/fixture-user\",\"html_url\":\"https://host-1.example.org/fixture-user\",\"followers_url\":\"https://example.org/users/fixture-user/followers\",\"following_url\":\"https://example.org/users/fixture-user/following{/other_user}\",\"gists_url\":\"https://example.org/users/fixture-user/gists{/gist_id}\",\"starred_url\":\"https://example.org/users/fixture-user/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://example.org/users/fixture-user/subscriptions\",\"organizations_url\":\"https://example.org/users/fixture-user/orgs\",\"repos_url\":\"https://example.org/users/fixture-user/repos\",\"events_url\":\"https://example.org/users/fixture-user/events{/privacy}\",\"received_events_url\":\"https://example.org/users/fixture-user/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false,\"permissions\":{\"admin\":true,\"maintain\":true,\"push\":true,\"triage\":true,\"pull\":true},\"role_name\":\"admin\"},\"role_name\":\"admin\"}",
   "exchanges" : [ {
@@ -17,33 +18,34 @@
       "content-type" : [ "application/json; charset=utf-8" ],
       "etag" : [ "\"ab1e224835aa0a6678a347ce22dc86cd201e6863f94de94f45b03d4df2f2f9f2\"" ],
       "x-accepted-github-permissions" : [ "metadata=read" ],
+      "x-github-request-id" : [ "F0B7:27FBD0:46F211D:686E1B2:6B07D8DB" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4979" ],
-      "x-ratelimit-reset" : [ "1795623224" ]
+      "x-ratelimit-remaining" : [ "4128" ],
+      "x-ratelimit-reset" : [ "1795677162" ]
     },
     "body" : "{\"permission\":\"admin\",\"user\":{\"login\":\"fixture-user\",\"id\":1,\"node_id\":\"FIXTURE_NODE_1\",\"avatar_url\":\"https://host-2.example.org/u/1\",\"gravatar_id\":\"\",\"url\":\"https://example.org/users/fixture-user\",\"html_url\":\"https://host-1.example.org/fixture-user\",\"followers_url\":\"https://example.org/users/fixture-user/followers\",\"following_url\":\"https://example.org/users/fixture-user/following{/other_user}\",\"gists_url\":\"https://example.org/users/fixture-user/gists{/gist_id}\",\"starred_url\":\"https://example.org/users/fixture-user/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://example.org/users/fixture-user/subscriptions\",\"organizations_url\":\"https://example.org/users/fixture-user/orgs\",\"repos_url\":\"https://example.org/users/fixture-user/repos\",\"events_url\":\"https://example.org/users/fixture-user/events{/privacy}\",\"received_events_url\":\"https://example.org/users/fixture-user/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false,\"permissions\":{\"admin\":true,\"maintain\":true,\"push\":true,\"triage\":true,\"pull\":true},\"role_name\":\"admin\"},\"role_name\":\"admin\"}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "sha" : "1b05e99168c75e6eed33f28d717718ce1c440d49",
-    "number" : 233,
-    "comment" : 4697091364,
-    "check" : 139312298736,
-    "run" : 45644708077,
-    "job" : 139312467198,
+    "sha" : "7e1f36e2c1b55a368ea55e29476dab37814a4e10",
+    "number" : 235,
+    "comment" : 4704865305,
+    "check" : 139746562807,
+    "run" : 45772001203,
+    "job" : 139746624477,
     "username" : "fixture-user",
-    "ref" : "heads/forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e",
+    "ref" : "heads/forge-client-4e3c81f9-b79d-4a83-8873-9f18040e7395",
     "thread" : "pending",
-    "reply" : 4697091640,
-    "issueComment" : 7166773803,
-    "review" : 6060422923,
-    "since" : "2026-11-25T15:23:41Z",
+    "reply" : 4704865476,
+    "issueComment" : 7184977908,
+    "review" : 6069766584,
+    "since" : "2026-11-26T06:59:09Z",
     "base" : "main",
     "keyAccount" : "fixture-reviewer",
-    "key" : 171107998,
-    "signingKey" : 1366333,
-    "merged" : 232
+    "key" : 171174170,
+    "signingKey" : 1368289,
+    "merged" : 234
   },
   "request_body" : null
 }

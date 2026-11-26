@@ -3,52 +3,54 @@
   "status" : 201,
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
-    "location" : [ "https://example.org/user/keys/171107998" ],
-    "etag" : [ "\"dd865520725f3183fb07fd6b62b0a89a9e93bf59e71d8710d2066a5f18d7be8b\"" ],
+    "location" : [ "https://example.org/user/keys/171174170" ],
+    "etag" : [ "\"332547da19c8ff77b8e3c79cbf97ec3066c696042ea3aa5132c5d3c8877fee5e\"" ],
     "x-accepted-github-permissions" : [ "keys=write" ],
+    "x-github-request-id" : [ "F0B7:27FBD0:46EEFA7:68696A8:6B07D8D6" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4980" ],
-    "x-ratelimit-reset" : [ "1795623143" ]
+    "x-ratelimit-remaining" : [ "4971" ],
+    "x-ratelimit-reset" : [ "1795678641" ]
   },
-  "body" : "{\"id\":171107998,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINHwIWXWngNuBv+2dwnglWvhbpRRNhYceDKpElyheuBQ\",\"created_at\":\"2026-11-25T15:24:12Z\",\"last_used\":null,\"url\":\"https://example.org/user/keys/171107998\",\"title\":\"forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e\",\"verified\":true,\"read_only\":false}",
+  "body" : "{\"id\":171174170,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAdRoHbNESQREO4MSHP28/5SEapDpSQusmCSzzX7NkEK\",\"created_at\":\"2026-11-26T06:59:34Z\",\"last_used\":null,\"url\":\"https://example.org/user/keys/171174170\",\"title\":\"forge-client-4e3c81f9-b79d-4a83-8873-9f18040e7395\",\"verified\":true,\"read_only\":false}",
   "exchanges" : [ {
     "request_uri" : "/user/keys",
     "status" : 201,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
-      "location" : [ "https://example.org/user/keys/171107998" ],
-      "etag" : [ "\"dd865520725f3183fb07fd6b62b0a89a9e93bf59e71d8710d2066a5f18d7be8b\"" ],
+      "location" : [ "https://example.org/user/keys/171174170" ],
+      "etag" : [ "\"332547da19c8ff77b8e3c79cbf97ec3066c696042ea3aa5132c5d3c8877fee5e\"" ],
       "x-accepted-github-permissions" : [ "keys=write" ],
+      "x-github-request-id" : [ "F0B7:27FBD0:46EEFA7:68696A8:6B07D8D6" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4980" ],
-      "x-ratelimit-reset" : [ "1795623143" ]
+      "x-ratelimit-remaining" : [ "4971" ],
+      "x-ratelimit-reset" : [ "1795678641" ]
     },
-    "body" : "{\"id\":171107998,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINHwIWXWngNuBv+2dwnglWvhbpRRNhYceDKpElyheuBQ\",\"created_at\":\"2026-11-25T15:24:12Z\",\"last_used\":null,\"url\":\"https://example.org/user/keys/171107998\",\"title\":\"forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e\",\"verified\":true,\"read_only\":false}"
+    "body" : "{\"id\":171174170,\"key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAdRoHbNESQREO4MSHP28/5SEapDpSQusmCSzzX7NkEK\",\"created_at\":\"2026-11-26T06:59:34Z\",\"last_used\":null,\"url\":\"https://example.org/user/keys/171174170\",\"title\":\"forge-client-4e3c81f9-b79d-4a83-8873-9f18040e7395\",\"verified\":true,\"read_only\":false}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "sha" : "1b05e99168c75e6eed33f28d717718ce1c440d49",
-    "number" : 233,
-    "comment" : 4697091364,
-    "check" : 139312298736,
-    "run" : 45644708077,
-    "job" : 139312467198,
+    "sha" : "7e1f36e2c1b55a368ea55e29476dab37814a4e10",
+    "number" : 235,
+    "comment" : 4704865305,
+    "check" : 139746562807,
+    "run" : 45772001203,
+    "job" : 139746624477,
     "username" : "fixture-user",
-    "ref" : "heads/forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e",
+    "ref" : "heads/forge-client-4e3c81f9-b79d-4a83-8873-9f18040e7395",
     "thread" : "pending",
-    "reply" : 4697091640,
-    "issueComment" : 7166773803,
-    "review" : 6060422923,
-    "since" : "2026-11-25T15:23:41Z",
+    "reply" : 4704865476,
+    "issueComment" : 7184977908,
+    "review" : 6069766584,
+    "since" : "2026-11-26T06:59:09Z",
     "base" : "main",
     "keyAccount" : "fixture-reviewer",
     "key" : 0,
     "signingKey" : 0,
-    "merged" : 232
+    "merged" : 234
   },
   "request_body" : {
-    "key" : "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINHwIWXWngNuBv+2dwnglWvhbpRRNhYceDKpElyheuBQ",
-    "title" : "forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e"
+    "title" : "forge-client-4e3c81f9-b79d-4a83-8873-9f18040e7395",
+    "key" : "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAdRoHbNESQREO4MSHP28/5SEapDpSQusmCSzzX7NkEK"
   }
 }

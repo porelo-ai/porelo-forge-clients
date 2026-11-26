@@ -22,7 +22,9 @@ final class GitHubScenario {
     private long comment;
     private long reply;
     private long issueComment;
+    static final String PENDING_COMMENT = "Fixture pending comment";
     private long review;
+    private long pendingReview;
     private long check;
     private long run;
     private long job;
@@ -100,6 +102,8 @@ final class GitHubScenario {
                 if (job <= 0) throw new IllegalStateException("Dispatched workflow has no job");
             }
             if (operation == GitHubOperations.createIssueComment) since = afterAnEarlierComment();
+            if (operation == GitHubOperations.reviewComments) pendingReview = startPendingReview();
+            if (operation == GitHubOperations.deleteIssueComment) deletePendingReview();
             var body = body(operation);
             var context = context();
             String token =
@@ -143,6 +147,14 @@ final class GitHubScenario {
                 case PullRequestReviewComment created
                         when operation == GitHubOperations.replyReviewComment ->
                         reply = created.id();
+                case Page<?> comments when operation == GitHubOperations.reviewComments ->
+                        assertThat(comments.items())
+                                .extracting(
+                                        value ->
+                                                ((PullRequestReviewComment) value)
+                                                        .pullRequestReviewId())
+                                .as("the REST list leaves out a review not yet submitted")
+                                .doesNotContain(pendingReview);
                 case IssueComment created when operation == GitHubOperations.createIssueComment ->
                         issueComment = created.id();
                 case CheckRun created when operation == GitHubOperations.createCheckRun ->
@@ -177,6 +189,43 @@ final class GitHubScenario {
             captures.add(new Capture(operation.name(), recording));
         }
         return java.util.List.copyOf(captures);
+    }
+
+    /**
+     * Starts a review without an event by the account that reads the threads, so GitHub holds its
+     * one comment pending while the review comments and threads are read.
+     */
+    private long startPendingReview() throws Exception {
+        long id =
+                fixture.api(
+                                "POST",
+                                GitHubFixture.ROOT + "/pulls/" + number + "/reviews",
+                                java.util.Map.of(
+                                        "commit_id",
+                                        fixture.sha(),
+                                        "comments",
+                                        java.util.List.of(
+                                                java.util.Map.of(
+                                                        "path",
+                                                        fixture.prefix + ".txt",
+                                                        "line",
+                                                        1,
+                                                        "side",
+                                                        "RIGHT",
+                                                        "body",
+                                                        PENDING_COMMENT))))
+                        .path("id")
+                        .asLong();
+        if (id <= 0) throw new IllegalStateException("GitHub started no pending review");
+        return id;
+    }
+
+    /** Deletes the pending review, which closing the pull request would leave behind. */
+    private void deletePendingReview() throws Exception {
+        fixture.api(
+                "DELETE",
+                GitHubFixture.ROOT + "/pulls/" + number + "/reviews/" + pendingReview,
+                null);
     }
 
     private com.fasterxml.jackson.databind.JsonNode body(GitHubOperations operation)
@@ -244,6 +293,13 @@ final class GitHubScenario {
 
     record Capture(String operation, com.fasterxml.jackson.databind.node.ObjectNode recording) {}
 
+    private static void requireStates(java.util.List<GitHubGraphQl.Comment> comments) {
+        assertThat(comments)
+                .extracting(GitHubGraphQl.Comment::state)
+                .as("each comment is pending or submitted")
+                .allMatch(state -> state.equals("PENDING") || state.equals("SUBMITTED"));
+    }
+
     static void requireUsefulResult(GitHubOperations operation, Object result) {
         assertThat(result).as("%s must return a payload", operation).isNotNull();
         if (operation == GitHubOperations.issueComments)
@@ -284,10 +340,12 @@ final class GitHubScenario {
                 assertThat(pull.reviewThreads().nodes())
                         .as("the fixture has review threads")
                         .isNotEmpty();
-                for (var thread : pull.reviewThreads().nodes())
+                for (var thread : pull.reviewThreads().nodes()) {
                     assertThat(thread.comments().nodes())
                             .as("each fixture thread has comments")
                             .isNotEmpty();
+                    requireStates(thread.comments().nodes());
+                }
             }
             case GitHubGraphQl.ThreadResponse response -> {
                 var thread = response.data().node();
@@ -305,6 +363,7 @@ final class GitHubScenario {
                                                                         != null))
                         .as("each comment names its author's stable id")
                         .isTrue();
+                requireStates(thread.comments().nodes());
             }
             case CombinedCommitStatus status ->
                     assertThat(status.statuses())
@@ -328,6 +387,7 @@ final class GitHubScenario {
                 assertThat(response.data().node().comments().nodes())
                         .as("the thread has comments")
                         .isNotEmpty();
+                requireStates(response.data().node().comments().nodes());
             }
             case GitHubGraphQl.ResolveResponse response ->
                     assertThat(response.data().resolveReviewThread().thread().isResolved())

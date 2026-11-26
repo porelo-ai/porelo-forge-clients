@@ -1,45 +1,47 @@
 {
-  "request_uri" : "/user/ssh_signing_keys/1366333",
+  "request_uri" : "/user/ssh_signing_keys/1368289",
   "status" : 204,
   "headers" : {
     "x-accepted-github-permissions" : [ "git_signing_ssh_public_keys=write" ],
+    "x-github-request-id" : [ "F0B7:27FBD0:46F63B1:68743A0:6B07D8E1" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4976" ],
-    "x-ratelimit-reset" : [ "1795623143" ]
+    "x-ratelimit-remaining" : [ "4967" ],
+    "x-ratelimit-reset" : [ "1795678641" ]
   },
   "body" : "",
   "exchanges" : [ {
-    "request_uri" : "/user/ssh_signing_keys/1366333",
+    "request_uri" : "/user/ssh_signing_keys/1368289",
     "status" : 204,
     "headers" : {
       "x-accepted-github-permissions" : [ "git_signing_ssh_public_keys=write" ],
+      "x-github-request-id" : [ "F0B7:27FBD0:46F63B1:68743A0:6B07D8E1" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4976" ],
-      "x-ratelimit-reset" : [ "1795623143" ]
+      "x-ratelimit-remaining" : [ "4967" ],
+      "x-ratelimit-reset" : [ "1795678641" ]
     },
     "body" : ""
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "sha" : "1b05e99168c75e6eed33f28d717718ce1c440d49",
-    "number" : 233,
-    "comment" : 4697091364,
-    "check" : 139312298736,
-    "run" : 45644708077,
-    "job" : 139312467198,
+    "sha" : "7e1f36e2c1b55a368ea55e29476dab37814a4e10",
+    "number" : 235,
+    "comment" : 4704865305,
+    "check" : 139746562807,
+    "run" : 45772001203,
+    "job" : 139746624477,
     "username" : "fixture-user",
-    "ref" : "heads/forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e",
-    "thread" : "PRRT_kwDOVc0D8867-Rpf",
-    "reply" : 4697091640,
-    "issueComment" : 7166773803,
-    "review" : 6060422923,
-    "since" : "2026-11-25T15:23:41Z",
+    "ref" : "heads/forge-client-4e3c81f9-b79d-4a83-8873-9f18040e7395",
+    "thread" : "PRRT_kwDOVc0D8868QJCh",
+    "reply" : 4704865476,
+    "issueComment" : 7184977908,
+    "review" : 6069766584,
+    "since" : "2026-11-26T06:59:09Z",
     "base" : "main",
     "keyAccount" : "fixture-reviewer",
-    "key" : 171107998,
-    "signingKey" : 1366333,
-    "merged" : 232
+    "key" : 171174170,
+    "signingKey" : 1368289,
+    "merged" : 234
   },
   "request_body" : null
 }

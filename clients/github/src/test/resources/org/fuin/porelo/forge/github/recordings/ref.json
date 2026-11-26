@@ -1,49 +1,51 @@
 {
-  "request_uri" : "/repos/fixture-org/fixture-repo/git/ref/heads/forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e",
+  "request_uri" : "/repos/fixture-org/fixture-repo/git/ref/heads/forge-client-4e3c81f9-b79d-4a83-8873-9f18040e7395",
   "status" : 200,
   "headers" : {
     "content-type" : [ "application/json; charset=utf-8" ],
-    "etag" : [ "\"ca690835829092a89fa4aeab90fe345ca6a69089c135f901490cac13ef895c5e\"" ],
+    "etag" : [ "\"43e4f9c157483c532ef0d2619b248b40c8cc4c84072402c3cf024465b4eaa677\"" ],
     "x-accepted-github-permissions" : [ "contents=read" ],
+    "x-github-request-id" : [ "F0B7:27FBD0:46EDA91:68676EA:6B07D8D3" ],
     "x-ratelimit-limit" : [ "5000" ],
-    "x-ratelimit-remaining" : [ "4860" ],
-    "x-ratelimit-reset" : [ "1795620250" ]
+    "x-ratelimit-remaining" : [ "4763" ],
+    "x-ratelimit-reset" : [ "1795677119" ]
   },
-  "body" : "{\"ref\":\"refs/heads/forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e\",\"node_id\":\"REF_kwDOVc0D89oAPHJlZnMvaGVhZHMvZm9yZ2UtY2xpZW50LTA0NTkxODI2LTdmYjgtNDA5OS05NjFlLWU5Zjc2ZjA1ZWY0ZQ\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/git/refs/heads/forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e\",\"object\":{\"sha\":\"1b05e99168c75e6eed33f28d717718ce1c440d49\",\"type\":\"commit\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/git/commits/1b05e99168c75e6eed33f28d717718ce1c440d49\"}}",
+  "body" : "{\"ref\":\"refs/heads/forge-client-4e3c81f9-b79d-4a83-8873-9f18040e7395\",\"node_id\":\"REF_kwDOVc0D89oAPHJlZnMvaGVhZHMvZm9yZ2UtY2xpZW50LTRlM2M4MWY5LWI3OWQtNGE4My04ODczLTlmMTgwNDBlNzM5NQ\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/git/refs/heads/forge-client-4e3c81f9-b79d-4a83-8873-9f18040e7395\",\"object\":{\"sha\":\"7e1f36e2c1b55a368ea55e29476dab37814a4e10\",\"type\":\"commit\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/git/commits/7e1f36e2c1b55a368ea55e29476dab37814a4e10\"}}",
   "exchanges" : [ {
-    "request_uri" : "/repos/fixture-org/fixture-repo/git/ref/heads/forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e",
+    "request_uri" : "/repos/fixture-org/fixture-repo/git/ref/heads/forge-client-4e3c81f9-b79d-4a83-8873-9f18040e7395",
     "status" : 200,
     "headers" : {
       "content-type" : [ "application/json; charset=utf-8" ],
-      "etag" : [ "\"ca690835829092a89fa4aeab90fe345ca6a69089c135f901490cac13ef895c5e\"" ],
+      "etag" : [ "\"43e4f9c157483c532ef0d2619b248b40c8cc4c84072402c3cf024465b4eaa677\"" ],
       "x-accepted-github-permissions" : [ "contents=read" ],
+      "x-github-request-id" : [ "F0B7:27FBD0:46EDA91:68676EA:6B07D8D3" ],
       "x-ratelimit-limit" : [ "5000" ],
-      "x-ratelimit-remaining" : [ "4860" ],
-      "x-ratelimit-reset" : [ "1795620250" ]
+      "x-ratelimit-remaining" : [ "4763" ],
+      "x-ratelimit-reset" : [ "1795677119" ]
     },
-    "body" : "{\"ref\":\"refs/heads/forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e\",\"node_id\":\"REF_kwDOVc0D89oAPHJlZnMvaGVhZHMvZm9yZ2UtY2xpZW50LTA0NTkxODI2LTdmYjgtNDA5OS05NjFlLWU5Zjc2ZjA1ZWY0ZQ\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/git/refs/heads/forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e\",\"object\":{\"sha\":\"1b05e99168c75e6eed33f28d717718ce1c440d49\",\"type\":\"commit\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/git/commits/1b05e99168c75e6eed33f28d717718ce1c440d49\"}}"
+    "body" : "{\"ref\":\"refs/heads/forge-client-4e3c81f9-b79d-4a83-8873-9f18040e7395\",\"node_id\":\"REF_kwDOVc0D89oAPHJlZnMvaGVhZHMvZm9yZ2UtY2xpZW50LTRlM2M4MWY5LWI3OWQtNGE4My04ODczLTlmMTgwNDBlNzM5NQ\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/git/refs/heads/forge-client-4e3c81f9-b79d-4a83-8873-9f18040e7395\",\"object\":{\"sha\":\"7e1f36e2c1b55a368ea55e29476dab37814a4e10\",\"type\":\"commit\",\"url\":\"https://example.org/repos/fixture-org/fixture-repo/git/commits/7e1f36e2c1b55a368ea55e29476dab37814a4e10\"}}"
   } ],
   "context" : {
     "owner" : "fixture-org",
     "repo" : "fixture-repo",
-    "sha" : "1b05e99168c75e6eed33f28d717718ce1c440d49",
-    "number" : 233,
-    "comment" : 4697091364,
-    "check" : 139312298736,
-    "run" : 45644708077,
-    "job" : 139312467198,
+    "sha" : "7e1f36e2c1b55a368ea55e29476dab37814a4e10",
+    "number" : 235,
+    "comment" : 4704865305,
+    "check" : 139746562807,
+    "run" : 45772001203,
+    "job" : 139746624477,
     "username" : "fixture-user",
-    "ref" : "heads/forge-client-04591826-7fb8-4099-961e-e9f76f05ef4e",
+    "ref" : "heads/forge-client-4e3c81f9-b79d-4a83-8873-9f18040e7395",
     "thread" : "pending",
-    "reply" : 4697091640,
-    "issueComment" : 7166773803,
-    "review" : 6060422923,
-    "since" : "2026-11-25T15:23:41Z",
+    "reply" : 4704865476,
+    "issueComment" : 7184977908,
+    "review" : 6069766584,
+    "since" : "2026-11-26T06:59:09Z",
     "base" : "main",
     "keyAccount" : "fixture-reviewer",
     "key" : 0,
     "signingKey" : 0,
-    "merged" : 232
+    "merged" : 234
   },
   "request_body" : null
 }

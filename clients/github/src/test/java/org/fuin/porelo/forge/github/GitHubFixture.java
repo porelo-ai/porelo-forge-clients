@@ -722,6 +722,11 @@ final class GitHubFixture implements AutoCloseable {
                     });
             cleanup(
                     Scope.EVERYTHING,
+                    "pending reviews",
+                    failures,
+                    () -> deletePendingReviews(closedPulls));
+            cleanup(
+                    Scope.EVERYTHING,
                     "review comments",
                     failures,
                     () -> deleteComments(closedPulls, "pulls/", "/pulls/comments/"));
@@ -837,6 +842,20 @@ final class GitHubFixture implements AutoCloseable {
     }
 
     /** Deletes every comment of the pulls; one the user may not delete does not keep the others. */
+    /**
+     * Deletes the user's reviews not yet submitted, which a run stopped before its own delete
+     * leaves behind and the list of review comments never shows.
+     */
+    private void deletePendingReviews(List<Long> pulls) throws Exception {
+        for (long number : pulls)
+            for (var review : items("pulls/" + number + "/reviews"))
+                if (review.path("state").asText().equals("PENDING")) {
+                    long id = review.path("id").asLong();
+                    if (id <= 0) throw new IllegalStateException("Review has no identity");
+                    api("DELETE", ROOT + "/pulls/" + number + "/reviews/" + id, null);
+                }
+    }
+
     private void deleteComments(List<Long> pulls, String list, String delete) throws Exception {
         boolean refused = false;
         for (long number : pulls)

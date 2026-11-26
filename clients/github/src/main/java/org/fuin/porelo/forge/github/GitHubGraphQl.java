@@ -31,7 +31,7 @@ public final class GitHubGraphQl {
                       resolvedBy { login id databaseId }
                       comments(first: 100) {
                         nodes {
-                          id databaseId body createdAt
+                          id databaseId body createdAt state
                           author { login ... on User { id databaseId } ... on Bot { id databaseId } }
                         }
                         pageInfo { hasNextPage endCursor }
@@ -52,7 +52,7 @@ public final class GitHubGraphQl {
                 ... on PullRequestReviewThread {
                   comments(first: 100, after: $after) {
                     nodes {
-                      id databaseId body createdAt
+                      id databaseId body createdAt state
                       author { login ... on User { id databaseId } ... on Bot { id databaseId } }
                     }
                     pageInfo { hasNextPage endCursor }
@@ -72,7 +72,7 @@ public final class GitHubGraphQl {
                   resolvedBy { login id databaseId }
                   comments(first: 100) {
                     nodes {
-                      id databaseId body createdAt
+                      id databaseId body createdAt state
                       author { login ... on User { id databaseId } ... on Bot { id databaseId } }
                     }
                     pageInfo { hasNextPage endCursor }
@@ -692,22 +692,27 @@ public final class GitHubGraphQl {
     }
 
     /**
-     * A review comment's node ID, REST identity, Markdown body, time and author; the author of a
-     * deleted account is null.
+     * A review comment's node ID, REST identity, Markdown body, time, author and state; the author
+     * of a deleted account is null. The state is {@code PENDING} for a comment of the reading
+     * account's own review not yet submitted, which GitHub's REST list of review comments leaves
+     * out, else {@code SUBMITTED}.
      */
     public record Comment(
             String id,
             @Nullable Long databaseId,
             String body,
             OffsetDateTime createdAt,
-            @Nullable Account author) {
+            @Nullable Account author,
+            String state) {
         /**
-         * Requires the comment's identity, text and time; some REST identities may be unavailable.
+         * Requires the comment's identity, text, time and state; some REST identities may be
+         * unavailable.
          */
         public Comment {
             Objects.requireNonNull(id, "id");
             Objects.requireNonNull(body, "body");
             Objects.requireNonNull(createdAt, "createdAt");
+            Objects.requireNonNull(state, "state");
         }
     }
 
