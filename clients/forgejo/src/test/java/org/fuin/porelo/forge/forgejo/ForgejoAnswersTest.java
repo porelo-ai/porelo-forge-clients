@@ -292,4 +292,74 @@ class ForgejoAnswersTest {
         assertThat(read.text()).as("its last mebibyte").isEqualTo(end);
         assertThat(read.cut()).as("and it says it was longer").isTrue();
     }
+
+    private static ForgejoException refused(int status, String body) {
+        var http = new ReplayHttpClient().answer(status, Map.of(), body);
+        var thrown =
+                org.assertj.core.api.Assertions.catchThrowableOfType(
+                        ForgejoException.class, () -> new ForgejoClient(BASE, http).user(TOKEN));
+        assertThat(thrown).as("a status of %s is a failure", status).isNotNull();
+        return thrown;
+    }
+
+    // Prevents a person from losing Forgejo's own words on a refusal.
+    @Test
+    void aRefusalCarriesForgejosOwnWords() {
+        var refused =
+                refused(
+                        404,
+                        "{\"message\":\"GetUserByName\",\"url\":\"http://localhost:3000/api/swagger\","
+                                + "\"errors\":[\"user redirect does not exist [name: nobody]\"]}");
+        assertThat(refused.forgeMessage())
+                .as("Forgejo's message word for word")
+                .isEqualTo("GetUserByName");
+        assertThat(refused.forgeDetails())
+                .as("each entry of Forgejo's errors")
+                .containsExactly("user redirect does not exist [name: nobody]");
+        assertThat(refused.requestId()).as("Forgejo sends no request id").isNull();
+    }
+
+    // Prevents the request's token, which Forgejo echoes in a refusal, from reaching a person.
+    @Test
+    void forgejosWordsNeverCarryTheRequestsToken() {
+        var refused =
+                refused(
+                        401,
+                        "{\"message\":\"task with token \\\""
+                                + TOKEN
+                                + "\\\": resource does not exist\",\"errors\":[\"token "
+                                + TOKEN
+                                + "\"]}");
+        assertThat(refused.forgeMessage())
+                .as("Forgejo's message without the token")
+                .isEqualTo("task with token \"[redacted]\": resource does not exist");
+        assertThat(refused.forgeDetails())
+                .as("the details without the token")
+                .containsExactly("token [redacted]");
+    }
+
+    // Prevents the client's own fallback wording from passing as Forgejo's words.
+    @Test
+    void theClientsOwnWordsAreNeverForgejos() {
+        var page = refused(502, "<html>" + SECRET_BODY + "</html>");
+        assertThat(page.getMessage())
+                .as("the client's fallback")
+                .isEqualTo("Forgejo request failed");
+        assertThat(page.forgeMessage()).as("no forge message for a page").isNull();
+        assertThat(page.forgeDetails()).as("no details for a page").isEmpty();
+        var silent = refused(404, "{\"url\":\"x\"}");
+        assertThat(silent.forgeMessage()).as("no message in the answer").isNull();
+        assertThat(silent.forgeDetails()).as("no errors in the answer").isEmpty();
+    }
+
+    // Prevents a blank message from passing as Forgejo's words and hiding the client's own.
+    @Test
+    void aBlankMessageIsNoMessageOfForgejos() {
+        var blank = refused(422, "{\"message\":\"\",\"errors\":[{\"code\":1},\"kept\"]}");
+        assertThat(blank.forgeMessage()).as("a blank message is none").isNull();
+        assertThat(blank.getMessage())
+                .as("the client's fallback")
+                .isEqualTo("Forgejo request failed");
+        assertThat(blank.forgeDetails()).as("only an entry with words").containsExactly("kept");
+    }
 }

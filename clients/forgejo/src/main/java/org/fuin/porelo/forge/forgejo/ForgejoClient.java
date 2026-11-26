@@ -783,21 +783,34 @@ public final class ForgejoClient {
 
     private void check(HttpResponse<String> response, List<String> credentials) {
         if (response.statusCode() < 200 || response.statusCode() >= 300) {
-            String message = "Forgejo request failed";
+            String forgeMessage = null;
+            List<String> forgeDetails = new ArrayList<>();
             try {
                 var value = json.readTree(response.body());
-                if (value != null && value.path("message").isTextual()) {
-                    message = ForgejoJson.safe(value.path("message").asText(), credentials);
+                if (value != null
+                        && value.path("message").isTextual()
+                        && !value.path("message").asText().isBlank()) {
+                    forgeMessage = ForgejoJson.safe(value.path("message").asText(), credentials);
+                }
+                if (value != null) {
+                    for (JsonNode error : value.path("errors")) {
+                        JsonNode text = error.isTextual() ? error : error.path("message");
+                        if (text.isTextual()) {
+                            forgeDetails.add(ForgejoJson.safe(text.asText(), credentials));
+                        }
+                    }
                 }
             } catch (JsonProcessingException ex) {
                 // A non-JSON error page is not safe to include in an exception.
             }
             throw new ForgejoException(
                     response.statusCode(),
-                    message,
+                    forgeMessage != null ? forgeMessage : "Forgejo request failed",
                     Delivery.ANSWERED,
                     rateLimit(response.headers()),
-                    rateLimitDelay);
+                    rateLimitDelay,
+                    forgeMessage,
+                    forgeDetails);
         }
     }
 

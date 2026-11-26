@@ -1,0 +1,2 @@
+title: Keep Forgejo's own words on a ForgejoException - forgeMessage() and forgeDetails() carry Forgejo's message and each entry of its errors list, scrubbed of the request's credentials, and requestId() matches the GitHub client's, always null since Forgejo sends none - so a caller can show them and tell them from the client's own wording.
+type: added

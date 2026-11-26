@@ -2,6 +2,7 @@ package org.fuin.porelo.forge.forgejo;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -13,6 +14,8 @@ public final class ForgejoException extends RuntimeException {
     private final Delivery delivery;
     private final @Nullable RateLimit rateLimit;
     private final @Nullable Duration rateLimitDelay;
+    private final @Nullable String forgeMessage;
+    private final List<String> forgeDetails;
 
     ForgejoException(int status, String message) {
         this(status, message, status == 0 ? Delivery.NOT_SENT : Delivery.ANSWERED, null);
@@ -28,6 +31,17 @@ public final class ForgejoException extends RuntimeException {
             Delivery delivery,
             @Nullable RateLimit rateLimit,
             @Nullable Duration rateLimitDelay) {
+        this(status, message, delivery, rateLimit, rateLimitDelay, null, List.of());
+    }
+
+    ForgejoException(
+            int status,
+            String message,
+            Delivery delivery,
+            @Nullable RateLimit rateLimit,
+            @Nullable Duration rateLimitDelay,
+            @Nullable String forgeMessage,
+            List<String> forgeDetails) {
         super(message);
         if (status == TOO_MANY_REQUESTS && rateLimitDelay == null) {
             throw new IllegalArgumentException(
@@ -37,6 +51,32 @@ public final class ForgejoException extends RuntimeException {
         this.status = status;
         this.delivery = delivery;
         this.rateLimit = rateLimit;
+        this.forgeMessage = forgeMessage;
+        this.forgeDetails = List.copyOf(forgeDetails);
+    }
+
+    /**
+     * Returns the id Forgejo gave the request, which is always null: Forgejo sends no request id
+     * header on its answers.
+     */
+    public @Nullable String requestId() {
+        return null;
+    }
+
+    /**
+     * Returns Forgejo's own message word for word, scrubbed of the request's credentials, or null
+     * when Forgejo's answer gave none; {@link #getMessage()} may then be the client's own words.
+     */
+    public @Nullable String forgeMessage() {
+        return forgeMessage;
+    }
+
+    /**
+     * Returns each entry of Forgejo's {@code errors} list in its order, scrubbed of the request's
+     * credentials, or an empty list when it gave none.
+     */
+    public List<String> forgeDetails() {
+        return forgeDetails;
     }
 
     /** Returns the HTTP status, or zero for a transport, validation, payload or webhook failure. */

@@ -61,6 +61,10 @@ Page<PullRequest> open = forgejo.pulls(token, "owner", "repo", "open", 1, 50);
   header or body. `delivery()` says whether the request may have reached Forgejo: `NOT_SENT`, `SENT_UNANSWERED`, or
   `ANSWERED`, the answer perhaps undecodable or over its bound. The JDK does not say whether bytes left before a
   failure, so a failure after the connection opened counts as sent.
+- `forgeMessage()` is Forgejo's own message and `forgeDetails()` each text entry of its `errors` list, or an entry's
+  `message`, scrubbed of the request's credentials, which Forgejo 17 echoes in a refusal; null and empty where Forgejo
+  said nothing, so the client's own words in `getMessage()` never pass as Forgejo's. `requestId()` is always null:
+  Forgejo 17 sends no request id header, measured on its 401, 404 and 422 answers.
 - Forgejo 17 has no limiter for its API, measured with 6000 requests in 4 s, none refused and no rate-limit header; a
   429 can only come from what stands before it. `rateLimited()` is true on a 429, `rateLimit()` holds what the answer
   said, and `delay()` is its `Retry-After`, else the time until its reset, else the client's `rateLimitDelay`.
